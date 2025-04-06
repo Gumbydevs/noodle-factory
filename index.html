@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Noodle Factory: Stir-Fry of Fate</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+    #stats {
+      margin-bottom: 20px;
+    }
+    #card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .option-button {
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #leftOption {
+      background: #4caf50;
+      color: #fff;
+    }
+    #rightOption {
+      background: #f44336;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <h1>Noodle Factory: Stir-Fry of Fate</h1>
+  <div id="stats">
+    <strong>Noodle Quality:</strong> <span id="quality">5</span> |
+    <strong>Worker Energy:</strong> <span id="energy">5</span> |
+    <strong>Mystery Ingredients:</strong> <span id="ingredients">0</span>
+  </div>
+  <div id="card">
+    <p id="eventText">Event will appear here</p>
+    <button id="leftOption" class="option-button">Left Option</button>
+    <button id="rightOption" class="option-button">Right Option</button>
+  </div>
+
+  <script>
+    // Define some sample events
+    const events = [
+      {
+        text: "The boiling pot is overflowing!",
+        left: {
+          text: "Calm the pot",
+          effect: (stats) => { stats.quality += 1; stats.energy -= 1; }
+        },
+        right: {
+          text: "Let it boil over",
+          effect: (stats) => { stats.quality -= 1; stats.energy += 1; }
+        }
+      },
+      {
+        text: "A mysterious sauce shipment arrives.",
+        left: {
+          text: "Inspect it",
+          effect: (stats) => { stats.ingredients += 1; }
+        },
+        right: {
+          text: "Ignore it",
+          effect: (stats) => { stats.energy += 1; }
+        }
+      },
+      {
+        text: "Your workers demand a break!",
+        left: {
+          text: "Give them a break",
+          effect: (stats) => { stats.energy += 2; }
+        },
+        right: {
+          text: "Push them harder",
+          effect: (stats) => { stats.quality += 1; stats.energy -= 2; }
+        }
+      }
+    ];
+
+    // Initialize stats
+    let stats = { quality: 5, energy: 5, ingredients: 0 };
+
+    // Function to update stat displays
+    function updateStats() {
+      document.getElementById('quality').innerText = stats.quality;
+      document.getElementById('energy').innerText = stats.energy;
+      document.getElementById('ingredients').innerText = stats.ingredients;
+    }
+
+    // Display a random event from the events array
+    function showRandomEvent() {
+      const event = events[Math.floor(Math.random() * events.length)];
+      document.getElementById('eventText').innerText = event.text;
+      const leftBtn = document.getElementById('leftOption');
+      const rightBtn = document.getElementById('rightOption');
+      leftBtn.innerText = event.left.text;
+      rightBtn.innerText = event.right.text;
+
+      // Set up click handlers for both options
+      leftBtn.onclick = () => {
+        event.left.effect(stats);
+        updateStats();
+        showRandomEvent();
+      };
+      rightBtn.onclick = () => {
+        event.right.effect(stats);
+        updateStats();
+        showRandomEvent();
+      };
+    }
+
+    // Idle effect: every 5 seconds add 1 energy point
+    setInterval(() => {
+      stats.energy += 1;
+      updateStats();
+    }, 5000);
+
+    // Initialize the game
+    updateStats();
+    showRandomEvent();
+  </script>
+</body>
+</html>
