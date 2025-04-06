@@ -1,0 +1,22 @@
+{
+  "name": "noodle-factory",
+  "version": "1.0.0",
+  "description": "A quirky web-based roguelike card game set in a noodle factory.",
+  "main": "src/assets/js/game.js",
+  "scripts": {
+    "start": "live-server public",
+    "build": "echo 'No build step required for this project.'"
+  },
+  "keywords": [
+    "roguelike",
+    "card game",
+    "noodle factory",
+    "web game"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "live-server": "^1.2.1"
+  }
+}
