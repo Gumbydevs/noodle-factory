@@ -2,6 +2,7 @@ import { CARDS, getRandomCard } from './cards.js';
 import events from './events.js';
 import { gameState, updateResource, resetGameState } from './state.js';
 import { ACHIEVEMENTS } from './achievements.js';
+import { updateHighScore, getHighScore } from './highscore.js';
 
 const SITUATIONS = [
     "The factory floor hums with the sound of pasta machines.",
@@ -18,39 +19,35 @@ const SITUATIONS = [
 
 class Game {
     constructor() {
-        this.state = {
-            playerStats: {
-                pastaPrestige: 0,
-                chaosLevel: 0,
-                ingredients: [],
-                unitsSold: 0,
-                workerCount: 0,
-                workersInFactory: 0,
-            }
-        };
+        this.state = resetGameState();
         this.isGameOver = false;
         this.turn = 0;
-
-        // Add progression tracking
+        this.achievements = new Set();
         this.unlocks = {
             tier1: false,
             tier2: false,
             tier3: false
         };
-        this.achievements = new Set();
 
-        // Initial display update to show zeros
+        // Initial display update
         this.updateInitialDisplay();
 
-        // Ensure cards are hidden and start button is visible on initial load
+        // Hide cards initially
         this.hideCards();
-        document.getElementById('start-game').classList.remove('hidden');
         
+        // Show start button
+        const startButton = document.getElementById('start-game');
+        if (startButton) {
+            startButton.classList.remove('hidden');
+        }
+
         // Add initial message
         const messageBox = document.getElementById('game-messages');
-        messageBox.textContent = "Click below to start managing your Noodle Factory!";
-        messageBox.classList.remove('feedback');
-        messageBox.classList.add('situation');
+        if (messageBox) {
+            messageBox.textContent = "Click below to start managing your Noodle Factory!";
+            messageBox.classList.remove('feedback');
+            messageBox.classList.add('situation');
+        }
     }
 
     updateInitialDisplay() {
@@ -376,12 +373,28 @@ class Game {
                 message = 'The factory has ceased operations!';
         }
 
-        // Create game over content
+        // Get and update high score before creating game over screen
+        const highScore = updateHighScore(this.turn);
+
+        // Update the game over screen HTML to include high score
         gameOverScreen.innerHTML = `
             <div class="game-over-content">
                 <h2>Game Over!</h2>
                 <p class="end-reason">${message}</p>
                 
+                <div class="score-display">
+                    <div class="current-score">
+                        <h3>Your Score</h3>
+                        <span class="score-value">${this.turn}</span>
+                        <span class="score-label">TURNS</span>
+                    </div>
+                    <div class="high-score">
+                        <h3>Best Score</h3>
+                        <span class="score-value">${highScore}</span>
+                        <span class="score-label">TURNS</span>
+                    </div>
+                </div>
+
                 <div class="final-stats">
                     <h3>Final Statistics</h3>
                     <div class="stat-grid">
@@ -430,6 +443,7 @@ class Game {
         
         // Add game over screen
         gameContainer.appendChild(gameOverScreen);
+        this.checkHighScore(); // Add this line
         
         // Add event listener to new game button
         document.getElementById('new-game').addEventListener('click', () => {
@@ -539,6 +553,17 @@ class Game {
         messageBox.textContent = `${message} ${effectMessage}`;
         
         this.updateDisplay();
+    }
+
+    checkHighScore() {
+        const currentScore = this.turn;
+        const previousHigh = getHighScore();
+        const isNewHighScore = currentScore > previousHigh;
+        
+        if (isNewHighScore) {
+            const scoreDisplay = document.querySelector('.score-display');
+            scoreDisplay.classList.add('new-high-score');
+        }
     }
 }
 

@@ -682,6 +682,56 @@ h1 {
     animation: none;
 }
 
+/* Add near other game-over related styles */
+.score-display {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 2rem 0;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.current-score,
+.high-score {
+    text-align: center;
+}
+
+.score-value {
+    display: block;
+    font-size: 3em;
+    font-weight: bold;
+    color: #f1c40f;
+    margin: 0.5rem 0;
+}
+
+.score-label {
+    display: block;
+    font-size: 0.9em;
+    color: #bbb;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.high-score .score-value {
+    color: #e67e22;
+}
+
+/* Add a glow effect when new high score is achieved */
+.new-high-score .score-value {
+    animation: glow 1s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #e67e22;
+    }
+    to {
+        text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #e67e22;
+    }
+}
+
 /* Add these media queries at the end of your CSS file */
 @media screen and (max-width: 768px) {
     h1 {
