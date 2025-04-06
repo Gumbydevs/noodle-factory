@@ -1,0 +1,46 @@
+Sure, here's the contents for the file `/noodle-factory-game/noodle-factory-game/src/data/cards.json`:
+
+{
+  "cards": [
+    {
+      "name": "Sobbing Intern",
+      "effect": "Gain 2 Noodletude but lose 1 Corporate Compliance. Flavor text: 'They just wanted to make pasta dreams come true...'",
+      "type": "temporary"
+    },
+    {
+      "name": "Rotten Egg Surprise",
+      "effect": "Increase Boil Pressure by 3. Flavor text: 'A delightful surprise for the brave! Or the foolish.'",
+      "type": "permanent"
+    },
+    {
+      "name": "Overtime Whistle",
+      "effect": "Boost worker energy by 5 for the next turn. Flavor text: 'The sound of productivity... or impending doom.'",
+      "type": "temporary"
+    },
+    {
+      "name": "Noodle Slap",
+      "effect": "Randomly decrease chaos level by 2 or increase it by 5. Flavor text: 'A slap of reality in a world of absurdity.'",
+      "type": "random"
+    },
+    {
+      "name": "Chaos Card",
+      "effect": "Draw 2 additional cards this turn. Flavor text: 'Embrace the chaos, for it is your only friend.'",
+      "type": "temporary"
+    },
+    {
+      "name": "Ingredient Hoarder",
+      "effect": "Gain 3 random ingredients. Flavor text: 'You can never have too many noodles... or can you?'",
+      "type": "permanent"
+    },
+    {
+      "name": "Employee Unionize",
+      "effect": "Lose 5 worker energy but gain 2 Corporate Compliance. Flavor text: 'Solidarity forever, unless there's pasta involved.'",
+      "type": "permanent"
+    },
+    {
+      "name": "Noodles Come Alive",
+      "effect": "End the game immediately. Flavor text: 'They've gained sentience and demand a raise!'",
+      "type": "game-ending"
+    }
+  ]
+}

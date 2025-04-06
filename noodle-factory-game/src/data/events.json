@@ -1,0 +1,68 @@
+{
+  "events": [
+    {
+      "name": "Sobbing Intern",
+      "description": "An intern has broken down in tears over the state of the factory. Do you comfort them or send them to the break room?",
+      "effects": {
+        "Noodletude": -1,
+        "Employee Morale": 2
+      }
+    },
+    {
+      "name": "Rotten Egg Surprise",
+      "description": "A shipment of rotten eggs has arrived. Do you use them in the noodles or throw them out?",
+      "effects": {
+        "Spice Level": 3,
+        "Noodletude": -2
+      }
+    },
+    {
+      "name": "Overtime Whistle",
+      "description": "The overtime whistle blows, and chaos ensues! Do you embrace the madness or try to restore order?",
+      "effects": {
+        "Chaos Level": 5,
+        "Employee Morale": -1
+      }
+    },
+    {
+      "name": "Noodle Slap",
+      "description": "A rogue noodle has slapped an employee! Do you discipline the noodle or reward it?",
+      "effects": {
+        "Corporate Compliance": -2,
+        "Noodletude": 1
+      }
+    },
+    {
+      "name": "Pasta Prestige",
+      "description": "Your factory has been nominated for the Pasta Prestige Award! Do you prepare a speech or ignore it?",
+      "effects": {
+        "Noodletude": 2,
+        "Employee Morale": 3
+      }
+    },
+    {
+      "name": "Chaos Reigns",
+      "description": "The factory is in complete disarray! Do you take charge or let the chaos unfold?",
+      "effects": {
+        "Chaos Level": 10,
+        "Noodletude": -5
+      }
+    },
+    {
+      "name": "Unionization",
+      "description": "The employees are threatening to unionize! Do you negotiate or ignore their demands?",
+      "effects": {
+        "Employee Morale": -3,
+        "Corporate Compliance": 5
+      }
+    },
+    {
+      "name": "Noodles Come Alive",
+      "description": "Your noodles have gained sentience! Do you negotiate with them or try to contain them?",
+      "effects": {
+        "Noodletude": -10,
+        "Chaos Level": 15
+      }
+    }
+  ]
+}
