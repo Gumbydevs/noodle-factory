@@ -1,6 +1,7 @@
 import { CARDS, getRandomCard } from './cards.js';
 import events from './events.js';
 import { gameState, updateResource, resetGameState } from './state.js';
+import { ACHIEVEMENTS } from './achievements.js';
 
 const SITUATIONS = [
     "The factory floor hums with the sound of pasta machines.",
@@ -20,6 +21,16 @@ class Game {
         this.state = gameState;
         this.isGameOver = false;
         this.turn = 1;
+
+        // Add progression tracking
+        this.unlocks = {
+            tier1: false,
+            tier2: false,
+            tier3: false
+        };
+        this.achievements = new Set();
+        this.checkAchievements(); // Initial check
+
         // Ensure cards are hidden and start button is visible on initial load
         this.hideCards();
         document.getElementById('start-game').classList.remove('hidden');
@@ -46,6 +57,8 @@ class Game {
         document.getElementById('ingredients').textContent = this.state.playerStats.ingredients.length;
         document.getElementById('energy').textContent = this.state.playerStats.workerEnergy;
         document.getElementById('turn').textContent = this.turn;
+
+        this.checkAchievements();
     }
 
     drawNewCards() {
@@ -179,7 +192,7 @@ class Game {
         const messageBox = document.getElementById('game-messages');
         
         // Show feedback message with base cost included
-        messageBox.textContent = `${message} (-1 ingredient, -1 energy)`;
+        messageBox.textContent = `${message}`;
         messageBox.classList.remove('situation');
         messageBox.classList.add('feedback');
 
@@ -198,6 +211,9 @@ class Game {
 
         this.turn++;
         
+        // Check chaos events before game over condition
+        this.checkChaosEvents();
+
         // Check game over conditions
         if (this.state.playerStats.chaosLevel >= 100) {
             this.endGame('chaos');
@@ -208,13 +224,57 @@ class Game {
             return;
         }
 
+        this.checkAchievements();
+
         this.updateDisplay();
         this.drawNewCards();
+    }
+
+    checkAchievements() {
+        for (const [name, achievement] of Object.entries(ACHIEVEMENTS)) {
+            if (!this.achievements.has(name) && achievement.check(this.state.playerStats)) {
+                this.unlockAchievement(name, achievement);
+            }
+        }
+    }
+
+    unlockAchievement(name, achievement) {
+        this.achievements.add(name);
+        this.showAchievementPopup(name, achievement);
+        
+        // If achievement has a reward, apply it
+        if (achievement.reward) {
+            // Handle reward logic here
+            console.log(`Achievement reward unlocked: ${achievement.reward}`);
+        }
+    }
+
+    showAchievementPopup(name, achievement) {
+        const popup = document.createElement('div');
+        popup.className = 'achievement-popup';
+        popup.innerHTML = `
+            <h3>Achievement Unlocked!</h3>
+            <p>${name}</p>
+            <p>${achievement.description}</p>
+        `;
+        document.body.appendChild(popup);
+
+        // Remove popup after animation
+        setTimeout(() => {
+            popup.style.opacity = '0';
+            setTimeout(() => popup.remove(), 500);
+        }, 3000);
     }
 
     endGame(reason = '') {
         this.isGameOver = true;
         let message = '';
+        
+        // Reset all chaos effects
+        const body = document.body;
+        body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
+        const messageBox = document.getElementById('game-messages');
+        messageBox.classList.remove('chaos-warning');
         
         switch(reason) {
             case 'ingredients':
@@ -230,7 +290,7 @@ class Game {
                 message = 'The factory has ceased operations!';
         }
             
-        document.getElementById('game-messages').textContent = 
+        messageBox.textContent = 
             `Game Over! ${message} Final Prestige: ${this.state.playerStats.pastaPrestige}`;
         
         // Hide cards and show start button
@@ -244,16 +304,97 @@ class Game {
         this.isGameOver = false;
         this.turn = 1;
         
+        // Reset all chaos effects
+        const body = document.body;
+        body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
+        const messageBox = document.getElementById('game-messages');
+        messageBox.classList.remove('chaos-warning');
+        
         // Hide start button and show cards
         document.getElementById('start-game').classList.add('hidden');
         this.showCards();
         
         this.updateDisplay();
         this.drawNewCards();
-        const messageBox = document.getElementById('game-messages');
         messageBox.textContent = "Welcome to your first day as Noodle Factory Manager! What's your first move?";
         messageBox.classList.remove('feedback');
         messageBox.classList.add('situation');
+    }
+
+    checkProgression() {
+        if (this.state.playerStats.pastaPrestige >= 100 && !this.unlocks.tier1) {
+            this.unlocks.tier1 = true;
+            this.unlockNewContent('tier1');
+        }
+        // ... more progression checks
+    }
+
+    tradeResources(from, to, amount) {
+        const rates = {
+            ingredients: { energy: 2, prestige: 5 },
+            energy: { ingredients: 0.5, prestige: 3 },
+            prestige: { ingredients: 0.2, energy: 0.3 }
+        };
+        // Implement trading logic
+    }
+
+    checkChaosEvents() {
+        const chaos = this.state.playerStats.chaosLevel;
+        const body = document.body;
+        const messageBox = document.getElementById('game-messages');
+        
+        // Remove all chaos classes first
+        body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
+        messageBox.classList.remove('chaos-warning');
+        
+        // More gradual chaos progression
+        if (chaos >= 80) {
+            body.classList.add('chaos-level-max', 'chaos-noise');
+            this.triggerChaosEvent("Reality itself begins to melt!");
+        }
+        else if (chaos >= 65) {
+            body.classList.add('chaos-level-3', 'chaos-noise');
+            this.triggerChaosEvent("The factory exists in multiple dimensions!");
+        }
+        else if (chaos >= 45) {
+            body.classList.add('chaos-level-2');
+            this.triggerChaosEvent("Strange distortions appear in the corners of your vision...");
+        }
+        else if (chaos >= 25) {
+            body.classList.add('chaos-level-1');
+            this.triggerChaosEvent("Something feels slightly off...");
+        }
+    }
+
+    triggerChaosEvent(message) {
+        const messageBox = document.getElementById('game-messages');
+        messageBox.textContent = message;
+        messageBox.classList.add('chaos-warning');
+        
+        // Random negative effect
+        const effects = [
+            () => {
+                if (this.state.playerStats.ingredients.length > 0) {
+                    this.state.playerStats.ingredients.pop();
+                    return "An ingredient vanishes into the chaos!";
+                }
+                return "The chaos searches for ingredients to consume...";
+            },
+            () => {
+                this.state.playerStats.workerEnergy -= 5;
+                return "The chaos drains worker energy!";
+            },
+            () => {
+                this.state.playerStats.pastaPrestige -= 5;
+                return "Your reputation suffers from the chaos!";
+            }
+        ];
+        
+        const randomEffect = effects[Math.floor(Math.random() * effects.length)];
+        const effectMessage = randomEffect();
+        messageBox.textContent = `${message} ${effectMessage}`;
+        
+        this.updateDisplay();
     }
 }
 

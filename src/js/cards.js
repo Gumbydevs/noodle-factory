@@ -177,6 +177,200 @@ export const CARDS = {
             state.playerStats.workerEnergy -= 15;
             return "The undead pasta shambles through the kitchen!";
         }
+    },
+    "Pasta Fusion Reactor": {
+        description: "Attempt to harness the power of nuclear pasta!",
+        requirements: { ingredients: 3 },
+        statModifiers: {
+            chaos: 25,
+            prestige: 30,
+            energy: -20
+        },
+        effect: (state) => {
+            state.playerStats.chaosLevel += 25;
+            state.playerStats.pastaPrestige += 30;
+            state.playerStats.workerEnergy -= 20;
+            state.playerStats.ingredients = state.playerStats.ingredients.slice(3);
+            return "The pasta has achieved nuclear fusion!";
+        }
+    },
+    "Workers Strike": {
+        description: "The union demands better pasta conditions!",
+        requirements: null,
+        statModifiers: {
+            energy: -30,
+            chaos: 15,
+            prestige: -10
+        },
+        effect: (state) => {
+            state.playerStats.workerEnergy -= 30;
+            state.playerStats.chaosLevel += 15;
+            state.playerStats.pastaPrestige -= 10;
+            return "The workers have formed a picket line with giant spaghetti signs!";
+        }
+    },
+    "Midnight Security": {
+        description: "Double-check all the locks before closing.",
+        requirements: null,
+        statModifiers: {
+            chaos: -15,
+            energy: -5,
+            prestige: 5
+        },
+        effect: (state) => {
+            state.playerStats.chaosLevel -= 15;
+            state.playerStats.workerEnergy -= 5;
+            state.playerStats.pastaPrestige += 5;
+            return "The factory is secure for the night!";
+        }
+    },
+    "Unlocked Door": {
+        description: "Someone forgot to lock up last night...",
+        requirements: null,
+        statModifiers: {
+            chaos: 20,
+            prestige: -15,
+            ingredients: -2
+        },
+        effect: (state) => {
+            state.playerStats.chaosLevel += 20;
+            state.playerStats.pastaPrestige -= 15;
+            state.playerStats.ingredients = state.playerStats.ingredients.slice(2);
+            return "Raccoons have ransacked the ingredient storage!";
+        }
+    },
+    "Lesser Of Two Weevils": {
+        description: "Tiny bugs have infested the flour supply!",
+        requirements: null,
+        statModifiers: {
+            ingredients: -3,
+            chaos: 15,
+            prestige: -10
+        },
+        effect: (state) => {
+            state.playerStats.ingredients = state.playerStats.ingredients.slice(3);
+            state.playerStats.chaosLevel += 15;
+            state.playerStats.pastaPrestige -= 10;
+            return "Extra protein in the pasta tonight...";
+        }
+    },
+    "Emergency Repairs": {
+        description: "The ancient pasta extruder needs fixing.",
+        requirements: { ingredients: 2 },
+        statModifiers: {
+            energy: -20,
+            prestige: 15,
+            chaos: -10
+        },
+        effect: (state) => {
+            state.playerStats.workerEnergy -= 20;
+            state.playerStats.pastaPrestige += 15;
+            state.playerStats.chaosLevel -= 10;
+            return "The machine purrs like new... mostly.";
+        }
+    },
+    "Factory Flood": {
+        description: "A pipe burst in the boiler room!",
+        requirements: null,
+        statModifiers: {
+            chaos: 25,
+            energy: -15,
+            ingredients: -2
+        },
+        effect: (state) => {
+            state.playerStats.chaosLevel += 25;
+            state.playerStats.workerEnergy -= 15;
+            state.playerStats.ingredients = state.playerStats.ingredients.slice(2);
+            return "The basement is now a pasta soup kitchen!";
+        }
+    },
+    "Graffiti Artists": {
+        description: "Local artists decorated the factory walls overnight.",
+        requirements: null,
+        statModifiers: {
+            chaos: 10,
+            prestige: -5
+        },
+        effect: (state) => {
+            state.playerStats.chaosLevel += 10;
+            state.playerStats.pastaPrestige -= 5;
+            return "At least the flying spaghetti monster mural looks nice...";
+        }
+    },
+    "Machine Maintenance": {
+        description: "Perform routine maintenance on all equipment.",
+        requirements: { ingredients: 1 },
+        statModifiers: {
+            energy: -10,
+            chaos: -20,
+            prestige: 10
+        },
+        effect: (state) => {
+            state.playerStats.workerEnergy -= 10;
+            state.playerStats.chaosLevel -= 20;
+            state.playerStats.pastaPrestige += 10;
+            return "Everything's running smoothly... for now.";
+        }
+    },
+    "Power Outage": {
+        description: "The factory has lost power!",
+        requirements: null,
+        statModifiers: {
+            chaos: 30,
+            energy: -25,
+            prestige: -15
+        },
+        effect: (state) => {
+            state.playerStats.chaosLevel += 30;
+            state.playerStats.workerEnergy -= 25;
+            state.playerStats.pastaPrestige -= 15;
+            return "Workers are making pasta by candlelight!";
+        }
+    },
+    "Health Inspector": {
+        description: "Surprise inspection from the health department!",
+        requirements: null,
+        statModifiers: {
+            chaos: 20,
+            energy: -15,
+            prestige: -20
+        },
+        effect: (state) => {
+            state.playerStats.chaosLevel += 20;
+            state.playerStats.workerEnergy -= 15;
+            state.playerStats.pastaPrestige -= 20;
+            return "Quick, hide the sentient spaghetti!";
+        }
+    },
+    "Earthquake": {
+        description: "The ground shakes, rattling the ancient vats!",
+        requirements: { ingredients: 3 },
+        statModifiers: {
+            chaos: 35,
+            ingredients: -3,
+            energy: -20
+        },
+        effect: (state) => {
+            state.playerStats.chaosLevel += 35;
+            state.playerStats.ingredients = state.playerStats.ingredients.slice(3);
+            state.playerStats.workerEnergy -= 20;
+            return "The tremors have awakened something in Vat 7...";
+        }
+    },
+    "Exterminator Visit": {
+        description: "Deal with the growing pest problem.",
+        requirements: null,
+        statModifiers: {
+            chaos: -10,
+            energy: -5,
+            prestige: 5
+        },
+        effect: (state) => {
+            state.playerStats.chaosLevel -= 10;
+            state.playerStats.workerEnergy -= 5;
+            state.playerStats.pastaPrestige += 5;
+            return "The rats have been promoted to quality control.";
+        }
     }
 };
 
