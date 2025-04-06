@@ -2,13 +2,17 @@ import { CARDS, getRandomCard } from './cards.js';
 import events from './events.js';
 import { gameState, updateResource, resetGameState } from './state.js';
 
-// Add these situation messages at the top of the file after the imports
 const SITUATIONS = [
-    "Your workers are looking at you expectantly. What's your next move?",
-    "The factory floor buzzes with nervous energy. Choose wisely.",
-    "Steam rises from the pasta machines. Time for another decision.",
-    "The smell of noodles fills the air. What will you do?",
-    "Your employees await your next brilliant (or disastrous) decision.",
+    "The factory floor hums with the sound of pasta machines.",
+    "Steam clouds drift between the massive industrial vats.",
+    "Noodles of various shapes snake through the conveyor belts.",
+    "The air is thick with the aroma of fresh pasta.",
+    "Workers bustle between the towering vats of boiling water.",
+    "A mysterious fog rolls out from beneath Vat 7.",
+    "The ancient pasta spirits demand their tribute.",
+    "The factory's ancient machinery groans ominously.",
+    "Shadows dance between the steam vents.",
+    "Something stirs in the depths of the sauce reservoir."
 ];
 
 class Game {
@@ -51,6 +55,13 @@ class Game {
             rightCard = getRandomCard();
         } while (rightCard === leftCard);
 
+        // Check if both cards are unplayable due to no ingredients
+        if (!this.checkCardRequirements(CARDS[leftCard]) && 
+            !this.checkCardRequirements(CARDS[rightCard])) {
+            this.endGame('ingredients');
+            return;
+        }
+
         // Update card displays with more detail
         const leftCardEl = document.getElementById('card-left');
         const rightCardEl = document.getElementById('card-right');
@@ -68,6 +79,10 @@ class Game {
         leftCardEl.querySelector('.card-effects').innerHTML = leftEffects;
         rightCardEl.querySelector('.card-effects').innerHTML = rightEffects;
 
+        // Add random animation delays
+        leftCardEl.style.setProperty('--animation-delay', Math.random() * 2);
+        rightCardEl.style.setProperty('--animation-delay', Math.random() * 2);
+
         // Clear previous event listeners
         leftCardEl.replaceWith(leftCardEl.cloneNode(true));
         rightCardEl.replaceWith(rightCardEl.cloneNode(true));
@@ -75,6 +90,40 @@ class Game {
         // Add new event listeners
         document.getElementById('card-left').addEventListener('click', () => this.playCard(leftCard));
         document.getElementById('card-right').addEventListener('click', () => this.playCard(rightCard));
+
+        // Add visual feedback for unplayable cards
+        this.updateCardPlayability(leftCardEl, CARDS[leftCard]);
+        this.updateCardPlayability(rightCardEl, CARDS[rightCard]);
+    }
+
+    updateCardPlayability(cardElement, card) {
+        const isPlayable = this.checkCardRequirements(card);
+        cardElement.classList.toggle('unplayable', !isPlayable);
+        
+        // Add requirement text if card is unplayable
+        if (!isPlayable && card.requirements) {
+            const reqText = document.createElement('div');
+            reqText.className = 'requirement-text';
+            reqText.textContent = `Requires ${card.requirements.ingredients} ingredients`;
+            cardElement.querySelector('.card-effects').appendChild(reqText);
+        }
+    }
+
+    checkCardRequirements(card) {
+        const state = this.state;
+        
+        // Check base requirements first
+        if (state.playerStats.ingredients.length < 1 || state.playerStats.workerEnergy < 1) {
+            return false;
+        }
+        
+        // Then check card-specific requirements
+        if (!card.requirements) return true;
+        
+        if (card.requirements.ingredients) {
+            return state.playerStats.ingredients.length >= (card.requirements.ingredients + 1); // +1 for base cost
+        }
+        return true;
     }
 
     getStatModifiersHTML(modifiers) {
@@ -102,15 +151,39 @@ class Game {
         if (this.isGameOver) return;
 
         const card = CARDS[cardName];
+        
+        // Check if card can be played (including minimum costs)
+        if (this.state.playerStats.ingredients.length < 1 || this.state.playerStats.workerEnergy < 1) {
+            const messageBox = document.getElementById('game-messages');
+            messageBox.textContent = "Not enough resources! Cards require at least 1 ingredient and 1 energy.";
+            messageBox.classList.remove('situation');
+            messageBox.classList.add('feedback');
+            return;
+        }
+
+        // Check card-specific requirements
+        if (!this.checkCardRequirements(card)) {
+            const messageBox = document.getElementById('game-messages');
+            messageBox.textContent = "Not enough ingredients to play this card!";
+            messageBox.classList.remove('situation');
+            messageBox.classList.add('feedback');
+            return;
+        }
+
+        // Apply base costs first
+        this.state.playerStats.ingredients.pop(); // Remove one ingredient
+        this.state.playerStats.workerEnergy -= 1; // Remove one energy
+
+        // Then apply card effects
         const message = card.effect(this.state);
         const messageBox = document.getElementById('game-messages');
         
-        // Show feedback message
-        messageBox.textContent = message;
+        // Show feedback message with base cost included
+        messageBox.textContent = `${message} (-1 ingredient, -1 energy)`;
         messageBox.classList.remove('situation');
         messageBox.classList.add('feedback');
 
-        // After 2 seconds, fade to situation message
+        // Increased to 4 seconds (4000ms)
         setTimeout(() => {
             messageBox.classList.add('fade-out');
             
@@ -121,14 +194,17 @@ class Game {
                 messageBox.classList.add('situation');
                 messageBox.classList.remove('fade-out');
             }, 500);
-        }, 2000);
+        }, 4000); // Changed from 2000 to 4000
 
         this.turn++;
         
         // Check game over conditions
-        if (this.state.playerStats.chaosLevel >= 100 || 
-            this.state.playerStats.workerEnergy <= 0) {
-            this.endGame();
+        if (this.state.playerStats.chaosLevel >= 100) {
+            this.endGame('chaos');
+            return;
+        }
+        if (this.state.playerStats.workerEnergy <= 0) {
+            this.endGame('energy');
             return;
         }
 
@@ -136,11 +212,23 @@ class Game {
         this.drawNewCards();
     }
 
-    endGame() {
+    endGame(reason = '') {
         this.isGameOver = true;
-        const message = this.state.playerStats.chaosLevel >= 100 
-            ? 'Your factory descended into total chaos!' 
-            : 'Your workers have collapsed from exhaustion!';
+        let message = '';
+        
+        switch(reason) {
+            case 'ingredients':
+                message = 'You ran out of ingredients and cannot play any cards!';
+                break;
+            case 'chaos':
+                message = 'Your factory descended into total chaos!';
+                break;
+            case 'energy':
+                message = 'Your workers have collapsed from exhaustion!';
+                break;
+            default:
+                message = 'The factory has ceased operations!';
+        }
             
         document.getElementById('game-messages').textContent = 
             `Game Over! ${message} Final Prestige: ${this.state.playerStats.pastaPrestige}`;

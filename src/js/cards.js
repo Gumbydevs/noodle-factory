@@ -3,6 +3,7 @@
 export const CARDS = {
     "Sobbing Intern": {
         description: "An intern's tears might boost morale... or cause chaos.",
+        requirements: null, // No requirements
         statModifiers: {
             energy: 10,
             chaos: 5
@@ -15,6 +16,7 @@ export const CARDS = {
     },
     "Rotten Egg Surprise": {
         description: "Add questionable ingredients to your noodles.",
+        requirements: null, // No requirements
         statModifiers: {
             ingredients: 1,
             chaos: 15
@@ -27,6 +29,7 @@ export const CARDS = {
     },
     "Overtime Whistle": {
         description: "Push your workers harder for more prestige.",
+        requirements: null, // No requirements
         statModifiers: {
             prestige: 20,
             energy: -25
@@ -39,6 +42,7 @@ export const CARDS = {
     },
     "Noodle Slap": {
         description: "Restore order through pasta violence.",
+        requirements: null, // No requirements
         statModifiers: {
             chaos: -10,
             energy: -5
@@ -51,6 +55,7 @@ export const CARDS = {
     },
     "Noodle Kraken": {
         description: "A massive tentacle made of pasta emerges from Vat 7!",
+        requirements: null, // No requirements
         statModifiers: {
             chaos: 15,
             prestige: 10,
@@ -65,6 +70,9 @@ export const CARDS = {
     },
     "Vat Explosion": {
         description: "Vat 3 is building dangerous pressure levels!",
+        requirements: {
+            ingredients: 2 // Requires at least 2 ingredients
+        },
         statModifiers: {
             ingredients: -2,
             chaos: 20,
@@ -79,6 +87,7 @@ export const CARDS = {
     },
     "Pasta Prophet": {
         description: "A mystic appears, preaching the gospel of the Flying Spaghetti Monster.",
+        requirements: null, // No requirements
         statModifiers: {
             prestige: 15,
             chaos: 10,
@@ -93,6 +102,9 @@ export const CARDS = {
     },
     "Quantum Marinara": {
         description: "The sauce has achieved quantum superposition!",
+        requirements: {
+            ingredients: 1 // Requires at least 1 ingredient
+        },
         statModifiers: {
             ingredients: 3,
             chaos: 8,
@@ -107,6 +119,7 @@ export const CARDS = {
     },
     "Ravioli Riot": {
         description: "The stuffed pasta is organizing a revolution!",
+        requirements: null, // No requirements
         statModifiers: {
             chaos: 25,
             energy: -20,
@@ -121,6 +134,7 @@ export const CARDS = {
     },
     "Time-Traveling Tagliatelle": {
         description: "Some noodles have aged 100 years, others are from next Tuesday.",
+        requirements: null, // No requirements
         statModifiers: {
             ingredients: 4,
             prestige: 15,
@@ -135,6 +149,7 @@ export const CARDS = {
     },
     "Eldritch Al Dente": {
         description: "The pasta has achieved consciousness... and it hungers.",
+        requirements: null, // No requirements
         statModifiers: {
             chaos: 30,
             energy: -25,
@@ -149,6 +164,7 @@ export const CARDS = {
     },
     "Noodle Necromancer": {
         description: "Raising expired pasta from the dead!",
+        requirements: null, // No requirements
         statModifiers: {
             ingredients: 5,
             chaos: 18,

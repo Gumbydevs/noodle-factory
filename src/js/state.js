@@ -26,22 +26,18 @@ function updateResource(resource, amount) {
     }
 }
 
-function resetGameState() {
+export const resetGameState = () => {
     gameState.playerStats = {
         pastaPrestige: 0,
         chaosLevel: 0,
-        ingredients: [],
-        unitsSold: 0,
-        workerEnergy: 100,
-        workersInFactory: 5,
+        ingredients: [
+            "Basic Flour",
+            "Water",
+            "Salt",
+            "Egg"
+        ],
+        workerEnergy: 100
     };
-    gameState.resourceMeters = {
-        noodletude: 50,
-        spiceLevel: 50,
-        corporateCompliance: 100,
-        boilPressure: 0,
-    };
-    gameState.currentStatus = 'Game in Progress';
-}
+};
 
-export { gameState, updateResource, resetGameState };
+export { gameState, updateResource };

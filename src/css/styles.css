@@ -1,5 +1,23 @@
 /* This file contains the styles for the game, including layout, card designs, and overall aesthetics to create a quirky and engaging user interface. */
 
+    @keyframes wiggle {
+    0% { 
+        transform: rotate(0deg) translateY(0); 
+    }
+    25% { 
+        transform: rotate(1deg) translateY(-1px); 
+    }
+    50% { 
+        transform: rotate(0deg) translateY(0); 
+    }
+    75% { 
+        transform: rotate(-1deg) translateY(-1px); 
+    }
+    100% { 
+        transform: rotate(0deg) translateY(0); 
+    }
+}
+
 body {
     background: #1a1a1a;
     color: #fff;
@@ -86,11 +104,14 @@ h1 {
     transition: transform 0.2s;
     position: relative;
     overflow: hidden;
+    animation: wiggle 3s ease-in-out infinite;
+    animation-delay: calc(var(--animation-delay, 0) * 1s);
 }
 
 .card:hover {
     transform: translateY(-5px);
     background: #555;
+    animation: none;
 }
 
 .card h3 {
@@ -122,6 +143,42 @@ h1 {
 
 .negative {
     color: #e74c3c;
+}
+
+.card.unplayable {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #222;
+    filter: grayscale(100%);
+    border: 1px solid #444;
+    animation: none;
+}
+
+.card.unplayable:hover {
+    transform: none;
+    background: #222;
+    box-shadow: none;
+}
+
+.card.unplayable h3 {
+    color: #666;
+}
+
+.card.unplayable .card-description {
+    color: #555;
+}
+
+.card.unplayable .card-effects {
+    opacity: 0.6;
+}
+
+.requirement-text {
+    color: #e74c3c;
+    font-size: 0.8em;
+    margin-top: 10px;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .button {
