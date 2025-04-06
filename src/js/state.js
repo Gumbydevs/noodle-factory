@@ -4,13 +4,17 @@ function getRandomWorkerCount() {
     return Math.floor(Math.random() * 11) + 10; // Random number between 10-20
 }
 
+function getRandomIngredientCount() {
+    return Math.floor(Math.random() * 6) + 5; // Random number between 5-10
+}
+
 const gameState = {
     playerStats: {
         pastaPrestige: 0,
         chaosLevel: 0,
-        ingredients: [],
+        ingredients: Array(getRandomIngredientCount()).fill(1), // Initialize with random count
         unitsSold: 0,
-        workerCount: getRandomWorkerCount(), // Replace fixed 100 with random 10-20
+        workerCount: getRandomWorkerCount(),
         workersInFactory: 5,
     },
     resourceMeters: {
@@ -35,8 +39,8 @@ export function resetGameState() {
         playerStats: {
             pastaPrestige: 0,
             chaosLevel: 0,
-            ingredients: [],
-            workerCount: getRandomWorkerCount(), // Replace fixed 100 with random 10-20
+            ingredients: Array(getRandomIngredientCount()).fill(1), // Initialize with random count
+            workerCount: getRandomWorkerCount(),
         }
     };
 }

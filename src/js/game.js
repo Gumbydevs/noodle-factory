@@ -415,10 +415,6 @@ class Game {
                             <span>Workers</span>
                             <span>${this.state.playerStats.workerCount}</span>
                         </div>
-                        <div class="final-stat turn-color">
-                            <span>Turns Survived</span>
-                            <span>${this.turn}</span>
-                        </div>
                     </div>
                 </div>
                 
