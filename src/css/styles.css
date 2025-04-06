@@ -138,11 +138,17 @@
 }
 
 @keyframes jiggle {
-    0% { transform: rotate(0deg) scale(1); }
-    25% { transform: rotate(1deg) scale(1.02); }
-    50% { transform: rotate(-0.5deg) scale(1.01); }
-    75% { transform: rotate(0.5deg) scale(1.01); }
-    100% { transform: rotate(0deg) scale(1); }
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(2deg); }
+    75% { transform: rotate(-2deg); }
+    100% { transform: rotate(0deg); }
+}
+
+@keyframes noodleWiggle {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(2deg); }
+    75% { transform: rotate(-2deg); }
+    100% { transform: rotate(0deg); }
 }
 
 /* Add intermittent animation trigger */
@@ -173,8 +179,12 @@ body {
 
 #game-container {
     max-width: 800px;
+    width: 100%;
     margin: 20px auto;
     text-align: center;
+    min-height: 600px; /* Add fixed minimum height */
+    display: flex;
+    flex-direction: column;
 }
 
 #stats {
@@ -184,12 +194,15 @@ body {
     padding: 10px;
     background: #333;
     border-radius: 5px;
+    width: calc(100% - 40px); /* Fix width accounting for margins */
+    min-height: 80px; /* Add fixed height */
 }
 
 .stat {
     text-align: center;
     padding: 10px;
-    min-width: 100px;
+    width: 100px; /* Fix width */
+    min-width: 100px; /* Ensure minimum width */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -263,6 +276,7 @@ h1 {
     align-items: center;
     gap: 20px;
     margin: 20px auto;
+    min-height: 320px; /* Add fixed height for cards area */
 }
 
 .card {
@@ -410,9 +424,13 @@ h1 {
 #game-messages {
     margin: 20px;
     padding: 10px;
-    min-height: 50px;
+    height: 60px; /* Fix height */
+    min-height: 60px;
     background: #333;
     border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .message-box {
@@ -664,7 +682,11 @@ h1 {
 
 .jiggly {
     display: inline-block;
-    animation: randomTrigger 15s infinite;  /* Changed from 60s to 15s */
+    animation: none;
+}
+
+.jiggly.active {
+    animation: noodleWiggle 0.8s ease-in-out;
 }
 
 /* Remove hover effect to make it more subtle */

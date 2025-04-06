@@ -569,3 +569,24 @@ class Game {
 // Initialize game but don't auto-start
 const game = new Game();
 document.getElementById('start-game').addEventListener('click', () => game.start());
+
+// Add Noodle text animation
+function setupNoodleWiggle() {
+    const noodleText = document.querySelector('.jiggly');
+    if (!noodleText) return; // Guard clause in case element isn't found
+
+    // Initial wiggle
+    noodleText.classList.add('active');
+    
+    setInterval(() => {
+        if (Math.random() < 0.2) { // 20% chance every 3 seconds
+            noodleText.classList.remove('active');
+            // Force reflow
+            void noodleText.offsetWidth;
+            noodleText.classList.add('active');
+        }
+    }, 3000);
+}
+
+// Call the function after DOM is loaded
+document.addEventListener('DOMContentLoaded', setupNoodleWiggle);
