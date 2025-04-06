@@ -137,6 +137,27 @@
     }
 }
 
+@keyframes jiggle {
+    0% { transform: rotate(0deg) scale(1); }
+    25% { transform: rotate(1deg) scale(1.02); }
+    50% { transform: rotate(-0.5deg) scale(1.01); }
+    75% { transform: rotate(0.5deg) scale(1.01); }
+    100% { transform: rotate(0deg) scale(1); }
+}
+
+/* Add intermittent animation trigger */
+@keyframes randomTrigger {
+    0%, 98% { animation: none; }
+    98.0001%, 100% { animation: jiggle 2s ease-in-out; }
+}
+
+@keyframes hoverWiggle {
+    0% { transform: scale(1.05) rotate(0deg); }
+    25% { transform: scale(1.05) rotate(0.5deg); }
+    75% { transform: scale(1.05) rotate(-0.5deg); }
+    100% { transform: scale(1.05) rotate(0deg); }
+}
+
 body {
     background: #1a1a1a;
     color: #fff;
@@ -257,18 +278,12 @@ h1 {
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    /* Remove the default animation */
-    /* animation: wiggle 3s ease-in-out infinite; */
-    /* animation-delay: calc(var(--animation-delay, 0) * 1s); */
-    
-    /* Add smooth transition for all transforms */
-    transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.2s ease-out, background-color 0.3s;
 }
 
 .card:hover {
-    transform: translateY(-5px);
+    animation: hoverWiggle 0.5s ease-in-out infinite;
     background: #555;
-    animation: none;
 }
 
 .card h3 {
@@ -317,7 +332,7 @@ h1 {
 .card.unplayable:hover {
     transform: none;
     background: #222;
-    box-shadow: none;
+    animation: none;
 }
 
 .card.unplayable h3 {
@@ -645,4 +660,14 @@ h1 {
 
 #new-game:hover {
     background: #d35400;
+}
+
+.jiggly {
+    display: inline-block;
+    animation: randomTrigger 60s infinite;  /* Check every 60 seconds */
+}
+
+/* Remove hover effect to make it more subtle */
+.jiggly:hover {
+    animation: none;
 }

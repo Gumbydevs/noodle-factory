@@ -18,9 +18,18 @@ const SITUATIONS = [
 
 class Game {
     constructor() {
-        this.state = gameState;
+        this.state = {
+            playerStats: {
+                pastaPrestige: 0,
+                chaosLevel: 0,
+                ingredients: [],
+                unitsSold: 0,
+                workerCount: 0,
+                workersInFactory: 0,
+            }
+        };
         this.isGameOver = false;
-        this.turn = 1;
+        this.turn = 0;
 
         // Add progression tracking
         this.unlocks = {
@@ -29,7 +38,9 @@ class Game {
             tier3: false
         };
         this.achievements = new Set();
-        this.checkAchievements(); // Initial check
+
+        // Initial display update to show zeros
+        this.updateInitialDisplay();
 
         // Ensure cards are hidden and start button is visible on initial load
         this.hideCards();
@@ -40,6 +51,21 @@ class Game {
         messageBox.textContent = "Click below to start managing your Noodle Factory!";
         messageBox.classList.remove('feedback');
         messageBox.classList.add('situation');
+    }
+
+    updateInitialDisplay() {
+        document.getElementById('prestige').textContent = '0';
+        document.getElementById('chaos').textContent = '0';
+        document.getElementById('ingredients').textContent = '0';
+        document.getElementById('energy').textContent = '0';
+        document.getElementById('turn').textContent = '0';
+
+        // Set all progress bars to 0%
+        document.getElementById('prestige-progress').style.width = '0%';
+        document.getElementById('chaos-progress').style.width = '0%';
+        document.getElementById('ingredients-progress').style.width = '0%';
+        document.getElementById('workers-progress').style.width = '0%';
+        document.getElementById('turn-progress').style.width = '0%';
     }
 
     hideCards() {
