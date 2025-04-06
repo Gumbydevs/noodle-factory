@@ -3,6 +3,7 @@ import events from './events.js';
 import { gameState, updateResource, resetGameState } from './state.js';
 import { ACHIEVEMENTS } from './achievements.js';
 import { updateHighScore, getHighScore } from './highscore.js';
+import { triggerNoodleRoll } from './animation.js';
 
 const SITUATIONS = [
     "The factory floor hums with the sound of pasta machines.",
@@ -433,7 +434,7 @@ class Game {
                     </div>
                 </div>
                 
-                <button id="new-game" class="button">Start New Game</button>
+                <button id="new-game" class="button">Start New Run</button>
             </div>
         `;
 

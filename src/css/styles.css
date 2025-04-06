@@ -1,21 +1,8 @@
 /* This file contains the styles for the game, including layout, card designs, and overall aesthetics to create a quirky and engaging user interface. */
 
 @keyframes wiggle {
-    0% { 
-        transform: rotate(0deg) translateY(0); 
-    }
-    25% { 
-        transform: rotate(1deg) translateY(-1px); 
-    }
-    50% { 
-        transform: rotate(0deg) translateY(0); 
-    }
-    75% { 
-        transform: rotate(-1deg) translateY(-1px); 
-    }
-    100% { 
-        transform: rotate(0deg) translateY(0); 
-    }
+    0% { transform: rotate(-15deg); }
+    100% { transform: rotate(15deg); }
 }
 
 @keyframes slideIn {
@@ -162,6 +149,14 @@
     25% { transform: scale(1.05) rotate(0.5deg); }
     75% { transform: scale(1.05) rotate(-0.5deg); }
     100% { transform: scale(1.05) rotate(0deg); }
+}
+
+@keyframes squiggle {
+    0% { transform: skew(0deg, 0deg); }
+    25% { transform: skew(5deg, 2deg); }
+    50% { transform: skew(0deg, 0deg); }
+    75% { transform: skew(-5deg, -2deg); }
+    100% { transform: skew(0deg, 0deg); }
 }
 
 .hidden {
@@ -706,6 +701,11 @@ h1 {
     margin: 0.5rem 0;
 }
 
+/* Add this new selector for turn score */
+.score-value.turn-score {
+    color: #9b59b6; /* Same purple as turn-color */
+}
+
 .score-label {
     display: block;
     font-size: 0.9em;
@@ -824,4 +824,50 @@ h1 {
     .stat-label {
         font-size: 0.7em;
     }
+}
+
+.noodle {
+    position: fixed;
+    bottom: 20px;
+    left: -100px;
+    width: 120px;
+    height: 40px;
+    z-index: 1000;
+}
+
+.noodle::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 3px;  /* Reduced from 15px to 3px */
+    background: #ffd700;
+    border-radius: 2px;  /* Reduced from 10px to 2px */
+    animation: squiggle 0.4s infinite linear;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.noodle::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 3px;  /* Reduced from 15px to 3px */
+    background: #ffd700;
+    border-radius: 2px;  /* Reduced from 10px to 2px */
+    top: 20px;
+    animation: squiggle 0.4s infinite linear reverse;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+@keyframes roll {
+    0% {
+        left: -100px;
+    }
+    100% {
+        left: calc(100vw + 100px);
+    }
+}
+
+.rolling {
+    display: block;
+    animation: roll 3s linear forwards;
 }
