@@ -540,3 +540,109 @@ h1 {
     opacity: 0.08;
     z-index: 9999;
 }
+
+.game-over-screen {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.95);
+    padding: 2rem;
+    border-radius: 10px;
+    border: 2px solid #444;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    z-index: 1000;
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.game-over-content {
+    text-align: center;
+}
+
+.game-over-content h2 {
+    color: #e74c3c;
+    font-size: 2.5em;
+    margin-bottom: 1rem;
+}
+
+.end-reason {
+    font-size: 1.2em;
+    color: #bbb;
+    margin-bottom: 2rem;
+}
+
+.final-stats {
+    margin: 2rem 0;
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.final-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+.final-stat span:first-child {
+    font-size: 0.9em;
+    margin-bottom: 0.5rem;
+}
+
+.final-stat span:last-child {
+    font-size: 1.8em;
+    font-weight: bold;
+}
+
+.achievements-section {
+    margin: 2rem 0;
+}
+
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.achievement-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1rem;
+    border-radius: 5px;
+    text-align: left;
+}
+
+.achievement-name {
+    display: block;
+    color: #f1c40f;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.achievement-desc {
+    display: block;
+    color: #bbb;
+    font-size: 0.9em;
+}
+
+#new-game {
+    font-size: 1.4em;
+    padding: 1rem 2rem;
+    margin-top: 2rem;
+    background: #e67e22;
+    transition: background-color 0.3s;
+}
+
+#new-game:hover {
+    background: #d35400;
+}

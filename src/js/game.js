@@ -353,9 +353,13 @@ class Game {
         // Reset all chaos effects
         const body = document.body;
         body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
-        const messageBox = document.getElementById('game-messages');
-        messageBox.classList.remove('chaos-warning');
         
+        // Create game over screen
+        const gameContainer = document.getElementById('game-container');
+        const gameOverScreen = document.createElement('div');
+        gameOverScreen.className = 'game-over-screen';
+        
+        // Determine end game message
         switch(reason) {
             case 'ingredients':
                 message = 'You ran out of ingredients and cannot play any cards!';
@@ -363,19 +367,77 @@ class Game {
             case 'chaos':
                 message = 'Your factory descended into total chaos!';
                 break;
-            case 'workers':  // Changed from energy
+            case 'workers':
                 message = 'Your workers have all quit!';
                 break;
             default:
                 message = 'The factory has ceased operations!';
         }
-            
-        messageBox.textContent = 
-            `Game Over! ${message} Final Prestige: ${this.state.playerStats.pastaPrestige}`;
-        
-        // Hide cards and show start button
+
+        // Create game over content
+        gameOverScreen.innerHTML = `
+            <div class="game-over-content">
+                <h2>Game Over!</h2>
+                <p class="end-reason">${message}</p>
+                
+                <div class="final-stats">
+                    <h3>Final Statistics</h3>
+                    <div class="stat-grid">
+                        <div class="final-stat prestige-color">
+                            <span>Prestige</span>
+                            <span>${this.state.playerStats.pastaPrestige}</span>
+                        </div>
+                        <div class="final-stat chaos-color">
+                            <span>Chaos</span>
+                            <span>${this.state.playerStats.chaosLevel}</span>
+                        </div>
+                        <div class="final-stat ingredients-color">
+                            <span>Ingredients</span>
+                            <span>${this.state.playerStats.ingredients.length}</span>
+                        </div>
+                        <div class="final-stat energy-color">
+                            <span>Workers</span>
+                            <span>${this.state.playerStats.workerCount}</span>
+                        </div>
+                        <div class="final-stat turn-color">
+                            <span>Turns Survived</span>
+                            <span>${this.turn}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="achievements-section">
+                    <h3>Achievements Earned</h3>
+                    <div class="achievements-grid">
+                        ${Array.from(this.achievements).map(achievement => `
+                            <div class="achievement-item">
+                                <span class="achievement-name">${achievement}</span>
+                                <span class="achievement-desc">${ACHIEVEMENTS[achievement].description}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <button id="new-game" class="button">Start New Game</button>
+            </div>
+        `;
+
+        // Hide cards and old message box
         this.hideCards();
-        document.getElementById('start-game').classList.remove('hidden');
+        document.getElementById('game-messages').style.display = 'none';
+        
+        // Add game over screen
+        gameContainer.appendChild(gameOverScreen);
+        
+        // Add event listener to new game button
+        document.getElementById('new-game').addEventListener('click', () => {
+            // Remove game over screen
+            gameOverScreen.remove();
+            // Show message box again
+            document.getElementById('game-messages').style.display = 'block';
+            // Start new game
+            this.start();
+        });
     }
 
     start() {
