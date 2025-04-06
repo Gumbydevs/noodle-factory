@@ -5,11 +5,11 @@ export const CARDS = {
         description: "An intern's tears might boost morale... or cause chaos.",
         requirements: null, // No requirements
         statModifiers: {
-            energy: 10,
+            workers: 5,  // Changed from 10
             chaos: 5
         },
         effect: (state) => {
-            state.playerStats.workerEnergy += 10;
+            state.playerStats.workerCount += 5;
             state.playerStats.chaosLevel += 5;
             return "Intern's tears somehow boost worker morale!";
         }
@@ -31,12 +31,12 @@ export const CARDS = {
         description: "Push your workers harder for more prestige.",
         requirements: null, // No requirements
         statModifiers: {
-            prestige: 20,
-            energy: -25
+            prestige: 15,
+            workers: -8  // Changed from -25
         },
         effect: (state) => {
-            state.playerStats.pastaPrestige += 20;
-            state.playerStats.workerEnergy -= 25;
+            state.playerStats.pastaPrestige += 15;
+            state.playerStats.workerCount -= 8;
             return "Workers exhausted but productive!";
         }
     },
@@ -45,11 +45,11 @@ export const CARDS = {
         requirements: null, // No requirements
         statModifiers: {
             chaos: -10,
-            energy: -5
+            workers: -2  // Changed from -5
         },
         effect: (state) => {
             state.playerStats.chaosLevel -= 10;
-            state.playerStats.workerEnergy -= 5;
+            state.playerStats.workerCount -= 2;
             return "Order restored through pasta violence!";
         }
     },
@@ -59,12 +59,12 @@ export const CARDS = {
         statModifiers: {
             chaos: 15,
             prestige: 10,
-            energy: -10
+            workers: -4  // Changed from -10
         },
         effect: (state) => {
             state.playerStats.chaosLevel += 15;
             state.playerStats.pastaPrestige += 10;
-            state.playerStats.workerEnergy -= 10;
+            state.playerStats.workerCount -= 4;
             return "The Kraken has become our star attraction!";
         }
     },
@@ -76,12 +76,12 @@ export const CARDS = {
         statModifiers: {
             ingredients: -2,
             chaos: 20,
-            energy: -15
+            workers: -6  // Changed from -15
         },
         effect: (state) => {
             state.playerStats.ingredients = state.playerStats.ingredients.slice(2);
             state.playerStats.chaosLevel += 20;
-            state.playerStats.workerEnergy -= 15;
+            state.playerStats.workerCount -= 6;
             return "BOOM! The ceiling is covered in al dente shrapnel!";
         }
     },
@@ -91,12 +91,12 @@ export const CARDS = {
         statModifiers: {
             prestige: 15,
             chaos: 10,
-            energy: 5
+            workers: 5  // Changed from energy
         },
         effect: (state) => {
             state.playerStats.pastaPrestige += 15;
             state.playerStats.chaosLevel += 10;
-            state.playerStats.workerEnergy += 5;
+            state.playerStats.workerCount += 5;  // Changed from workerEnergy
             return "R'amen! The workers have been blessed by His Noodly Appendage!";
         }
     },
@@ -122,12 +122,12 @@ export const CARDS = {
         requirements: null, // No requirements
         statModifiers: {
             chaos: 25,
-            energy: -20,
+            workers: -7,  // Changed from -20
             prestige: -10
         },
         effect: (state) => {
             state.playerStats.chaosLevel += 25;
-            state.playerStats.workerEnergy -= 20;
+            state.playerStats.workerCount -= 7;
             state.playerStats.pastaPrestige -= 10;
             return "The ravioli have seized the means of production!";
         }
@@ -152,12 +152,12 @@ export const CARDS = {
         requirements: null, // No requirements
         statModifiers: {
             chaos: 30,
-            energy: -25,
+            workers: -8,  // Changed from -25
             prestige: 25
         },
         effect: (state) => {
             state.playerStats.chaosLevel += 30;
-            state.playerStats.workerEnergy -= 25;
+            state.playerStats.workerCount -= 8;
             state.playerStats.pastaPrestige += 25;
             return "Ph'nglui mglw'nafh Spaghetti R'lyeh wgah'nagl fhtagn!";
         }
@@ -168,13 +168,13 @@ export const CARDS = {
         statModifiers: {
             ingredients: 5,
             chaos: 18,
-            energy: -15
+            workers: -15  // Changed from energy
         },
         effect: (state) => {
             state.playerStats.ingredients.push("Zombie Ziti", "Phantom Fettuccine", "Ghost Gnocchi", 
                 "Revenant Rigatoni", "Wraith Ravioli");
             state.playerStats.chaosLevel += 18;
-            state.playerStats.workerEnergy -= 15;
+            state.playerStats.workerCount -= 15;  // Changed from workerEnergy
             return "The undead pasta shambles through the kitchen!";
         }
     },
@@ -184,12 +184,12 @@ export const CARDS = {
         statModifiers: {
             chaos: 25,
             prestige: 30,
-            energy: -20
+            workers: -20  // Changed from energy
         },
         effect: (state) => {
             state.playerStats.chaosLevel += 25;
             state.playerStats.pastaPrestige += 30;
-            state.playerStats.workerEnergy -= 20;
+            state.playerStats.workerCount -= 20;  // Changed from workerEnergy
             state.playerStats.ingredients = state.playerStats.ingredients.slice(3);
             return "The pasta has achieved nuclear fusion!";
         }
@@ -198,12 +198,12 @@ export const CARDS = {
         description: "The union demands better pasta conditions!",
         requirements: null,
         statModifiers: {
-            energy: -30,
+            workers: -5,  // Changed from -30
             chaos: 15,
             prestige: -10
         },
         effect: (state) => {
-            state.playerStats.workerEnergy -= 30;
+            state.playerStats.workerCount -= 5;
             state.playerStats.chaosLevel += 15;
             state.playerStats.pastaPrestige -= 10;
             return "The workers have formed a picket line with giant spaghetti signs!";
@@ -214,12 +214,12 @@ export const CARDS = {
         requirements: null,
         statModifiers: {
             chaos: -15,
-            energy: -5,
+            workers: -5,  // Changed from energy
             prestige: 5
         },
         effect: (state) => {
             state.playerStats.chaosLevel -= 15;
-            state.playerStats.workerEnergy -= 5;
+            state.playerStats.workerCount -= 5;  // Changed from workerEnergy
             state.playerStats.pastaPrestige += 5;
             return "The factory is secure for the night!";
         }
@@ -258,12 +258,12 @@ export const CARDS = {
         description: "The ancient pasta extruder needs fixing.",
         requirements: { ingredients: 2 },
         statModifiers: {
-            energy: -20,
+            workers: -20,  // Changed from energy
             prestige: 15,
             chaos: -10
         },
         effect: (state) => {
-            state.playerStats.workerEnergy -= 20;
+            state.playerStats.workerCount -= 20;  // Changed from workerEnergy
             state.playerStats.pastaPrestige += 15;
             state.playerStats.chaosLevel -= 10;
             return "The machine purrs like new... mostly.";
@@ -274,12 +274,12 @@ export const CARDS = {
         requirements: null,
         statModifiers: {
             chaos: 25,
-            energy: -15,
+            workers: -15,  // Changed from energy
             ingredients: -2
         },
         effect: (state) => {
             state.playerStats.chaosLevel += 25;
-            state.playerStats.workerEnergy -= 15;
+            state.playerStats.workerCount -= 15;  // Changed from workerEnergy
             state.playerStats.ingredients = state.playerStats.ingredients.slice(2);
             return "The basement is now a pasta soup kitchen!";
         }
@@ -301,12 +301,12 @@ export const CARDS = {
         description: "Perform routine maintenance on all equipment.",
         requirements: { ingredients: 1 },
         statModifiers: {
-            energy: -10,
+            workers: -10,  // Changed from energy
             chaos: -20,
             prestige: 10
         },
         effect: (state) => {
-            state.playerStats.workerEnergy -= 10;
+            state.playerStats.workerCount -= 10;  // Changed from workerEnergy
             state.playerStats.chaosLevel -= 20;
             state.playerStats.pastaPrestige += 10;
             return "Everything's running smoothly... for now.";
@@ -317,12 +317,12 @@ export const CARDS = {
         requirements: null,
         statModifiers: {
             chaos: 30,
-            energy: -25,
+            workers: -25,  // Changed from energy
             prestige: -15
         },
         effect: (state) => {
             state.playerStats.chaosLevel += 30;
-            state.playerStats.workerEnergy -= 25;
+            state.playerStats.workerCount -= 25;  // Changed from workerEnergy
             state.playerStats.pastaPrestige -= 15;
             return "Workers are making pasta by candlelight!";
         }
@@ -332,12 +332,12 @@ export const CARDS = {
         requirements: null,
         statModifiers: {
             chaos: 20,
-            energy: -15,
+            workers: -15,  // Changed from energy
             prestige: -20
         },
         effect: (state) => {
             state.playerStats.chaosLevel += 20;
-            state.playerStats.workerEnergy -= 15;
+            state.playerStats.workerCount -= 15;  // Changed from workerEnergy
             state.playerStats.pastaPrestige -= 20;
             return "Quick, hide the sentient spaghetti!";
         }
@@ -348,12 +348,12 @@ export const CARDS = {
         statModifiers: {
             chaos: 35,
             ingredients: -3,
-            energy: -20
+            workers: -20  // Changed from energy
         },
         effect: (state) => {
             state.playerStats.chaosLevel += 35;
             state.playerStats.ingredients = state.playerStats.ingredients.slice(3);
-            state.playerStats.workerEnergy -= 20;
+            state.playerStats.workerCount -= 20;  // Changed from workerEnergy
             return "The tremors have awakened something in Vat 7...";
         }
     },
@@ -362,12 +362,12 @@ export const CARDS = {
         requirements: null,
         statModifiers: {
             chaos: -10,
-            energy: -5,
+            workers: -5,  // Changed from energy
             prestige: 5
         },
         effect: (state) => {
             state.playerStats.chaosLevel -= 10;
-            state.playerStats.workerEnergy -= 5;
+            state.playerStats.workerCount -= 5;  // Changed from workerEnergy
             state.playerStats.pastaPrestige += 5;
             return "The rats have been promoted to quality control.";
         }
@@ -378,3 +378,18 @@ export function getRandomCard() {
     const cards = Object.keys(CARDS);
     return cards[Math.floor(Math.random() * cards.length)];
 }
+
+// filepath: d:\NoodleFactory\src\js\state.js
+export const resetGameState = () => {
+    gameState.playerStats = {
+        pastaPrestige: 0,
+        chaosLevel: 0,
+        ingredients: [
+            "Basic Flour",
+            "Water",
+            "Salt",
+            "Egg"
+        ],
+        workerCount: Math.floor(Math.random() * 6) + 15  // Changed to 15-20 range for better starting balance
+    };
+};

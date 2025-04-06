@@ -98,6 +98,45 @@
     100% { transform: skew(0deg); }
 }
 
+@keyframes crtWave {
+    0% { transform: scaleY(1.0) }
+    50% { transform: scaleY(1.02) }
+    100% { transform: scaleY(1.0) }
+}
+
+@keyframes crtDistort {
+    0% { transform: skew(0.15deg, 0deg); }
+    25% { transform: skew(-0.15deg, 0deg); }
+    50% { transform: skew(0.15deg, 0deg); }
+    75% { transform: skew(-0.15deg, 0deg); }
+    100% { transform: skew(0.15deg, 0deg); }
+}
+
+@keyframes crtFlicker {
+    0% { opacity: 0.98; }
+    50% { opacity: 1; }
+    100% { opacity: 0.98; }
+}
+
+@keyframes scanline {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(100vh); }
+}
+
+@keyframes removeWarning {
+    0%, 90% {
+        color: #ff4444;
+        background: linear-gradient(to right, #2c3e50, #c0392b);
+        transform: scale(1.05);
+    }
+    100% {
+        color: #3498db;
+        background: linear-gradient(to right, #2c3e50, #3a506b);
+        transform: scale(1);
+        animation: none;
+    }
+}
+
 body {
     background: #1a1a1a;
     color: #fff;
@@ -130,7 +169,32 @@ body {
     text-align: center;
     padding: 10px;
     min-width: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
+
+.stat-progress {
+    width: 80px;
+    height: 4px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+.stat-progress-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease-out;
+}
+
+.stat-progress-fill.prestige-color { background-color: #f1c40f; }
+.stat-progress-fill.chaos-color { background-color: #e74c3c; }
+.stat-progress-fill.ingredients-color { background-color: #2ecc71; }
+.stat-progress-fill.energy-color { background-color: #3498db; }
+.stat-progress-fill.turn-color { background-color: #9b59b6; }
 
 .stat-label {
     font-size: 0.9em;
@@ -191,11 +255,14 @@ h1 {
     background: #444;
     border-radius: 10px;
     cursor: pointer;
-    transition: transform 0.2s;
     position: relative;
     overflow: hidden;
-    animation: wiggle 3s ease-in-out infinite;
-    animation-delay: calc(var(--animation-delay, 0) * 1s);
+    /* Remove the default animation */
+    /* animation: wiggle 3s ease-in-out infinite; */
+    /* animation-delay: calc(var(--animation-delay, 0) * 1s); */
+    
+    /* Add smooth transition for all transforms */
+    transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .card:hover {
@@ -365,7 +432,7 @@ h1 {
 .message-box.chaos-warning {
     color: #ff4444;
     background: linear-gradient(to right, #2c3e50, #c0392b);
-    animation: pulse 2s infinite;
+    animation: removeWarning 3s forwards;
 }
 
 .fade-out {
@@ -415,52 +482,45 @@ h1 {
     filter: brightness(1.1) hue-rotate(5deg);
 }
 
-/* Reduce max chaos intensity */
+/* Replace the existing chaos-level-max styles with these */
 .chaos-level-max {
     position: relative;
-    animation: glitch 1s infinite;
-    filter: hue-rotate(90deg) contrast(120%);
+    animation: crtWave 8s infinite;
+    filter: brightness(0.95) contrast(110%);
 }
 
 .chaos-level-max body {
-    animation: melt 12s infinite;
-    filter: hue-rotate(90deg) saturate(120%);
+    animation: subtleWiggle 6s infinite;
+    filter: saturate(120%);
 }
 
 .chaos-level-max #game-container {
-    animation: distort 6s infinite;
+    animation: crtDistort 4s infinite;
     transform-style: preserve-3d;
-    perspective: 1000px;
 }
 
 .chaos-level-max #stats {
-    animation: wiggle 3s infinite;
+    animation: subtleWiggle 5s infinite;
 }
 
 .chaos-level-max .stat-value {
-    animation: glitch 2s infinite;
+    animation: crtFlicker 2s infinite;
     text-shadow: 
-        1px 1px #ff0000,
-        -1px -1px #00ff00,
-        0.5px -0.5px #0000ff;
+        0.5px 0.5px rgba(255,0,0,0.3),
+        -0.5px -0.5px rgba(0,255,0,0.3);
 }
 
 .chaos-level-max h1 {
-    animation: melt 4s infinite, glitch 3s infinite;
-    filter: contrast(120%);
+    animation: crtWave 6s infinite;
+    filter: contrast(110%);
 }
 
 .chaos-level-max .message-box {
-    animation: distort 4s infinite, glitch 3s infinite;
-    background: linear-gradient(45deg, rgba(255,0,0,0.7), rgba(0,0,0,0.8));
+    animation: crtDistort 5s infinite;
+    background: linear-gradient(45deg, rgba(40,40,40,0.9), rgba(20,20,20,0.9));
 }
 
-/* Reduce noise opacity */
-.chaos-level-max.chaos-noise::before {
-    opacity: 0.05;
-    animation: noise 0.3s infinite;
-}
-
+/* Update the noise effect to be more like a CRT screen */
 .chaos-noise::before {
     content: "";
     position: fixed;
@@ -468,8 +528,15 @@ h1 {
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('data:image/png;base64,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');
-    opacity: 0.015;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.1),
+        rgba(0, 0, 0, 0.1) 1px,
+        transparent 1px,
+        transparent 2px
+    );
     pointer-events: none;
+    animation: scanline 10s linear infinite;
+    opacity: 0.08;
     z-index: 9999;
 }

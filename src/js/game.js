@@ -9,7 +9,7 @@ const SITUATIONS = [
     "Noodles of various shapes snake through the conveyor belts.",
     "The air is thick with the aroma of fresh pasta.",
     "Workers bustle between the towering vats of boiling water.",
-    "A mysterious fog rolls out from beneath Vat 7.",
+    `A mysterious fog rolls out from beneath Vat ${Math.floor(Math.random() * 12) + 1}.`,
     "The ancient pasta spirits demand their tribute.",
     "The factory's ancient machinery groans ominously.",
     "Shadows dance between the steam vents.",
@@ -51,12 +51,55 @@ class Game {
     }
 
     updateDisplay() {
-        // Update all stats
         document.getElementById('prestige').textContent = this.state.playerStats.pastaPrestige;
         document.getElementById('chaos').textContent = this.state.playerStats.chaosLevel;
         document.getElementById('ingredients').textContent = this.state.playerStats.ingredients.length;
-        document.getElementById('energy').textContent = this.state.playerStats.workerEnergy;
+        document.getElementById('energy').textContent = this.state.playerStats.workerCount;
         document.getElementById('turn').textContent = this.turn;
+
+        // Update progress bars
+        document.getElementById('prestige-progress').style.width = 
+            `${(this.state.playerStats.pastaPrestige / 100) * 100}%`;
+        document.getElementById('chaos-progress').style.width = 
+            `${(this.state.playerStats.chaosLevel / 100) * 100}%`;
+        document.getElementById('ingredients-progress').style.width = 
+            `${(this.state.playerStats.ingredients.length / 20) * 100}%`;
+        document.getElementById('workers-progress').style.width = 
+            `${(this.state.playerStats.workerCount / 100) * 100}%`;
+        document.getElementById('turn-progress').style.width = 
+            `${(this.turn / 50) * 100}%`;  // Assuming 50 turns is "full"
+
+        // Fix: Get stats bar reference
+        const statsBar = document.getElementById('stats');
+        
+        // Add initial transition style if not already present
+        if (!statsBar.style.transition) {
+            statsBar.style.transition = 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        }
+
+        // Function to slightly rotate the stats bar
+        const rotateStats = () => {
+            const rotation = (Math.random() * 1 - 0.5); // Random between -0.5 and 0.5 degrees
+            statsBar.style.transform = `rotate(${rotation}deg)`;
+        };
+
+        // Clear any existing interval
+        if (statsBar.dataset.intervalId) {
+            clearInterval(parseInt(statsBar.dataset.intervalId));
+        }
+
+        // Add periodic tiny movements
+        const intervalId = setInterval(() => {
+            if (Math.random() < 0.3) { // 30% chance to move
+                rotateStats();
+            }
+        }, Math.random() * 4000 + 3000); // Random interval between 3-7 seconds
+
+        // Store interval ID for cleanup
+        statsBar.dataset.intervalId = intervalId;
+
+        // Add initial rotation
+        rotateStats(); // Add this line to ensure initial movement
 
         this.checkAchievements();
     }
@@ -92,21 +135,52 @@ class Game {
         leftCardEl.querySelector('.card-effects').innerHTML = leftEffects;
         rightCardEl.querySelector('.card-effects').innerHTML = rightEffects;
 
-        // Add random animation delays
-        leftCardEl.style.setProperty('--animation-delay', Math.random() * 2);
-        rightCardEl.style.setProperty('--animation-delay', Math.random() * 2);
+        // Add base transition style for smooth animations
+        const transitionStyle = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        leftCardEl.style.transition = transitionStyle;
+        rightCardEl.style.transition = transitionStyle;
+
+        // Function to randomly rotate a card
+        const rotateCard = (cardEl) => {
+            const rotation = (Math.random() * 6 - 3); // Random between -3 and 3 degrees
+            cardEl.style.transform = `rotate(${rotation}deg)`;
+        };
 
         // Clear previous event listeners
-        leftCardEl.replaceWith(leftCardEl.cloneNode(true));
-        rightCardEl.replaceWith(rightCardEl.cloneNode(true));
+        const newLeftCard = leftCardEl.cloneNode(true);
+        const newRightCard = rightCardEl.cloneNode(true);
+        leftCardEl.parentNode.replaceChild(newLeftCard, leftCardEl);
+        rightCardEl.parentNode.replaceChild(newRightCard, rightCardEl);
 
         // Add new event listeners
-        document.getElementById('card-left').addEventListener('click', () => this.playCard(leftCard));
-        document.getElementById('card-right').addEventListener('click', () => this.playCard(rightCard));
+        newLeftCard.addEventListener('click', () => this.playCard(leftCard));
+        newRightCard.addEventListener('click', () => this.playCard(rightCard));
+
+        // Initial rotation with delay
+        setTimeout(() => rotateCard(newLeftCard), 300);
+        setTimeout(() => rotateCard(newRightCard), 500);
+
+        // Add periodic movements
+        const addLifeToCard = (cardEl) => {
+            const intervalId = setInterval(() => {
+                if (Math.random() < 0.4) { // 40% chance to move
+                    rotateCard(cardEl);
+                }
+            }, Math.random() * 2000 + 3000); // Random interval between 3-5 seconds
+            
+            // Store interval ID on the element to clear it later
+            cardEl.dataset.intervalId = intervalId;
+        };
+
+        // Start the movements
+        setTimeout(() => {
+            addLifeToCard(newLeftCard);
+            addLifeToCard(newRightCard);
+        }, 1000);
 
         // Add visual feedback for unplayable cards
-        this.updateCardPlayability(leftCardEl, CARDS[leftCard]);
-        this.updateCardPlayability(rightCardEl, CARDS[rightCard]);
+        this.updateCardPlayability(newLeftCard, CARDS[leftCard]);
+        this.updateCardPlayability(newRightCard, CARDS[rightCard]);
     }
 
     updateCardPlayability(cardElement, card) {
@@ -126,7 +200,7 @@ class Game {
         const state = this.state;
         
         // Check base requirements first
-        if (state.playerStats.ingredients.length < 1 || state.playerStats.workerEnergy < 1) {
+        if (state.playerStats.ingredients.length < 1 || state.playerStats.workerCount < 1) {
             return false;
         }
         
@@ -146,15 +220,17 @@ class Game {
         for (const [stat, value] of Object.entries(modifiers)) {
             const className = value > 0 ? 'positive' : 'negative';
             const prefix = value > 0 ? '+' : '';
+            // Update display text for workers
+            const displayStat = stat === 'workers' ? 'workers' : stat;
             const colorClass = {
                 'prestige': 'prestige-color',
                 'chaos': 'chaos-color',
                 'ingredients': 'ingredients-color',
-                'energy': 'energy-color'
+                'workers': 'energy-color'  // Keep same CSS class for now
             }[stat] || '';
             
             html += `<div class="stat-modifier ${colorClass}">
-                ${stat}: <span class="${className}">${prefix}${value}</span>
+                ${displayStat}: <span class="${className}">${prefix}${value}</span>
             </div>`;
         }
         return html;
@@ -166,9 +242,9 @@ class Game {
         const card = CARDS[cardName];
         
         // Check if card can be played (including minimum costs)
-        if (this.state.playerStats.ingredients.length < 1 || this.state.playerStats.workerEnergy < 1) {
+        if (this.state.playerStats.ingredients.length < 1 || this.state.playerStats.workerCount < 1) {
             const messageBox = document.getElementById('game-messages');
-            messageBox.textContent = "Not enough resources! Cards require at least 1 ingredient and 1 energy.";
+            messageBox.textContent = "Not enough resources! Cards require at least 1 ingredient and 1 worker.";
             messageBox.classList.remove('situation');
             messageBox.classList.add('feedback');
             return;
@@ -183,9 +259,13 @@ class Game {
             return;
         }
 
-        // Apply base costs first
-        this.state.playerStats.ingredients.pop(); // Remove one ingredient
-        this.state.playerStats.workerEnergy -= 1; // Remove one energy
+        // Only apply base costs if the card doesn't affect that resource
+        if (!card.statModifiers?.ingredients) {
+            this.state.playerStats.ingredients.pop(); // Remove one ingredient
+        }
+        if (!card.statModifiers?.energy) {
+            this.state.playerStats.workerCount -= 1; // Remove one worker
+        }
 
         // Then apply card effects
         const message = card.effect(this.state);
@@ -219,8 +299,8 @@ class Game {
             this.endGame('chaos');
             return;
         }
-        if (this.state.playerStats.workerEnergy <= 0) {
-            this.endGame('energy');
+        if (this.state.playerStats.workerCount <= 0) {
+            this.endGame('workers');
             return;
         }
 
@@ -283,8 +363,8 @@ class Game {
             case 'chaos':
                 message = 'Your factory descended into total chaos!';
                 break;
-            case 'energy':
-                message = 'Your workers have collapsed from exhaustion!';
+            case 'workers':  // Changed from energy
+                message = 'Your workers have all quit!';
                 break;
             default:
                 message = 'The factory has ceased operations!';
@@ -381,7 +461,7 @@ class Game {
                 return "The chaos searches for ingredients to consume...";
             },
             () => {
-                this.state.playerStats.workerEnergy -= 5;
+                this.state.playerStats.workerCount -= 5;
                 return "The chaos drains worker energy!";
             },
             () => {

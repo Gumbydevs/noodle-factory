@@ -6,7 +6,7 @@ const gameState = {
         chaosLevel: 0,
         ingredients: [],
         unitsSold: 0,
-        workerEnergy: 100,
+        workerCount: 100,  // Changed from workerEnergy
         workersInFactory: 5,
     },
     resourceMeters: {
@@ -36,7 +36,7 @@ export const resetGameState = () => {
             "Salt",
             "Egg"
         ],
-        workerEnergy: 100
+        workerCount: Math.floor(Math.random() * 11) + 10  // Random between 10-20
     };
 };
 
