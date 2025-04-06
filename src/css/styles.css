@@ -164,6 +164,10 @@
     100% { transform: scale(1.05) rotate(0deg); }
 }
 
+.hidden {
+    display: none !important;
+}
+
 body {
     background: #1a1a1a;
     color: #fff;
@@ -335,41 +339,49 @@ h1 {
 }
 
 .card.unplayable {
-    opacity: 0.4;
+    opacity: 0.85;  /* Increased from 0.7 for better visibility */
     cursor: not-allowed;
-    background: #222;
-    filter: grayscale(100%);
-    border: 1px solid #444;
-    animation: none;
+    background: #383838;  /* Slightly lighter for better contrast */
+    filter: grayscale(50%);  /* Reduced from 80% to be less severe */
+    border: 1px solid #555;
 }
 
 .card.unplayable:hover {
     transform: none;
-    background: #222;
+    background: #383838;  /* Match the new background */
     animation: none;
 }
 
 .card.unplayable h3 {
-    color: #666;
+    color: #888;  /* Changed from #666 to #888 */
 }
 
 .card.unplayable .card-description {
-    color: #555;
+    color: #aaa;  /* Changed from #555 to #aaa */
 }
 
 .card.unplayable .card-effects {
-    opacity: 0.6;
+    opacity: 0.8;  /* Changed from 0.6 to 0.8 */
+}
+
+.card.unplayable .requirement-text {
+    color: #ff8080;  /* Brighter red for better visibility */
+    font-size: 0.85em;
+    margin-top: 4px;
+    padding-top: 4px;
+    opacity: 0.9;
 }
 
 .requirement-text {
-    color: #e74c3c;
-    font-size: 0.8em;
+    color: #ff6b6b;  /* Brightened from #e74c3c */
+    font-size: 0.9em;  /* Increased from 0.8em */
     margin-top: 5px;
-    border-top: 1px solid #444;
+    border-top: 1px solid #555;
     padding-top: 5px;
     font-style: italic;
     text-transform: uppercase;
     letter-spacing: 1px;
+    font-weight: bold;  /* Added for better visibility */
 }
 
 .button {
@@ -422,19 +434,23 @@ h1 {
 }
 
 #game-messages {
-    margin: 20px;
+    margin: 20px auto; /* Changed from just 20px to 20px auto */
     padding: 10px;
-    height: 60px; /* Fix height */
+    height: 60px;
     min-height: 60px;
     background: #333;
     border-radius: 5px;
+    width: calc(100% - 40px);
+    max-width: 800px; /* Added max-width to match container */
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .message-box {
-    margin: 20px auto;
+    width: 100%;
+    height: 100%;
+    margin: 0;
     padding: 12px;
     background: #2c3e50;
     background: linear-gradient(to right, #2c3e50, #3a506b);
@@ -442,38 +458,10 @@ h1 {
     color: #ffd700;
     font-family: 'Courier New', monospace;
     font-size: 1.1em;
-    max-width: 600px;
-    min-height: 30px;
-    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    border: 1px solid #465670;
-    transition: opacity 0.5s ease-in-out;
-}
-
-.message-box.feedback {
-    color: #ffd700;
-}
-
-.message-box.situation {
-    color: #3498db;
-}
-
-.message-box.chaos-warning {
-    color: #ff4444;
-    background: linear-gradient(to right, #2c3e50, #c0392b);
-    animation: removeWarning 3s forwards;
-}
-
-.fade-out {
-    opacity: 0;
-}
-
-.hidden {
-    display: none !important;
 }
 
 .achievement-popup {

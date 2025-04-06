@@ -590,3 +590,28 @@ function setupNoodleWiggle() {
 
 // Call the function after DOM is loaded
 document.addEventListener('DOMContentLoaded', setupNoodleWiggle);
+
+// New functions added
+function canPlayCard(card) {
+    // Don't check ingredient requirements if the card grants ingredients
+    if (card.effects.some(effect => effect.type === 'ingredients' && effect.value > 0)) {
+        return true;
+    }
+    
+    // Only grey out cards if they would consume ingredients and player has none
+    if (card.effects.some(effect => effect.type === 'ingredients' && effect.value < 0)) {
+        return gameState.ingredients >= Math.abs(Math.min(...card.effects
+            .filter(e => e.type === 'ingredients')
+            .map(e => e.value)));
+    }
+    
+    return true;
+}
+
+function processTurn() {
+    // Prevent automatic ingredient loss when at 0
+    if (gameState.ingredients > 0) {
+        gameState.ingredients = Math.max(0, gameState.ingredients - 1);
+    }
+    // ... rest of turn processing
+}
