@@ -223,18 +223,11 @@ class Game {
     }
 
     checkCardRequirements(card) {
-        const state = this.state;
-        
-        // Check base requirements first
-        if (state.playerStats.ingredients.length < 1 || state.playerStats.workerCount < 1) {
-            return false;
-        }
-        
-        // Then check card-specific requirements
+        // Only check card-specific requirements
         if (!card.requirements) return true;
         
         if (card.requirements.ingredients) {
-            return state.playerStats.ingredients.length >= (card.requirements.ingredients + 1); // +1 for base cost
+            return this.state.playerStats.ingredients.length >= card.requirements.ingredients;
         }
         return true;
     }
@@ -267,15 +260,6 @@ class Game {
 
         const card = CARDS[cardName];
         
-        // Check if card can be played (including minimum costs)
-        if (this.state.playerStats.ingredients.length < 1 || this.state.playerStats.workerCount < 1) {
-            const messageBox = document.getElementById('game-messages');
-            messageBox.textContent = "Not enough resources! Cards require at least 1 ingredient and 1 worker.";
-            messageBox.classList.remove('situation');
-            messageBox.classList.add('feedback');
-            return;
-        }
-
         // Check card-specific requirements
         if (!this.checkCardRequirements(card)) {
             const messageBox = document.getElementById('game-messages');
@@ -285,19 +269,11 @@ class Game {
             return;
         }
 
-        // Only apply base costs if the card doesn't affect that resource
-        if (!card.statModifiers?.ingredients) {
-            this.state.playerStats.ingredients.pop(); // Remove one ingredient
-        }
-        if (!card.statModifiers?.energy) {
-            this.state.playerStats.workerCount -= 1; // Remove one worker
-        }
-
-        // Then apply card effects
+        // Apply card effects
         const message = card.effect(this.state);
         const messageBox = document.getElementById('game-messages');
         
-        // Show feedback message with base cost included
+        // Show feedback message
         messageBox.textContent = `${message}`;
         messageBox.classList.remove('situation');
         messageBox.classList.add('feedback');
@@ -609,6 +585,10 @@ function canPlayCard(card) {
 }
 
 function processTurn() {
+    // Add 0-3 random workers each turn
+    const newWorkers = Math.floor(Math.random() * 4); // Random number between 0-3
+    gameState.workers += newWorkers;
+    
     // Prevent automatic ingredient loss when at 0
     if (gameState.ingredients > 0) {
         gameState.ingredients = Math.max(0, gameState.ingredients - 1);
