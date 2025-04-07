@@ -591,8 +591,8 @@ export const CARDS = {
             prestige: -8
         },
         effect: (state) => {
-            state.playerStats.chaosSteadyTurns = 0; // Reset chaos steady count
-            state.playerStats.reggieEscaped = true; // Add this line
+            state.playerStats.chaosSteadyTurns = 0;
+            state.playerStats.reggieEscaped = true;
             return "I didn't get where I am today by staying where I was!";
         }
     },
@@ -606,6 +606,9 @@ export const CARDS = {
             prestige: 6
         },
         effect: (state) => {
+            if (state.playerStats.reggieEscaped) {
+                state.playerStats.reggieComplete = true; // This triggers the achievement check
+            }
             return "Great to be back! Now, about these Himalayan noodle techniques...";
         }
     }

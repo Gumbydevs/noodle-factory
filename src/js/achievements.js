@@ -4,10 +4,20 @@ export const ACHIEVEMENTS = {
         check: (stats) => true, // Always triggers on first game
         reward: "Welcome to management!"
     },
+    "Living on the Edge": {
+        description: "Reach 30 chaos and survive",
+        check: (stats) => stats.chaosLevel >= 30,
+        reward: "Unlock basic chaos management"
+    },
+    "Chaos Adept": {
+        description: "Reach 55 chaos without losing control",
+        check: (stats) => stats.chaosLevel >= 55,
+        reward: "Unlock intermediate chaos cards"
+    },
     "Chaos Lord": {
-        description: "Reach 50 chaos without losing control",
-        check: (stats) => stats.chaosLevel >= 50,
-        reward: "Unlock chaos-themed cards"
+        description: "Reach 80 chaos and maintain control",
+        check: (stats) => stats.chaosLevel >= 80,
+        reward: "Master the forces of pasta chaos"
     },
     "Master Chef": {
         description: "Reach 100 prestige",
@@ -28,6 +38,16 @@ export const ACHIEVEMENTS = {
         description: "Survive 20 turns",
         check: (stats, turn) => turn >= 20,
         reward: "Unlock endurance bonuses"
+    },
+    "Factory Legend": {
+        description: "Keep the factory running for 50 turns",
+        check: (stats, turn) => turn >= 50,
+        reward: "Unlock legendary management techniques"
+    },
+    "Pasta Immortal": {
+        description: "Maintain control for an incredible 100 turns",
+        check: (stats, turn) => turn >= 100,
+        reward: "Unlock the secrets of eternal pasta"
     },
     "Pasta La Vista": {
         description: "Lose 10 workers in a single run",
@@ -55,6 +75,11 @@ export const ACHIEVEMENTS = {
         description: "Choose between two terrible options and pick the Lesser of Two Weevils",
         check: (stats) => stats.chosenLesserWeevil,
         reward: "Unlock pest control options"
+    },
+    "The Fall and Rise": {
+        description: "Witness Reggie's complete journey of self-discovery through pasta",
+        check: (stats) => stats.reggieComplete === true,
+        reward: "Unlock enlightened management techniques"
     }
 };
 
