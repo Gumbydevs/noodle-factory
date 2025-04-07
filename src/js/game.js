@@ -145,14 +145,18 @@ class Game {
             body.classList.add('chaos-level-max', 'chaos-noise');
             this.triggerChaosEvent("Reality itself begins to melt!");
             
-            // Random chance to trigger noodle rain at max chaos
-            if (Math.random() < 0.1) { // 10% chance
+            // Increased chance for noodle rain at max chaos
+            if (Math.random() < 0.4) { // 40% chance (increased from 20%)
                 this.triggerNoodleRain();
             }
         }
         else if (chaos >= 65) {
             body.classList.add('chaos-level-3', 'chaos-noise');
             this.triggerChaosEvent("The factory exists in multiple dimensions!");
+            
+            if (Math.random() < 0.1) { // 10% chance
+                this.triggerNoodleRain();
+            }
         }
         else if (chaos >= 45) {
             body.classList.add('chaos-level-2');
@@ -165,26 +169,28 @@ class Game {
     }
 
     triggerNoodleRain() {
-        const noodleTemplate = document.querySelector('.noodle-decoration svg').cloneNode(true);
-        const duration = 3000 + Math.random() * 2000; // 3-5 seconds
-        const noodleCount = 10 + Math.floor(Math.random() * 10); // 10-20 noodles
+        // Create a basic SVG noodle if template isn't found
+        const noodleSVG = `
+            <svg width="40" height="20" viewBox="0 0 40 20">
+                <path d="M5,10 Q20,20 35,10 T65,10" stroke="#FFE5B4" 
+                      stroke-width="3" fill="none"/>
+            </svg>
+        `;
+
+        const duration = 3000 + Math.random() * 2000;
+        const noodleCount = 15 + Math.floor(Math.random() * 15); // Increased count (15-30)
 
         for (let i = 0; i < noodleCount; i++) {
             setTimeout(() => {
-                const noodleContainer = document.createElement('div');
-                noodleContainer.className = 'chaos-noodle';
-                noodleContainer.style.left = `${Math.random() * 100}vw`;
-                noodleContainer.style.animation = `noodleFall ${duration}ms linear`;
-                
-                const noodle = noodleTemplate.cloneNode(true);
-                noodleContainer.appendChild(noodle);
-                document.body.appendChild(noodleContainer);
+                const noodle = document.createElement('div');
+                noodle.className = 'chaos-noodle';
+                noodle.style.left = `${Math.random() * 100}vw`;
+                noodle.innerHTML = noodleSVG;
+                document.body.appendChild(noodle);
 
-                // Clean up after animation
-                setTimeout(() => {
-                    noodleContainer.remove();
-                }, duration);
-            }, Math.random() * 1000); // Stagger noodle creation
+                // Remove the noodle element after animation completes
+                setTimeout(() => noodle.remove(), duration);
+            }, Math.random() * 1000);
         }
     }
 
