@@ -917,17 +917,18 @@ h1 {
     left: 50%;
     transform: translate(-50%, -50%);
     background: rgba(0, 0, 0, 0.95);
-    padding: 2rem;
+    padding: 1.5rem; /* Reduced from 2rem */
     border-radius: 10px;
     border: 2px solid #444;
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
     z-index: 1000;
     width: 90%;
     max-width: 800px;
-    max-height: 90vh;
+    max-height: 95vh; /* Adjusted from 90vh */
     overflow-y: auto;
     box-sizing: border-box;
     animation: gameOverFlash 0.6s ease-in-out 3; /* Flash 3 times over 0.6s each */
+    font-size: 0.9em; /* Base size reduction for all content */
 }
 
 .game-over-content {
@@ -936,32 +937,32 @@ h1 {
 
 .game-over-content h2 {
     color: #e74c3c;
-    font-size: 2.5em;
-    margin-bottom: 1rem;
+    font-size: 2em; /* Reduced from 2.5em */
+    margin-bottom: 0.75rem; /* Reduced from 1rem */
 }
 
 .end-reason {
-    font-size: 1.2em;
+    font-size: 1.1em; /* Reduced from 1.2em */
     color: #bbb;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem; /* Reduced from 2rem */
 }
 
 .final-stats {
-    margin: 2rem 0;
+    margin: 1.5rem 0; /* Reduced from 2rem */
 }
 
 .stat-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-    margin: 1rem 0;
+    gap: 0.75rem; /* Reduced from 1rem */
+    margin: 0.75rem 0; /* Reduced from 1rem */
 }
 
 .final-stat {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 1rem;
+    padding: 0.75rem; /* Reduced from 1rem */
     background: rgba(255, 255, 255, 0.1);
     border-radius: 5px;
 }
@@ -972,28 +973,29 @@ h1 {
 }
 
 .final-stat span:last-child {
-    font-size: 1.8em;
+    font-size: 1.5em; /* Reduced from 1.8em */
     font-weight: bold;
 }
 
 .achievements-section {
     position: relative;
-    margin: 2rem 0;
-    padding-bottom: 40px; /* Make room for the reset button */
+    margin: 1.5rem 0; /* Reduced from 2rem */
+    padding-bottom: 30px; /* Reduced from 40px */
 }
 
 .achievements-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin: 1rem 0;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Reduced from 200px */
+    gap: 0.75rem; /* Reduced from 1rem */
+    margin: 0.75rem 0; /* Reduced from 1rem */
 }
 
 .achievement-item {
     background: rgba(255, 255, 255, 0.1);
-    padding: 1rem;
+    padding: 0.75rem; /* Reduced from 1rem */
     border-radius: 5px;
     text-align: left;
+    font-size: 0.85em; /* Additional reduction for achievements */
 }
 
 .achievement-name {
@@ -1010,9 +1012,9 @@ h1 {
 }
 
 #new-game {
-    font-size: 1.2em;
-    padding: 0.75rem 2rem;
-    margin-top: 2rem;
+    font-size: 1.1em; /* Reduced from 1.2em */
+    padding: 0.6rem 1.75rem; /* Reduced from 0.75rem 2rem */
+    margin-top: 1.5rem; /* Reduced from 2rem */
     background: #e67e22;
     transition: background-color 0.3s;
     white-space: nowrap; /* Keep text on one line */
@@ -1042,9 +1044,9 @@ h1 {
 .score-display {
     display: flex;
     justify-content: center;
-    gap: 2rem;
-    margin: 2rem 0;
-    padding: 1rem;
+    gap: 1.5rem; /* Reduced from 2rem */
+    margin: 1.5rem 0; /* Reduced from 2rem */
+    padding: 0.75rem; /* Reduced from 1rem */
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
 }
@@ -1056,10 +1058,10 @@ h1 {
 
 .score-value {
     display: block;
-    font-size: 3em;
+    font-size: 2.5em; /* Reduced from 3em */
     font-weight: bold;
     color: #f1c40f;
-    margin: 0.5rem 0;
+    margin: 0.4rem 0; /* Reduced from 0.5rem */
 }
 
 /* Add a glow effect when new high score is achieved */
