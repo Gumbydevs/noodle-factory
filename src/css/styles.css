@@ -250,10 +250,10 @@
 
 /* First, add these new keyframes if not already present */
 @keyframes chaosBackgroundPulse {
-    0% { background-color: #1a1a1a; }
-    50% { background-color: #572c18; }  /* Subtle yellow tint */
-    75% { background-color: #1a1510; }  /* Subtle orange tint */
-    100% { background-color: #1a1a1a; }
+    0% { background-color: #0a0a0a; }
+    50% { background-color: #1f1d1d; }  /* Slightly warmer dark */
+    75% { background-color: #1d1f1f; }  /* Slightly cooler dark */
+    100% { background-color: #0a0a0a; }
 }
 
 @keyframes chaosColorShift {
@@ -1728,4 +1728,28 @@ h1 {
     animation: none !important;
     transform: none !important;
     transition: none !important;
+}
+
+/* Add this media query to disable hover effects on touch devices */
+@media (hover: none) {
+    .card:hover,
+    .chaos-level-1 .card:hover,
+    .chaos-level-2 .card:hover,
+    .chaos-level-3 .card:hover,
+    .chaos-level-max .card:hover {
+        animation: none !important;
+        transform: none !important;
+    }
+
+    /* Replace hover animations with touch animations */
+    .card:active {
+        animation: touchExcited 0.3s ease-in-out !important;
+    }
+}
+
+/* Update the existing card hover styles to be more specific */
+@media (hover: hover) {
+    .card:hover {
+        animation: hoverExcited 1s ease-in-out infinite !important;
+    }
 }
