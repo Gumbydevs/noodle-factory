@@ -1200,7 +1200,7 @@ h1 {
 
 /* Replace the existing media query with this updated version */
 @media (hover: none) and (pointer: coarse) {
-    /* For touch devices - ensure both cards animate */
+    /* Keep existing animations for both cards */
     .card,
     .chaos-level-1 .card,
     .chaos-level-2 .card,
@@ -1219,7 +1219,7 @@ h1 {
             calc(random() * -2s);
     }
 
-    /* Keep individual card variations */
+    /* Keep individual card variations but don't include the played animation here */
     .card:nth-child(odd) {
         animation: 
             cardFloat 3s ease-in-out infinite,
@@ -1238,12 +1238,8 @@ h1 {
             calc(random() * -2s);
     }
 
-    /* Update the played animation for touch devices */
-    .card.played,
-    .chaos-level-1 .card.played,
-    .chaos-level-2 .card.played,
-    .chaos-level-3 .card.played,
-    .chaos-level-max .card.played {
+    /* Update to only affect the specific played card */
+    .card.played {
         animation: touchExcited 0.4s ease-in-out !important;
         transform: scale(0.8) translateY(-100px) !important;
         opacity: 0 !important;
@@ -1251,14 +1247,14 @@ h1 {
         transition: transform 0.5s ease-out, opacity 0.5s ease-out;
     }
 
-    /* Add active state for touch feedback */
-    .card:active,
-    .chaos-level-1 .card:active,
-    .chaos-level-2 .card:active,
-    .chaos-level-3 .card:active,
-    .chaos-level-max .card:active {
-        animation: touchExcited 0.4s ease-in-out !important;
-        background: #555 !important;
+    /* Remove other card variations for played state */
+    .chaos-level-1 .card:not(.played),
+    .chaos-level-2 .card:not(.played),
+    .chaos-level-3 .card:not(.played),
+    .chaos-level-max .card:not(.played) {
+        animation: 
+            cardFloat 3s ease-in-out infinite,
+            randomJitter 2s ease-in-out infinite !important;
     }
 }
 
