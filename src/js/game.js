@@ -195,7 +195,13 @@ class Game {
         const cardsContainer = document.getElementById('cards-container');
         
         // Get two random cards
-        const availableCards = Object.keys(CARDS);
+        const availableCards = Object.keys(CARDS).filter(cardName => {
+            // Only include "Return of Reggie" if Reggie has escaped
+            if (cardName === "Return of Reggie") {
+                return this.state.playerStats.reggieEscaped === true;
+            }
+            return true;
+        });
         const shuffledCards = [...availableCards].sort(() => Math.random() - 0.5);
         const [leftCard, rightCard] = shuffledCards.slice(0, 2);
 
