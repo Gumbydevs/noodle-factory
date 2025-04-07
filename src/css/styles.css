@@ -950,10 +950,17 @@ h1 {
     overflow: visible; /* Changed from hidden to visible */
 }
 
+/* Update the noodle-worm styles */
 .noodle-worm {
     position: absolute;
-    bottom: 20px; /* Position from bottom instead of using transform */
-    animation: moveAcross 12s linear infinite; /* Slowed down animation */
+    bottom: 20px;
+    left: -120px;
+    /* Remove the continuous animation */
+}
+
+/* Add a class for when we want the noodle to move */
+.noodle-worm.moving {
+    animation: moveAcross 12s linear;
 }
 
 @keyframes moveAcross {
@@ -970,4 +977,36 @@ h1 {
 /* Add some hover effect for fun */
 .noodle-worm:hover {
     animation-duration: 6s;
+}
+
+/* Add or update these styles */
+#noodle-tumbleweed {
+    position: fixed;
+    bottom: 20px;
+    left: -150px;
+    width: 120px;
+    height: 30px;
+    background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
+    border-radius: 15px;
+    transform-origin: center center;
+    animation: rollAcross 4s linear;
+}
+
+.rolling {
+    display: block !important;
+}
+
+@keyframes rollAcross {
+    from {
+        left: -150px;
+        transform: rotate(0deg) scaleY(var(--thickness)) scaleX(var(--length));
+    }
+    to {
+        left: calc(100vw + 150px);
+        transform: rotate(720deg) scaleY(var(--thickness)) scaleX(var(--length));
+    }
+}
+
+.hidden {
+    display: none;
 }
