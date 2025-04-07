@@ -283,6 +283,33 @@ class Game {
             card => card !== clickedCard
         );
 
+        // Remove ALL animations and hover states first
+        [clickedCard, otherCard].forEach(card => {
+            if (card) {
+                card.style.animation = 'none';
+                card.style.transform = 'none';
+                // Force reflow to ensure styles are cleared
+                void card.offsetWidth;
+            }
+        });
+
+        // Set data-selected attributes and played class
+        if (clickedCard) {
+            clickedCard.setAttribute('data-selected', 'true');
+            clickedCard.classList.add('played');
+            // Set final state immediately to prevent hover state sticking
+            clickedCard.style.transform = 'scale(0.8) translateY(-20px)';
+            clickedCard.style.opacity = '0';
+        }
+        
+        if (otherCard) {
+            otherCard.setAttribute('data-selected', 'false');
+            otherCard.classList.add('played');
+            // Set final state immediately to prevent hover state sticking
+            otherCard.style.transform = 'scale(0.5)';
+            otherCard.style.opacity = '0';
+        }
+
         // Check if playing this card would cause game over BEFORE applying effects
         if (card.statModifiers) {
             const projectedStats = { ...this.state.playerStats };
@@ -315,14 +342,6 @@ class Game {
                 return;
             }
         }
-
-        // Set data-selected attributes
-        clickedCard.setAttribute('data-selected', 'true');
-        otherCard.setAttribute('data-selected', 'false');
-
-        // Add played class to both cards
-        clickedCard.classList.add('played');
-        otherCard.classList.add('played');
 
         // Apply stat modifications
         if (card.statModifiers) {
