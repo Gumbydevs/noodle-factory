@@ -476,9 +476,7 @@ class Game {
                 return "The chaos searches for ingredients to consume...";
             },
             () => {
-                // Only reduce workers if it won't cause game over
-                if (this.state.playerStats.workerCount > 5) {
-                    this.state.playerStats.workerCount = Math.max(0, this.state.playerStats.workerCount - 5);
+                if (this.reduceWorkers(5)) {
                     return "The chaos drains worker energy!";
                 }
                 return "The workers resist the chaos!";
@@ -503,6 +501,19 @@ class Game {
             const scoreDisplay = document.querySelector('.score-display');
             scoreDisplay.classList.add('new-high-score');
         }
+    }
+
+    reduceWorkers(amount) {
+        const finalWorkerCount = this.state.playerStats.workerCount - amount;
+        
+        // Only reduce if we won't go below 1 worker
+        if (finalWorkerCount >= 1) {
+            this.state.playerStats.workerCount = finalWorkerCount;
+            return true;
+        }
+        
+        // If reduction would cause game over, prevent it
+        return false;
     }
 }
 
