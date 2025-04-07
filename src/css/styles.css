@@ -861,6 +861,7 @@ h1 {
     align-items: center;
     justify-content: center;
     box-sizing: border-box; /* Add this to include padding in width calculation */
+    overflow: hidden; /* Prevent overflow */
 }
 
 .message-box {
@@ -899,10 +900,17 @@ h1 {
     color: #3498db; /* Blue for situations */
 }
 
-/* Add these new text transition classes */
+/* Add styles for message text container */
 .message-text {
-    opacity: 1;
-    transition: opacity 0.5s ease-in-out;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Show max 2 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 95%;
+    margin: 0 auto;
+    line-height: 1.2;
+    text-align: center;
 }
 
 .message-text.fading {
