@@ -251,6 +251,23 @@ class Game {
         const card = CARDS[cardName];
         if (!card) return;
 
+        // Get the clicked card element more reliably
+        const clickedCard = Array.from(document.querySelectorAll('.card')).find(
+            card => card.querySelector('h3').textContent === cardName
+        );
+        const otherCard = Array.from(document.querySelectorAll('.card')).find(
+            card => card !== clickedCard
+        );
+
+        // Add played class to both cards but only animate the clicked one
+        clickedCard.classList.add('played');
+        clickedCard.style.animation = 'touchExcited 0.4s ease-in-out';
+        
+        // Immediately fade out the other card
+        otherCard.classList.add('played');
+        otherCard.style.opacity = '0';
+        otherCard.style.transition = 'opacity 0.2s ease-out';
+
         // Apply stat modifications first
         if (card.statModifiers) {
             Object.entries(card.statModifiers).forEach(([stat, value]) => {

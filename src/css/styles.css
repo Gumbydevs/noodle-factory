@@ -935,7 +935,7 @@ h1 {
     max-height: 95vh; /* Adjusted from 90vh */
     overflow-y: auto;
     box-sizing: border-box;
-    animation: gameOverFlash 0.6s ease-in-out 3; /* Flash 3 times over 0.6s each */
+    animation: gameOverFlash 0.6s ease-in-out 2; /* Changed from 3 to 2 flashes */
     font-size: 0.9em; /* Base size reduction for all content */
 }
 
@@ -1238,13 +1238,26 @@ h1 {
             calc(random() * -2s);
     }
 
-    /* Update to only affect the specific played card */
+    /* Update played card animations for touch devices */
     .card.played {
+        animation: none !important; /* Reset any existing animations */
+        transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+    }
+
+    /* Specific animation only for the selected card */
+    .card.played[data-selected="true"] {
         animation: touchExcited 0.4s ease-in-out !important;
         transform: scale(0.8) translateY(-100px) !important;
         opacity: 0 !important;
+        transition-delay: 0.4s; /* Wait for excited animation to finish */
+    }
+
+    /* Immediate fade for the non-selected card */
+    .card.played:not([data-selected="true"]) {
+        transform: scale(0.9) !important;
+        opacity: 0 !important;
+        transition-duration: 0.2s !important;
         pointer-events: none !important;
-        transition: transform 0.5s ease-out, opacity 0.5s ease-out;
     }
 
     /* Remove other card variations for played state */
