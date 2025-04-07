@@ -9,8 +9,6 @@ export const CARDS = {
             chaos: 5
         },
         effect: (state) => {
-            state.playerStats.workerCount += 3;
-            state.playerStats.chaosLevel += 5;
             return "Intern's tears somehow boost worker morale!";
         }
     },
@@ -33,8 +31,6 @@ export const CARDS = {
             workers: -3
         },
         effect: (state) => {
-            state.playerStats.pastaPrestige += 10;
-            state.playerStats.workerCount -= 3;
             return "Workers exhausted but productive!";
         }
     },
@@ -46,8 +42,6 @@ export const CARDS = {
             workers: -1
         },
         effect: (state) => {
-            state.playerStats.chaosLevel -= 8;
-            state.playerStats.workerCount -= 1;
             return "Order restored through pasta violence!";
         }
     },
@@ -60,9 +54,6 @@ export const CARDS = {
             workers: -2
         },
         effect: (state) => {
-            state.playerStats.chaosLevel += 12;
-            state.playerStats.pastaPrestige += 8;
-            state.playerStats.workerCount -= 2;
             return "The Kraken has become our star attraction!";
         }
     },
@@ -89,9 +80,6 @@ export const CARDS = {
             workers: 2
         },
         effect: (state) => {
-            state.playerStats.pastaPrestige += 12;
-            state.playerStats.chaosLevel += 6;
-            state.playerStats.workerCount += 2;
             return "R'amen! The workers have been blessed by His Noodly Appendage!";
         }
     },
@@ -118,9 +106,6 @@ export const CARDS = {
             prestige: -5
         },
         effect: (state) => {
-            state.playerStats.chaosLevel += 15;
-            state.playerStats.workerCount -= 4;
-            state.playerStats.pastaPrestige -= 5;
             return "The ravioli have seized the means of production!";
         }
     },
@@ -145,9 +130,6 @@ export const CARDS = {
             prestige: 15
         },
         effect: (state) => {
-            state.playerStats.chaosLevel += 18;
-            state.playerStats.workerCount -= 4;
-            state.playerStats.pastaPrestige += 15;
             return "Ph'nglui mglw'nafh Spaghetti R'lyeh wgah'nagl fhtagn!";
         }
     },
@@ -172,9 +154,6 @@ export const CARDS = {
             workers: -6
         },
         effect: (state) => {
-            state.playerStats.chaosLevel += 15;
-            state.playerStats.pastaPrestige += 20;
-            state.playerStats.workerCount -= 6;
             return "The pasta has achieved nuclear fusion!";
         }
     },
@@ -187,9 +166,6 @@ export const CARDS = {
             prestige: -5
         },
         effect: (state) => {
-            state.playerStats.workerCount -= 3;
-            state.playerStats.chaosLevel += 10;
-            state.playerStats.pastaPrestige -= 5;
             return "The workers have formed a picket line with giant spaghetti signs!";
         }
     },
@@ -202,9 +178,6 @@ export const CARDS = {
             prestige: 3
         },
         effect: (state) => {
-            state.playerStats.chaosLevel -= 10;
-            state.playerStats.workerCount -= 2;
-            state.playerStats.pastaPrestige += 3;
             return "The factory is secure for the night!";
         }
     },
@@ -241,9 +214,6 @@ export const CARDS = {
             chaos: -6
         },
         effect: (state) => {
-            state.playerStats.workerCount -= 4;
-            state.playerStats.pastaPrestige += 8;
-            state.playerStats.chaosLevel -= 6;
             return "The machine purrs like new... mostly.";
         }
     },
@@ -267,8 +237,6 @@ export const CARDS = {
             prestige: -3
         },
         effect: (state) => {
-            state.playerStats.chaosLevel += 6;
-            state.playerStats.pastaPrestige -= 3;
             return "At least the flying spaghetti monster mural looks nice...";
         }
     },
@@ -281,9 +249,6 @@ export const CARDS = {
             prestige: 6
         },
         effect: (state) => {
-            state.playerStats.workerCount -= 3;
-            state.playerStats.chaosLevel -= 12;
-            state.playerStats.pastaPrestige += 6;
             return "Everything's running smoothly... for now.";
         }
     },
@@ -296,9 +261,6 @@ export const CARDS = {
             prestige: -8
         },
         effect: (state) => {
-            state.playerStats.chaosLevel += 16;
-            state.playerStats.workerCount -= 5;
-            state.playerStats.pastaPrestige -= 8;
             return "Workers are making pasta by candlelight!";
         }
     },
@@ -311,9 +273,6 @@ export const CARDS = {
             prestige: -10
         },
         effect: (state) => {
-            state.playerStats.chaosLevel += 12;
-            state.playerStats.workerCount -= 4;
-            state.playerStats.pastaPrestige -= 10;
             return "Quick, hide the sentient spaghetti!";
         }
     },
@@ -338,9 +297,6 @@ export const CARDS = {
             prestige: 4
         },
         effect: (state) => {
-            state.playerStats.chaosLevel -= 8;
-            state.playerStats.workerCount -= 2;
-            state.playerStats.pastaPrestige += 4;
             return "The rats have been promoted to quality control.";
         }
     }

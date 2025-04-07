@@ -198,61 +198,47 @@ class Game {
         if (this.isGameOver) return;
 
         const card = CARDS[cardName];
-        
-        // Validate card exists
         if (!card) return;
 
-        // Safety check for invalid stat modifications
+        // Apply stat modifications first
         if (card.statModifiers) {
-            const newStats = {};
             Object.entries(card.statModifiers).forEach(([stat, value]) => {
-                // Get current value, default to 0 if undefined
-                const currentValue = this.state.playerStats[stat] || 0;
-                // Ensure we're dealing with numbers
-                const modValue = Number(value);
-                if (!isNaN(modValue)) {
-                    // Apply modification with bounds checking
-                    let newValue = currentValue + modValue;
-                    // Prevent negative values except for specific cases
-                    if (stat !== 'chaosLevel') {
-                        newValue = Math.max(0, newValue);
-                    }
-                    // Cap chaos at 100
-                    if (stat === 'chaosLevel') {
-                        newValue = Math.min(100, Math.max(0, newValue));
-                    }
-                    // Cap ingredients and ensure it's a number
-                    if (stat === 'ingredients') {
-                        newValue = Math.min(20, Math.max(0, Number(newValue)));
-                    }
-                    newStats[stat] = newValue;
+                const statKey = stat === 'workers' ? 'workerCount' : // Map 'workers' to 'workerCount'
+                               stat === 'prestige' ? 'pastaPrestige' : // Map 'prestige' to 'pastaPrestige'
+                               stat === 'chaos' ? 'chaosLevel' : // Add this mapping
+                               stat;
+                
+                // Get current value
+                const currentValue = this.state.playerStats[statKey] || 0;
+                // Calculate new value
+                let newValue = currentValue + Number(value);
+                
+                // Apply bounds
+                if (statKey === 'chaosLevel') {
+                    newValue = Math.min(100, Math.max(0, newValue));
+                } else if (statKey === 'ingredients') {
+                    newValue = Math.min(20, Math.max(0, newValue));
+                } else {
+                    newValue = Math.max(0, newValue); // Prevent negative values for other stats
                 }
-            });
-            // Ensure ingredients is always stored as a number
-            if (newStats.ingredients !== undefined) {
-                newStats.ingredients = Number(newStats.ingredients);
-            }
-            // Update stats safely
-            Object.entries(newStats).forEach(([stat, value]) => {
-                this.state.playerStats[stat] = value;
+                
+                // Update the stat
+                this.state.playerStats[statKey] = newValue;
             });
         }
 
-        // Rest of existing playCard code
+        // Visual feedback for card play
         const cardElements = document.querySelectorAll('.card');
         cardElements.forEach(card => card.classList.add('played'));
 
-        // Apply card effects
+        // Show effect message
         if (card.effect) {
             const message = card.effect(this.state);
-            this.updateDisplay();
-            
             const messageBox = document.getElementById('game-messages');
             messageBox.textContent = message;
             messageBox.classList.remove('situation');
             messageBox.classList.add('feedback');
 
-            // Add the situation text transition after a delay
             setTimeout(() => {
                 const randomSituation = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
                 messageBox.classList.remove('feedback');
@@ -261,29 +247,28 @@ class Game {
             }, 2000);
         }
 
-        // Increment turn
+        // Update display and check game state
+        this.updateDisplay();
         this.turn++;
 
-        // Update chaos effects
-        if (this.state.playerStats.chaosLevel) {
-            updateChaosEffects(this.state.playerStats.chaosLevel);
-        }
-
-        // Check win/lose conditions with safety bounds
+        // Check win/lose conditions
         if (this.state.playerStats.chaosLevel >= 100) {
             this.endGame('chaos');
             return;
         }
         if (this.state.playerStats.workerCount <= 0) {
-            this.state.playerStats.workerCount = 0; // Prevent negative
             this.endGame('workers');
             return;
         }
+        if (this.state.playerStats.ingredients <= 0) {
+            this.endGame('ingredients');
+            return;
+        }
 
-        // Draw new cards after animation
-        setTimeout(() => {
-            this.drawNewCards();
-        }, 500);
+        // Draw new cards if game continues
+        if (!this.isGameOver) {
+            setTimeout(() => this.drawNewCards(), 500);
+        }
     }
 
     checkAchievements() {
@@ -431,7 +416,14 @@ class Game {
 
     start() {
         resetGameState();
-        this.state = gameState;
+        this.state = {
+            playerStats: {
+                pastaPrestige: 0,
+                chaosLevel: 0,
+                ingredients: Math.floor(Math.random() * 6) + 5, // Random 5-10 ingredients
+                workerCount: Math.floor(Math.random() * 6) + 15
+            }
+        };
         this.isGameOver = false;
         this.turn = 1;
         
@@ -484,8 +476,12 @@ class Game {
                 return "The chaos searches for ingredients to consume...";
             },
             () => {
-                this.state.playerStats.workerCount = Math.max(0, this.state.playerStats.workerCount - 5);
-                return "The chaos drains worker energy!";
+                // Only reduce workers if it won't cause game over
+                if (this.state.playerStats.workerCount > 5) {
+                    this.state.playerStats.workerCount = Math.max(0, this.state.playerStats.workerCount - 5);
+                    return "The chaos drains worker energy!";
+                }
+                return "The workers resist the chaos!";
             },
             () => {
                 this.state.playerStats.pastaPrestige = Math.max(0, this.state.playerStats.pastaPrestige - 5);
