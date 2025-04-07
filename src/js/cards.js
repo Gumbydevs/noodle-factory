@@ -1,5 +1,7 @@
 // This file defines the card system, including the creation and management of cards, their effects, and how they interact with the game state.
 
+import { gameState } from './state.js';
+
 export const CARDS = {
     "Sobbing Intern": {
         description: "An intern's tears might boost morale... or cause chaos.",
@@ -611,15 +613,42 @@ export const CARDS = {
             }
             return "Great to be back! Now, about these Himalayan noodle techniques...";
         }
+    },
+    "Little Chef": {
+        description: "A surprisingly intelligent rat has been secretly improving recipes!",
+        requirements: null,
+        statModifiers: {
+            prestige: 15,
+            ingredients: 2,
+            chaos: 8,
+            workers: -2
+        },
+        effect: (state) => {
+            return "The little rat's innovations are remarkable, but the health inspector must never know!";
+        }
+    },
+    "Karen Invasion": {
+        description: "An entitled customer demands to speak to ALL the managers!",
+        requirements: null,
+        statModifiers: {
+            chaos: 12,
+            workers: -4,
+            prestige: -8
+        },
+        effect: (state) => {
+            return "She's filming everything and threatening to post it on PastaTok!";
+        }
     }
 };
 
 export function getRandomCard() {
     const cardNames = Object.keys(CARDS).filter(name => {
-        // Only include "Return of Reggie" if Reggie has escaped
+        // Special handling for Return of Reggie
         if (name === "Return of Reggie") {
-            return gameState.playerStats.reggieEscaped === true;
+            // Only include if Reggie has escaped
+            return gameState?.playerStats?.reggieEscaped === true;
         }
+        // Include all other cards
         return true;
     });
     const randomIndex = Math.floor(Math.random() * cardNames.length);
