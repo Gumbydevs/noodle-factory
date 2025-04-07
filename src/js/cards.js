@@ -808,34 +808,23 @@ function getPlayedCards() {
 }
 
 function savePlayedCard(cardName) {
-    const played = getPlayedCards();
+    const played = JSON.parse(localStorage.getItem('noodleFactoryPlayedCards') || '{}');
     played[cardName] = true;
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(played));
-    checkCardAchievements();
+    localStorage.setItem('noodleFactoryPlayedCards', JSON.stringify(played));
+    checkCardAchievements(); // Make sure this is called after saving
 }
 
+// Fix the achievement check logic to prevent false triggers
 function checkCardAchievements() {
     const played = getPlayedCards();
+    // Don't check if no cards have been played
+    if (Object.keys(played).length === 0) return;
+    
     const totalCards = Object.keys(CARDS).length;
     const playedCount = Object.keys(played).length;
     const percentage = (playedCount / totalCards) * 100;
 
-    if (percentage >= 25 && !gameState.playerStats.cardCollector25) {
-        gameState.playerStats.cardCollector25 = true;
-        // Achievement unlocked: "Card Collector Apprentice"
-    }
-    if (percentage >= 50 && !gameState.playerStats.cardCollector50) {
-        gameState.playerStats.cardCollector50 = true;
-        // Achievement unlocked: "Card Collector Expert"
-    }
-    if (percentage >= 75 && !gameState.playerStats.cardCollector75) {
-        gameState.playerStats.cardCollector75 = true;
-        // Achievement unlocked: "Card Collector Master"
-    }
-    if (percentage === 100 && !gameState.playerStats.cardCollector100) {
-        gameState.playerStats.cardCollector100 = true;
-        // Achievement unlocked: "Card Collector Legend"
-    }
+    console.log(`Cards played: ${playedCount}/${totalCards} (${percentage.toFixed(1)}%)`);
 }
 
 export function getRandomCard() {

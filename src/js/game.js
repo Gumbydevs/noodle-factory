@@ -552,7 +552,7 @@ class Game {
         // Get and update high score before creating game over screen
         const highScore = updateHighScore(this.turn);
 
-        // Update the game over screen HTML to include high score
+        // Update the game over screen HTML to change button text
         gameOverScreen.innerHTML = `
             <div class="game-over-content">
                 <h2>Game Over!</h2>
@@ -610,7 +610,7 @@ class Game {
 
                 <div class="buttons-section secondary-buttons">
                     <button id="share-results" class="button secondary">Share Results</button>
-                    <button id="reset-achievements" class="button secondary small">Reset Achievements</button>
+                    <button id="reset-achievements" class="button secondary small">Reset Progress</button>
                 </div>
             </div>
         `;
@@ -623,12 +623,12 @@ class Game {
         gameContainer.appendChild(gameOverScreen);
         this.checkHighScore(); // Add this line
         
-        // Add reset achievements button handler
+        // Update the reset handler to show clear confirmation
         document.getElementById('reset-achievements').addEventListener('click', () => {
             resetAchievements();
             this.achievements = new Set(); // Clear local achievements
-            // Update achievements display
-            document.querySelector('.achievements-grid').innerHTML = 'All achievements reset!';
+            // Update achievements display without triggering new checks
+            document.querySelector('.achievements-grid').innerHTML = 'All progress has been reset!';
         });
 
         // Add event listener to new game button

@@ -1,3 +1,6 @@
+import { CARDS } from './cards.js';
+import { gameState } from './state.js';
+
 export const ACHIEVEMENTS = {
     "First Day": {
         description: "Take the keys and start managing your first noodle factory",
@@ -83,22 +86,42 @@ export const ACHIEVEMENTS = {
     },
     "Card Collector Apprentice": {
         description: "Play 25% of all available cards",
-        check: (stats) => stats.cardCollector25,
+        check: () => {
+            const played = getPlayedCards();
+            const totalCards = Object.keys(CARDS).length;
+            const playedCount = Object.keys(played).length;
+            return (playedCount / totalCards) * 100 >= 25;
+        },
         reward: "Starting to learn the ropes!"
     },
     "Card Collector Expert": {
         description: "Play 50% of all available cards",
-        check: (stats) => stats.cardCollector50,
+        check: () => {
+            const played = getPlayedCards();
+            const totalCards = Object.keys(CARDS).length;
+            const playedCount = Object.keys(played).length;
+            return (playedCount / totalCards) * 100 >= 50;
+        },
         reward: "Mastering the art of pasta management!"
     },
     "Card Collector Master": {
         description: "Play 75% of all available cards",
-        check: (stats) => stats.cardCollector75,
+        check: () => {
+            const played = getPlayedCards();
+            const totalCards = Object.keys(CARDS).length;
+            const playedCount = Object.keys(played).length;
+            return (playedCount / totalCards) * 100 >= 75;
+        },
         reward: "A true pasta connoisseur!"
     },
     "Card Collector Legend": {
         description: "Play every single card in the game",
-        check: (stats) => stats.cardCollector100,
+        check: () => {
+            const played = getPlayedCards();
+            const totalCards = Object.keys(CARDS).length;
+            const playedCount = Object.keys(played).length;
+            return playedCount === totalCards;
+        },
         reward: "You've seen it all!"
     }
 };
@@ -131,10 +154,11 @@ export const isAchievementUnlocked = (achievementId) => {
     return savedAchievements.includes(achievementId);
 };
 
-// Modify the resetAchievements function to also reset first game status
+// Update the resetAchievements function to also clear played cards
 export const resetAchievements = () => {
     localStorage.removeItem('noodleFactoryAchievements');
     localStorage.removeItem('noodleFactoryFirstGame');
+    localStorage.removeItem('noodleFactoryPlayedCards'); // Add this line
 };
 
 // Modify checkAchievements to handle first game achievement
@@ -169,27 +193,21 @@ export const checkAchievements = (stats, turn) => {
     return newAchievements;
 };
 
-// Modify the checkCardAchievements function to add achievement flags
-function checkCardAchievements() {
+// Move this function to cards.js since that's where the storage key is defined
+export function getPlayedCards() {
+    const played = localStorage.getItem('noodleFactoryPlayedCards') || '{}';
+    return JSON.parse(played);
+}
+
+// Update checkCardAchievements to trigger achievement checks
+export function checkCardAchievements() {
     const played = getPlayedCards();
     const totalCards = Object.keys(CARDS).length;
     const playedCount = Object.keys(played).length;
     const percentage = (playedCount / totalCards) * 100;
 
-    if (percentage >= 25 && !gameState.playerStats.cardCollector25) {
-        gameState.playerStats.cardCollector25 = true;
-        saveAchievement("Card Collector Apprentice");
-    }
-    if (percentage >= 50 && !gameState.playerStats.cardCollector50) {
-        gameState.playerStats.cardCollector50 = true;
-        saveAchievement("Card Collector Expert");
-    }
-    if (percentage >= 75 && !gameState.playerStats.cardCollector75) {
-        gameState.playerStats.cardCollector75 = true;
-        saveAchievement("Card Collector Master");
-    }
-    if (percentage === 100 && !gameState.playerStats.cardCollector100) {
-        gameState.playerStats.cardCollector100 = true;
-        saveAchievement("Card Collector Legend");
-    }
+    console.log(`Cards played: ${playedCount}/${totalCards} (${percentage.toFixed(1)}%)`); // Debug log
+
+    // These will now trigger achievement checks through the normal achievement system
+    checkAchievements(gameState.playerStats);
 }
