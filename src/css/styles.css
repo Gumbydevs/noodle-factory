@@ -450,6 +450,10 @@ body.chaos-noise::before {
     color: var(--energy-color, #3498db);  /* matches energy-color */
 }
 
+.turn-score {
+    color: #9b59b6 !important; /* Same purple as turn-color */
+}
+
 h1 {
     font-size: 3em;
     margin-bottom: 20px;
