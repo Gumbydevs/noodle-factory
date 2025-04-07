@@ -30,6 +30,9 @@ class Game {
             tier3: false
         };
 
+        // Clear any existing chaos effects
+        document.body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
+
         // Initial display update
         this.updateInitialDisplay();
 
@@ -291,6 +294,9 @@ class Game {
 
         this.turn++;
         
+        // Update chaos effects
+        updateChaosEffects(this.state.playerStats.chaosLevel);
+
         // Check chaos events before game over condition
         this.checkChaosEvents();
 
