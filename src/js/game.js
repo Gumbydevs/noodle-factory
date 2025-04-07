@@ -207,7 +207,11 @@ class Game {
     }
 
     drawNewCards() {
-        // Add this line at the start of the method
+        document.querySelectorAll('.card').forEach(card => {
+            card.style.cssText = '';  // Reset all inline styles
+            card.classList.remove('hover', 'wiggle', 'active', 'played');  // Remove all animation classes
+        });
+
         gameSounds.playDrawCardsSound();
         
         const cardsContainer = document.getElementById('cards-container');
@@ -283,31 +287,32 @@ class Game {
             card => card !== clickedCard
         );
 
-        // Remove ALL animations and hover states first
-        [clickedCard, otherCard].forEach(card => {
-            if (card) {
-                card.style.animation = 'none';
-                card.style.transform = 'none';
-                // Force reflow to ensure styles are cleared
-                void card.offsetWidth;
-            }
+        // Immediately remove all hover and animation related classes/styles
+        document.querySelectorAll('.card').forEach(card => {
+            card.style.cssText = '';  // Clear all inline styles
+            card.classList.remove('hover', 'wiggle', 'active');  // Remove any animation classes
+            
+            // Force removal of any :hover pseudo states
+            card.addEventListener('touchend', function() {
+                this.blur();
+            }, { once: true });
         });
 
         // Set data-selected attributes and played class
         if (clickedCard) {
             clickedCard.setAttribute('data-selected', 'true');
             clickedCard.classList.add('played');
-            // Set final state immediately to prevent hover state sticking
             clickedCard.style.transform = 'scale(0.8) translateY(-20px)';
             clickedCard.style.opacity = '0';
+            clickedCard.style.pointerEvents = 'none';  // Prevent any further interactions
         }
         
         if (otherCard) {
             otherCard.setAttribute('data-selected', 'false');
             otherCard.classList.add('played');
-            // Set final state immediately to prevent hover state sticking
             otherCard.style.transform = 'scale(0.5)';
             otherCard.style.opacity = '0';
+            otherCard.style.pointerEvents = 'none';  // Prevent any further interactions
         }
 
         // Check if playing this card would cause game over BEFORE applying effects
@@ -420,9 +425,19 @@ class Game {
             return;
         }
 
+        // Add this before drawing new cards
+        const cleanup = () => {
+            document.querySelectorAll('.card').forEach(card => {
+                card.remove();  // Completely remove old cards
+            });
+        };
+
         // Draw new cards if game continues
         if (!this.isGameOver) {
-            setTimeout(() => this.drawNewCards(), 500);
+            setTimeout(() => {
+                cleanup();
+                this.drawNewCards();
+            }, 500);
         }
     }
 

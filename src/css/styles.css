@@ -653,6 +653,22 @@ h1 {
     @keyframes touchExcited {
         0%, 100% { transform: scale(0.8) translateY(-20px); }
     }
+
+    .card:hover {
+        transform: none !important;
+        animation: none !important;
+    }
+    
+    .card {
+        touch-action: manipulation;  /* Optimizes for touch */
+    }
+}
+
+/* Reset any transform when new cards are drawn */
+.card-container:not(.played) .card {
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
 }
 
 .card:nth-child(odd) {
