@@ -80,6 +80,26 @@ export const ACHIEVEMENTS = {
         description: "Witness Reggie's complete journey of self-discovery through pasta",
         check: (stats) => stats.reggieComplete === true,
         reward: "Unlock enlightened management techniques"
+    },
+    "Card Collector Apprentice": {
+        description: "Play 25% of all available cards",
+        check: (stats) => stats.cardCollector25,
+        reward: "Starting to learn the ropes!"
+    },
+    "Card Collector Expert": {
+        description: "Play 50% of all available cards",
+        check: (stats) => stats.cardCollector50,
+        reward: "Mastering the art of pasta management!"
+    },
+    "Card Collector Master": {
+        description: "Play 75% of all available cards",
+        check: (stats) => stats.cardCollector75,
+        reward: "A true pasta connoisseur!"
+    },
+    "Card Collector Legend": {
+        description: "Play every single card in the game",
+        check: (stats) => stats.cardCollector100,
+        reward: "You've seen it all!"
     }
 };
 
@@ -148,3 +168,28 @@ export const checkAchievements = (stats, turn) => {
     
     return newAchievements;
 };
+
+// Modify the checkCardAchievements function to add achievement flags
+function checkCardAchievements() {
+    const played = getPlayedCards();
+    const totalCards = Object.keys(CARDS).length;
+    const playedCount = Object.keys(played).length;
+    const percentage = (playedCount / totalCards) * 100;
+
+    if (percentage >= 25 && !gameState.playerStats.cardCollector25) {
+        gameState.playerStats.cardCollector25 = true;
+        saveAchievement("Card Collector Apprentice");
+    }
+    if (percentage >= 50 && !gameState.playerStats.cardCollector50) {
+        gameState.playerStats.cardCollector50 = true;
+        saveAchievement("Card Collector Expert");
+    }
+    if (percentage >= 75 && !gameState.playerStats.cardCollector75) {
+        gameState.playerStats.cardCollector75 = true;
+        saveAchievement("Card Collector Master");
+    }
+    if (percentage === 100 && !gameState.playerStats.cardCollector100) {
+        gameState.playerStats.cardCollector100 = true;
+        saveAchievement("Card Collector Legend");
+    }
+}
