@@ -192,7 +192,6 @@ class Game {
     formatCardEffects(modifiers) {
         if (!modifiers) return '';
         
-        // Get the exact same colors as used in the stat bars
         const colorClasses = {
             prestige: 'prestige-color',
             chaos: 'chaos-color',
@@ -202,9 +201,10 @@ class Game {
         
         return Object.entries(modifiers)
             .map(([stat, value]) => {
-                const sign = value > 0 ? '+' : '';
+                const sign = value > 0 ? '<span style="color: #2ecc71;">+</span>' : '<span style="color: #e74c3c;">-</span>';
                 const statName = stat.charAt(0).toUpperCase() + stat.slice(1);
-                return `<span class="stat-modifier ${colorClasses[stat]}">${statName}: ${sign}${value}</span>`;
+                const absValue = Math.abs(value);
+                return `<span class="stat-modifier ${colorClasses[stat]}">${statName}: ${sign}${absValue}</span>`;
             })
             .join('');
     }
