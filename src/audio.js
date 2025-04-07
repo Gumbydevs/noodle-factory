@@ -2,19 +2,45 @@ export class GameSounds {
     constructor() {
         this.ctx = null;
         this.gainNode = null;
-        document.addEventListener('click', () => {
-            if (!this.ctx) this.initAudio();
-        }, { once: true });
+        this.isInitialized = false;
+        
+        // Add touch event listeners for mobile
+        ['touchstart', 'click'].forEach(eventType => {
+            document.addEventListener(eventType, () => {
+                if (!this.isInitialized) {
+                    this.initAudio();
+                }
+            }, { once: true });
+        });
     }
 
     initAudio() {
         try {
-            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-            this.gainNode = this.ctx.createGain();
-            this.gainNode.connect(this.ctx.destination);
-            this.gainNode.gain.value = 0.2;
+            // Resume audio context for mobile
+            if (this.ctx && this.ctx.state === 'suspended') {
+                this.ctx.resume();
+            }
+
+            if (!this.ctx) {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                this.gainNode = this.ctx.createGain();
+                this.gainNode.connect(this.ctx.destination);
+                this.gainNode.gain.value = 0.2;
+            }
+            
+            this.isInitialized = true;
         } catch (e) {
             console.warn('Web Audio API not supported:', e);
+        }
+    }
+
+    // Add this method to ensure audio context is ready
+    ensureAudioContext() {
+        if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+        if (!this.isInitialized) {
+            this.initAudio();
         }
     }
 
@@ -27,6 +53,7 @@ export class GameSounds {
     }
 
     playCardSound() {
+        this.ensureAudioContext();
         if (!this.ctx) return;
         try {
             const mainGain = this.ctx.createGain();
@@ -101,6 +128,7 @@ export class GameSounds {
     }
 
     playDrawCardsSound() {
+        this.ensureAudioContext();
         if (!this.ctx) return;
         try {
             const mainGain = this.ctx.createGain();
@@ -169,6 +197,7 @@ export class GameSounds {
     }
 
     playChaosSound() {
+        this.ensureAudioContext();
         if (!this.ctx) return;
         try {
             const gainNode = this.ctx.createGain();
@@ -204,6 +233,7 @@ export class GameSounds {
     }
 
     playAchievementSound() {
+        this.ensureAudioContext();
         if (!this.ctx) return;
         try {
             const gainNode = this.ctx.createGain();
@@ -251,6 +281,7 @@ export class GameSounds {
     }
 
     playGameOverSound() {
+        this.ensureAudioContext();
         if (!this.ctx) return;
         try {
             const gainNode = this.ctx.createGain();
@@ -310,6 +341,7 @@ export class GameSounds {
     }
 
     playStartGameSound() {
+        this.ensureAudioContext();
         if (!this.ctx) return;
         try {
             const gainNode = this.ctx.createGain();
