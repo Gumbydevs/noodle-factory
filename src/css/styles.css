@@ -836,48 +836,35 @@ h1 {
     }
 }
 
-.noodle {
+/* Replace existing noodle-decoration styles with these: */
+.noodle-decoration {
     position: fixed;
-    bottom: 20px;
-    left: -100px;
-    width: 120px;
-    height: 40px;
-    z-index: 1000;
-}
-
-.noodle::before {
-    content: '';
-    position: absolute;
+    bottom: 0;
+    left: 0;
     width: 100%;
-    height: 3px;  /* Reduced from 15px to 3px */
-    background: #ffd700;
-    border-radius: 2px;  /* Reduced from 10px to 2px */
-    animation: squiggle 0.4s infinite linear;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    height: 100px; /* Increased height to prevent clipping */
+    pointer-events: none;
+    overflow: visible; /* Changed from hidden to visible */
 }
 
-.noodle::after {
-    content: '';
+.noodle-worm {
     position: absolute;
-    width: 100%;
-    height: 3px;  /* Reduced from 15px to 3px */
-    background: #ffd700;
-    border-radius: 2px;  /* Reduced from 10px to 2px */
-    top: 20px;
-    animation: squiggle 0.4s infinite linear reverse;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    bottom: 20px; /* Position from bottom instead of using transform */
+    animation: moveAcross 12s linear infinite; /* Slowed down animation */
 }
 
-@keyframes roll {
+@keyframes moveAcross {
     0% {
-        left: -100px;
+        left: -120px;
+        transform: rotate(0deg);
     }
     100% {
-        left: calc(100vw + 100px);
+        left: calc(100% + 120px);
+        transform: rotate(360deg);
     }
 }
 
-.rolling {
-    display: block;
-    animation: roll 3s linear forwards;
+/* Add some hover effect for fun */
+.noodle-worm:hover {
+    animation-duration: 6s;
 }

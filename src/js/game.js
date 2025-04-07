@@ -386,7 +386,7 @@ class Game {
                 <div class="score-display">
                     <div class="current-score">
                         <h3>Your Score</h3>
-                        <span class="score-value">${this.turn}</span>
+                        <span class="score-value turn-score">${this.turn}</span>
                         <span class="score-label">TURNS</span>
                     </div>
                     <div class="high-score">

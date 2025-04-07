@@ -62,6 +62,37 @@
             </div>
         </div>
 
+        <div class="noodle-decoration">
+            <svg class="noodle-worm" width="120" height="60" viewBox="0 0 120 60">
+                <path class="noodle-body" 
+                      d="M5,30 Q30,10 55,30 T105,30" 
+                      stroke="#FFA500" 
+                      stroke-width="6" 
+                      stroke-linecap="round"
+                      fill="none">
+                    <animate attributeName="d" 
+                             dur="1s"
+                             repeatCount="indefinite"
+                             values="M5,30 Q30,10 55,30 T105,30;
+                                     M5,30 Q30,50 55,30 T105,30;
+                                     M5,30 Q30,10 55,30 T105,30"/>
+                </path>
+                <path class="noodle-body-top" 
+                      d="M5,30 Q30,10 55,30 T105,30" 
+                      stroke="#FFD700" 
+                      stroke-width="4" 
+                      stroke-linecap="round"
+                      fill="none">
+                    <animate attributeName="d" 
+                             dur="1s"
+                             repeatCount="indefinite"
+                             values="M5,30 Q30,10 55,30 T105,30;
+                                     M5,30 Q30,50 55,30 T105,30;
+                                     M5,30 Q30,10 55,30 T105,30"/>
+                </path>
+            </svg>
+        </div>
+
         <button id="start-game" class="button">Start Run</button>
     </div>
     <div id="noodle-tumbleweed" class="noodle hidden"></div>
