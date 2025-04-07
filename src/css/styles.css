@@ -526,7 +526,7 @@ h1 {
 /* Update the card played animations for both desktop and mobile */
 .card.played[data-selected="true"] {
     animation: touchExcited 0.4s ease-in-out !important;
-    transform: scale(0.8) translateY(-100px) !important;
+    transform: scale(0.8) translateY(-20px) !important; /* Changed from -100px to -20px */
     opacity: 0 !important;
     transition: transform 0.5s ease-out, opacity 0.5s ease-out !important;
     transition-delay: 0.4s !important;
@@ -1210,7 +1210,7 @@ h1 {
     /* Keep existing touch device styles but override played animations */
     .card.played[data-selected="true"] {
         animation: touchExcited 0.4s ease-in-out !important;
-        transform: scale(0.8) translateY(-100px) !important;
+        transform: scale(0.8) translateY(-20px) !important; /* Changed from -100px to -20px */
         opacity: 0 !important;
         transition: transform 0.5s ease-out, opacity 0.5s ease-out !important;
         transition-delay: 0.4s !important;
