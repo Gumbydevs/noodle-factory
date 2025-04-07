@@ -159,6 +159,23 @@
     100% { transform: skew(0deg, 0deg); }
 }
 
+/* Add these new keyframes near the other animations */
+@keyframes statsFloat {
+    0%, 100% {
+        transform: translateY(0) rotate(-0.1deg);
+    }
+    50% {
+        transform: translateY(-2px) rotate(0.1deg);
+    }
+}
+
+@keyframes statsJitter {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(0.2deg); }
+    75% { transform: rotate(-0.2deg); }
+    100% { transform: rotate(0deg); }
+}
+
 /* Add these new keyframes near the other card animations */
 @keyframes randomJitter {
     0% { transform: rotate(0deg); }
@@ -204,6 +221,13 @@ body {
     border-radius: 5px;
     width: calc(100% - 40px); /* Fix width accounting for margins */
     min-height: 80px; /* Add fixed height */
+    animation: 
+        statsFloat 6s ease-in-out infinite,
+        statsJitter 3s ease-in-out infinite;
+    animation-delay: 
+        0s,
+        calc(random() * -3s);
+    transform-origin: center center;
 }
 
 .stat {
@@ -214,6 +238,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    animation: statsJitter 2.5s ease-in-out infinite;
+    animation-delay: calc(random() * -2s);
 }
 
 .stat-progress {
@@ -886,6 +912,20 @@ h1 {
     #stats {
         margin: 8px auto;
         width: calc(100% - 16px);
+    }
+}
+
+/* Add this in the media queries section */
+@media (hover: none) and (pointer: coarse) {
+    /* For touch devices */
+    .card:hover {
+        animation: none;
+        transform: none;
+        background: #444;
+    }
+    
+    .card {
+        transition: transform 0.5s ease-out, opacity 0.5s ease-out;
     }
 }
 
