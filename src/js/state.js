@@ -8,7 +8,7 @@ const gameState = {
     playerStats: {
         pastaPrestige: 0,
         chaosLevel: 0,
-        ingredients: 0,  // Changed from array to number
+        ingredients: 0,  
         unitsSold: 0,
         workerCount: getRandomWorkerCount(),
         workersInFactory: 5,
@@ -45,7 +45,7 @@ export const resetGameState = () => {
     };
 };
 
-// Add function to check chaos level and apply visual effects
+// Function to check chaos level and apply visual effects
 export function updateChaosEffects(chaosLevel) {
     const body = document.body;
     
