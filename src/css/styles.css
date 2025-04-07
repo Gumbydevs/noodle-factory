@@ -1310,16 +1310,16 @@ h1 {
 
     #stats {
         margin: 15px auto;
-        width: 95%;
-        gap: 8px; /* Reduce gap to prevent overflow */
-        padding: 8px;
+        width: 92%; /* Slightly narrower to prevent overflow */
+        gap: 4px; /* Reduced gap between stats */
+        padding: 6px;
         justify-content: space-between;
-        flex-wrap: nowrap; /* Prevent wrapping */
-        overflow-x: hidden; /* Prevent horizontal scroll */
+        flex-wrap: nowrap;
+        overflow-x: hidden;
     }
 
     .stat {
-        padding: 6px;
+        padding: 4px;
         min-width: 0; /* Allow stats to shrink */
         margin: 0;
         flex: 1;
@@ -1327,17 +1327,18 @@ h1 {
     }
 
     .stat-value {
-        font-size: 1.2em; /* Slightly smaller font */
-    }
-
-    .stat-label {
-        font-size: 0.8em;
+        font-size: 1em; /* Smaller font size */
         white-space: nowrap; /* Keep labels on one line */
     }
 
+    .stat-label {
+        font-size: 0.7em; /* Even smaller label */
+        white-space: nowrap;
+    }
+
     .stat-progress {
-        margin: 4px auto;
-        width: 90%;
+        margin: 3px auto;
+        width: 85%; /* Slightly narrower progress bar */
     }
 
     #cards-container {
@@ -1425,8 +1426,25 @@ h1 {
     }
 }
 
-/* Additional adjustments for very small screens */
+/* Extra small screens */
 @media screen and (max-width: 360px) {
+    #stats {
+        width: 94%;
+        gap: 2px; /* Minimum gap */
+    }
+
+    .stat {
+        padding: 3px;
+    }
+
+    .stat-value {
+        font-size: 0.9em;
+    }
+
+    .stat-label {
+        font-size: 0.65em;
+    }
+
     .card {
         width: 130px;
         height: 220px;
