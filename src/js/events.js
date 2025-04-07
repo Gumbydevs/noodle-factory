@@ -6,13 +6,12 @@ const events = [
         name: "Sobbing Intern",
         description: "An intern is crying in the corner. Do you comfort them or use them as a noodle ingredient?",
         effect: (state) => {
-            // Randomly choose an effect
             const choice = Math.random() < 0.5 ? 'comfort' : 'ingredient';
             if (choice === 'comfort') {
                 state.morale += 5;
                 return "You comfort the intern. Morale increases!";
             } else {
-                state.ingredients.push("Sobbing Intern");
+                state.playerStats.ingredients += 1; // Changed from push to increment
                 return "You add the intern to the noodle mix. Delicious!";
             }
         }

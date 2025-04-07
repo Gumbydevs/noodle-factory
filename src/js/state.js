@@ -4,15 +4,11 @@ function getRandomWorkerCount() {
     return Math.floor(Math.random() * 6) + 15; // 15-20 range for better starting balance
 }
 
-function getRandomIngredientCount() {
-    return Math.floor(Math.random() * 6) + 5; // 5-10 range
-}
-
 const gameState = {
     playerStats: {
         pastaPrestige: 0,
         chaosLevel: 0,
-        ingredients: Array(getRandomIngredientCount()).fill(1),
+        ingredients: 0,  // Changed from array to number
         unitsSold: 0,
         workerCount: getRandomWorkerCount(),
         workersInFactory: 5,
@@ -38,31 +34,16 @@ function updateResource(resource, amount) {
     }
 }
 
-export function resetGameState() {
-    // Create a fresh state object
-    const newState = {
+export const resetGameState = () => {
+    return {
         playerStats: {
             pastaPrestige: 0,
             chaosLevel: 0,
-            ingredients: Array(getRandomIngredientCount()).fill(1),
-            unitsSold: 0,
-            workerCount: getRandomWorkerCount(),
-            workersInFactory: 5,
-        },
-        resourceMeters: {
-            noodletude: 50,
-            spiceLevel: 50,
-            corporateCompliance: 100,
-            boilPressure: 0,
-        },
-        currentStatus: 'Game in Progress'
+            ingredients: 0,  // Changed from array to number
+            workerCount: Math.floor(Math.random() * 6) + 15
+        }
     };
-
-    // Update the original gameState object
-    Object.assign(gameState, newState);
-    
-    return gameState;
-}
+};
 
 // Add function to check chaos level and apply visual effects
 export function updateChaosEffects(chaosLevel) {

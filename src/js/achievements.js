@@ -10,8 +10,8 @@ export const ACHIEVEMENTS = {
         reward: "Unlock premium ingredients"
     },
     "Ingredient Hoarder": {
-        description: "Collect 10 different ingredients",
-        check: (stats) => stats.ingredients.length >= 10,
+        description: "Collect 20 different ingredients",
+        check: (stats) => stats.ingredients.length >= 20,
         reward: "Unlock special recipes"
     },
     "Energy Crisis": {

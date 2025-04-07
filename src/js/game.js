@@ -20,7 +20,14 @@ const SITUATIONS = [
 
 class Game {
     constructor() {
-        this.state = resetGameState();
+        this.state = {
+            playerStats: {
+                pastaPrestige: 0,
+                chaosLevel: 0,
+                ingredients: Math.floor(Math.random() * 6) + 5, // Random 5-10 ingredients
+                workerCount: Math.floor(Math.random() * 6) + 15
+            }
+        };
         this.isGameOver = false;
         this.turn = 0;
         this.achievements = new Set();
@@ -82,7 +89,7 @@ class Game {
         const stats = {
             'prestige': this.state.playerStats.pastaPrestige,
             'chaos': this.state.playerStats.chaosLevel,
-            'ingredients': this.state.playerStats.ingredients.length,
+            'ingredients': this.state.playerStats.ingredients,
             'energy': this.state.playerStats.workerCount,
             'turn': this.turn
         };
@@ -99,7 +106,7 @@ class Game {
         const progressBars = {
             'prestige-progress': (this.state.playerStats.pastaPrestige / 100) * 100,
             'chaos-progress': (this.state.playerStats.chaosLevel / 100) * 100,
-            'ingredients-progress': (this.state.playerStats.ingredients.length / 20) * 100,
+            'ingredients-progress': (this.state.playerStats.ingredients / 20) * 100,
             'workers-progress': (this.state.playerStats.workerCount / 100) * 100,
             'turn-progress': (this.turn / 50) * 100
         };
@@ -111,7 +118,36 @@ class Game {
             }
         });
 
+        this.checkChaosEvents();
         this.checkAchievements();
+    }
+
+    checkChaosEvents() {
+        const chaos = this.state.playerStats.chaosLevel;
+        const body = document.body;
+        const messageBox = document.getElementById('game-messages');
+        
+        // Remove all chaos classes first
+        body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
+        messageBox.classList.remove('chaos-warning');
+        
+        // More gradual chaos progression
+        if (chaos >= 80) {
+            body.classList.add('chaos-level-max', 'chaos-noise');
+            this.triggerChaosEvent("Reality itself begins to melt!");
+        }
+        else if (chaos >= 65) {
+            body.classList.add('chaos-level-3', 'chaos-noise');
+            this.triggerChaosEvent("The factory exists in multiple dimensions!");
+        }
+        else if (chaos >= 45) {
+            body.classList.add('chaos-level-2');
+            this.triggerChaosEvent("Strange distortions appear in the corners of your vision...");
+        }
+        else if (chaos >= 25) {
+            body.classList.add('chaos-level-1');
+            this.triggerChaosEvent("Something feels slightly off...");
+        }
     }
 
     drawNewCards() {
@@ -163,7 +199,46 @@ class Game {
 
         const card = CARDS[cardName];
         
-        // Add played class to both cards
+        // Validate card exists
+        if (!card) return;
+
+        // Safety check for invalid stat modifications
+        if (card.statModifiers) {
+            const newStats = {};
+            Object.entries(card.statModifiers).forEach(([stat, value]) => {
+                // Get current value, default to 0 if undefined
+                const currentValue = this.state.playerStats[stat] || 0;
+                // Ensure we're dealing with numbers
+                const modValue = Number(value);
+                if (!isNaN(modValue)) {
+                    // Apply modification with bounds checking
+                    let newValue = currentValue + modValue;
+                    // Prevent negative values except for specific cases
+                    if (stat !== 'chaosLevel') {
+                        newValue = Math.max(0, newValue);
+                    }
+                    // Cap chaos at 100
+                    if (stat === 'chaosLevel') {
+                        newValue = Math.min(100, Math.max(0, newValue));
+                    }
+                    // Cap ingredients and ensure it's a number
+                    if (stat === 'ingredients') {
+                        newValue = Math.min(20, Math.max(0, Number(newValue)));
+                    }
+                    newStats[stat] = newValue;
+                }
+            });
+            // Ensure ingredients is always stored as a number
+            if (newStats.ingredients !== undefined) {
+                newStats.ingredients = Number(newStats.ingredients);
+            }
+            // Update stats safely
+            Object.entries(newStats).forEach(([stat, value]) => {
+                this.state.playerStats[stat] = value;
+            });
+        }
+
+        // Rest of existing playCard code
         const cardElements = document.querySelectorAll('.card');
         cardElements.forEach(card => card.classList.add('played'));
 
@@ -176,6 +251,14 @@ class Game {
             messageBox.textContent = message;
             messageBox.classList.remove('situation');
             messageBox.classList.add('feedback');
+
+            // Add the situation text transition after a delay
+            setTimeout(() => {
+                const randomSituation = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
+                messageBox.classList.remove('feedback');
+                messageBox.classList.add('situation');
+                messageBox.textContent = randomSituation;
+            }, 2000);
         }
 
         // Increment turn
@@ -186,12 +269,13 @@ class Game {
             updateChaosEffects(this.state.playerStats.chaosLevel);
         }
 
-        // Check win/lose conditions
+        // Check win/lose conditions with safety bounds
         if (this.state.playerStats.chaosLevel >= 100) {
             this.endGame('chaos');
             return;
         }
         if (this.state.playerStats.workerCount <= 0) {
+            this.state.playerStats.workerCount = 0; // Prevent negative
             this.endGame('workers');
             return;
         }
@@ -301,7 +385,7 @@ class Game {
                         </div>
                         <div class="final-stat ingredients-color">
                             <span>Ingredients</span>
-                            <span>${this.state.playerStats.ingredients.length}</span>
+                            <span>${this.state.playerStats.ingredients}</span>
                         </div>
                         <div class="final-stat energy-color">
                             <span>Workers</span>
@@ -385,34 +469,6 @@ class Game {
         // Implement trading logic
     }
 
-    checkChaosEvents() {
-        const chaos = this.state.playerStats.chaosLevel;
-        const body = document.body;
-        const messageBox = document.getElementById('game-messages');
-        
-        // Remove all chaos classes first
-        body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
-        messageBox.classList.remove('chaos-warning');
-        
-        // More gradual chaos progression
-        if (chaos >= 80) {
-            body.classList.add('chaos-level-max', 'chaos-noise');
-            this.triggerChaosEvent("Reality itself begins to melt!");
-        }
-        else if (chaos >= 65) {
-            body.classList.add('chaos-level-3', 'chaos-noise');
-            this.triggerChaosEvent("The factory exists in multiple dimensions!");
-        }
-        else if (chaos >= 45) {
-            body.classList.add('chaos-level-2');
-            this.triggerChaosEvent("Strange distortions appear in the corners of your vision...");
-        }
-        else if (chaos >= 25) {
-            body.classList.add('chaos-level-1');
-            this.triggerChaosEvent("Something feels slightly off...");
-        }
-    }
-
     triggerChaosEvent(message) {
         const messageBox = document.getElementById('game-messages');
         messageBox.textContent = message;
@@ -421,18 +477,18 @@ class Game {
         // Random negative effect
         const effects = [
             () => {
-                if (this.state.playerStats.ingredients.length > 0) {
-                    this.state.playerStats.ingredients.pop();
+                if (this.state.playerStats.ingredients > 0) {
+                    this.state.playerStats.ingredients--;
                     return "An ingredient vanishes into the chaos!";
                 }
                 return "The chaos searches for ingredients to consume...";
             },
             () => {
-                this.state.playerStats.workerCount -= 5;
+                this.state.playerStats.workerCount = Math.max(0, this.state.playerStats.workerCount - 5);
                 return "The chaos drains worker energy!";
             },
             () => {
-                this.state.playerStats.pastaPrestige -= 5;
+                this.state.playerStats.pastaPrestige = Math.max(0, this.state.playerStats.pastaPrestige - 5);
                 return "Your reputation suffers from the chaos!";
             }
         ];
@@ -440,8 +496,6 @@ class Game {
         const randomEffect = effects[Math.floor(Math.random() * effects.length)];
         const effectMessage = randomEffect();
         messageBox.textContent = `${message} ${effectMessage}`;
-        
-        this.updateDisplay();
     }
 
     checkHighScore() {

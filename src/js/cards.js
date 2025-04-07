@@ -22,8 +22,6 @@ export const CARDS = {
             chaos: 8
         },
         effect: (state) => {
-            state.playerStats.ingredients.push("Rotten Egg");
-            state.playerStats.chaosLevel += 8;
             return "Questionable ingredients acquired...";
         }
     },
@@ -79,9 +77,6 @@ export const CARDS = {
             workers: -3
         },
         effect: (state) => {
-            state.playerStats.ingredients = state.playerStats.ingredients.slice(2);
-            state.playerStats.chaosLevel += 15;
-            state.playerStats.workerCount -= 3;
             return "BOOM! The ceiling is covered in al dente shrapnel!";
         }
     },
@@ -111,9 +106,6 @@ export const CARDS = {
             prestige: 8
         },
         effect: (state) => {
-            state.playerStats.ingredients.push("Quantum Tomato", "Schrödinger's Herb", "Time-Dilated Garlic");
-            state.playerStats.chaosLevel += 6;
-            state.playerStats.pastaPrestige += 8;
             return "The sauce exists in all possible states until observed!";
         }
     },
@@ -141,9 +133,6 @@ export const CARDS = {
             chaos: 8
         },
         effect: (state) => {
-            state.playerStats.ingredients.push("Vintage Pasta", "Future Noodle", "Temporal Flour", "Paradox Sauce");
-            state.playerStats.pastaPrestige += 10;
-            state.playerStats.chaosLevel += 8;
             return "Customers are eating tomorrow's lunch yesterday!";
         }
     },
@@ -171,10 +160,6 @@ export const CARDS = {
             workers: -5
         },
         effect: (state) => {
-            state.playerStats.ingredients.push("Zombie Ziti", "Phantom Fettuccine", "Ghost Gnocchi", 
-                "Revenant Rigatoni", "Wraith Ravioli");
-            state.playerStats.chaosLevel += 10;
-            state.playerStats.workerCount -= 5;
             return "The undead pasta shambles through the kitchen!";
         }
     },
@@ -190,7 +175,6 @@ export const CARDS = {
             state.playerStats.chaosLevel += 15;
             state.playerStats.pastaPrestige += 20;
             state.playerStats.workerCount -= 6;
-            state.playerStats.ingredients = state.playerStats.ingredients.slice(3);
             return "The pasta has achieved nuclear fusion!";
         }
     },
@@ -233,9 +217,6 @@ export const CARDS = {
             ingredients: -1
         },
         effect: (state) => {
-            state.playerStats.chaosLevel += 12;
-            state.playerStats.pastaPrestige -= 8;
-            state.playerStats.ingredients = state.playerStats.ingredients.slice(1);
             return "Raccoons have ransacked the ingredient storage!";
         }
     },
@@ -248,9 +229,6 @@ export const CARDS = {
             prestige: -6
         },
         effect: (state) => {
-            state.playerStats.ingredients = state.playerStats.ingredients.slice(2);
-            state.playerStats.chaosLevel += 8;
-            state.playerStats.pastaPrestige -= 6;
             return "Extra protein in the pasta tonight...";
         }
     },
@@ -278,9 +256,6 @@ export const CARDS = {
             ingredients: -1
         },
         effect: (state) => {
-            state.playerStats.chaosLevel += 15;
-            state.playerStats.workerCount -= 3;
-            state.playerStats.ingredients = state.playerStats.ingredients.slice(1);
             return "The basement is now a pasta soup kitchen!";
         }
     },
@@ -351,9 +326,6 @@ export const CARDS = {
             workers: -5
         },
         effect: (state) => {
-            state.playerStats.chaosLevel += 20;
-            state.playerStats.ingredients = state.playerStats.ingredients.slice(3);
-            state.playerStats.workerCount -= 5;
             return "The tremors have awakened something in Vat 7...";
         }
     },
