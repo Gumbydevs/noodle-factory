@@ -583,7 +583,7 @@ export const CARDS = {
         }
     },
     "Reggie's Great Escape": {
-        description: "Your manager strips down, walks into the pasta vat, and disappears...",
+        description: "Your boss strips down, walks into the pasta vat, and disappears...",
         requirements: null,
         statModifiers: {
             workers: -6,
@@ -597,7 +597,7 @@ export const CARDS = {
         }
     },
     "Return of Reggie": {
-        description: "Your manager returns, enlightened and bearing exotic ingredients!",
+        description: "Your boss returns, enlightened and bearing exotic ingredients!",
         requirements: null,
         statModifiers: {
             workers: 8,
