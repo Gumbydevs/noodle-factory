@@ -1249,14 +1249,15 @@ h1 {
         animation: touchExcited 0.4s ease-in-out !important;
         transform: scale(0.8) translateY(-100px) !important;
         opacity: 0 !important;
-        transition-delay: 0.4s; /* Wait for excited animation to finish */
+        transition: transform 0.5s ease-out, opacity 0.5s ease-out !important;
+        transition-delay: 0.4s !important;
     }
 
     /* Immediate fade for the non-selected card */
     .card.played:not([data-selected="true"]) {
-        transform: scale(0.9) !important;
+        transform: scale(0.5) !important;
         opacity: 0 !important;
-        transition-duration: 0.2s !important;
+        transition: transform 0.4s ease-out, opacity 0.4s ease-out !important;
         pointer-events: none !important;
     }
 
