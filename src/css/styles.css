@@ -1514,327 +1514,6 @@ h1 {
     }
 }
 
-/* Modify the card hover behavior */
-@media (hover: hover) {
-    /* Only apply hover effects if device has hover capability */
-    .card:hover {
-        transform: translateY(-10px);
-        transition: transform 0.3s ease-out;
-    }
-}
-
-@media (hover: none) {
-    /* Disable all hover animations on touch devices */
-    .card:hover,
-    .card:active {
-        transform: none !important;
-        transition: none !important;
-    }
-    
-    /* Prevent any hover states during chaos */
-    .chaos-level-1 .card:hover,
-    .chaos-level-2 .card:hover,
-    .chaos-level-3 .card:hover,
-    .chaos-level-max .card:hover,
-    .chaos-level-1 .card:active,
-    .chaos-level-2 .card:active,
-    .chaos-level-3 .card:active,
-    .chaos-level-max .card:active {
-        transform: none !important;
-        transition: none !important;
-    }
-}
-
-/* Replace existing noodle-decoration styles with these: */
-.noodle-decoration {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 100px; /* Increased height to prevent clipping */
-    pointer-events: none;
-    overflow: visible; /* Changed from hidden to visible */
-}
-
-/* Update the noodle-worm styles */
-.noodle-worm {
-    position: absolute;
-    bottom: 20px;
-    left: -120px;
-    /* Remove the continuous animation */
-}
-
-/* Add a class for when we want the noodle to move */
-.noodle-worm.moving {
-    animation: moveAcross 12s linear;
-}
-
-@keyframes moveAcross {
-    0% {
-        left: -120px;
-        transform: rotate(0deg);
-    }
-    100% {
-        left: calc(100% + 120px);
-        transform: rotate(360deg);
-    }
-}
-
-/* Add some hover effect for fun */
-.noodle-worm:hover {
-    animation-duration: 6s;
-}
-
-/* Add or update these styles */
-#noodle-tumbleweed {
-    position: fixed;
-    bottom: 20px;
-    left: -150px;
-    width: 120px;
-    height: 30px;
-    background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
-    border-radius: 15px;
-    transform-origin: center center;
-    animation: rollAcross 4s linear;
-}
-
-.rolling {
-    display: block !important;
-}
-
-@keyframes rollAcross {
-    from {
-        left: -150px;
-        transform: rotate(0deg) scaleY(var(--thickness)) scaleX(var(--length));
-    }
-    to {
-        left: calc(100vw + 150px);
-        transform: rotate(720deg) scaleY(var(--thickness)) scaleX(var(--length));
-    }
-}
-
-.hidden {
-    display: none;
-}
-
-/* Add these new classes without modifying existing ones */
-.chaos-warning {
-    animation: chaosShake 0.5s ease-in-out, chaosPulse 1s ease-in-out;
-}
-
-.chaos-warning.active {
-    animation: chaosShake 0.5s ease-in-out, chaosPulse 1s ease-in-out 3;
-}
-
-/* Update CRT overlay with working sepia */
-.crt-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-    z-index: 9998;
-    background: linear-gradient(
-        to bottom,
-        rgba(18, 16, 16, 0) 50%,
-        rgba(0, 0, 0, 0.05) 50%
-    );
-    background-size: 100% 4px;
-    opacity: 0.4;
-    mix-blend-mode: multiply;
-    filter: sepia(100%) brightness(1.1);
-    background-color: rgba(255, 235, 205, 0.1);
-}
-
-.crt-overlay.active {
-    display: block;
-    background: linear-gradient(
-        to bottom,
-        rgba(18, 16, 16, 0) 50%,
-        rgba(0, 0, 0, 0.15) 50%
-    );
-    background-size: 100% 3px;
-    opacity: 0.7;
-    animation: scanline 10s linear infinite;
-    filter: sepia(100%) brightness(1.2) contrast(1.1);
-    background-color: rgba(255, 235, 205, 0.2);
-}
-
-/* Add warm color overlay */
-.crt-overlay::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 218, 185, 0.1);
-    pointer-events: none;
-    mix-blend-mode: overlay;
-}
-
-/* Update CRT overlay with stronger sepia */
-.crt-overlay.active {
-    display: block;
-    background: linear-gradient(
-        to bottom,
-        rgba(18, 16, 16, 0) 50%,
-        rgba(0, 0, 0, 0.15) 50%
-    );
-    background-size: 100% 3px;
-    opacity: 0.6;
-    animation: scanline 10s linear infinite;
-    filter: sepia(0.3) brightness(1.1) contrast(1.1);
-}
-
-/* Add scanline animation */
-@keyframes scanline {
-    0% {
-        background-position: 0 0;
-    }
-    100% {
-        background-position: 0 100%;
-    }
-}
-
-/* Add subtle flicker effect during gameplay */
-.crt-overlay.active::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-        rgba(255, 248, 242, 0.03),
-        rgba(255, 248, 242, 0.03) 50%,
-        rgba(255, 248, 242, 0.02) 50%,
-        rgba(255, 248, 242, 0.02)
-    );
-    background-size: 100% 4px;
-    animation: flicker 0.15s infinite;
-    pointer-events: none;
-    opacity: 0.4;
-}
-
-@keyframes flicker {
-    0% { opacity: 0.4; }
-    50% { opacity: 0.5; }
-    100% { opacity: 0.4; }
-}
-
-/* Add this new section at the end of the file - after all existing code */
-
-/* Mobile-only fixes that don't affect desktop */
-@media (hover: none) and (pointer: coarse) {
-    /* Prevent stuck hover states on mobile */
-    .card {
-        -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
-    }
-
-    /* Mobile-specific played card states */
-    .card.played[data-selected="true"] {
-        transition: transform 0.3s ease-out, opacity 0.3s ease-out !important;
-        transform: scale(0.8) translateY(-20px) !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-        /* Force remove any stuck animations */
-        animation: none !important;
-    }
-
-    .card.played:not([data-selected="true"]) {
-        transition: transform 0.3s ease-out, opacity 0.3s ease-out !important;
-        transform: scale(0.5) !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-        /* Force remove any stuck animations */
-        animation: none !important;
-    }
-
-    /* Mobile chaos effects - simplified versions */
-    .chaos-level-1 .card,
-    .chaos-level-2 .card,
-    .chaos-level-3 .card,
-    .chaos-level-max .card {
-        /* Keep animations but make them more mobile-friendly */
-        animation: cardFloat 3s ease-in-out infinite !important;
-        transform: none !important;
-        transition: transform 0.3s ease-out !important;
-    }
-
-    /* Ensure clean transitions after card play */
-    .card.played {
-        transform: none !important;
-        transition: none !important;
-        animation: none !important;
-    }
-
-    /* Override any hover states for touched cards */
-    .card:active {
-        transform: scale(0.98) !important;
-        transition: transform 0.1s !important;
-    }
-
-    /* Base card state - subtle floating animation */
-    .card {
-        -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
-        animation: mobileCardFloat 4s ease-in-out infinite !important;
-    }
-
-    /* Chaos level animations - progressively more intense */
-    .chaos-level-1 .card {
-        animation: 
-            mobileCardFloat 4s ease-in-out infinite,
-            mobileRandomTwitch 8s ease-in-out infinite !important;
-    }
-
-    .chaos-level-2 .card {
-        animation: 
-            mobileCardFloat 3.5s ease-in-out infinite,
-            mobileRandomTwitch 6s ease-in-out infinite !important;
-    }
-
-    .chaos-level-3 .card,
-    .chaos-level-max .card {
-        animation: 
-            mobileCardFloat 3s ease-in-out infinite,
-            mobileRandomTwitch 4s ease-in-out infinite !important;
-    }
-
-    /* New mobile-specific animations */
-    @keyframes mobileCardFloat {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-3px); }
-    }
-
-    @keyframes mobileRandomTwitch {
-        0%, 85%, 100% { transform: rotate(0deg); }
-        88% { transform: rotate(-1deg); }
-        91% { transform: rotate(1deg); }
-        94% { transform: rotate(-0.5deg); }
-        97% { transform: rotate(0.25deg); }
-    }
-
-    /* Keep existing played card states */
-    .card.played[data-selected="true"] {
-        animation: none !important;
-        transform: scale(0.8) translateY(-20px) !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-    }
-
-    .card.played:not([data-selected="true"]) {
-        animation: none !important;
-        transform: scale(0.5) !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-    }
-}
-
 /* Force remove stuck states when cards are removed */
 .card-container.clearing .card {
     animation: none !important;
@@ -1863,5 +1542,30 @@ h1 {
 @media (hover: hover) {
     .card:hover {
         animation: hoverExcited 1s ease-in-out infinite !important;
+    }
+}
+
+@media (hover: none) and (pointer: coarse) {
+    /* Force override ALL card animations on touch devices */
+    .card,
+    .card:hover,
+    .card:active,
+    .card.chaos-level-1,
+    .card.chaos-level-2,
+    .card.chaos-level-3,
+    .card.chaos-level-max {
+        animation: none !important;
+        transform: none !important;
+        transition: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+        touch-action: manipulation !important;
+    }
+
+    /* Only animate when card is actually played */
+    .card.played[data-selected="true"] {
+        animation: none !important;
+        transform: scale(0.8) translateY(-20px) !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
     }
 }
