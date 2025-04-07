@@ -276,6 +276,30 @@
     100% { transform: scale(1.02) rotate(0deg); }
 }
 
+/* noodle animations */
+@keyframes noodleFlyAcross {
+    0% {
+        transform: translateX(-100vw);
+        opacity: 0;
+    }
+    5% {
+        transform: translateX(-80vw);
+        opacity: 1;
+    }
+    45% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    95% {
+        transform: translateX(80vw);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(100vw);
+        opacity: 0;
+    }
+}
+
 .hidden {
     display: none !important;
 }
@@ -1073,6 +1097,25 @@ h1 {
     top: -20px;
 }
 
+/* Fix noodle decoration styles */
+.noodle-decoration {
+    position: fixed;
+    bottom: 20px;
+    left: -120px; /* Start off-screen */
+    width: 120px;
+    z-index: 9999;
+    animation: noodleFlyAcross 8s linear infinite;
+    pointer-events: none;
+}
+
+.noodle-worm {
+    width: 100%;
+    height: 100%;
+    display: block;
+    animation: noodleWiggle 1s ease-in-out infinite;
+    transform-origin: center center;
+}
+
 .game-over-screen {
     position: fixed;
     top: 50%;
@@ -1266,8 +1309,8 @@ h1 {
     }
 
     #stats {
-        margin: 10px auto; /* Ensure stats has same margin */
-        width: calc(100% - 20px); /* Match game messages width */
+        margin: 10px auto;
+        width: calc(100% - 20px);
     }
 
     .stat {
@@ -1278,35 +1321,7 @@ h1 {
     .stat-value {
         font-size: 1.4em;
     }
-
-    .stat-label {
-        font-size: 0.8em;
-    }
-
-    .stat-progress {
-        width: 50px;
-        height: 3px;
-        margin-top: 3px;
-    }
-
-    #cards-container {
-        width: 100%;
-        max-width: 100%;
-        margin: 10px auto;
-        gap: 10px;
-        justify-content: center;
-        overflow: visible;
-    }
-
-    .card {
-        width: 160px; /* Reduced card width */
-        height: 280px; /* Adjusted height */
-        margin: 5px;
-        padding: 10px;
-        font-size: 0.9em;
-        animation: cardFloat 3s ease-in-out infinite;
-        transform-origin: center bottom;
-    }
+} 
 
     /* Cards during chaos levels */
     .chaos-level-1 .card {
@@ -1390,9 +1405,8 @@ h1 {
         animation: none !important;
         transform: scale(0.5) !important;
     }
-}
 
-/* Additional adjustments for very small screens */
+    /* Additional adjustments for very small screens */
 @media screen and (max-width: 360px) {
     .card {
         width: 130px;
