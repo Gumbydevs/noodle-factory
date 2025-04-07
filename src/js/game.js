@@ -4,6 +4,7 @@ import { gameState, updateResource, resetGameState, updateChaosEffects } from '.
 import { ACHIEVEMENTS, checkAchievements, getUnlockedAchievements, resetAchievements } from './achievements.js';
 import { updateHighScore, getHighScore } from './highscore.js';
 import { triggerNoodleRoll } from './animation.js';
+import { gameSounds } from '../audio.js'; // Note the .js extension
 
 const SITUATIONS = [
     "The factory floor hums with the sound of pasta machines.",
@@ -188,6 +189,9 @@ class Game {
     }
 
     drawNewCards() {
+        // Add this line at the start of the method
+        gameSounds.playDrawCardsSound();
+        
         const cardsContainer = document.getElementById('cards-container');
         
         // Get two random cards
@@ -240,6 +244,9 @@ class Game {
 
     playCard(cardName) {
         if (this.isGameOver) return;
+
+        // Play card sound
+        gameSounds.playCardSound();
 
         const card = CARDS[cardName];
         if (!card) return;
@@ -309,14 +316,17 @@ class Game {
 
         // Check win/lose conditions
         if (this.state.playerStats.chaosLevel >= 100) {
+            gameSounds.playGameOverSound();
             this.endGame('chaos');
             return;
         }
         if (this.state.playerStats.workerCount <= 0) {
+            gameSounds.playGameOverSound();
             this.endGame('workers');
             return;
         }
         if (this.state.playerStats.ingredients <= 0) {
+            gameSounds.playGameOverSound();
             this.endGame('ingredients');
             return;
         }
@@ -330,6 +340,11 @@ class Game {
     checkAchievements() {
         const newAchievements = checkAchievements(this.state.playerStats, this.turn);
         
+        // Play achievement sound if there are new achievements
+        if (newAchievements.length > 0) {
+            gameSounds.playAchievementSound();
+        }
+
         // Display any newly unlocked achievements
         newAchievements.forEach(achievement => {
             this.showAchievementPopup(achievement.id, achievement);
@@ -471,6 +486,9 @@ class Game {
     }
 
     start() {
+        // Change this line
+        gameSounds.playStartGameSound(); // New uplifting melody
+
         resetGameState();
         this.state = {
             playerStats: {
@@ -528,6 +546,9 @@ class Game {
     }
 
     triggerChaosEvent(message) {
+        // Play chaos sound
+        gameSounds.playChaosSound();
+
         const messageBox = document.getElementById('game-messages');
         messageBox.textContent = message;
         messageBox.classList.add('chaos-warning', 'active');
@@ -568,8 +589,9 @@ class Game {
         const previousHigh = getHighScore();
         const isNewHighScore = currentScore > previousHigh;
         
-        if (isNewHighScore) {
-            const scoreDisplay = document.querySelector('.score-display');
+        // Add null check before accessing classList
+        const scoreDisplay = document.querySelector('.score-display');
+        if (scoreDisplay && isNewHighScore) {
             scoreDisplay.classList.add('new-high-score');
         }
     }
