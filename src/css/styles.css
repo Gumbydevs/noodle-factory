@@ -184,6 +184,7 @@ body {
     min-height: 600px; /* Add fixed minimum height */
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 #stats {
@@ -275,7 +276,9 @@ h1 {
     align-items: center;
     gap: 20px;
     margin: 20px auto;
-    min-height: 320px; /* Add fixed height for cards area */
+    min-height: 320px;
+    perspective: 1000px;
+    position: relative;
 }
 
 .card {
@@ -291,12 +294,20 @@ h1 {
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    transition: transform 0.2s ease-out, background-color 0.3s;
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+    transform-origin: center center;
+    opacity: 1;
 }
 
 .card:hover {
     animation: hoverWiggle 0.5s ease-in-out infinite;
     background: #555;
+}
+
+.card.played {
+    transform: scale(0.8) translateY(-100px);
+    opacity: 0;
+    pointer-events: none;
 }
 
 .card h3 {
@@ -310,6 +321,7 @@ h1 {
     color: #ddd;
     line-height: 1.4;
     margin-bottom: auto;
+    padding: 10px 0;
 }
 
 .card-effects {
@@ -320,8 +332,8 @@ h1 {
 }
 
 .stat-modifier {
-    display: inline-block;
-    margin: 2px 5px;
+    display: block;
+    margin: 4px 0;
     font-weight: bold;
 }
 

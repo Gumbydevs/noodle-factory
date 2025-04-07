@@ -375,8 +375,9 @@ export const CARDS = {
 };
 
 export function getRandomCard() {
-    const cards = Object.keys(CARDS);
-    return cards[Math.floor(Math.random() * cards.length)];
+    const cardNames = Object.keys(CARDS);
+    const randomIndex = Math.floor(Math.random() * cardNames.length);
+    return cardNames[randomIndex];
 }
 
 // filepath: d:\NoodleFactory\src\js\state.js
