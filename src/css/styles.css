@@ -1309,16 +1309,18 @@ h1 {
     }
 
     #stats {
-        margin: 10px auto;
-        width: calc(100% - 20px);
-        gap: 5px; /* Add gap between stat containers */
-        padding: 5px;
+        margin: 15px auto;
+        width: 95%;
+        gap: 10px; /* Increase gap between stat containers */
+        padding: 10px;
+        justify-content: space-between;
     }
 
     .stat {
-        padding: 5px;
-        min-width: 60px;
-        margin: 0 2px; /* Add small margin between stats */
+        padding: 8px;
+        min-width: auto; /* Let it be flexible */
+        margin: 0; /* Remove margin since we have gap */
+        flex: 1; /* Allow equal distribution */
     }
 
     .stat-value {
@@ -1326,22 +1328,23 @@ h1 {
     }
 
     .stat-progress {
-        margin: 3px auto; /* Center and space out progress bars */
-        width: 90%; /* Slightly narrower on mobile */
+        margin: 5px auto; /* Give more space around bars */
+        width: 85%;
     }
 
     #cards-container {
-        gap: 10px; /* Reduce gap between cards */
-        margin: 10px auto;
-        width: calc(100% - 20px);
-        max-width: 100%;
-        overflow-x: hidden;
+        gap: 20px; /* Restore original gap */
+        margin: 20px auto;
+        width: 95%; /* Give more width */
+        max-width: 600px;
+        overflow-x: visible; /* Allow cards to be fully visible */
     }
 
     .card {
-        width: calc(50% - 15px); /* Adjust card width for mobile */
-        margin: 5px;
-        min-width: 130px; /* Minimum width to prevent squishing */
+        width: 45%; /* Use percentage instead of calc */
+        min-width: 140px;
+        margin: 0; /* Remove margin since we have gap */
+        padding: 12px;
     }
 
     #game-container {
