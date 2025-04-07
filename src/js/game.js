@@ -141,24 +141,24 @@ class Game {
         messageBox.classList.remove('chaos-warning');
         
         // More gradual chaos progression
-        if (chaos >= 80) {
+        if (chaos >= 100) {
             body.classList.add('chaos-level-max', 'chaos-noise');
             this.triggerChaosEvent("Reality itself begins to melt!");
             
             // Increased chance for noodle rain at max chaos
-            if (Math.random() < 0.4) { // 40% chance (increased from 20%)
+            if (Math.random() < 0.4) { // 40% chance
                 this.triggerNoodleRain();
             }
         }
-        else if (chaos >= 65) {
+        else if (chaos >= 75) {
             body.classList.add('chaos-level-3', 'chaos-noise');
-            this.triggerChaosEvent("The factory exists in multiple dimensions!");
+            this.triggerChaosEvent("The factory warps between dimensions!");
             
-            if (Math.random() < 0.1) { // 10% chance
+            if (Math.random() < 0.2) { // 20% chance
                 this.triggerNoodleRain();
             }
         }
-        else if (chaos >= 45) {
+        else if (chaos >= 50) {
             body.classList.add('chaos-level-2');
             this.triggerChaosEvent("Strange distortions appear in the corners of your vision...");
         }

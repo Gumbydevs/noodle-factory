@@ -251,8 +251,9 @@
 /* First, add these new keyframes if not already present */
 @keyframes chaosBackgroundPulse {
     0% { background-color: #1a1a1a; }
-    50% { background-color: #665d28; }
-    100% { background-color: #925923; }
+    50% { background-color: #572c18; }  /* Subtle yellow tint */
+    75% { background-color: #1a1510; }  /* Subtle orange tint */
+    100% { background-color: #1a1a1a; }
 }
 
 @keyframes chaosColorShift {
