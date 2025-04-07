@@ -1311,30 +1311,37 @@ h1 {
     #stats {
         margin: 10px auto;
         width: calc(100% - 20px);
+        gap: 5px; /* Add gap between stat containers */
+        padding: 5px;
     }
 
     .stat {
         padding: 5px;
         min-width: 60px;
+        margin: 0 2px; /* Add small margin between stats */
     }
 
     .stat-value {
         font-size: 1.4em;
     }
-} 
 
-    /* Cards during chaos levels */
-    .chaos-level-1 .card {
-        animation: cardFloat 3s ease-in-out infinite, randomJitter 2s ease-in-out infinite;
+    .stat-progress {
+        margin: 3px auto; /* Center and space out progress bars */
+        width: 90%; /* Slightly narrower on mobile */
     }
 
-    .chaos-level-2 .card {
-        animation: cardFloat 3s ease-in-out infinite, randomJitter 2.5s ease-in-out infinite;
+    #cards-container {
+        gap: 10px; /* Reduce gap between cards */
+        margin: 10px auto;
+        width: calc(100% - 20px);
+        max-width: 100%;
+        overflow-x: hidden;
     }
 
-    .chaos-level-3 .card,
-    .chaos-level-max .card {
-        animation: cardFloat 3s ease-in-out infinite, randomJitter 3s ease-in-out infinite;
+    .card {
+        width: calc(50% - 15px); /* Adjust card width for mobile */
+        margin: 5px;
+        min-width: 130px; /* Minimum width to prevent squishing */
     }
 
     #game-container {
@@ -1405,8 +1412,9 @@ h1 {
         animation: none !important;
         transform: scale(0.5) !important;
     }
+}
 
-    /* Additional adjustments for very small screens */
+/* Additional adjustments for very small screens */
 @media screen and (max-width: 360px) {
     .card {
         width: 130px;
