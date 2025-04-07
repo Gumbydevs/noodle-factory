@@ -86,9 +86,8 @@
 }
 
 @keyframes crtWave {
-    0% { transform: scaleY(1.0) }
-    50% { transform: scaleY(1.02) }
-    100% { transform: scaleY(1.0) }
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50% { transform: translate3d(0, 1px, 0); }
 }
 
 @keyframes crtDistort {
@@ -726,29 +725,29 @@ h1 {
     filter: brightness(1.1) hue-rotate(5deg);
 }
 
-/* Enhance existing chaos levels with persistent background warping */
+/* Update chaos level classes to remove ALL scaling */
 .chaos-level-1 {
     animation: chaosWarp 15s infinite;
     filter: hue-rotate(5deg);
-    transform: scale(1.005);
+    transform: translate3d(0, 0, 0);
 }
 
 .chaos-level-2 {
     animation: chaosWarp 12s infinite;
     filter: hue-rotate(15deg) saturate(1.15);
-    transform: scale(1.01);
+    transform: translate3d(0, 0, 0);
 }
 
 .chaos-level-3 {
     animation: chaosWarp 8s infinite;
     filter: hue-rotate(25deg) saturate(1.3) brightness(1.1);
-    transform: scale(1.015);
+    transform: translate3d(0, 0, 0);
 }
 
 .chaos-level-max {
-    position: relative;
     animation: crtWave 8s infinite;
     filter: brightness(0.95) contrast(110%);
+    transform: translate3d(0, 0, 0);
 }
 
 .chaos-level-max body {
