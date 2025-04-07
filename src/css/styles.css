@@ -297,6 +297,23 @@ body {
     color: #9b59b6; /* Purple */
 }
 
+/* Add matching color classes for stat modifiers using the same colors as stat bars */
+.stat-modifier.prestige {
+    color: var(--prestige-color, #27ae60);  /* matches prestige-color */
+}
+
+.stat-modifier.chaos {
+    color: var(--chaos-color, #e74c3c);  /* matches chaos-color */
+}
+
+.stat-modifier.ingredients {
+    color: var(--ingredients-color, #f39c12);  /* matches ingredients-color */
+}
+
+.stat-modifier.workers {
+    color: var(--energy-color, #3498db);  /* matches energy-color */
+}
+
 h1 {
     font-size: 3em;
     margin-bottom: 20px;
@@ -476,6 +493,22 @@ h1 {
 .button:disabled {
     background-color: #7f8c8d;
     cursor: not-allowed;
+}
+
+.button.primary {
+    font-size: 1.2em;
+    padding: 10px 20px;
+    margin: 20px 0;
+    width: 200px;
+}
+
+.button.secondary.small {
+    font-size: 0.8em;
+    padding: 5px 10px;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: #666;
 }
 
 .meter {
@@ -711,7 +744,9 @@ h1 {
 }
 
 .achievements-section {
+    position: relative;
     margin: 2rem 0;
+    padding-bottom: 40px; /* Make room for the reset button */
 }
 
 .achievements-grid {
@@ -742,11 +777,14 @@ h1 {
 }
 
 #new-game {
-    font-size: 1.4em;
-    padding: 1rem 2rem;
+    font-size: 1.2em;
+    padding: 0.75rem 2rem;
     margin-top: 2rem;
     background: #e67e22;
     transition: background-color 0.3s;
+    white-space: nowrap; /* Keep text on one line */
+    height: auto; /* Let height be determined by content */
+    line-height: 1.2; /* Adjust line height to be more compact */
 }
 
 #new-game:hover {

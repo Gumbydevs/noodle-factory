@@ -1,7 +1,7 @@
 import { CARDS, getRandomCard } from './cards.js';
 import events from './events.js';
 import { gameState, updateResource, resetGameState, updateChaosEffects } from './state.js';
-import { ACHIEVEMENTS } from './achievements.js';
+import { ACHIEVEMENTS, checkAchievements, getUnlockedAchievements, resetAchievements } from './achievements.js';
 import { updateHighScore, getHighScore } from './highscore.js';
 import { triggerNoodleRoll } from './animation.js';
 
@@ -25,12 +25,20 @@ class Game {
                 pastaPrestige: 0,
                 chaosLevel: 0,
                 ingredients: Math.floor(Math.random() * 6) + 5, // Random 5-10 ingredients
-                workerCount: Math.floor(Math.random() * 6) + 15
+                workerCount: Math.floor(Math.random() * 6) + 15,
+                lostWorkers: 0,
+                lostIngredients: 0,
+                chaosSteadyTurns: 0,
+                usedMagicCards: false,
+                survivedStrikes: 0,
+                strikeDeaths: 0,
+                perfectCooks: 0,
+                highestPrestigeDish: 0
             }
         };
         this.isGameOver = false;
         this.turn = 0;
-        this.achievements = new Set();
+        this.achievements = new Set(getUnlockedAchievements()); // Initialize with saved achievements
         this.unlocks = {
             tier1: false,
             tier2: false,
@@ -184,12 +192,19 @@ class Game {
     formatCardEffects(modifiers) {
         if (!modifiers) return '';
         
+        // Get the exact same colors as used in the stat bars
+        const colorClasses = {
+            prestige: 'prestige-color',
+            chaos: 'chaos-color',
+            ingredients: 'ingredients-color',
+            workers: 'energy-color'
+        };
+        
         return Object.entries(modifiers)
             .map(([stat, value]) => {
-                const className = value > 0 ? 'positive' : 'negative';
                 const sign = value > 0 ? '+' : '';
                 const statName = stat.charAt(0).toUpperCase() + stat.slice(1);
-                return `<span class="stat-modifier ${className}">${statName}: ${sign}${value}</span>`;
+                return `<span class="stat-modifier ${colorClasses[stat]}">${statName}: ${sign}${value}</span>`;
             })
             .join('');
     }
@@ -272,22 +287,12 @@ class Game {
     }
 
     checkAchievements() {
-        for (const [name, achievement] of Object.entries(ACHIEVEMENTS)) {
-            if (!this.achievements.has(name) && achievement.check(this.state.playerStats)) {
-                this.unlockAchievement(name, achievement);
-            }
-        }
-    }
-
-    unlockAchievement(name, achievement) {
-        this.achievements.add(name);
-        this.showAchievementPopup(name, achievement);
+        const newAchievements = checkAchievements(this.state.playerStats, this.turn);
         
-        // If achievement has a reward, apply it
-        if (achievement.reward) {
-            // Handle reward logic here
-            console.log(`Achievement reward unlocked: ${achievement.reward}`);
-        }
+        // Display any newly unlocked achievements
+        newAchievements.forEach(achievement => {
+            this.showAchievementPopup(achievement.id, achievement);
+        });
     }
 
     showAchievementPopup(name, achievement) {
@@ -297,6 +302,7 @@ class Game {
             <h3>Achievement Unlocked!</h3>
             <p>${name}</p>
             <p>${achievement.description}</p>
+            <p class="reward">${achievement.reward}</p>
         `;
         document.body.appendChild(popup);
 
@@ -308,8 +314,7 @@ class Game {
     }
 
     endGame(reason = '') {
-        this.isGameOver = true;
-        let message = '';
+        this.checkHighScore();
         
         // Reset all chaos effects
         const body = document.body;
@@ -321,6 +326,7 @@ class Game {
         gameOverScreen.className = 'game-over-screen';
         
         // Determine end game message
+        let message = '';
         switch(reason) {
             case 'ingredients':
                 message = 'You ran out of ingredients and cannot play any cards!';
@@ -382,16 +388,17 @@ class Game {
                 <div class="achievements-section">
                     <h3>Achievements Earned</h3>
                     <div class="achievements-grid">
-                        ${Array.from(this.achievements).map(achievement => `
+                        ${getUnlockedAchievements().map(id => `
                             <div class="achievement-item">
-                                <span class="achievement-name">${achievement}</span>
-                                <span class="achievement-desc">${ACHIEVEMENTS[achievement].description}</span>
+                                <span class="achievement-name">${id}</span>
+                                <span class="achievement-desc">${ACHIEVEMENTS[id].description}</span>
+                                <span class="achievement-reward">${ACHIEVEMENTS[id].reward}</span>
                             </div>
                         `).join('')}
                     </div>
+                    <button id="new-game" class="button primary">Start New Run</button>
+                    <button id="reset-achievements" class="button secondary small">Reset Achievements</button>
                 </div>
-                
-                <button id="new-game" class="button">Start New Run</button>
             </div>
         `;
 
@@ -403,6 +410,14 @@ class Game {
         gameContainer.appendChild(gameOverScreen);
         this.checkHighScore(); // Add this line
         
+        // Add reset achievements button handler
+        document.getElementById('reset-achievements').addEventListener('click', () => {
+            resetAchievements();
+            this.achievements = new Set(); // Clear local achievements
+            // Update achievements display
+            document.querySelector('.achievements-grid').innerHTML = 'All achievements reset!';
+        });
+
         // Add event listener to new game button
         document.getElementById('new-game').addEventListener('click', () => {
             // Remove game over screen
@@ -421,11 +436,21 @@ class Game {
                 pastaPrestige: 0,
                 chaosLevel: 0,
                 ingredients: Math.floor(Math.random() * 6) + 5, // Random 5-10 ingredients
-                workerCount: Math.floor(Math.random() * 6) + 15
+                workerCount: Math.floor(Math.random() * 6) + 15,
+                lostWorkers: 0,
+                lostIngredients: 0,
+                chaosSteadyTurns: 0,
+                usedMagicCards: false,
+                survivedStrikes: 0,
+                strikeDeaths: 0,
+                perfectCooks: 0,
+                highestPrestigeDish: 0,
+                chosenLesserWeevil: false
             }
         };
         this.isGameOver = false;
         this.turn = 1;
+        this.achievements = new Set(getUnlockedAchievements()); // Reload achievements on new game
         
         // Reset all chaos effects
         const body = document.body;
@@ -514,6 +539,20 @@ class Game {
         
         // If reduction would cause game over, prevent it
         return false;
+    }
+
+    updateState() {
+        // Track steady chaos
+        if (this.state.playerStats.chaosLevel === 50) {
+            this.state.playerStats.chaosSteadyTurns++;
+        } else {
+            this.state.playerStats.chaosSteadyTurns = 0;
+        }
+        
+        // Track lost ingredients from chaos events
+        if (this.state.playerStats.chaosLevel >= 75) {
+            this.state.playerStats.lostIngredients++;
+        }
     }
 }
 

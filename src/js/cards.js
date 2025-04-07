@@ -54,7 +54,8 @@ export const CARDS = {
             workers: -2
         },
         effect: (state) => {
-            return "The Kraken has become our star attraction!";
+            state.playerStats.lostWorkers += 2;
+            return "The tentacle waves menacingly with marinara dripping from its noodly appendages!";
         }
     },
     "Vat Explosion": {
@@ -68,7 +69,9 @@ export const CARDS = {
             workers: -3
         },
         effect: (state) => {
-            return "BOOM! The ceiling is covered in al dente shrapnel!";
+            state.playerStats.lostWorkers += 3;
+            state.playerStats.lostIngredients += 2;
+            return "The explosion sends pasta shrapnel in all directions!";
         }
     },
     "Pasta Prophet": {
@@ -80,7 +83,8 @@ export const CARDS = {
             workers: 2
         },
         effect: (state) => {
-            return "R'amen! The workers have been blessed by His Noodly Appendage!";
+            state.playerStats.usedMagicCards = true;
+            return "R'amen!";
         }
     },
     "Quantum Marinara": {
@@ -94,7 +98,8 @@ export const CARDS = {
             prestige: 8
         },
         effect: (state) => {
-            return "The sauce exists in all possible states until observed!";
+            state.playerStats.usedMagicCards = true;
+            return "The pasta has achieved quantum fusion!";
         }
     },
     "Ravioli Riot": {
@@ -166,6 +171,11 @@ export const CARDS = {
             prestige: -5
         },
         effect: (state) => {
+            state.playerStats.strikeDeaths += 3;
+            state.playerStats.lostWorkers += 3;
+            if (state.playerStats.chaosLevel < 60) {
+                state.playerStats.survivedStrikes++;
+            }
             return "The workers have formed a picket line with giant spaghetti signs!";
         }
     },
@@ -202,6 +212,7 @@ export const CARDS = {
             prestige: -6
         },
         effect: (state) => {
+            state.playerStats.chosenLesserWeevil = true;
             return "Extra protein in the pasta tonight...";
         }
     },
@@ -531,6 +542,18 @@ export const CARDS = {
         },
         effect: (state) => {
             return "The hashtag #NoodleFactoryChallenge is trending worldwide!";
+        }
+    },
+    "Perfect Al Dente": {
+        description: "Your timing is impeccable!",
+        requirements: null,
+        statModifiers: {
+            prestige: 8,
+            chaos: -5
+        },
+        effect: (state) => {
+            state.playerStats.perfectCooks++;
+            return "The pasta is cooked to absolute perfection!";
         }
     }
 };
