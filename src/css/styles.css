@@ -1254,21 +1254,30 @@ h1 {
 
 /* Update the media query to only affect hover on mobile */
 @media (hover: none) and (pointer: coarse) {
-    /* Only disable hover effects on touch devices */
-    .card:hover {
-        animation: none !important;
-        transform: none !important;
-        cursor: pointer;
-    }
-    
-    /* Keep the standard animations for non-hover state */
+    /* Reset all card styles initially */
     .card {
         animation: 
             cardFloat 3s ease-in-out infinite,
             randomJitter 2s ease-in-out infinite !important;
+        transform: none !important;
+        background: #444 !important;
+        transition: transform 0.3s ease-out, opacity 0.3s ease-out;
     }
 
-    /* Keep existing played card animations */
+    /* Override hover effects only */
+    .card:hover {
+        animation: 
+            cardFloat 3s ease-in-out infinite,
+            randomJitter 2s ease-in-out infinite !important;
+        background: #444 !important;
+        transform: none !important;
+    }
+
+    /* Keep played card animations */
+    .card.played {
+        pointer-events: none !important;
+    }
+
     .card.played[data-selected="true"] {
         animation: touchExcited 0.4s ease-in-out !important;
         transform: scale(0.8) translateY(-20px) !important;
