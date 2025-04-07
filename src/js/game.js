@@ -286,8 +286,10 @@ class Game {
     playCard(cardName) {
         if (this.isGameOver) return;
 
-        // Play card sound
-        gameSounds.playCardSound();
+        // Play card sound only if audio is enabled
+        if (soundManager.enabled) {
+            gameSounds.playCardSound();
+        }
 
         const card = CARDS[cardName];
         if (!card) return;
@@ -616,8 +618,13 @@ class Game {
     }
 
     start() {
-        // Change this line
-        gameSounds.playStartGameSound(); // New uplifting melody
+        // Initialize audio on game start (first user interaction)
+        soundManager.init();
+
+        // Now play the start game sound
+        if (soundManager.enabled) {
+            gameSounds.playStartGameSound();
+        }
 
         resetGameState();
         this.state = {
@@ -789,6 +796,46 @@ class Game {
     }
 }
 
+// Add this after game class declaration but before initialization
+
+class SoundManager {
+    constructor() {
+        this.enabled = false;
+        this.initialized = false;
+        this.context = null;
+        this.soundsLoaded = false;
+    }
+
+    // Initialize audio context on first user interaction
+    init() {
+        if (this.initialized) return;
+        
+        try {
+            // Create audio context
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            this.context = new AudioContext();
+            
+            // Resume context for iOS/Safari
+            if (this.context.state === 'suspended') {
+                this.context.resume();
+            }
+            
+            this.enabled = true;
+            this.initialized = true;
+            
+            // Re-enable sounds in gameSounds
+            if (gameSounds) {
+                gameSounds.enableSounds();
+            }
+        } catch (e) {
+            console.log('Audio initialization failed:', e);
+        }
+    }
+}
+
+// Create global sound manager
+const soundManager = new SoundManager();
+
 // Initialize game but don't auto-start
 const game = new Game();
 document.getElementById('start-game').addEventListener('click', () => game.start());
@@ -813,6 +860,16 @@ function setupNoodleWiggle() {
 
 // Call the function after DOM is loaded
 document.addEventListener('DOMContentLoaded', setupNoodleWiggle);
+
+// Add event listeners for mobile touch
+document.addEventListener('touchstart', () => {
+    soundManager.init();
+}, { once: true });
+
+// Add click listener for desktop
+document.addEventListener('click', () => {
+    soundManager.init();
+}, { once: true });
 
 // New functions added
 function canPlayCard(card) {
