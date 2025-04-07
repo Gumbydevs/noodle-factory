@@ -417,6 +417,9 @@ class Game {
             });
         }
 
+        // Process turn effects including prestige
+        this.processTurnEffects();
+
         // Visual feedback for card play
         const cardElements = document.querySelectorAll('.card');
         cardElements.forEach(card => card.classList.add('played'));
@@ -789,6 +792,51 @@ class Game {
         // Track lost ingredients from chaos events
         if (this.state.playerStats.chaosLevel >= 75) {
             this.state.playerStats.lostIngredients++;
+        }
+    }
+
+    processTurnEffects() {
+        // Prestige effects:
+        // 1. Higher prestige gives bonus ingredients
+        if (this.turn % 5 === 0) { // Every 5 turns
+            const prestigeBonus = Math.floor(this.state.playerStats.pastaPrestige / 20); // Every 20 prestige = +1 ingredient
+            if (prestigeBonus > 0) {
+                this.state.playerStats.ingredients = Math.min(20, 
+                    this.state.playerStats.ingredients + prestigeBonus);
+                this.showEffectMessage(`Your prestige attracted ${prestigeBonus} bonus ingredients!`);
+            }
+        }
+
+        // 2. Higher prestige reduces worker loss from chaos
+        if (this.state.playerStats.chaosLevel >= 50) {
+            const prestigeProtection = Math.min(0.5, this.state.playerStats.pastaPrestige / 100);
+            if (Math.random() > prestigeProtection) {
+                this.reduceWorkers(1);
+            }
+        }
+
+        // 3. Prestige helps recover from chaos
+        if (this.state.playerStats.pastaPrestige >= 50) {
+            const chaosReduction = Math.floor(this.state.playerStats.pastaPrestige / 50);
+            if (this.state.playerStats.chaosLevel > 0) {
+                this.state.playerStats.chaosLevel = Math.max(0, 
+                    this.state.playerStats.chaosLevel - chaosReduction);
+            }
+        }
+    }
+
+    showEffectMessage(message) {
+        const messageBox = document.getElementById('game-messages');
+        if (messageBox) {
+            messageBox.textContent = message;
+            messageBox.classList.remove('situation');
+            messageBox.classList.add('feedback');
+            
+            setTimeout(() => {
+                messageBox.classList.remove('feedback');
+                messageBox.classList.add('situation');
+                messageBox.textContent = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
+            }, 3000);
         }
     }
 
