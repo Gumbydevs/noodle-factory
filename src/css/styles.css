@@ -1311,25 +1311,33 @@ h1 {
     #stats {
         margin: 15px auto;
         width: 95%;
-        gap: 10px; /* Increase gap between stat containers */
-        padding: 10px;
+        gap: 8px; /* Reduce gap to prevent overflow */
+        padding: 8px;
         justify-content: space-between;
+        flex-wrap: nowrap; /* Prevent wrapping */
+        overflow-x: hidden; /* Prevent horizontal scroll */
     }
 
     .stat {
-        padding: 8px;
-        min-width: auto; /* Let it be flexible */
-        margin: 0; /* Remove margin since we have gap */
-        flex: 1; /* Allow equal distribution */
+        padding: 6px;
+        min-width: 0; /* Allow stats to shrink */
+        margin: 0;
+        flex: 1;
+        width: auto; /* Let flex handle the width */
     }
 
     .stat-value {
-        font-size: 1.4em;
+        font-size: 1.2em; /* Slightly smaller font */
+    }
+
+    .stat-label {
+        font-size: 0.8em;
+        white-space: nowrap; /* Keep labels on one line */
     }
 
     .stat-progress {
-        margin: 5px auto; /* Give more space around bars */
-        width: 85%;
+        margin: 4px auto;
+        width: 90%;
     }
 
     #cards-container {
