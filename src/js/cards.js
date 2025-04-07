@@ -299,6 +299,239 @@ export const CARDS = {
         effect: (state) => {
             return "The rats have been promoted to quality control.";
         }
+    },
+    "Ravioli, Ravioli, Ravioli": {
+        description: "The boss insists on you joining him for a 3 course meal of ravioli at lunchtime.",
+        requirements: null,
+        statModifiers: {
+            workers: 4,
+            prestige: 5,
+            chaos: -3
+        },
+        effect: (state) => {
+            return "Team morale soars after the great ravioli feast!";
+        }
+    },
+    "Machine Overflow": {
+        description: "A machine goes rampant and starts filling up the factory floor with noodles!",
+        requirements: { ingredients: 2 },
+        statModifiers: {
+            ingredients: -2,
+            chaos: 12,
+            prestige: 6
+        },
+        effect: (state) => {
+            return "Swimming in spaghetti! The local news is here!";
+        }
+    },
+    "Employee Appreciation Day": {
+        description: "Host a pasta-themed party for the workers.",
+        requirements: null,
+        statModifiers: {
+            workers: 6,
+            prestige: 4,
+            chaos: -5
+        },
+        effect: (state) => {
+            return "Happy workers make better pasta!";
+        }
+    },
+    "Pasta Training Seminar": {
+        description: "Send workers to learn advanced pasta-making techniques.",
+        requirements: null,
+        statModifiers: {
+            workers: 5,
+            prestige: 8,
+            chaos: -4
+        },
+        effect: (state) => {
+            return "The workers return as pasta artisans!";
+        }
+    },
+    "Recruitment Fair": {
+        description: "Host a job fair with free pasta samples.",
+        requirements: { ingredients: 1 },
+        statModifiers: {
+            workers: 8,
+            ingredients: -1,
+            chaos: 3
+        },
+        effect: (state) => {
+            return "New hires are eager to start their pasta journey!";
+        }
+    },
+    "Pasta Ghost": {
+        description: "A translucent figure made of fettuccine haunts the break room.",
+        requirements: null,
+        statModifiers: {
+            chaos: 8,
+            prestige: 7,
+            workers: -2
+        },
+        effect: (state) => {
+            return "It keeps leaving ectoplasmic alfredo sauce everywhere!";
+        }
+    },
+    "Motivational Lasagna": {
+        description: "Someone left a mysteriously inspiring lasagna in the break room.",
+        requirements: null,
+        statModifiers: {
+            workers: 4,
+            chaos: 3,
+            prestige: 2
+        },
+        effect: (state) => {
+            return "The layers spoke to their souls!";
+        }
+    },
+    "Pasta Prodigy": {
+        description: "A five-year-old pasta savant visits the factory.",
+        requirements: null,
+        statModifiers: {
+            prestige: 12,
+            workers: 3,
+            chaos: 5
+        },
+        effect: (state) => {
+            return "Their macaroni art belongs in a museum!";
+        }
+    },
+    "Spaghetti Singularity": {
+        description: "The pasta AI has become self-aware!",
+        requirements: { ingredients: 3 },
+        statModifiers: {
+            chaos: 14,
+            prestige: 15,
+            workers: -3
+        },
+        effect: (state) => {
+            return "It's redesigning the factory for maximum efficiency!";
+        }
+    },
+    "Pasta Paradise": {
+        description: "Transform the factory into a worker-friendly utopia.",
+        requirements: { ingredients: 2 },
+        statModifiers: {
+            workers: 10,
+            prestige: 6,
+            chaos: -8,
+            ingredients: -2
+        },
+        effect: (state) => {
+            return "The factory now has a pasta fountain in the lobby!";
+        }
+    },
+    "Pasta Festival": {
+        description: "The annual city-wide pasta celebration brings crowds to the factory!",
+        requirements: { ingredients: 2 },
+        statModifiers: {
+            prestige: 15,
+            chaos: 8,
+            workers: 5,
+            ingredients: -2
+        },
+        effect: (state) => {
+            return "The festival parade features a giant macaroni float!";
+        }
+    },
+    "Noodle University": {
+        description: "Open an on-site training facility for aspiring pasta artisans.",
+        requirements: null,
+        statModifiers: {
+            workers: 7,
+            prestige: 10,
+            chaos: -5
+        },
+        effect: (state) => {
+            return "Graduates receive degrees in Theoretical Pastamatics!";
+        }
+    },
+    "Pastamancer": {
+        description: "A mysterious figure offers to enchant your production line.",
+        requirements: { ingredients: 1 },
+        statModifiers: {
+            ingredients: 4,
+            chaos: 12,
+            prestige: 8,
+            workers: -2
+        },
+        effect: (state) => {
+            return "The spaghetti now glows with arcane energy!";
+        }
+    },
+    "Spaghetti Speed Dating": {
+        description: "Host a Lady and the Tramp themed singles night.",
+        requirements: null,
+        statModifiers: {
+            workers: 6,
+            prestige: 4,
+            chaos: 6
+        },
+        effect: (state) => {
+            return "Love blooms over shared plates of linguine!";
+        }
+    },
+    "Infinite Pasta Theorem": {
+        description: "Mathematicians discover fractal patterns in your fusilli.",
+        requirements: null,
+        statModifiers: {
+            prestige: 14,
+            chaos: 4,
+            workers: 2
+        },
+        effect: (state) => {
+            return "The spiral pasta contains the secrets of the universe!";
+        }
+    },
+    "Pasta Insurance": {
+        description: "Update the factory's coverage against pasta-related incidents.",
+        requirements: null,
+        statModifiers: {
+            chaos: -10,
+            prestige: 5,
+            workers: 3
+        },
+        effect: (state) => {
+            return "Now covered for acts of Flying Spaghetti Monster!";
+        }
+    },
+    "Noodle Diplomacy": {
+        description: "Host international diplomats for a pasta summit.",
+        requirements: { ingredients: 2 },
+        statModifiers: {
+            prestige: 16,
+            workers: 4,
+            chaos: -4,
+            ingredients: -2
+        },
+        effect: (state) => {
+            return "World peace achieved through perfect al dente!";
+        }
+    },
+    "Pasta Pension Plan": {
+        description: "Implement a retirement package paid in premium pasta.",
+        requirements: null,
+        statModifiers: {
+            workers: 8,
+            prestige: 6,
+            chaos: -6
+        },
+        effect: (state) => {
+            return "Workers celebrate their golden (pasta) years!";
+        }
+    },
+    "Pasta Influencer": {
+        description: "A online star wants to film their latest viral pasta challenge in your factory!",
+        requirements: { ingredients: 1 },
+        statModifiers: {
+            prestige: 12,
+            chaos: 8,
+            workers: -2,
+            ingredients: -1
+        },
+        effect: (state) => {
+            return "The hashtag #NoodleFactoryChallenge is trending worldwide!";
+        }
     }
 };
 
