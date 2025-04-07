@@ -1456,6 +1456,62 @@ h1 {
         transform: scale(0.5) !important;
         opacity: 0 !important;
     }
+
+    /* Base card state - subtle floating animation */
+    .card {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        animation: mobileCardFloat 4s ease-in-out infinite !important;
+    }
+
+    /* Chaos level animations - progressively more intense */
+    .chaos-level-1 .card {
+        animation: 
+            mobileCardFloat 4s ease-in-out infinite,
+            mobileRandomTwitch 8s ease-in-out infinite !important;
+    }
+
+    .chaos-level-2 .card {
+        animation: 
+            mobileCardFloat 3.5s ease-in-out infinite,
+            mobileRandomTwitch 6s ease-in-out infinite !important;
+    }
+
+    .chaos-level-3 .card,
+    .chaos-level-max .card {
+        animation: 
+            mobileCardFloat 3s ease-in-out infinite,
+            mobileRandomTwitch 4s ease-in-out infinite !important;
+    }
+
+    /* New mobile-specific animations */
+    @keyframes mobileCardFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-3px); }
+    }
+
+    @keyframes mobileRandomTwitch {
+        0%, 85%, 100% { transform: rotate(0deg); }
+        88% { transform: rotate(-1deg); }
+        91% { transform: rotate(1deg); }
+        94% { transform: rotate(-0.5deg); }
+        97% { transform: rotate(0.25deg); }
+    }
+
+    /* Keep existing played card states */
+    .card.played[data-selected="true"] {
+        animation: none !important;
+        transform: scale(0.8) translateY(-20px) !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+
+    .card.played:not([data-selected="true"]) {
+        animation: none !important;
+        transform: scale(0.5) !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
 }
 
 /* Modify the card hover behavior */
@@ -1720,6 +1776,62 @@ h1 {
     .card:active {
         transform: scale(0.98) !important;
         transition: transform 0.1s !important;
+    }
+
+    /* Base card state - subtle floating animation */
+    .card {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        animation: mobileCardFloat 4s ease-in-out infinite !important;
+    }
+
+    /* Chaos level animations - progressively more intense */
+    .chaos-level-1 .card {
+        animation: 
+            mobileCardFloat 4s ease-in-out infinite,
+            mobileRandomTwitch 8s ease-in-out infinite !important;
+    }
+
+    .chaos-level-2 .card {
+        animation: 
+            mobileCardFloat 3.5s ease-in-out infinite,
+            mobileRandomTwitch 6s ease-in-out infinite !important;
+    }
+
+    .chaos-level-3 .card,
+    .chaos-level-max .card {
+        animation: 
+            mobileCardFloat 3s ease-in-out infinite,
+            mobileRandomTwitch 4s ease-in-out infinite !important;
+    }
+
+    /* New mobile-specific animations */
+    @keyframes mobileCardFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-3px); }
+    }
+
+    @keyframes mobileRandomTwitch {
+        0%, 85%, 100% { transform: rotate(0deg); }
+        88% { transform: rotate(-1deg); }
+        91% { transform: rotate(1deg); }
+        94% { transform: rotate(-0.5deg); }
+        97% { transform: rotate(0.25deg); }
+    }
+
+    /* Keep existing played card states */
+    .card.played[data-selected="true"] {
+        animation: none !important;
+        transform: scale(0.8) translateY(-20px) !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+
+    .card.played:not([data-selected="true"]) {
+        animation: none !important;
+        transform: scale(0.5) !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
     }
 }
 
