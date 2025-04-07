@@ -263,7 +263,7 @@ class Game {
         if (card.statModifiers) {
             const projectedStats = { ...this.state.playerStats };
             
-            // Calculate projected values
+            // Calculate projected values including potential chaos effect
             Object.entries(card.statModifiers).forEach(([stat, value]) => {
                 const statKey = stat === 'workers' ? 'workerCount' : 
                               stat === 'prestige' ? 'pastaPrestige' : 
@@ -272,6 +272,11 @@ class Game {
                 
                 projectedStats[statKey] = (projectedStats[statKey] || 0) + Number(value);
             });
+
+            // If chaos is active, account for potential ingredient loss
+            if (projectedStats.chaosLevel >= 25) {
+                projectedStats.ingredients -= 1; // Account for possible chaos consumption
+            }
 
             // Check if this would cause game over
             if (projectedStats.workerCount <= 0) {
@@ -602,7 +607,6 @@ class Game {
         const effects = [
             () => {
                 if (this.state.playerStats.ingredients > 0) {
-                    this.state.playerStats.ingredients--;
                     return "An ingredient vanishes into the chaos!";
                 }
                 return "The chaos searches for ingredients to consume...";
