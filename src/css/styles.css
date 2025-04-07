@@ -144,10 +144,18 @@
     85.0001%, 100% { animation: jiggle 1.5s ease-in-out; }
 }
 
-@keyframes hoverWiggle {
+/* Update the hoverExcited animation */
+@keyframes hoverExcited {
     0% { transform: scale(1.05) rotate(0deg); }
-    25% { transform: scale(1.05) rotate(2deg); }
-    75% { transform: scale(1.05) rotate(-2deg); }
+    10% { transform: scale(1.05) rotate(-3deg); }
+    20% { transform: scale(1.05) rotate(3deg); }
+    30% { transform: scale(1.05) rotate(-2deg); }
+    40% { transform: scale(1.05) rotate(2deg); }
+    50% { transform: scale(1.05) rotate(-1deg); }
+    60% { transform: scale(1.05) rotate(1deg); }
+    70% { transform: scale(1.05) rotate(-0.5deg); }
+    80% { transform: scale(1.05) rotate(0.5deg); }
+    90% { transform: scale(1.05) rotate(-0.2deg); }
     100% { transform: scale(1.05) rotate(0deg); }
 }
 
@@ -178,10 +186,10 @@
 
 /* Add these new keyframes near the other card animations */
 @keyframes randomJitter {
-    0% { transform: rotate(0deg); }
-    25% { transform: rotate(0.5deg); }
-    75% { transform: rotate(-0.5deg); }
-    100% { transform: rotate(0deg); }
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(1deg) translateX(2px); }
+    50% { transform: rotate(-0.5deg) translateY(1px); }
+    75% { transform: rotate(-1deg) translateX(-2px); }
 }
 
 /* Add these new animations without modifying existing styles */
@@ -221,14 +229,6 @@
     100% {
         transform: translateY(100vh) rotate(360deg);
     }
-}
-
-/* Make sure the hoverExcited animation maintains scale */
-@keyframes hoverExcited {
-    0% { transform: scale(1.05) rotate(0deg); }
-    25% { transform: scale(1.05) rotate(-3deg); }
-    75% { transform: scale(1.05) rotate(3deg); }
-    100% { transform: scale(1.05) rotate(0deg); }
 }
 
 .hidden {
@@ -403,17 +403,32 @@ h1 {
         cardFloat 3s ease-in-out infinite,
         randomJitter 2s ease-in-out infinite !important;
     animation-delay: 
-        0s,
-        calc(random() * -4s);
+        calc(random() * -3s),
+        calc(random() * -2s);
 }
 
-/* Update card hover styles */
+@keyframes cardFloat {
+    0%, 100% {
+        transform: translateY(0) translateX(0) rotate(-1deg);
+    }
+    25% {
+        transform: translateY(-5px) translateX(3px) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-10px) translateX(0) rotate(1deg);
+    }
+    75% {
+        transform: translateY(-5px) translateX(-3px) rotate(0deg);
+    }
+}
+
+/* Update card hover styles to make animation slower */
 .card:hover,
 .chaos-level-1 .card:hover,
 .chaos-level-2 .card:hover,
 .chaos-level-3 .card:hover,
 .chaos-level-max .card:hover {
-    animation: hoverExcited 0.4s ease-in-out infinite !important;
+    animation: hoverExcited 1.2s ease-in-out infinite !important;
     background: #555;
     cursor: pointer;
     z-index: 2;
@@ -447,13 +462,16 @@ h1 {
         calc(random() * -2s); /* Different random start time */
 }
 
-@keyframes cardFloat {
-    0%, 100% {
-        transform: translateY(0) rotate(-1deg);
-    }
-    50% {
-        transform: translateY(-10px) rotate(1deg);
-    }
+#card-left {
+    animation-delay: 
+        calc(random() * -3s),
+        calc(random() * -2s);
+}
+
+#card-right {
+    animation-delay: 
+        calc(random() * -3s),
+        calc(random() * -2s);
 }
 
 .card.played {
