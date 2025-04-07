@@ -184,6 +184,18 @@
     100% { transform: rotate(0deg); }
 }
 
+/* Add these new animations without modifying existing styles */
+@keyframes chaosShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+@keyframes chaosPulse {
+    0%, 100% { color: inherit; }
+    50% { color: #ff0000; }
+}
+
 .hidden {
     display: none !important;
 }
@@ -570,6 +582,15 @@ h1 {
     align-items: center;
     justify-content: center;
     text-align: center;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.message-box.fading {
+    opacity: 0;
+}
+
+.message-box.showing {
+    opacity: 1;
 }
 
 /* Add specific color for feedback messages */
@@ -580,6 +601,16 @@ h1 {
 /* Add specific color for situation messages */
 .message-box.situation {
     color: #3498db; /* Blue for situations */
+}
+
+/* Add these new text transition classes */
+.message-text {
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.message-text.fading {
+    opacity: 0;
 }
 
 .achievement-popup {
@@ -1047,4 +1078,13 @@ h1 {
 
 .hidden {
     display: none;
+}
+
+/* Add these new classes without modifying existing ones */
+.chaos-warning {
+    animation: chaosShake 0.5s ease-in-out, chaosPulse 1s ease-in-out;
+}
+
+.chaos-warning.active {
+    animation: chaosShake 0.5s ease-in-out, chaosPulse 1s ease-in-out 3;
 }

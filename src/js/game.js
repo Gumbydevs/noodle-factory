@@ -250,16 +250,28 @@ class Game {
         if (card.effect) {
             const message = card.effect(this.state);
             const messageBox = document.getElementById('game-messages');
-            messageBox.textContent = message;
+            const textSpan = document.createElement('span');
+            textSpan.className = 'message-text';
+            messageBox.innerHTML = ''; // Clear existing content
+            messageBox.appendChild(textSpan);
+            
+            // Immediately show the card effect message (no fade)
+            textSpan.textContent = message;
             messageBox.classList.remove('situation');
             messageBox.classList.add('feedback');
 
+            // Longer display time (4 seconds) before next transition
             setTimeout(() => {
-                const randomSituation = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
-                messageBox.classList.remove('feedback');
-                messageBox.classList.add('situation');
-                messageBox.textContent = randomSituation;
-            }, 2000);
+                textSpan.classList.add('fading');
+                
+                setTimeout(() => {
+                    const randomSituation = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
+                    messageBox.classList.remove('feedback');
+                    messageBox.classList.add('situation');
+                    textSpan.textContent = randomSituation;
+                    textSpan.classList.remove('fading');
+                }, 500);
+            }, 4000);
         }
 
         // Update display and check game state
@@ -489,7 +501,12 @@ class Game {
     triggerChaosEvent(message) {
         const messageBox = document.getElementById('game-messages');
         messageBox.textContent = message;
-        messageBox.classList.add('chaos-warning');
+        messageBox.classList.add('chaos-warning', 'active');
+        
+        // Remove animation classes after they complete
+        setTimeout(() => {
+            messageBox.classList.remove('active');
+        }, 3000);
         
         // Random negative effect
         const effects = [
