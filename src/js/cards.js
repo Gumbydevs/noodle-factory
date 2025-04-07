@@ -555,11 +555,70 @@ export const CARDS = {
             state.playerStats.perfectCooks++;
             return "The pasta is cooked to absolute perfection!";
         }
+    },
+    "Lunar New Year Dragons": {
+        description: "Chinese dragons made of noodles dance through the factory!",
+        requirements: null,
+        statModifiers: {
+            prestige: 12,
+            chaos: 8,
+            workers: 4,
+            ingredients: 2
+        },
+        effect: (state) => {
+            return "The lucky dragons bring prosperity and fresh ingredients!";
+        }
+    },
+    "Phở Master Visit": {
+        description: "A Vietnamese noodle master shares ancient techniques.",
+        requirements: { ingredients: 1 },
+        statModifiers: {
+            prestige: 10,
+            workers: 3,
+            ingredients: 1,
+            chaos: -5
+        },
+        effect: (state) => {
+            return "The art of Vietnamese noodle-making elevates your pasta!";
+        }
+    },
+    "Reggie's Great Escape": {
+        description: "Your manager strips down, walks into the pasta vat, and disappears...",
+        requirements: null,
+        statModifiers: {
+            workers: -6,
+            chaos: 15,
+            prestige: -8
+        },
+        effect: (state) => {
+            state.playerStats.chaosSteadyTurns = 0; // Reset chaos steady count
+            state.playerStats.reggieEscaped = true; // Add this line
+            return "I didn't get where I am today by staying where I was!";
+        }
+    },
+    "Return of Reggie": {
+        description: "Your manager returns, enlightened and bearing exotic ingredients!",
+        requirements: null,
+        statModifiers: {
+            workers: 8,
+            ingredients: 4,
+            chaos: -10,
+            prestige: 6
+        },
+        effect: (state) => {
+            return "Great to be back! Now, about these Himalayan noodle techniques...";
+        }
     }
 };
 
 export function getRandomCard() {
-    const cardNames = Object.keys(CARDS);
+    const cardNames = Object.keys(CARDS).filter(name => {
+        // Only include "Return of Reggie" if Reggie has escaped
+        if (name === "Return of Reggie") {
+            return gameState.playerStats.reggieEscaped === true;
+        }
+        return true;
+    });
     const randomIndex = Math.floor(Math.random() * cardNames.length);
     return cardNames[randomIndex];
 }
