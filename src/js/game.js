@@ -147,21 +147,27 @@ class Game {
         body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
         messageBox.classList.remove('chaos-warning');
         
-        // More gradual chaos progression
+        // Add proper mobile-friendly chaos classes
         if (chaos >= 100) {
-            body.classList.add('chaos-level-max', 'chaos-noise');
+            body.classList.add('chaos-level-max');
+            // Only add noise effect on desktop
+            if (!('ontouchstart' in window)) {
+                body.classList.add('chaos-noise');
+            }
             this.triggerChaosEvent("Reality itself begins to melt!");
             
-            // Increased chance for noodle rain at max chaos
-            if (Math.random() < 0.4) { // 40% chance
+            if (Math.random() < 0.4) {
                 this.triggerNoodleRain();
             }
         }
         else if (chaos >= 75) {
-            body.classList.add('chaos-level-3', 'chaos-noise');
+            body.classList.add('chaos-level-3');
+            if (!('ontouchstart' in window)) {
+                body.classList.add('chaos-noise');
+            }
             this.triggerChaosEvent("The factory warps between dimensions!");
             
-            if (Math.random() < 0.2) { // 20% chance
+            if (Math.random() < 0.2) {
                 this.triggerNoodleRain();
             }
         }

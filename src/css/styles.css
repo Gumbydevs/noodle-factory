@@ -1668,3 +1668,64 @@ h1 {
     50% { opacity: 0.5; }
     100% { opacity: 0.4; }
 }
+
+/* Add this new section at the end of the file - after all existing code */
+
+/* Mobile-only fixes that don't affect desktop */
+@media (hover: none) and (pointer: coarse) {
+    /* Prevent stuck hover states on mobile */
+    .card {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+
+    /* Mobile-specific played card states */
+    .card.played[data-selected="true"] {
+        transition: transform 0.3s ease-out, opacity 0.3s ease-out !important;
+        transform: scale(0.8) translateY(-20px) !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        /* Force remove any stuck animations */
+        animation: none !important;
+    }
+
+    .card.played:not([data-selected="true"]) {
+        transition: transform 0.3s ease-out, opacity 0.3s ease-out !important;
+        transform: scale(0.5) !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        /* Force remove any stuck animations */
+        animation: none !important;
+    }
+
+    /* Mobile chaos effects - simplified versions */
+    .chaos-level-1 .card,
+    .chaos-level-2 .card,
+    .chaos-level-3 .card,
+    .chaos-level-max .card {
+        /* Keep animations but make them more mobile-friendly */
+        animation: cardFloat 3s ease-in-out infinite !important;
+        transform: none !important;
+        transition: transform 0.3s ease-out !important;
+    }
+
+    /* Ensure clean transitions after card play */
+    .card.played {
+        transform: none !important;
+        transition: none !important;
+        animation: none !important;
+    }
+
+    /* Override any hover states for touched cards */
+    .card:active {
+        transform: scale(0.98) !important;
+        transition: transform 0.1s !important;
+    }
+}
+
+/* Force remove stuck states when cards are removed */
+.card-container.clearing .card {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+}
