@@ -1164,6 +1164,22 @@ h1 {
         margin: 5px;
         padding: 10px;
         font-size: 0.9em;
+        animation: cardFloat 3s ease-in-out infinite;
+        transform-origin: center bottom;
+    }
+
+    /* Cards during chaos levels */
+    .chaos-level-1 .card {
+        animation: cardFloat 3s ease-in-out infinite, randomJitter 2s ease-in-out infinite;
+    }
+
+    .chaos-level-2 .card {
+        animation: cardFloat 3s ease-in-out infinite, randomJitter 2.5s ease-in-out infinite;
+    }
+
+    .chaos-level-3 .card,
+    .chaos-level-max .card {
+        animation: cardFloat 3s ease-in-out infinite, randomJitter 3s ease-in-out infinite;
     }
 
     #game-container {
@@ -1222,6 +1238,17 @@ h1 {
         width: auto;
         bottom: 10px;
         right: 10px;
+    }
+
+    /* Ensure played card animations still work */
+    .card.played[data-selected="true"] {
+        animation: touchExcited 0.4s ease-in-out !important;
+        transform: scale(0.8) translateY(-20px) !important;
+    }
+
+    .card.played:not([data-selected="true"]) {
+        animation: none !important;
+        transform: scale(0.5) !important;
     }
 }
 
