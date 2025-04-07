@@ -1252,19 +1252,20 @@ h1 {
     }
 }
 
-/* Replace the existing media query with this updated version */
+/* Update the media query to only affect hover on mobile */
 @media (hover: none) and (pointer: coarse) {
-    /* Disable all hover effects on touch devices */
-    .card:hover,
-    .chaos-level-1 .card:hover,
-    .chaos-level-2 .card:hover,
-    .chaos-level-3 .card:hover,
-    .chaos-level-max .card:hover {
+    /* Only disable hover effects on touch devices */
+    .card:hover {
         animation: none !important;
-        background: #444 !important;
         transform: none !important;
         cursor: pointer;
-        z-index: 1;
+    }
+    
+    /* Keep the standard animations for non-hover state */
+    .card {
+        animation: 
+            cardFloat 3s ease-in-out infinite,
+            randomJitter 2s ease-in-out infinite !important;
     }
 
     /* Keep existing played card animations */
@@ -1272,17 +1273,12 @@ h1 {
         animation: touchExcited 0.4s ease-in-out !important;
         transform: scale(0.8) translateY(-20px) !important;
         opacity: 0 !important;
-        transition: transform 0.5s ease-out, opacity 0.5s ease-out !important;
-        transition-delay: 0.4s !important;
-        pointer-events: none !important;
     }
 
     .card.played:not([data-selected="true"]) {
         animation: none !important;
         transform: scale(0.5) !important;
         opacity: 0 !important;
-        transition: transform 0.3s ease-out, opacity 0.3s ease-out !important;
-        pointer-events: none !important;
     }
 }
 
