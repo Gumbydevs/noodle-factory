@@ -250,7 +250,7 @@
 
 /* First, add these new keyframes if not already present */
 @keyframes chaosBackgroundPulse {
-    0% { background-color: #0a0a0a; }
+    0% { background-color: #000000; }
     50% { background-color: #1f1d1d; }  /* Slightly warmer dark */
     75% { background-color: #1d1f1f; }  /* Slightly cooler dark */
     100% { background-color: #0a0a0a; }
