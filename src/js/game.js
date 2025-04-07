@@ -143,6 +143,11 @@ class Game {
         if (chaos >= 80) {
             body.classList.add('chaos-level-max', 'chaos-noise');
             this.triggerChaosEvent("Reality itself begins to melt!");
+            
+            // Random chance to trigger noodle rain at max chaos
+            if (Math.random() < 0.1) { // 10% chance
+                this.triggerNoodleRain();
+            }
         }
         else if (chaos >= 65) {
             body.classList.add('chaos-level-3', 'chaos-noise');
@@ -155,6 +160,30 @@ class Game {
         else if (chaos >= 25) {
             body.classList.add('chaos-level-1');
             this.triggerChaosEvent("Something feels slightly off...");
+        }
+    }
+
+    triggerNoodleRain() {
+        const noodleTemplate = document.querySelector('.noodle-decoration svg').cloneNode(true);
+        const duration = 3000 + Math.random() * 2000; // 3-5 seconds
+        const noodleCount = 10 + Math.floor(Math.random() * 10); // 10-20 noodles
+
+        for (let i = 0; i < noodleCount; i++) {
+            setTimeout(() => {
+                const noodleContainer = document.createElement('div');
+                noodleContainer.className = 'chaos-noodle';
+                noodleContainer.style.left = `${Math.random() * 100}vw`;
+                noodleContainer.style.animation = `noodleFall ${duration}ms linear`;
+                
+                const noodle = noodleTemplate.cloneNode(true);
+                noodleContainer.appendChild(noodle);
+                document.body.appendChild(noodleContainer);
+
+                // Clean up after animation
+                setTimeout(() => {
+                    noodleContainer.remove();
+                }, duration);
+            }, Math.random() * 1000); // Stagger noodle creation
         }
     }
 
