@@ -618,12 +618,39 @@ h1 {
 
 /* Ensure touch devices maintain hover effect until card is played */
 @media (hover: none) {
-    .card:active {
-        transform: translateY(-10px);
-    }
-    
-    .card.played:active {
+    /* More aggressive override for touch devices */
+    .card,
+    .card:hover,
+    .card:active,
+    .card.played,
+    .chaos-level-1 .card,
+    .chaos-level-2 .card,
+    .chaos-level-3 .card,
+    .chaos-level-max .card {
+        animation: 
+            cardFloat 3s ease-in-out infinite,
+            randomJitter 2s ease-in-out infinite !important;
         transform: none !important;
+    }
+
+    /* ONLY apply these transforms when card is actually played */
+    .card.played[data-selected="true"] {
+        animation: none !important;
+        transform: scale(0.8) translateY(-20px) !important;
+        opacity: 0 !important;
+        transition: transform 0.5s ease-out, opacity 0.5s ease-out !important;
+    }
+
+    .card.played:not([data-selected="true"]) {
+        animation: none !important;
+        transform: scale(0.5) !important;
+        opacity: 0 !important;
+        transition: transform 0.3s ease-out, opacity 0.3s ease-out !important;
+    }
+
+    /* Remove touchExcited animation completely for touch devices */
+    @keyframes touchExcited {
+        0%, 100% { transform: scale(0.8) translateY(-20px); }
     }
 }
 
