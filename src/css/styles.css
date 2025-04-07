@@ -1406,6 +1406,37 @@ h1 {
     }
 }
 
+/* Modify the card hover behavior */
+@media (hover: hover) {
+    /* Only apply hover effects if device has hover capability */
+    .card:hover {
+        transform: translateY(-10px);
+        transition: transform 0.3s ease-out;
+    }
+}
+
+@media (hover: none) {
+    /* Disable all hover animations on touch devices */
+    .card:hover,
+    .card:active {
+        transform: none !important;
+        transition: none !important;
+    }
+    
+    /* Prevent any hover states during chaos */
+    .chaos-level-1 .card:hover,
+    .chaos-level-2 .card:hover,
+    .chaos-level-3 .card:hover,
+    .chaos-level-max .card:hover,
+    .chaos-level-1 .card:active,
+    .chaos-level-2 .card:active,
+    .chaos-level-3 .card:active,
+    .chaos-level-max .card:active {
+        transform: none !important;
+        transition: none !important;
+    }
+}
+
 /* Replace existing noodle-decoration styles with these: */
 .noodle-decoration {
     position: fixed;
