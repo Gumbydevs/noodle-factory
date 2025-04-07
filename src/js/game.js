@@ -509,6 +509,8 @@ class Game {
                         </div>
                     </div>
                 </div>
+
+                <button id="new-game" class="button primary">Start New Run</button>
                 
                 <div class="achievements-section">
                     <h3>Achievements Earned</h3>
@@ -521,7 +523,9 @@ class Game {
                             </div>
                         `).join('')}
                     </div>
-                    <button id="new-game" class="button primary">Start New Run</button>
+                </div>
+
+                <div class="buttons-section secondary-buttons">
                     <button id="share-results" class="button secondary">Share Results</button>
                     <button id="reset-achievements" class="button secondary small">Reset Achievements</button>
                 </div>

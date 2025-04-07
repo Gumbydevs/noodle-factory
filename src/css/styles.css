@@ -973,7 +973,7 @@ h1 {
     animation: chaosNoise 4s infinite;
 }
 
-/* Add new noodle rain styles */
+/* noodle rain styles */
 .chaos-noodle {
     position: fixed;
     pointer-events: none;
@@ -1006,6 +1006,21 @@ h1 {
 
 .game-over-content {
     text-align: center;
+    position: relative;
+    padding-bottom: 80px; /* Space for bottom buttons */
+}
+
+.secondary-buttons {
+    position: sticky;
+    bottom: 0;
+    background: rgba(26, 26, 26, 0.9); /* Match your background color */
+    padding: 10px;
+    z-index: 1;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.primary-button {
+    margin: 20px 0;
 }
 
 .game-over-content h2 {
