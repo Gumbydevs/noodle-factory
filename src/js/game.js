@@ -259,6 +259,33 @@ class Game {
             card => card !== clickedCard
         );
 
+        // Check if playing this card would cause game over BEFORE applying effects
+        if (card.statModifiers) {
+            const projectedStats = { ...this.state.playerStats };
+            
+            // Calculate projected values
+            Object.entries(card.statModifiers).forEach(([stat, value]) => {
+                const statKey = stat === 'workers' ? 'workerCount' : 
+                              stat === 'prestige' ? 'pastaPrestige' : 
+                              stat === 'chaos' ? 'chaosLevel' : 
+                              stat;
+                
+                projectedStats[statKey] = (projectedStats[statKey] || 0) + Number(value);
+            });
+
+            // Check if this would cause game over
+            if (projectedStats.workerCount <= 0) {
+                gameSounds.playGameOverSound();
+                this.endGame('workers');
+                return;
+            }
+            if (projectedStats.ingredients <= 0) {
+                gameSounds.playGameOverSound();
+                this.endGame('ingredients');
+                return;
+            }
+        }
+
         // Set data-selected attributes
         clickedCard.setAttribute('data-selected', 'true');
         otherCard.setAttribute('data-selected', 'false');
@@ -267,17 +294,15 @@ class Game {
         clickedCard.classList.add('played');
         otherCard.classList.add('played');
 
-        // Apply stat modifications first
+        // Apply stat modifications
         if (card.statModifiers) {
             Object.entries(card.statModifiers).forEach(([stat, value]) => {
-                const statKey = stat === 'workers' ? 'workerCount' : // Map 'workers' to 'workerCount'
-                               stat === 'prestige' ? 'pastaPrestige' : // Map 'prestige' to 'pastaPrestige'
-                               stat === 'chaos' ? 'chaosLevel' : // Add this mapping
-                               stat;
+                const statKey = stat === 'workers' ? 'workerCount' : 
+                              stat === 'prestige' ? 'pastaPrestige' : 
+                              stat === 'chaos' ? 'chaosLevel' : 
+                              stat;
                 
-                // Get current value
                 const currentValue = this.state.playerStats[statKey] || 0;
-                // Calculate new value
                 let newValue = currentValue + Number(value);
                 
                 // Apply bounds
@@ -286,10 +311,9 @@ class Game {
                 } else if (statKey === 'ingredients') {
                     newValue = Math.min(20, Math.max(0, newValue));
                 } else {
-                    newValue = Math.max(0, newValue); // Prevent negative values for other stats
+                    newValue = Math.max(0, newValue);
                 }
                 
-                // Update the stat
                 this.state.playerStats[statKey] = newValue;
             });
         }
