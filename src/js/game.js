@@ -498,6 +498,7 @@ class Game {
                         `).join('')}
                     </div>
                     <button id="new-game" class="button primary">Start New Run</button>
+                    <button id="share-results" class="button secondary">Share Results</button>
                     <button id="reset-achievements" class="button secondary small">Reset Achievements</button>
                 </div>
             </div>
@@ -527,6 +528,11 @@ class Game {
             document.getElementById('game-messages').style.display = 'block';
             // Start new game
             this.start();
+        });
+
+        // Add event listener to share results button
+        document.getElementById('share-results').addEventListener('click', () => {
+            this.shareGameResults();
         });
     }
 
@@ -665,6 +671,39 @@ class Game {
         if (this.state.playerStats.chaosLevel >= 75) {
             this.state.playerStats.lostIngredients++;
         }
+    }
+
+    // Add this method to the Game class
+    shareGameResults() {
+        // Create canvas from game over screen
+        const gameOverContent = document.querySelector('.game-over-content');
+        if (!gameOverContent) return;
+
+        html2canvas(gameOverContent, {
+            backgroundColor: '#1a1a1a',
+            scale: 2,
+            logging: false
+        }).then(canvas => {
+            canvas.toBlob(async (blob) => {
+                const shareData = {
+                    title: 'Noodle Factory Chaos',
+                    text: `I survived ${this.turn} turns in Noodle Factory Chaos! Can you beat my score?`,
+                    files: [
+                        new File([blob], 'noodle-factory-score.png', { 
+                            type: 'image/png' 
+                        })
+                    ]
+                };
+
+                try {
+                    if (navigator.canShare && navigator.canShare(shareData)) {
+                        await navigator.share(shareData);
+                    }
+                } catch (err) {
+                    console.log('Sharing failed:', err);
+                }
+            });
+        });
     }
 }
 

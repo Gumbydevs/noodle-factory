@@ -688,13 +688,31 @@ h1 {
     width: 200px;
 }
 
+.button.secondary {
+    background-color: #7f8c8d;
+    margin: 10px;
+}
+
+.button.secondary:hover {
+    background-color: #95a5a6;
+}
+
 .button.secondary.small {
     font-size: 0.8em;
     padding: 5px 10px;
     position: absolute;
     bottom: 10px;
     right: 10px;
-    background-color: #666;
+    background-color: #e74c3c; /* Red color for reset achievements */
+}
+
+#share-results {
+    font-size: 0.9em;
+    padding: 8px 16px;
+    position: absolute;
+    bottom: 45px;
+    right: 10px;
+    background-color: #3498db; /* New blue color */
 }
 
 .meter {
@@ -1079,7 +1097,7 @@ h1 {
     display: block;
     font-size: 2.5em; /* Reduced from 3em */
     font-weight: bold;
-    color: #f1c40f;
+    color: #FF00FF;
     margin: 0.4rem 0; /* Reduced from 0.5rem */
 }
 
