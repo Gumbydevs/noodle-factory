@@ -33,7 +33,13 @@ export const CARDS = {
             workers: -3
         },
         effect: (state) => {
-            return "Workers exhausted but productive!";
+            let bonus = "";
+            // Risk/Reward: If you have a well-staffed factory, get an extra prestige bonus.
+            if (state.playerStats.workerCount > 20) {
+                bonus = " Extra energy surges from a well-staffed factory!";
+                state.playerStats.pastaPrestige += 5;
+            }
+            return "Workers exhausted but productive!" + bonus;
         }
     },
     "Noodle Slap": {
@@ -56,8 +62,14 @@ export const CARDS = {
             workers: -2
         },
         effect: (state) => {
+            let bonus = "";
+            // Risk/Reward: In a calm state, the Kraken strikes with extra force.
+            if (state.playerStats.chaosLevel < 30) {
+                bonus = " In the calm, the Kraken strikes with extra force!";
+                state.playerStats.pastaPrestige += 4;
+            }
             state.playerStats.lostWorkers += 2;
-            return "The tentacle waves menacingly with marinara dripping from its noodly appendages!";
+            return "The tentacle waves menacingly with marinara dripping from its noodly appendages!" + bonus;
         }
     },
     "Vat Explosion": {
@@ -71,9 +83,16 @@ export const CARDS = {
             workers: -3
         },
         effect: (state) => {
+            let bonus = "";
+            // Risk/Reward: If chaos is already high, the explosion is even more catastrophic.
+            if (state.playerStats.chaosLevel > 70) {
+                bonus = " The excessive chaos amplifies the explosion's impact!";
+                state.playerStats.lostWorkers += 2;
+                state.playerStats.lostIngredients += 1;
+            }
             state.playerStats.lostWorkers += 3;
             state.playerStats.lostIngredients += 2;
-            return "The explosion sends pasta shrapnel in all directions!";
+            return "The explosion sends pasta shrapnel in all directions!" + bonus;
         }
     },
     "Pasta Prophet": {
@@ -125,7 +144,13 @@ export const CARDS = {
             chaos: 8
         },
         effect: (state) => {
-            return "Customers are eating tomorrow's lunch yesterday!";
+            let bonus = "";
+            // Risk/Reward: If you have plenty of ingredients, time-travelers feast and boost your prestige.
+            if (state.playerStats.ingredients > 5) {
+                bonus = " The abundance of ingredients creates a feast for time-travelers!";
+                state.playerStats.pastaPrestige += 3;
+            }
+            return "Customers are eating tomorrow's lunch yesterday!" + bonus;
         }
     },
     "Eldritch Al Dente": {
@@ -595,7 +620,13 @@ export const CARDS = {
         effect: (state) => {
             state.playerStats.chaosSteadyTurns = 0;
             state.playerStats.reggieEscaped = true;
-            return "I didn't get where I am today by staying where I was!";
+            let bonus = "";
+            // Risk/Reward: A dramatic escape under high chaos slightly penalizes prestige.
+            if (state.playerStats.chaosLevel > 50) {
+                bonus = " In the chaos, his escape is even more dramatic!";
+                state.playerStats.pastaPrestige -= 2;
+            }
+            return "I didn't get where I am today by staying where I was!" + bonus;
         }
     },
     "Return of Reggie": {
@@ -638,6 +669,78 @@ export const CARDS = {
         effect: (state) => {
             return "She's filming everything and threatening to post it on PastaTok!";
         }
+    },
+
+    // --- New Cards with Additional Variety and Risk/Reward Elements ---
+
+    "Mystery Meatball": {
+        description: "A mysterious meatball appears on the production line. Is it a blessing or a curse?",
+        requirements: null,
+        statModifiers: {
+            ingredients: 2,
+            prestige: 3,
+            chaos: 2
+        },
+        effect: (state) => {
+            if (Math.random() < 0.5) {
+                return "The meatball boosts your ingredient quality and reputation!";
+            } else {
+                return "The meatball's mystery creates a small mess, stirring up extra chaos!";
+            }
+        }
+    },
+    "Saucy Negotiations": {
+        description: "The head chef haggles with a supplier for premium tomato sauce.",
+        requirements: { ingredients: 2 },
+        statModifiers: {
+            ingredients: -1,
+            chaos: -5,
+            prestige: 6
+        },
+        effect: (state) => {
+            if (state.playerStats.ingredients >= 2) {
+                return "The negotiations pay off—premium sauce is secured and chaos subsides.";
+            } else {
+                return "Without enough ingredients to bargain, the negotiations backfire!";
+            }
+        }
+    },
+    "Fettuccine Fiasco": {
+        description: "A batch of fettuccine goes awry, triggering unexpected events in the kitchen.",
+        requirements: null,
+        statModifiers: {
+            chaos: 4
+        },
+        effect: (state) => {
+            const workerChange = Math.random() < 0.5 ? 4 : -4;
+            state.playerStats.workerCount += workerChange;
+            return workerChange > 0 
+                ? "The fettuccine miracle adds extra hands on deck!" 
+                : "The fettuccine fiasco leaves the team scrambling!";
+        }
+    },
+    "Noodle Nirvana": {
+        description: "A moment of sublime inspiration transforms the production line into a zen state.",
+        requirements: null,
+        statModifiers: {
+            chaos: -10,
+            workers: 5,
+            prestige: 7
+        },
+        effect: (state) => {
+            return "The factory enters a state of calm creativity—noodles flow like a peaceful river.";
+        }
+    },
+    "Caffeine Infusion": {
+        description: "A sudden burst of espresso energizes the team, fueling an unexpected productivity surge.",
+        requirements: null,
+        statModifiers: {
+            workers: 8,
+            chaos: -8
+        },
+        effect: (state) => {
+            return "The caffeine kick revives the team—productivity and morale spike instantly!";
+        }
     }
 };
 
@@ -648,7 +751,6 @@ export function getRandomCard() {
             // Only include if Reggie has escaped
             return gameState?.playerStats?.reggieEscaped === true;
         }
-        // Include all other cards
         return true;
     });
     const randomIndex = Math.floor(Math.random() * cardNames.length);
