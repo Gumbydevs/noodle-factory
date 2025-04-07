@@ -590,6 +590,43 @@ h1 {
     pointer-events: none !important;
 }
 
+/* Add these specific rules to handle chaos states and hover */
+.chaos-level-1 .card,
+.chaos-level-2 .card,
+.chaos-level-3 .card,
+.chaos-level-max .card {
+    transform: none; /* Reset any existing transforms */
+    transition: transform 0.3s ease-out;
+}
+
+.chaos-level-1 .card:hover,
+.chaos-level-2 .card:hover,
+.chaos-level-3 .card:hover,
+.chaos-level-max .card:hover,
+.chaos-level-1 .card:active,
+.chaos-level-2 .card:active,
+.chaos-level-3 .card:active,
+.chaos-level-max .card:active {
+    transform: translateY(-10px);
+}
+
+/* Force hover state to be removed when card is played */
+.card.played {
+    transform: none !important;
+    transition: none !important;
+}
+
+/* Ensure touch devices maintain hover effect until card is played */
+@media (hover: none) {
+    .card:active {
+        transform: translateY(-10px);
+    }
+    
+    .card.played:active {
+        transform: none !important;
+    }
+}
+
 .card:nth-child(odd) {
     animation: 
         cardFloat 3s ease-in-out infinite,
