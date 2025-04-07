@@ -1569,3 +1569,102 @@ h1 {
 .chaos-warning.active {
     animation: chaosShake 0.5s ease-in-out, chaosPulse 1s ease-in-out 3;
 }
+
+/* Update CRT overlay with working sepia */
+.crt-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 9998;
+    background: linear-gradient(
+        to bottom,
+        rgba(18, 16, 16, 0) 50%,
+        rgba(0, 0, 0, 0.05) 50%
+    );
+    background-size: 100% 4px;
+    opacity: 0.4;
+    mix-blend-mode: multiply;
+    filter: sepia(100%) brightness(1.1);
+    background-color: rgba(255, 235, 205, 0.1);
+}
+
+.crt-overlay.active {
+    display: block;
+    background: linear-gradient(
+        to bottom,
+        rgba(18, 16, 16, 0) 50%,
+        rgba(0, 0, 0, 0.15) 50%
+    );
+    background-size: 100% 3px;
+    opacity: 0.7;
+    animation: scanline 10s linear infinite;
+    filter: sepia(100%) brightness(1.2) contrast(1.1);
+    background-color: rgba(255, 235, 205, 0.2);
+}
+
+/* Add warm color overlay */
+.crt-overlay::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 218, 185, 0.1);
+    pointer-events: none;
+    mix-blend-mode: overlay;
+}
+
+/* Update CRT overlay with stronger sepia */
+.crt-overlay.active {
+    display: block;
+    background: linear-gradient(
+        to bottom,
+        rgba(18, 16, 16, 0) 50%,
+        rgba(0, 0, 0, 0.15) 50%
+    );
+    background-size: 100% 3px;
+    opacity: 0.6;
+    animation: scanline 10s linear infinite;
+    filter: sepia(0.3) brightness(1.1) contrast(1.1);
+}
+
+/* Add scanline animation */
+@keyframes scanline {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 0 100%;
+    }
+}
+
+/* Add subtle flicker effect during gameplay */
+.crt-overlay.active::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        rgba(255, 248, 242, 0.03),
+        rgba(255, 248, 242, 0.03) 50%,
+        rgba(255, 248, 242, 0.02) 50%,
+        rgba(255, 248, 242, 0.02)
+    );
+    background-size: 100% 4px;
+    animation: flicker 0.15s infinite;
+    pointer-events: none;
+    opacity: 0.4;
+}
+
+@keyframes flicker {
+    0% { opacity: 0.4; }
+    50% { opacity: 0.5; }
+    100% { opacity: 0.4; }
+}

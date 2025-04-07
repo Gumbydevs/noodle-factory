@@ -49,6 +49,13 @@ class Game {
         // Clear any existing chaos effects
         document.body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
 
+        // Create CRT overlay if it doesn't exist
+        if (!document.querySelector('.crt-overlay')) {
+            const overlay = document.createElement('div');
+            overlay.className = 'crt-overlay';
+            document.body.appendChild(overlay);
+        }
+
         // Initial display update
         this.updateInitialDisplay();
 
@@ -480,6 +487,9 @@ class Game {
         const body = document.body;
         body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
         
+        // Remove CRT effect
+        document.querySelector('.crt-overlay').classList.remove('active');
+
         // Create game over screen
         const gameContainer = document.getElementById('game-container');
         const gameOverScreen = document.createElement('div');
@@ -631,6 +641,9 @@ class Game {
         const messageBox = document.getElementById('game-messages');
         messageBox.classList.remove('chaos-warning');
         
+        // Activate CRT effect
+        document.querySelector('.crt-overlay').classList.add('active');
+
         // Hide start button and show cards
         document.getElementById('start-game').classList.add('hidden');
         this.showCards();
