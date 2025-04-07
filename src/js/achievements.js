@@ -10,12 +10,12 @@ export const ACHIEVEMENTS = {
     "Living on the Edge": {
         description: "Reach 30 chaos and survive",
         check: (stats) => stats.chaosLevel >= 30,
-        reward: "Unlock basic chaos management"
+        reward: "You thrive in chaos!"
     },
     "Chaos Adept": {
         description: "Reach 55 chaos without losing control",
         check: (stats) => stats.chaosLevel >= 55,
-        reward: "Unlock intermediate chaos cards"
+        reward: "We aren't sure if this is a good thing..."
     },
     "Chaos Lord": {
         description: "Reach 80 chaos and maintain control",
@@ -25,64 +25,65 @@ export const ACHIEVEMENTS = {
     "Master Chef": {
         description: "Reach 100 prestige",
         check: (stats) => stats.pastaPrestige >= 100,
-        reward: "Unlock premium ingredients"
+        reward: "Gain bonuses from your culinary skills"
     },
     "Ingredient Hoarder": {
-        description: "Reach 20 ingredients without losing any",
+        description: "Reach 20 ingredients!",
         check: (stats) => stats.ingredients >= 20 && stats.lostIngredients === 0,
-        reward: "Unlock special recipes"
+        reward: "Now we're cooking!"
     },
-    "Energy Crisis": {
-        description: "Survive with less than 10 energy",
+    "Labour Crisis": {
+        description: "Survive with less than 10 workers",
         check: (stats) => stats.workerEnergy <= 10 && stats.workerEnergy > 0,
-        reward: "Unlock energy management cards"
+        reward: "Hanging on by a thread!",
+        // Check if worker energy is the right variable
     },
     "Marathon Manager": {
         description: "Survive 20 turns",
         check: (stats, turn) => turn >= 20,
-        reward: "Unlock endurance bonuses"
+        reward: "You are getting the hang of this!"
     },
     "Factory Legend": {
         description: "Keep the factory running for 50 turns",
         check: (stats, turn) => turn >= 50,
-        reward: "Unlock legendary management techniques"
+        reward: "Legendary management techniques"
     },
     "Pasta Immortal": {
         description: "Maintain control for an incredible 100 turns",
         check: (stats, turn) => turn >= 100,
-        reward: "Unlock the secrets of eternal pasta"
+        reward: "You know kung fu!",
     },
     "Pasta La Vista": {
         description: "Lose 10 workers in a single run",
         check: (stats) => stats.lostWorkers >= 10,
-        reward: "Unlock worker safety cards",
+        reward: "Somehow, you survived this",
         // Triggered by "Workers Strike", "Noodle Kraken", "Vat Explosion" cards
     },
     "Breaking Bread": {
         description: "Reach 50 ingredients without losing any to chaos",
         check: (stats) => stats.ingredients >= 50 && stats.lostIngredients === 0,
-        reward: "Unlock premium storage options"
+        reward: "A pasta-tively amazing feat!",
     },
     "Chaotic Neutral": {
         description: "Maintain exactly 50 chaos for 3 consecutive turns",
         check: (stats) => stats.chaosSteadyTurns >= 3 && stats.chaosLevel === 50,
-        reward: "Unlock chaos stabilization cards"
+        reward: "You've mastered the art of balance",
     },
     "Worker Strike Survivor": {
         description: "Survive a worker strike with zero casualties",
         check: (stats) => stats.survivedStrikes >= 1 && stats.strikeDeaths === 0,
-        reward: "Unlock negotiation cards",
+        reward: "A true diplomat!",
         // Triggered by "Workers Strike" card
     },
     "The Lesser Evil": {
         description: "Choose between two terrible options and pick the Lesser of Two Weevils",
         check: (stats) => stats.chosenLesserWeevil,
-        reward: "Unlock pest control options"
+        reward: "A true pasta philosopher!",
     },
     "The Fall and Rise": {
         description: "Witness Reggie's complete journey of self-discovery through pasta",
         check: (stats) => stats.reggieComplete === true,
-        reward: "Unlock enlightened management techniques"
+        reward: "If you get this reference, you didnt get where you are today by not watching the BBC"
     },
     "Card Collector Apprentice": {
         description: "Play 25% of all available cards",
@@ -122,11 +123,11 @@ export const ACHIEVEMENTS = {
             const playedCount = Object.keys(played).length;
             return playedCount === totalCards;
         },
-        reward: "You've seen it all!"
+        reward: "No spring chicken here!",
     }
 };
 
-// Add firstGameCheck to track if this is the very first game
+//  firstGameCheck to track if this is the very first game
 export const isFirstGame = () => {
     return !localStorage.getItem('noodleFactoryFirstGame');
 };
@@ -154,14 +155,14 @@ export const isAchievementUnlocked = (achievementId) => {
     return savedAchievements.includes(achievementId);
 };
 
-// Update the resetAchievements function to also clear played cards
+// resetAchievements function to clear achievements and played cards
 export const resetAchievements = () => {
     localStorage.removeItem('noodleFactoryAchievements');
     localStorage.removeItem('noodleFactoryFirstGame');
     localStorage.removeItem('noodleFactoryPlayedCards'); // Add this line
 };
 
-// Modify checkAchievements to handle first game achievement
+// checkAchievements to handle first game achievement
 export const checkAchievements = (stats, turn) => {
     const newAchievements = [];
     
@@ -193,13 +194,13 @@ export const checkAchievements = (stats, turn) => {
     return newAchievements;
 };
 
-// Move this function to cards.js since that's where the storage key is defined
+//  where the storage key is defined
 export function getPlayedCards() {
     const played = localStorage.getItem('noodleFactoryPlayedCards') || '{}';
     return JSON.parse(played);
 }
 
-// Update checkCardAchievements to trigger achievement checks
+// checkCardAchievements to trigger achievement checks
 export function checkCardAchievements() {
     const played = getPlayedCards();
     const totalCards = Object.keys(CARDS).length;
