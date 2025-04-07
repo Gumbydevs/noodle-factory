@@ -1016,8 +1016,8 @@ h1 {
 
 .achievements-section {
     position: relative;
-    margin: 1.5rem 0; /* Reduced from 2rem */
-    padding-bottom: 30px; /* Reduced from 40px */
+    margin: 1.5rem 0;
+    padding-bottom: 60px; /* Increased to accommodate buttons */
 }
 
 .achievements-grid {
@@ -1049,6 +1049,9 @@ h1 {
 }
 
 #new-game {
+    display: block;
+    width: 200px;
+    margin: 1.5rem auto; /* Center the button */
     font-size: 1.1em; /* Reduced from 1.2em */
     padding: 0.6rem 1.75rem; /* Reduced from 0.75rem 2rem */
     margin-top: 1.5rem; /* Reduced from 2rem */
@@ -1197,6 +1200,28 @@ h1 {
 
     body.chaos-level-max {
         filter: hue-rotate(25deg) saturate(1.4) brightness(1.1) !important;
+    }
+
+    .achievements-section {
+        padding-bottom: 100px; /* More space for stacked buttons */
+    }
+
+    #new-game {
+        width: 80%; /* Make button wider on mobile */
+        max-width: 300px;
+        margin: 1rem auto;
+    }
+
+    #share-results {
+        width: auto;
+        bottom: 50px;
+        right: 10px;
+    }
+
+    .button.secondary.small {
+        width: auto;
+        bottom: 10px;
+        right: 10px;
     }
 }
 
