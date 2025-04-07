@@ -1200,27 +1200,42 @@ h1 {
 
 /* Replace the existing media query with this updated version */
 @media (hover: none) and (pointer: coarse) {
-    /* For touch devices - only disable hover effects */
-    .card:hover,
-    .chaos-level-1 .card:hover,
-    .chaos-level-2 .card:hover,
-    .chaos-level-3 .card:hover,
-    .chaos-level-max .card:hover {
-        animation: none !important;
-        transform: none !important;
-        background: #444 !important;
-    }
-
-    /* Remove all :hover states but keep regular animations */
+    /* For touch devices - ensure both cards animate */
     .card,
     .chaos-level-1 .card,
     .chaos-level-2 .card,
     .chaos-level-3 .card,
     .chaos-level-max .card {
-        /* Keep the regular card animations */
+        will-change: transform;
+        -webkit-transform-style: preserve-3d;
+        transform-style: preserve-3d;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
         animation: 
             cardFloat 3s ease-in-out infinite,
             randomJitter 2s ease-in-out infinite !important;
+        animation-delay: 
+            calc(random() * -3s),
+            calc(random() * -2s);
+    }
+
+    /* Keep individual card variations */
+    .card:nth-child(odd) {
+        animation: 
+            cardFloat 3s ease-in-out infinite,
+            randomJitter 1.7s ease-in-out infinite !important;
+        animation-delay: 
+            -1.5s,
+            calc(random() * -3s);
+    }
+
+    .card:nth-child(even) {
+        animation: 
+            cardFloat 3s ease-in-out infinite,
+            randomJitter 2.3s ease-in-out infinite !important;
+        animation-delay: 
+            0s,
+            calc(random() * -2s);
     }
 
     /* Update the played animation for touch devices */
