@@ -1,4 +1,4 @@
-/* This file contains the styles for the game, including layout, card designs, and overall aesthetics to create a quirky and engaging user interface. */
+/* This file contains the styles for the game, including layout, card designs, animtions, and overall aesthetics to create a quirky and engaging user interface. */
 
 @keyframes wiggle {
     0% { transform: rotate(-15deg); }
@@ -186,9 +186,7 @@
 /* Add these new keyframes near the other card animations */
 @keyframes randomJitter {
     0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(1deg) translateX(2px); }
-    50% { transform: rotate(-0.5deg) translateY(1px); }
-    75% { transform: rotate(-1deg) translateX(-2px); }
+    50% { transform: rotate(1deg); }
 }
 
 /* Add these new animations without modifying existing styles */
@@ -231,6 +229,21 @@
     }
     100% {
         transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* Add a new function to assign random animations to each noodle */
+@keyframes noodleFallRandom {
+    0% {
+        transform: translateY(-20px) rotate(0deg);
+        opacity: 0.8;
+    }
+    90% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(100vh) rotate(var(--spin-amount));
         opacity: 0;
     }
 }
@@ -279,28 +292,37 @@ body {
     height: 100vh;
 }
 
+/* Update chaos level animations to keep impact but improve performance */
 body.chaos-level-1 {
-    animation: chaosBackgroundPulse 15s infinite !important;
+    animation: chaosBackgroundPulse 15s ease-in-out infinite !important;
     filter: hue-rotate(5deg) !important;
 }
 
 body.chaos-level-2 {
-    animation: chaosBackgroundPulse 10s infinite !important;
+    animation: chaosBackgroundPulse 10s ease-in-out infinite !important;
     filter: hue-rotate(15deg) saturate(1.2) !important;
     background: linear-gradient(to right, #1a1515, #151a1a) !important;
 }
 
 body.chaos-level-3 {
-    animation: chaosBackgroundPulse 5s infinite, chaosColorShift 8s infinite !important;
-    filter: hue-rotate(25deg) saturate(1.4) brightness(1.1) !important;
+    animation: chaosBackgroundPulse 5s ease-in-out infinite !important;
+    filter: hue-rotate(25deg) saturate(1.4) !important;
     background: linear-gradient(45deg, #1a1515, #151a1a) !important;
+    transform-style: preserve-3d;
+    perspective: 1000px;
 }
 
 body.chaos-level-max {
     animation: 
         chaosBackgroundPulse 4s ease-in-out infinite,
-        chaosColorShift 3s ease-in-out infinite !important;
-    filter: hue-rotate(15deg) saturate(1.2);
+        maxChaosWarp 8s ease-in-out infinite !important;
+    filter: hue-rotate(15deg) saturate(1.2) contrast(1.1);
+}
+
+/* More impactful but efficient maxChaosWarp */
+@keyframes maxChaosWarp {
+    0%, 100% { transform: perspective(1000px) rotate(0deg); }
+    50% { transform: perspective(1000px) rotate(2deg); }
 }
 
 body.chaos-noise {
@@ -317,8 +339,9 @@ body.chaos-noise::before {
     height: 100% !important;
     pointer-events: none !important;
     z-index: 9999 !important;
-    background-image: url("data:image/png;base64,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") !important;
-    opacity: 0.08 !important;
+    background-size: 100px 100px; /* Increase pattern size */
+    opacity: 0.05 !important;
+    animation: none; /* Remove animation */
 }
 
 #game-container {
@@ -352,6 +375,29 @@ body.chaos-noise::before {
     z-index: -1 !important;
     background: radial-gradient(circle at 50% 50%, rgba(255,0,0,0.1), transparent) !important;
     animation: chaosColorShift 8s infinite !important;
+}
+
+.chaos-level-max #game-container {
+    position: relative;
+}
+
+.chaos-level-max #game-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    background: transparent;
+    mix-blend-mode: screen;
+    animation: chromaticShift 4s ease-in-out infinite;
+}
+
+@keyframes chromaticShift {
+    0% { text-shadow: 2px 0 0 #ff000033, -2px 0 0 #00ff0033; }
+    50% { text-shadow: -2px 0 0 #ff000033, 2px 0 0 #00ff0033; }
+    100% { text-shadow: 2px 0 0 #ff000033, -2px 0 0 #00ff0033; }
 }
 
 #stats {
@@ -478,11 +524,8 @@ h1 {
     position: relative;
 }
 
-.card,
-.chaos-level-1 .card,
-.chaos-level-2 .card,
-.chaos-level-3 .card,
-.chaos-level-max .card {
+/* Optimize card animations */
+.card {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -498,27 +541,18 @@ h1 {
     transition: transform 0.5s ease-out, opacity 0.5s ease-out;
     transform-origin: center center;
     opacity: 1;
+    animation: cardFloat 3s ease-in-out infinite;
+    will-change: transform; /* Optimize transform animations */
+}
+
+/* Optimize card animations while keeping the effect strong */
+.chaos-level-3 .card, 
+.chaos-level-max .card {
     animation: 
         cardFloat 3s ease-in-out infinite,
         randomJitter 2s ease-in-out infinite !important;
-    animation-delay: 
-        calc(random() * -3s),
-        calc(random() * -2s);
-}
-
-@keyframes cardFloat {
-    0%, 100% {
-        transform: translateY(0) translateX(0) rotate(-1deg);
-    }
-    25% {
-        transform: translateY(-5px) translateX(3px) rotate(0deg);
-    }
-    50% {
-        transform: translateY(-10px) translateX(0) rotate(1deg);
-    }
-    75% {
-        transform: translateY(-5px) translateX(-3px) rotate(0deg);
-    }
+    will-change: transform;
+    filter: contrast(1.1) brightness(1.05);
 }
 
 /* Update card hover styles to make animation slower */
@@ -945,10 +979,9 @@ h1 {
     pointer-events: none;
     z-index: 1000;
     opacity: 0.8;
-    width: 40px;
+    width: var(--noodle-length, 40px); /* Make width dynamic */
     height: 20px;
-    animation: noodleFall 3s linear forwards;
-    top: -20px; /* Add this to ensure noodles start above the screen */
+    top: -20px;
 }
 
 .game-over-screen {

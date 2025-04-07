@@ -169,26 +169,38 @@ class Game {
     }
 
     triggerNoodleRain() {
-        // Create a basic SVG noodle if template isn't found
-        const noodleSVG = `
-            <svg width="40" height="20" viewBox="0 0 40 20">
-                <path d="M5,10 Q20,20 35,10 T65,10" stroke="#FFE5B4" 
-                      stroke-width="3" fill="none"/>
-            </svg>
-        `;
-
-        const duration = 3000 + Math.random() * 2000;
-        const noodleCount = 15 + Math.floor(Math.random() * 15); // Increased count (15-30)
+        // Create a basic SVG noodle with dynamic width
+        const noodleCount = 15 + Math.floor(Math.random() * 15);
 
         for (let i = 0; i < noodleCount; i++) {
             setTimeout(() => {
                 const noodle = document.createElement('div');
                 noodle.className = 'chaos-noodle';
                 noodle.style.left = `${Math.random() * 100}vw`;
+                
+                // Random length between 40px and 120px
+                const noodleLength = 40 + Math.floor(Math.random() * 80);
+                noodle.style.setProperty('--noodle-length', `${noodleLength}px`);
+                
+                // Adjust SVG viewBox and path to match the length
+                const noodleSVG = `
+                    <svg width="${noodleLength}" height="20" viewBox="0 0 ${noodleLength} 20">
+                        <path d="M5,10 Q${noodleLength/2},20 ${noodleLength-5},10" 
+                              stroke="#FFE5B4" 
+                              stroke-width="3" 
+                              fill="none"/>
+                    </svg>
+                `;
+                
+                const spinAmount = 360 + Math.random() * 720;
+                const duration = 3000 + Math.random() * 2000;
+                
+                noodle.style.setProperty('--spin-amount', `${spinAmount}deg`);
+                noodle.style.animation = `noodleFallRandom ${duration}ms linear forwards`;
+                
                 noodle.innerHTML = noodleSVG;
                 document.body.appendChild(noodle);
 
-                // Remove the noodle element after animation completes
                 setTimeout(() => noodle.remove(), duration);
             }, Math.random() * 1000);
         }
