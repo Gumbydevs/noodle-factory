@@ -297,9 +297,10 @@ body.chaos-level-3 {
 }
 
 body.chaos-level-max {
-    animation: chaosBackgroundPulse 3s infinite, chaosColorShift 5s infinite !important;
-    filter: hue-rotate(35deg) saturate(1.6) brightness(1.2) contrast(1.1) !important;
-    background: linear-gradient(90deg, #1a1515, #151a1a) !important;
+    animation: 
+        chaosBackgroundPulse 4s ease-in-out infinite,
+        chaosColorShift 3s ease-in-out infinite !important;
+    filter: hue-rotate(15deg) saturate(1.2);
 }
 
 body.chaos-noise {
