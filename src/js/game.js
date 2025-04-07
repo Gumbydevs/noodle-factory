@@ -259,14 +259,13 @@ class Game {
             card => card !== clickedCard
         );
 
-        // Add played class to both cards but only animate the clicked one
+        // Set data-selected attributes
+        clickedCard.setAttribute('data-selected', 'true');
+        otherCard.setAttribute('data-selected', 'false');
+
+        // Add played class to both cards
         clickedCard.classList.add('played');
-        clickedCard.style.animation = 'touchExcited 0.4s ease-in-out';
-        
-        // Immediately fade out the other card
         otherCard.classList.add('played');
-        otherCard.style.opacity = '0';
-        otherCard.style.transition = 'opacity 0.2s ease-out';
 
         // Apply stat modifications first
         if (card.statModifiers) {

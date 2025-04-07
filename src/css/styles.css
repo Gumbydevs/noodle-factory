@@ -523,14 +523,27 @@ h1 {
     z-index: 2;
 }
 
-.card.played,
-.chaos-level-1 .card.played,
-.chaos-level-2 .card.played,
-.chaos-level-3 .card.played,
-.chaos-level-max .card.played {
-    transform: scale(0.95);
-    opacity: 0.7;
-    pointer-events: none;
+/* Update the card played animations for both desktop and mobile */
+.card.played[data-selected="true"] {
+    animation: touchExcited 0.4s ease-in-out !important;
+    transform: scale(0.8) translateY(-100px) !important;
+    opacity: 0 !important;
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out !important;
+    transition-delay: 0.4s !important;
+    pointer-events: none !important;
+}
+
+.card.played:not([data-selected="true"]) {
+    animation: none !important;
+    transform: scale(0.5) !important;
+    opacity: 0 !important;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out !important;
+    pointer-events: none !important;
+}
+
+/* Remove the generic played class animation that was affecting both cards */
+.card.played {
+    pointer-events: none !important;
 }
 
 .card:nth-child(odd) {
@@ -561,12 +574,6 @@ h1 {
     animation-delay: 
         calc(random() * -3s),
         calc(random() * -2s);
-}
-
-.card.played {
-    transform: scale(0.8) translateY(-100px);
-    opacity: 0;
-    pointer-events: none;
 }
 
 .card h3 {
@@ -1200,75 +1207,22 @@ h1 {
 
 /* Replace the existing media query with this updated version */
 @media (hover: none) and (pointer: coarse) {
-    /* Keep existing animations for both cards */
-    .card,
-    .chaos-level-1 .card,
-    .chaos-level-2 .card,
-    .chaos-level-3 .card,
-    .chaos-level-max .card {
-        will-change: transform;
-        -webkit-transform-style: preserve-3d;
-        transform-style: preserve-3d;
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
-        animation: 
-            cardFloat 3s ease-in-out infinite,
-            randomJitter 2s ease-in-out infinite !important;
-        animation-delay: 
-            calc(random() * -3s),
-            calc(random() * -2s);
-    }
-
-    /* Keep individual card variations but don't include the played animation here */
-    .card:nth-child(odd) {
-        animation: 
-            cardFloat 3s ease-in-out infinite,
-            randomJitter 1.7s ease-in-out infinite !important;
-        animation-delay: 
-            -1.5s,
-            calc(random() * -3s);
-    }
-
-    .card:nth-child(even) {
-        animation: 
-            cardFloat 3s ease-in-out infinite,
-            randomJitter 2.3s ease-in-out infinite !important;
-        animation-delay: 
-            0s,
-            calc(random() * -2s);
-    }
-
-    /* Update played card animations for touch devices */
-    .card.played {
-        animation: none !important; /* Reset any existing animations */
-        transition: transform 0.5s ease-out, opacity 0.5s ease-out;
-    }
-
-    /* Specific animation only for the selected card */
+    /* Keep existing touch device styles but override played animations */
     .card.played[data-selected="true"] {
         animation: touchExcited 0.4s ease-in-out !important;
         transform: scale(0.8) translateY(-100px) !important;
         opacity: 0 !important;
         transition: transform 0.5s ease-out, opacity 0.5s ease-out !important;
         transition-delay: 0.4s !important;
-    }
-
-    /* Immediate fade for the non-selected card */
-    .card.played:not([data-selected="true"]) {
-        transform: scale(0.5) !important;
-        opacity: 0 !important;
-        transition: transform 0.4s ease-out, opacity 0.4s ease-out !important;
         pointer-events: none !important;
     }
 
-    /* Remove other card variations for played state */
-    .chaos-level-1 .card:not(.played),
-    .chaos-level-2 .card:not(.played),
-    .chaos-level-3 .card:not(.played),
-    .chaos-level-max .card:not(.played) {
-        animation: 
-            cardFloat 3s ease-in-out infinite,
-            randomJitter 2s ease-in-out infinite !important;
+    .card.played:not([data-selected="true"]) {
+        animation: none !important;
+        transform: scale(0.5) !important;
+        opacity: 0 !important;
+        transition: transform 0.3s ease-out, opacity 0.3s ease-out !important;
+        pointer-events: none !important;
     }
 }
 
