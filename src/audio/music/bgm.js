@@ -187,7 +187,7 @@ export class MusicLoops {
         const now = this.audioContext.currentTime;
         
         // Calculate BPM based on chaos level (increases with chaos)
-        const chaosBpmIncrease = this.chaosLevel * 0.8; // Up to +80 BPM at chaos 100
+        const chaosBpmIncrease = Math.min(40, this.chaosLevel * 0.4); // Cap at +40 BPM
         const currentBpm = this.baseBpm + chaosBpmIncrease;
         const stepDuration = 60 / currentBpm / 4; // 16th notes
         
@@ -198,16 +198,12 @@ export class MusicLoops {
             // Apply chaos to timing (swing and randomization)
             // More swing at medium chaos, more random at high chaos
             let swingAmount = 0;
-            if (this.chaosLevel < 50) {
-                // Jazz-style swing, stronger at medium chaos levels
-                swingAmount = (this.currentStep % 2) * 0.12 * (0.5 + this.chaosLevel/100);
-            } else {
-                // More erratic timing at high chaos
-                swingAmount = (this.currentStep % 2) * 0.08;
+            if (this.chaosLevel < 80) {
+                swingAmount = (this.currentStep % 2) * 0.12 * (0.5 + Math.min(50, this.chaosLevel)/100);
             }
             
-            // Timing randomization increases with chaos
-            const randomTiming = (Math.random() * 0.04 - 0.02) * (this.chaosLevel/100);
+            // Reduce timing randomization
+            const randomTiming = (Math.random() * 0.02 - 0.01) * (Math.min(50, this.chaosLevel)/100);
             
             // Move to next step
             this.currentStep = (this.currentStep + 1) % this.sequencerSteps;
@@ -239,22 +235,22 @@ export class MusicLoops {
         this.playDrumSequencerStep(step, time);
         
         // Bass and synth elements
-        if ((step % 4 === 0) || (this.chaosLevel > 40 && step % 8 === 2)) {
+        if ((step % 4 === 0) || (this.chaosLevel > 40 && step % 8 === 2 && Math.random() < 0.6)) {
             this.playBassNote(step, time);
         }
         
         // Every 8 steps, add a jazz chord stab (more at higher chaos)
-        if (step % 8 === 0 || (this.chaosLevel > 40 && step % 7 === 0)) {
+        if (step % 8 === 0 || (this.chaosLevel > 40 && step % 7 === 0 && Math.random() < 0.4)) {
             this.playChordStab(step, time);
         }
         
         // Add synth accent notes for more melodic interest at high chaos
-        if (this.chaosLevel > 60 && (step % 5 === 0 || step % 9 === 0)) {
+        if (this.chaosLevel > 60 && (step % 4 === 2 || step % 8 === 6)) {
             this.playSynthAccent(step, time);
         }
         
         // On high chaos levels, add glitchy percussion fills
-        if (this.chaosLevel > 50 && Math.random() < this.chaosLevel/150) {
+        if (this.chaosLevel > 50 && Math.random() < this.chaosLevel/200) {
             this.playGlitchFill(time);
         }
     }
@@ -622,32 +618,44 @@ export class MusicLoops {
     }
     
     playBassNote(step, time) {
-        // Generate bass pattern based on chaos level
-        const scale = this.chaosLevel > 50 ? 
-            this.musicalScales.blues : 
-            this.musicalScales.pentatonic;
-        
-        // Base pattern becomes more varied with chaos
-        const patternLength = 4 + Math.floor(this.chaosLevel / 25);
-        let noteIndex = (step + Math.floor(this.chaosLevel / 20)) % patternLength;
-        
-        // Add occasional octave jumps
-        const octaveJump = Math.random() < (this.chaosLevel / 200) ? 12 : 0;
-        
-        // Select note from scale
-        const scaleIndex = (noteIndex * 2 + Math.floor(this.chaosLevel / 30)) % scale.length;
-        let bassNote = scale[scaleIndex];
-        
-        // Add variations based on chaos
-        if (this.chaosLevel > 30 && Math.random() < this.chaosLevel/200) {
-            const direction = Math.random() > 0.5 ? 1 : -1;
-            const newIndex = (scaleIndex + direction + scale.length) % scale.length;
-            bassNote = scale[newIndex];
+        // Use fixed patterns at low chaos, gradually introduce variations
+        const basePatterns = [
+            // Funky groove pattern
+            ['C2', 'G2', 'Bb2', 'G2'],
+            // Walking bass pattern
+            ['C2', 'Eb2', 'F2', 'G2'],
+            // Syncopated pattern
+            ['C2', 'C2', 'G2', 'Bb2']
+        ];
+
+        let bassNote;
+        if (this.chaosLevel < 40) {
+            // Use fixed patterns for stable groove
+            const patternIndex = Math.floor(step / 16) % basePatterns.length;
+            const pattern = basePatterns[patternIndex];
+            bassNote = pattern[step % 4];
+        } else if (this.chaosLevel < 60) {
+            // Use existing pattern logic
+        } else {
+            // More structured variation at high chaos
+            const scale = this.musicalScales.pentatonic;
+            const rootNotes = ['C2', 'G2', 'F2'];
+            const rootNote = rootNotes[Math.floor(step / 8) % rootNotes.length];
+            
+            // Stay closer to pattern even at high chaos
+            if (step % 8 < 6) {
+                bassNote = rootNote;
+            } else {
+                // Occasional variation but more controlled
+                const altNote = scale[Math.floor(step/2) % scale.length].replace('3', '2');
+                bassNote = Math.random() < 0.6 ? rootNote : altNote;
+            }
         }
         
+        // Play the note with funky envelope
         this.playMoogBass(bassNote, time, 0.4, 0.5);
     }
-    
+
     playMoogBass(note, time, duration, gain) {
         if (!this.notes[note]) return;
         
@@ -736,30 +744,44 @@ export class MusicLoops {
     }
     
     playChordStab(step, time) {
-        const scale = this.chaosLevel > 60 ? 
-            this.musicalScales.blues : 
-            this.musicalScales.pentatonic;
-        
-        // Generate chord based on current scale position
-        const baseIndex = (step + Math.floor(this.chaosLevel / 25)) % scale.length;
-        const chordNotes = [];
-        
-        // Build chord from scale degrees
-        for (let i = 0; i < 4; i++) {
-            const noteIndex = (baseIndex + (i * 2)) % scale.length;
-            chordNotes.push(scale[noteIndex]);
+        // Jazz chord progressions
+        const jazzProgressions = [
+            // Minor 7th based progression
+            [['C3', 'Eb3', 'G3', 'Bb3'], ['F3', 'Ab3', 'C4', 'Eb4']],
+            // Minor 9th variations
+            [['C3', 'Eb3', 'G3', 'D4'], ['G3', 'Bb3', 'D4', 'F4']]
+        ];
+
+        let chordNotes;
+        if (this.chaosLevel < 50) {
+            // Use fixed jazz progressions
+            const progIndex = Math.floor(step / 8) % jazzProgressions.length;
+            const chordIndex = (step / 4) % 2;
+            chordNotes = jazzProgressions[progIndex][chordIndex];
+        } else {
+            // Generate chord but maintain jazz feel
+            const scale = this.musicalScales.pentatonic;
+            const baseIndex = (step + Math.floor(this.chaosLevel / 25)) % scale.length;
+            chordNotes = [];
+            
+            // Build jazz-like voicing
+            const intervals = [0, 2, 4, 6]; // Minor 7th-like structure
+            intervals.forEach(interval => {
+                const noteIndex = (baseIndex + interval) % scale.length;
+                chordNotes.push(scale[noteIndex]);
+            });
         }
         
-        const duration = 0.3 + (Math.random() * 0.2);
+        const duration = 0.2 + (Math.random() * 0.1);
         
-        // Arpeggiate the chord
-        const arpeggioSpeed = 0.01 * (1 + this.chaosLevel/70);
+        // Arpeggiate with swing feel
         chordNotes.forEach((note, i) => {
-            const noteTime = time + (i * arpeggioSpeed);
+            const swingOffset = i % 2 === 1 ? 0.03 : 0;
+            const noteTime = time + (i * 0.02) + swingOffset;
             this.playChordNote(note, noteTime, duration, 0.15);
         });
     }
-    
+
     playChordNote(note, time, duration, gain) {
         if (!this.notes[note]) return;
         
