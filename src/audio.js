@@ -357,9 +357,9 @@ export class GameSounds {
             const melody1 = [220, 330, 440, 550]; // Base melody
             const melody2 = [440, 660, 880, 1100]; // Harmony notes
 
-            // Setup envelope
+            // Setup envelope with lower volume (reduced from 0.4 to 0.2)
             gainNode.gain.setValueAtTime(0, now);
-            gainNode.gain.linearRampToValueAtTime(0.4, now + 0.1);
+            gainNode.gain.linearRampToValueAtTime(0.2, now + 0.1);
 
             // Play each note in sequence
             melody1.forEach((freq, i) => {
@@ -367,9 +367,9 @@ export class GameSounds {
                 osc1.frequency.setValueAtTime(freq, time);
                 osc2.frequency.setValueAtTime(melody2[i], time);
                 
-                // Create slight pulse for each note
-                gainNode.gain.setValueAtTime(0.4, time);
-                gainNode.gain.linearRampToValueAtTime(0.2, time + noteLength * 0.8);
+                // Create slight pulse for each note (reduced from 0.4/0.2 to 0.2/0.1)
+                gainNode.gain.setValueAtTime(0.2, time);
+                gainNode.gain.linearRampToValueAtTime(0.1, time + noteLength * 0.8);
             });
 
             // Final fade out
@@ -381,6 +381,13 @@ export class GameSounds {
             osc2.start(now);
             osc1.stop(now + duration);
             osc2.stop(now + duration);
+
+            // Give two seconds before the music starts (increased from 1000 to 2000)
+            setTimeout(() => {
+                if (window.musicLoops && typeof window.musicLoops.startLoop === 'function') {
+                    window.musicLoops.startLoop();
+                }
+            }, 2000);
 
             // Cleanup
             setTimeout(() => gainNode.disconnect(), duration * 1000);
