@@ -29,10 +29,11 @@ function updateResource(resource, amount) {
     
     // Apply caps and natural progression for player stats
     if (resource === 'chaosLevel') {
-        // Chaos naturally increases each turn
-        gameState.playerStats.chaosLevel = Math.min(100, gameState.playerStats.chaosLevel + amount);
-        // Minimum chaos level of 5
-        if (gameState.playerStats.chaosLevel < 5) gameState.playerStats.chaosLevel = 5;
+        // Modified chaos calculation to make reductions more effective
+        const chaosReduction = amount < 0 ? amount * 1.5 : amount; // 50% more effective reduction
+        gameState.playerStats.chaosLevel = Math.min(100, gameState.playerStats.chaosLevel + chaosReduction);
+        // Increased minimum chaos level slightly
+        if (gameState.playerStats.chaosLevel < 8) gameState.playerStats.chaosLevel = 8;
         updateChaosEffects(gameState.playerStats.chaosLevel);
     }
     else if (resource === 'pastaPrestige') {

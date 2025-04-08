@@ -216,20 +216,17 @@ class Game {
             for (const threshold of thresholds) {
                 if (chaos >= threshold && this._lastChaosLevel < threshold) {
                     if (threshold === 100) {
-                        // Final chaos sound with maximum intensity
-                        gameSounds.playMaxChaosSound();  // New dedicated method for 100
-                        setTimeout(() => gameSounds.createGrumbleSound(3.0), 200);
+                        gameSounds.playMaxChaosSound();
+                        setTimeout(() => gameSounds.createGrumbleSound(2.8), 200); // Slightly reduced from 3.0
                     } else if (threshold === 90) {
-                        // Near-final chaos sound, distinct from max
-                        gameSounds.playPreMaxChaosSound();  // New dedicated method for 90
-                        setTimeout(() => gameSounds.createGrumbleSound(2.5), 200);
+                        gameSounds.playPreMaxChaosSound();
+                        setTimeout(() => gameSounds.createGrumbleSound(2.3), 200); // Slightly reduced from 2.5
                     } else if (threshold === 70) {
-                        // Original high chaos sound
                         gameSounds.playHighChaosSound();
-                        gameSounds.createGrumbleSound(2.0);
+                        gameSounds.createGrumbleSound(1.8); // Slightly reduced from 2.0
                     } else {
                         gameSounds.playChaosSoundForLevel(threshold);
-                        gameSounds.createGrumbleSound(threshold / 50);
+                        gameSounds.createGrumbleSound(threshold / 55); // Slightly reduced intensity
                     }
                     break;
                 }
