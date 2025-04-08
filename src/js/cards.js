@@ -889,6 +889,9 @@ export const CARDS = {
     }
 };
 
+// Add these variables at the top level, after the CARDS object
+let lastDrawnCards = [];
+
 function getPlayedCards() {
     const played = localStorage.getItem(LOCAL_STORAGE_KEY);
     return played ? JSON.parse(played) : {};
@@ -933,6 +936,10 @@ function applyStatModifiers(state, modifiers) {
 
 export function getRandomCard() {
     const cardNames = Object.keys(CARDS).filter(name => {
+        // Filter out the last two drawn cards
+        if (lastDrawnCards.includes(name)) {
+            return false;
+        }
         // Special handling for Return of Reggie
         if (name === "Return of Reggie") {
             // Only include if Reggie has escaped
@@ -940,8 +947,17 @@ export function getRandomCard() {
         }
         return true;
     });
+    
     const randomIndex = Math.floor(Math.random() * cardNames.length);
-    return cardNames[randomIndex];
+    const drawnCard = cardNames[randomIndex];
+    
+    // Update last drawn cards, keeping only the last two
+    lastDrawnCards.push(drawnCard);
+    if (lastDrawnCards.length > 2) {
+        lastDrawnCards.shift(); // Remove oldest card
+    }
+    
+    return drawnCard;
 }
 
 // filepath: d:\NoodleFactory\src\js\state.js
