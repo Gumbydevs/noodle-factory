@@ -537,6 +537,39 @@ body.chaos-noise::before {
 .stat-progress-fill.energy-color { background-color: #3498db; }
 .stat-progress-fill.turn-color { background-color: #9b59b6; }
 
+/* Update the turn progress bar styles */
+.stat-progress-fill.turn-color {
+    width: 100% !important; /* Force full width */
+    background: #9b59b6; /* Default purple */
+    transition: background-color 0.3s ease;
+}
+
+/* Add chaos-based colors for the turn bar */
+body.chaos-level-1 .stat-progress-fill.turn-color {
+    background: linear-gradient(90deg, #9b59b6, #8e44ad);
+    animation: pulseTempo 2s ease-in-out infinite;
+}
+
+body.chaos-level-2 .stat-progress-fill.turn-color {
+    background: linear-gradient(90deg, #e74c3c, #c0392b);
+    animation: pulseTempo 1.5s ease-in-out infinite;
+}
+
+body.chaos-level-3 .stat-progress-fill.turn-color {
+    background: linear-gradient(90deg, #c0392b, #962d22);
+    animation: pulseTempo 1s ease-in-out infinite;
+}
+
+body.chaos-level-max .stat-progress-fill.turn-color {
+    background: linear-gradient(90deg, #ff0000, #990000);
+    animation: pulseTempo 0.5s ease-in-out infinite;
+}
+
+@keyframes pulseTempo {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+}
+
 .stat-label {
     font-size: 0.9em;
     color: #ffffff;
