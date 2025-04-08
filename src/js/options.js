@@ -19,6 +19,25 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('sfxEnabled', e.target.checked);
     });
 
+    // Handle SFX volume
+    const sfxVolume = document.getElementById('sfx-volume');
+    const sfxVolumeValue = document.querySelector('.sfx-volume-value');
+    
+    // Load saved SFX volume
+    const savedSfxVolume = localStorage.getItem('sfxVolume') || 0.2;
+    sfxVolume.value = savedSfxVolume * 100;
+    sfxVolumeValue.textContent = `${Math.round(savedSfxVolume * 100)}%`;
+
+    sfxVolume.addEventListener('input', (e) => {
+        const value = e.target.value / 100;
+        sfxVolumeValue.textContent = `${e.target.value}%`;
+        gameSounds.setVolume(value);
+        localStorage.setItem('sfxVolume', value);
+    });
+
+    // Update initial SFX volume
+    gameSounds.setVolume(savedSfxVolume);
+
     // Update music toggle
     musicToggle.disabled = false;
     musicToggle.checked = localStorage.getItem('musicEnabled') === 'true';
