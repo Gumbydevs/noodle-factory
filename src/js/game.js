@@ -611,17 +611,17 @@ class Game {
         popup.className = 'achievement-popup';
         popup.innerHTML = `
             <h3>Achievement Unlocked!</h3>
-            <p>${name}</p>
-            <p>${achievement.description}</p>
-            <p class="reward">${achievement.reward}</p>
+            <p class="achievement-name">${name}</p>
+            <p class="achievement-desc">${achievement.description}</p>
+            <p class="achievement-reward">${achievement.reward}</p>
         `;
         document.body.appendChild(popup);
 
-        // Remove popup after animation
+        // Remove popup after animation (increased from 3000 to 4500ms)
         setTimeout(() => {
             popup.style.opacity = '0';
             setTimeout(() => popup.remove(), 500);
-        }, 3000);
+        }, 4500);
     }
 
     endGame(reason = '') {
