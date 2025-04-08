@@ -447,6 +447,34 @@
     100% { transform: rotate(0deg) scale(1); }
 }
 
+/* Add these new keyframes near your other card animations */
+@keyframes chromaticBackground1 {
+    0% { background: linear-gradient(45deg, #444, #474747); }
+    50% { background: linear-gradient(45deg, #474747, #444); }
+    100% { background: linear-gradient(45deg, #444, #474747); }
+}
+
+@keyframes chromaticBackground2 {
+    0% { background: linear-gradient(45deg, #444, #484840); }
+    50% { background: linear-gradient(45deg, #484840, #444848); }
+    100% { background: linear-gradient(45deg, #444, #484840); }
+}
+
+@keyframes chromaticBackground3 {
+    0% { background: linear-gradient(45deg, #444, #484438); }
+    33% { background: linear-gradient(45deg, #484438, #444848); }
+    66% { background: linear-gradient(45deg, #444848, #484844); }
+    100% { background: linear-gradient(45deg, #444, #484438); }
+}
+
+@keyframes chromaticBackgroundMax {
+    0% { background: linear-gradient(45deg, #444, #484438); }
+    25% { background: linear-gradient(45deg, #484438, #444848); }
+    50% { background: linear-gradient(45deg, #444848, #484844); }
+    75% { background: linear-gradient(45deg, #484844, #483844); }
+    100% { background: linear-gradient(45deg, #444, #484438); }
+}
+
 .hidden {
     display: none !important;
 }
@@ -854,7 +882,8 @@ h1 {
 .chaos-level-1 .card {
     animation: 
         cardLife 6s ease-in-out infinite,
-        cardTwitch 4s ease-in-out infinite;
+        cardTwitch 4s ease-in-out infinite,
+        chromaticBackground1 4s ease-in-out infinite !important;
     animation-delay: 
         calc(random() * -6s),
         calc(random() * -4s);
@@ -863,7 +892,8 @@ h1 {
 .chaos-level-2 .card {
     animation: 
         cardLife 5s ease-in-out infinite,
-        cardTwitch 3s ease-in-out infinite;
+        cardTwitch 3s ease-in-out infinite,
+        chromaticBackground2 3s ease-in-out infinite !important;
     animation-delay: 
         calc(random() * -5s),
         calc(random() * -3s);
@@ -872,7 +902,8 @@ h1 {
 .chaos-level-3 .card {
     animation: 
         cardLife 4s ease-in-out infinite,
-        cardTwitch 2s ease-in-out infinite;
+        cardTwitch 2s ease-in-out infinite,
+        chromaticBackground3 2s ease-in-out infinite !important;
     animation-delay: 
         calc(random() * -4s),
         calc(random() * -2s);
@@ -881,7 +912,8 @@ h1 {
 .chaos-level-max .card {
     animation: 
         cardLife 3s ease-in-out infinite,
-        cardTwitch 1.5s ease-in-out infinite;
+        cardTwitch 1.5s ease-in-out infinite,
+        chromaticBackgroundMax 1.5s ease-in-out infinite !important;
     animation-delay: 
         calc(random() * -3s),
         calc(random() * -1.5s);
@@ -967,6 +999,7 @@ h1 {
 /* Remove the generic played class animation that was affecting both cards */
 .card.played {
     pointer-events: none !important;
+    animation: none !important;
 }
 
 /* Remove conflicting rules */
