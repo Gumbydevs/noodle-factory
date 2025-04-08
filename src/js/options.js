@@ -1,4 +1,5 @@
 import { resetAchievements } from './achievements.js';
+import { gameSounds } from '../audio.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const sfxToggle = document.getElementById('sfx-toggle');
@@ -7,17 +8,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const backButton = document.getElementById('back-button');
 
     // Load saved preferences
-    sfxToggle.checked = localStorage.getItem('noodleFactorySFX') !== 'false';
-    musicToggle.checked = localStorage.getItem('noodleFactoryMusic') !== 'false';
+    const sfxEnabled = localStorage.getItem('sfxEnabled') !== 'false';
+    sfxToggle.checked = sfxEnabled;
+    gameSounds.setVolume(sfxEnabled ? 0.2 : 0);
 
-    // Save preferences when toggled
-    sfxToggle.addEventListener('change', () => {
-        localStorage.setItem('noodleFactorySFX', sfxToggle.checked);
+    // Handle SFX toggle
+    sfxToggle.addEventListener('change', (e) => {
+        gameSounds.setVolume(e.target.checked ? 0.2 : 0);
+        localStorage.setItem('sfxEnabled', e.target.checked);
     });
 
-    musicToggle.addEventListener('change', () => {
-        localStorage.setItem('noodleFactoryMusic', musicToggle.checked);
-    });
+    // Disable music toggle
+    musicToggle.checked = false;
+    musicToggle.disabled = true;
 
     // Reset progress
     resetButton.addEventListener('click', () => {

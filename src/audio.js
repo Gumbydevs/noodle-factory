@@ -4,6 +4,10 @@ export class GameSounds {
         this.gainNode = null;
         this.isInitialized = false;
         
+        // Load saved preferences
+        const sfxEnabled = localStorage.getItem('sfxEnabled') !== 'false';
+        this.volume = sfxEnabled ? 0.2 : 0;
+        
         // Add touch event listeners for mobile
         ['touchstart', 'click'].forEach(eventType => {
             document.addEventListener(eventType, () => {
@@ -25,7 +29,7 @@ export class GameSounds {
                 this.ctx = new (window.AudioContext || window.webkitAudioContext)();
                 this.gainNode = this.ctx.createGain();
                 this.gainNode.connect(this.ctx.destination);
-                this.gainNode.gain.value = 0.2;
+                this.gainNode.gain.value = this.volume;
             }
             
             this.isInitialized = true;
@@ -403,9 +407,11 @@ export class GameSounds {
     }
 
     setVolume(value) {
+        this.volume = value;
         if (this.gainNode) {
-            this.gainNode.gain.value = Math.max(0, Math.min(1, value));
+            this.gainNode.gain.value = value;
         }
+        localStorage.setItem('sfxEnabled', value > 0);
     }
 }
 

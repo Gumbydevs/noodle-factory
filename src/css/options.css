@@ -72,6 +72,15 @@ input:checked + .slider:before {
     transform: translateX(26px);
 }
 
+input:disabled + .slider {
+    background-color: #222;
+    cursor: not-allowed;
+}
+
+input:disabled + .slider:before {
+    background-color: #666;
+}
+
 .danger-zone {
     border: 1px solid #ff4444;
 }
