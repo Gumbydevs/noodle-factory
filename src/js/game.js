@@ -372,9 +372,12 @@ class Game {
         if (clickedCard) {
             clickedCard.setAttribute('data-selected', 'true');
             clickedCard.classList.add('played');
-            clickedCard.style.transform = 'scale(0.8) translateY(-20px)';
-            clickedCard.style.opacity = '0';
-            clickedCard.style.pointerEvents = 'none';  // Prevent any further interactions
+            clickedCard.style.pointerEvents = 'none';
+            
+            // Add timeout to fade selected card after unselected card animation
+            setTimeout(() => {
+                clickedCard.style.opacity = '0';
+            }, 500); // Wait for unselected card animation
         }
         
         if (otherCard) {
@@ -382,7 +385,7 @@ class Game {
             otherCard.classList.add('played');
             otherCard.style.transform = 'scale(0.5)';
             otherCard.style.opacity = '0';
-            otherCard.style.pointerEvents = 'none';  // Prevent any further interactions
+            otherCard.style.pointerEvents = 'none';
         }
 
         // Check if playing this card would cause game over BEFORE applying effects

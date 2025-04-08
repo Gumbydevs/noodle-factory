@@ -678,18 +678,24 @@ h1 {
     z-index: 2;
 }
 
-/* Update the card played animations for both desktop and mobile */
+/* Update the card played animations */
 .card.played[data-selected="true"] {
-    animation: touchExcited 0.4s ease-in-out !important;
-    transform: scale(0.8) translateY(-20px) !important; /* Changed from -100px to -20px */
-    opacity: 0 !important;
-    transition: transform 0.5s ease-out, opacity 0.5s ease-out !important;
-    transition-delay: 0.4s !important;
-    pointer-events: none !important;
+    animation: selectedCardJitter 0.4s ease-in-out !important;
+    opacity: 1 !important;
+    transform: none !important;  /* Prevent shrinking */
+    z-index: 2 !important;
 }
 
+/* Add new jitter animation */
+@keyframes selectedCardJitter {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+    100% { transform: translateX(0); }
+}
+
+/* Only shrink and fade the unselected card */
 .card.played:not([data-selected="true"]) {
-    animation: none !important;
     transform: scale(0.5) !important;
     opacity: 0 !important;
     transition: transform 0.3s ease-out, opacity 0.3s ease-out !important;
@@ -1427,9 +1433,25 @@ h1 {
     }
 
     .stat-value {
-        font-size: 1em; /* Smaller font size */
-        white-space: nowrap; /* Keep labels on one line */
+        font-size: 1em;
+        /* Keep animation properties */
+        display: inline-block;
+        transition: transform 0.3s ease;
     }
+
+    .stat-value.increase,
+    .stat-value.decrease {
+        animation-duration: 0.6s;
+        animation-timing-function: ease-in-out;
+    }
+
+    /* Ensure color-specific effects remain */
+    .prestige-color.increase { text-shadow: 0 0 10px #f1c40f; }
+    .chaos-color.increase { text-shadow: 0 0 10px #e74c3c; }
+    .ingredients-color.increase { text-shadow: 0 0 10px #2ecc71; }
+    .energy-color.increase { text-shadow: 0 0 10px #3498db; }
+    
+    .stat-value.decrease { text-shadow: 0 0 10px #e74c3c; }
 
     .stat-label {
         font-size: 0.7em; /* Even smaller label */
