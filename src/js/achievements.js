@@ -3,7 +3,7 @@ import { gameState } from './state.js';
 
 export const ACHIEVEMENTS = {
     "First Day": {
-        description: "Take the keys and start managing your first noodle factory",
+        description: "Take the keys to your first noodle factory. There's more to pasta than meets the eye...",
         check: (stats) => true, // Always triggers on first game
         reward: "Welcome to management!"
     },
@@ -130,6 +130,79 @@ export const ACHIEVEMENTS = {
             return playedCount === totalCards;
         },
         reward: "No spring chicken here!",
+    },
+    "Efficiency Expert": {
+        description: "Have 50+ workers while maintaining less than 20 chaos",
+        check: (stats) => stats.workerEnergy >= 50 && stats.chaosLevel < 20,
+        reward: "Master of organization!"
+    },
+    "Walking the Line": {
+        description: "Have exactly 42 chaos and 42 ingredients simultaneously",
+        check: (stats) => stats.chaosLevel === 42 && stats.ingredients === 42,
+        reward: "The meaning of pasta life"
+    },
+    "Resourceful": {
+        description: "Reach 30 prestige with less than 15 workers",
+        check: (stats) => stats.pastaPrestige >= 30 && stats.workerEnergy < 15,
+        reward: "doing more with less!"
+    },
+    "High Stakes": {
+        description: "Have 75+ chaos and 40+ ingredients at the same time",
+        check: (stats) => stats.chaosLevel >= 75 && stats.ingredients >= 40,
+        reward: "Living dangerously!"
+    },
+    "Recovery Master": {
+        description: "Go from 0 ingredients to 30 in a single turn",
+        check: (stats) => stats.ingredientGainInOneTurn >= 30,
+        reward: "Back from the brink!"
+    }
+};
+
+export const RISK_ACHIEVEMENTS = {
+    "Edge Runner": {
+        description: "Process 30 ingredients while at exactly 45 chaos",
+        check: (stats) => stats.ingredients >= 30 && stats.chaosLevel === 45,
+        successChance: 0.5,
+        onSuccess: (stats) => {
+            stats.chaosLevel = Math.max(0, stats.chaosLevel - 20);
+            stats.ingredients += 15;
+            return "Chaos: <span style='color:green'>--</span> | Ingredients: <span style='color:green'>++</span>";
+        },
+        onFailure: (stats) => {
+            stats.ingredients = Math.floor(stats.ingredients * 0.3);
+            stats.chaosLevel += 25;
+            return "Ingredients: <span style='color:red'>---</span> | Chaos: <span style='color:red'>++</span>";
+        }
+    },
+    "Skeleton Factory": {
+        description: "Maintain 25 prestige with exactly 10 workers",
+        check: (stats) => stats.pastaPrestige === 25 && stats.workerEnergy === 10,
+        successChance: 0.4,
+        onSuccess: (stats) => {
+            stats.workerEnergy += 15;
+            stats.pastaPrestige += 10;
+            return "Workers: <span style='color:green'>++</span> | Prestige: <span style='color:green'>+</span>";
+        },
+        onFailure: (stats) => {
+            stats.workerEnergy = Math.floor(stats.workerEnergy * 0.5);
+            stats.chaosLevel += 15;
+            return "Workers: <span style='color:red'>--</span> | Chaos: <span style='color:red'>+</span>";
+        }
+    },
+    "Triple Threat": {
+        description: "Have exactly 33 chaos, ingredients, and workers",
+        check: (stats) => stats.chaosLevel === 33 && stats.ingredients === 33 && stats.workerEnergy === 33,
+        successChance: 0.3,
+        onSuccess: (stats) => {
+            stats.pastaPrestige += 15;
+            stats.chaosLevel = Math.max(0, stats.chaosLevel - 10);
+            return "Prestige: <span style='color:green'>++</span> | Chaos: <span style='color:green'>-</span>";
+        },
+        onFailure: (stats) => {
+            stats.workerEnergy = Math.floor(stats.workerEnergy * 0.7);
+            stats.ingredients = Math.floor(stats.ingredients * 0.7);
+            return "Workers: <span style='color:red'>--</span> | Ingredients: <span style='color:red'>--</span>";
+        }
     }
 };
 
