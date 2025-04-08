@@ -472,17 +472,55 @@ class Game {
             
             // Create smoke effect synchronized with card animation
             const rect = clickedCard.getBoundingClientRect();
-            // Delay smoke to start during wiggle animation
-            setTimeout(() => {
-                for (let i = 0; i < 12; i++) {
-                    setTimeout(() => {
-                        createSmokeParticle(
-                            rect.left + (Math.random() * rect.width),
-                            rect.top + (Math.random() * rect.height)
-                        );
-                    }, i * 40); // Spread smoke creation over 480ms
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            // Add visual effects based on card type
+            if (card.statModifiers) {
+                let isPositiveCard = false;
+                let isNegativeCard = false;
+
+                // Check if card is generally positive or negative
+                Object.entries(card.statModifiers).forEach(([stat, value]) => {
+                    if (stat === 'chaos') {
+                        if (value < 0) isPositiveCard = true;
+                        if (value > 10) isNegativeCard = true;
+                    } else {
+                        if (value > 0) isPositiveCard = true;
+                        if (value < 0) isNegativeCard = true;
+                    }
+                });
+
+                // Play random effects based on card type
+                if (isPositiveCard && !isNegativeCard) {
+                    const effect = Math.random();
+                    if (effect < 0.33) {
+                        createMoneyEffect(centerX, centerY);
+                    } else if (effect < 0.66) {
+                        createNoodleExplosion(centerX, centerY);
+                    } else {
+                        createWaterSplash(centerX, centerY);
+                    }
+                } else if (isNegativeCard && !isPositiveCard) {
+                    // Only create smoke for negative cards
+                    createFireParticle(centerX, centerY);
+                    for (let i = 0; i < 8; i++) {
+                        setTimeout(() => {
+                            createSmokeParticle(
+                                rect.left + (Math.random() * rect.width),
+                                rect.top + (Math.random() * rect.height)
+                            );
+                        }, i * 50);
+                    }
+                } else {
+                    // Mixed effects for cards with both positive and negative effects
+                    if (Math.random() < 0.5) {
+                        createNoodleExplosion(centerX, centerY);
+                    } else {
+                        createWaterSplash(centerX, centerY);
+                    }
                 }
-            }, 200); // Start smoke after initial wiggle
+            }
         }
         
         if (otherCard) {
@@ -492,21 +530,6 @@ class Game {
             otherCard.style.opacity = '0';
             otherCard.style.pointerEvents = 'none';
         }
-
-        // Add smoke effect
-        if (clickedCard) {
-            const rect = clickedCard.getBoundingClientRect();
-            for (let i = 0; i < 8; i++) {
-                setTimeout(() => {
-                    createSmokeParticle(
-                        rect.left + Math.random() * rect.width,
-                        rect.top + Math.random() * rect.height
-                    );
-                }, i * 50);
-            }
-        }
-
-        clickedCard.classList.add('dissolving');
 
         // Check if playing this card would cause game over BEFORE applying effects
         if (card.statModifiers) {
@@ -1083,6 +1106,88 @@ function createSmokeParticle(x, y) {
     
     // Remove after animation
     setTimeout(() => particle.remove(), 1000);
+}
+
+function createFireParticle(x, y) {
+    const particle = document.createElement('div');
+    particle.className = 'fire-particle';
+    particle.style.left = `${x}px`;
+    particle.style.top = `${y}px`;
+    
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 30 + Math.random() * 80;
+    const tx = Math.cos(angle) * distance;
+    const ty = Math.sin(angle) * distance - 100;
+    
+    particle.style.setProperty('--tx', `${tx}px`);
+    particle.style.setProperty('--ty', `${ty}px`);
+    
+    document.body.appendChild(particle);
+    setTimeout(() => particle.remove(), 1000);
+}
+
+function createWaterSplash(x, y) {
+    const splash = document.createElement('div');
+    splash.className = 'water-splash';
+    splash.style.left = `${x}px`;
+    splash.style.top = `${y}px`;
+    
+    for (let i = 0; i < 8; i++) {
+        const droplet = document.createElement('div');
+        droplet.className = 'water-droplet';
+        const angle = (i / 8) * Math.PI * 2;
+        droplet.style.setProperty('--angle', `${angle}rad`);
+        splash.appendChild(droplet);
+    }
+    
+    document.body.appendChild(splash);
+    setTimeout(() => splash.remove(), 1000);
+}
+
+function createNoodleExplosion(x, y) {
+    const noodleCount = 12;
+    for (let i = 0; i < noodleCount; i++) {
+        const noodle = document.createElement('div');
+        noodle.className = 'exploding-noodle';
+        noodle.style.left = `${x}px`;
+        noodle.style.top = `${y}px`;
+        
+        const angle = (i / noodleCount) * Math.PI * 2;
+        const distance = 50 + Math.random() * 100;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance;
+        
+        noodle.style.setProperty('--tx', `${tx}px`);
+        noodle.style.setProperty('--ty', `${ty}px`);
+        noodle.style.setProperty('--rotation', `${Math.random() * 720}deg`);
+        
+        document.body.appendChild(noodle);
+        setTimeout(() => noodle.remove(), 1000);
+    }
+}
+
+function createMoneyEffect(x, y) {
+    const symbols = ['$', '💰', '💵'];
+    const symbolCount = 8;
+    
+    for (let i = 0; i < symbolCount; i++) {
+        const symbol = document.createElement('div');
+        symbol.className = 'money-symbol';
+        symbol.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        symbol.style.left = `${x}px`;
+        symbol.style.top = `${y}px`;
+        
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 40 + Math.random() * 80;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance - 100;
+        
+        symbol.style.setProperty('--tx', `${tx}px`);
+        symbol.style.setProperty('--ty', `${ty}px`);
+        
+        document.body.appendChild(symbol);
+        setTimeout(() => symbol.remove(), 1500);
+    }
 }
 
 class SoundManager {

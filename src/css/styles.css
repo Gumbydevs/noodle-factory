@@ -2129,3 +2129,112 @@ h1 {
 .card.dissolving {
     z-index: 999;
 }
+
+/* Fire particle effect */
+.fire-particle {
+    position: fixed;
+    width: 8px;
+    height: 8px;
+    background: #ff4400;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1000;
+    will-change: transform, opacity;
+    filter: blur(1px);
+    animation: fire 1s ease-out forwards;
+}
+
+@keyframes fire {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+        background: #ff4400;
+    }
+    50% {
+        opacity: 0.8;
+        background: #ff8800;
+    }
+    100% {
+        transform: translate(var(--tx), var(--ty)) scale(0.1);
+        opacity: 0;
+        background: #ffff00;
+    }
+}
+
+/* Water splash effect */
+.water-splash {
+    position: fixed;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.water-droplet {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #00a0ff;
+    border-radius: 50%;
+    filter: blur(1px);
+    animation: splash 0.8s ease-out forwards;
+}
+
+@keyframes splash {
+    0% {
+        transform: rotate(var(--angle)) translateX(0) scale(1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: rotate(var(--angle)) translateX(50px) scale(0.1);
+        opacity: 0;
+    }
+}
+
+/* Exploding noodle effect */
+.exploding-noodle {
+    position: fixed;
+    width: 20px;
+    height: 4px;
+    background: #ffe4b5;
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 1000;
+    will-change: transform, opacity;
+    animation: noodleExplode 1s ease-out forwards;
+}
+
+@keyframes noodleExplode {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--tx), var(--ty)) rotate(var(--rotation));
+        opacity: 0;
+    }
+}
+
+/* Money symbol effect */
+.money-symbol {
+    position: fixed;
+    font-size: 24px;
+    color: #2ecc71;
+    pointer-events: none;
+    z-index: 1000;
+    will-change: transform, opacity;
+    animation: money 1.5s ease-out forwards;
+    text-shadow: 0 0 5px rgba(46, 204, 113, 0.5);
+}
+
+@keyframes money {
+    0% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+        opacity: 1;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--tx), var(--ty)) scale(0.2) rotate(360deg);
+        opacity: 0;
+    }
+}
