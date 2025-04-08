@@ -204,9 +204,8 @@ class Game {
         messageBox.classList.remove('chaos-warning');
         
         // Add proper mobile-friendly chaos classes
-        if (chaos >= 100) {
+        if (chaos >= 90) { // Changed from 100 to 90
             body.classList.add('chaos-level-max');
-            // Only add noise effect on desktop
             if (!('ontouchstart' in window)) {
                 body.classList.add('chaos-noise');
             }
