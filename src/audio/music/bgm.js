@@ -4,7 +4,7 @@ export class MusicLoops {
         this.gainNode = null;
         this.currentLoop = null;
         this.isPlaying = false;
-        this.baseVolume = 0.115; // MUSIC GLOBAL VOLUME
+        this.baseVolume = 0.115; // MUSIC GLOBAL VOLUME - restored to original value
         this.volume = parseFloat(localStorage.getItem('musicVolume')) || 1.0;
         this.chaosLevel = 0;
         this.loopTimeout = null;

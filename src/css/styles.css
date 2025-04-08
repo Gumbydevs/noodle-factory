@@ -1809,7 +1809,7 @@ h1 {
     .message-box {
         padding: 8px;
         font-size: 0.9em;
-        min-height: 20px;
+        min-height: 25px;
         height: auto;
     }
 
@@ -1906,7 +1906,7 @@ h1 {
     }
 }
 
-/* Add this media query to disable hover effects on touch devices */
+/* disable hover effects on touch devices */
 @media (hover: none) {
     .card:hover,
     .chaos-level-1 .card:hover,
