@@ -6,7 +6,7 @@ export class GameSounds {
         
         // Load saved preferences
         const sfxEnabled = localStorage.getItem('sfxEnabled') !== 'false';
-        this.volume = sfxEnabled ? 0.5 : 0;
+        this.volume = sfxEnabled ? 0.8 : 0;
         
         // Add touch event listeners for mobile
         ['touchstart', 'click'].forEach(eventType => {
@@ -247,6 +247,9 @@ export class GameSounds {
             osc3.connect(gainNode);
             gainNode.connect(this.gainNode);
 
+            // Initial gain set to an even lower value
+            gainNode.gain.value = 0.01; // Reduced from 0.02
+
             // Stagger the notes for an arpeggio effect
             const now = this.ctx.currentTime;
             osc1.start(now);
@@ -264,7 +267,8 @@ export class GameSounds {
                 0.3
             );
 
-            this.createEnvelope(gainNode, 0.01, 0.1, 0.5, 0.3);
+            // Further reduced sustain and overall envelope values
+            this.createEnvelope(gainNode, 0.01, 0.1, 0.15, 0.2); // Reduced sustain from 0.3 to 0.15
             setTimeout(() => gainNode.disconnect(), 600);
         } catch (e) {
             console.warn('Error playing achievement sound:', e);
