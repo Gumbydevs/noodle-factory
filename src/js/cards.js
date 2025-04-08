@@ -9,8 +9,8 @@ export const CARDS = {
         description: "An intern's tears might boost morale... or cause chaos.",
         requirements: null, // No requirements
         statModifiers: {
-            workers: 3,
-            chaos: 5
+            workers: 2,  // Reduced from 3
+            chaos: 8    // Increased from 5
         },
         effect: (state) => {
             savePlayedCard("Sobbing Intern");
@@ -33,8 +33,8 @@ export const CARDS = {
         description: "Push your workers harder for more prestige.",
         requirements: null, // No requirements
         statModifiers: {
-            prestige: 10,
-            workers: -3
+            prestige: 6,  // Reduced from 10
+            workers: -2   // Changed from -3
         },
         effect: (state) => {
             savePlayedCard("Overtime Whistle");
@@ -408,9 +408,9 @@ export const CARDS = {
         description: "Send workers to learn advanced pasta-making techniques.",
         requirements: null,
         statModifiers: {
-            workers: 5,
-            prestige: 8,
-            chaos: -4
+            workers: 3,     // Reduced from 5
+            prestige: 4,    // Reduced from 8
+            chaos: -2       // Changed from -4
         },
         effect: (state) => {
             savePlayedCard("Pasta Training Seminar");
@@ -421,9 +421,9 @@ export const CARDS = {
         description: "Host a job fair with free pasta samples.",
         requirements: { ingredients: 1 },
         statModifiers: {
-            workers: 8,
+            workers: 4,      // Reduced from 8
             ingredients: -1,
-            chaos: 3
+            chaos: 5        // Increased from 3
         },
         effect: (state) => {
             savePlayedCard("Recruitment Fair");
@@ -486,9 +486,9 @@ export const CARDS = {
         description: "Transform the factory into a worker-friendly utopia.",
         requirements: { ingredients: 2 },
         statModifiers: {
-            workers: 10,
-            prestige: 6,
-            chaos: -8,
+            workers: 5,      // Reduced from 10
+            prestige: 4,     // Reduced from 6
+            chaos: -4,       // Changed from -8
             ingredients: -2
         },
         effect: (state) => {
@@ -825,6 +825,26 @@ function checkCardAchievements() {
     const percentage = (playedCount / totalCards) * 100;
 
     console.log(`Cards played: ${playedCount}/${totalCards} (${percentage.toFixed(1)}%)`);
+}
+
+// Add new helper function to maintain balance
+function applyStatModifiers(state, modifiers) {
+    // Ensure chaos doesn't drop too low
+    if (modifiers.chaos && modifiers.chaos < 0) {
+        const minChaos = 5;
+        if (state.playerStats.chaosLevel + modifiers.chaos < minChaos) {
+            modifiers.chaos = minChaos - state.playerStats.chaosLevel;
+        }
+    }
+
+    // Scale down large stat changes
+    Object.keys(modifiers).forEach(stat => {
+        if (Math.abs(modifiers[stat]) > 10) {
+            modifiers[stat] = Math.sign(modifiers[stat]) * 10;
+        }
+    });
+
+    return modifiers;
 }
 
 export function getRandomCard() {

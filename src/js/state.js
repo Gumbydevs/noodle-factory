@@ -24,13 +24,40 @@ const gameState = {
 
 function updateResource(resource, amount) {
     if (gameState.resourceMeters[resource] !== undefined) {
-        gameState.resourceMeters[resource] += amount;
-        gameState.resourceMeters[resource] = Math.max(0, Math.min(100, gameState.resourceMeters[resource]));
+        gameState.resourceMeters[resource] = Math.max(0, Math.min(100, gameState.resourceMeters[resource] + amount));
     }
     
-    // Update chaos effects whenever chaos level changes
+    // Apply caps and natural progression for player stats
     if (resource === 'chaosLevel') {
+        // Chaos naturally increases each turn
+        gameState.playerStats.chaosLevel = Math.min(100, gameState.playerStats.chaosLevel + amount);
+        // Minimum chaos level of 5
+        if (gameState.playerStats.chaosLevel < 5) gameState.playerStats.chaosLevel = 5;
         updateChaosEffects(gameState.playerStats.chaosLevel);
+    }
+    else if (resource === 'pastaPrestige') {
+        // Cap prestige at 100
+        gameState.playerStats.pastaPrestige = Math.min(100, Math.max(0, gameState.playerStats.pastaPrestige + amount));
+        // Prestige naturally decays
+        if (amount > 0) {
+            setTimeout(() => {
+                gameState.playerStats.pastaPrestige = Math.max(0, gameState.playerStats.pastaPrestige - 2);
+            }, 2000);
+        }
+    }
+    else if (resource === 'workers' || resource === 'workerCount') {
+        // Cap workers at 50
+        gameState.playerStats.workerCount = Math.min(50, Math.max(1, gameState.playerStats.workerCount + amount));
+        // Workers naturally get tired and leave
+        if (amount > 0) {
+            setTimeout(() => {
+                gameState.playerStats.workerCount = Math.max(1, gameState.playerStats.workerCount - 1);
+            }, 3000);
+        }
+    }
+    else if (resource === 'ingredients') {
+        // Cap ingredients at 20
+        gameState.playerStats.ingredients = Math.min(20, Math.max(0, gameState.playerStats.ingredients + amount));
     }
 }
 

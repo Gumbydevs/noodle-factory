@@ -340,7 +340,7 @@ class Game {
     }
 
     playCard(cardName) {
-        if (this.isGameOver) return;  // This check exists but isGameOver wasn't being set
+        if (this.isGameOver) return;
 
         // Play card sound only if audio is enabled
         if (soundManager.enabled) {
@@ -351,8 +351,8 @@ class Game {
         if (!card) return;
 
         // Increment turn counter BEFORE card effects
-        this.turn++;  // Move this line from the bottom to here
-        this.updateDisplay();  // Update display to show new turn number
+        this.turn++;
+        this.updateDisplay();
 
         // Get the clicked card element more reliably
         const clickedCard = Array.from(document.querySelectorAll('.card')).find(
@@ -438,39 +438,38 @@ class Game {
             if (projectedStats.ingredients <= 0 && !card.statModifiers.ingredients) {
                 gameSounds.playGameOverSound();
                 this.endGame('ingredients');
-                this.isGameOver = true;  // Add this line for redundancy
+                this.isGameOver = true;
                 return;
             }
 
             if (projectedStats.workerCount <= 0) {
                 gameSounds.playGameOverSound();
                 this.endGame('workers');
-                this.isGameOver = true;  // Add this line for redundancy
+                this.isGameOver = true;
                 return;
             }
         }
 
-        // Apply stat modifications
+        // Apply stat modifications with balance checks
         if (card.statModifiers) {
-            Object.entries(card.statModifiers).forEach(([stat, value]) => {
+            const balancedModifiers = applyStatModifiers(this.state, {...card.statModifiers});
+            Object.entries(balancedModifiers).forEach(([stat, value]) => {
                 const statKey = stat === 'workers' ? 'workerCount' : 
                               stat === 'prestige' ? 'pastaPrestige' : 
                               stat === 'chaos' ? 'chaosLevel' : 
                               stat;
                 
-                const currentValue = this.state.playerStats[statKey] || 0;
-                let newValue = currentValue + Number(value);
-                
-                // Apply bounds
+                // Apply natural progression
                 if (statKey === 'chaosLevel') {
-                    newValue = Math.min(100, Math.max(0, newValue));
-                } else if (statKey === 'ingredients') {
-                    newValue = Math.min(20, Math.max(0, newValue));
-                } else {
-                    newValue = Math.max(0, newValue);
+                    // Chaos increases naturally each turn
+                    value += 2;
+                } else if (statKey === 'pastaPrestige') {
+                    // Prestige decays slightly each turn
+                    value -= 1;
                 }
-                
-                this.state.playerStats[statKey] = newValue;
+
+                const currentValue = this.state.playerStats[statKey] || 0;
+                this.state.playerStats[statKey] = currentValue + Number(value);
             });
         }
 
@@ -516,19 +515,19 @@ class Game {
         if (this.state.playerStats.chaosLevel >= 100) {
             gameSounds.playGameOverSound();
             this.endGame('chaos');
-            this.isGameOver = true;  // Add this line for redundancy
-            return;  // Make sure we return here to prevent further card processing
+            this.isGameOver = true;
+            return;
         }
         if (this.state.playerStats.workerCount <= 0) {
             gameSounds.playGameOverSound();
             this.endGame('workers');
-            this.isGameOver = true;  // Add this line for redundancy
+            this.isGameOver = true;
             return;
         }
         if (this.state.playerStats.ingredients <= 0) {
             gameSounds.playGameOverSound();
             this.endGame('ingredients');
-            this.isGameOver = true;  // Add this line for redundancy
+            this.isGameOver = true;
             return;
         }
 
@@ -581,7 +580,7 @@ class Game {
     }
 
     endGame(reason = '') {
-        this.isGameOver = true;  // Add this line at the start of endGame
+        this.isGameOver = true;
         this.checkHighScore();
         
         // Reset all chaos effects
@@ -684,7 +683,7 @@ class Game {
         
         // Add game over screen
         gameContainer.appendChild(gameOverScreen);
-        this.checkHighScore(); // Add this line
+        this.checkHighScore();
         
         // Update the reset handler to show clear confirmation
         document.getElementById('reset-achievements').addEventListener('click', () => {
@@ -856,32 +855,18 @@ class Game {
     }
 
     processTurnEffects() {
-        // Prestige effects:
-        // 1. Higher prestige gives bonus ingredients
-        if (this.turn % 5 === 0) { // Every 5 turns
-            const prestigeBonus = Math.floor(this.state.playerStats.pastaPrestige / 20); // Every 20 prestige = +1 ingredient
-            if (prestigeBonus > 0) {
-                this.state.playerStats.ingredients = Math.min(20, 
-                    this.state.playerStats.ingredients + prestigeBonus);
-                this.showEffectMessage(`Your prestige attracted ${prestigeBonus} bonus ingredients!`);
-            }
+        // Natural progression effects each turn
+        this.state.playerStats.chaosLevel = Math.min(100, this.state.playerStats.chaosLevel + 1);
+        this.state.playerStats.pastaPrestige = Math.max(0, this.state.playerStats.pastaPrestige - 1);
+        
+        // Workers get tired
+        if (this.state.playerStats.workerCount > 15) {
+            this.state.playerStats.workerCount--;
         }
 
-        // 2. Modified: Higher prestige reduces worker loss from chaos
-        if (this.state.playerStats.chaosLevel >= 50) {
-            const prestigeProtection = Math.min(0.7, this.state.playerStats.pastaPrestige / 100); // Increased from 0.5 to 0.7
-            if (Math.random() > prestigeProtection && Math.random() < 0.3) { // Added 30% chance to trigger
-                this.reduceWorkers(1);
-            }
-        }
-
-        // 3. Prestige helps recover from chaos
-        if (this.state.playerStats.pastaPrestige >= 50) {
-            const chaosReduction = Math.floor(this.state.playerStats.pastaPrestige / 50);
-            if (this.state.playerStats.chaosLevel > 0) {
-                this.state.playerStats.chaosLevel = Math.max(0, 
-                    this.state.playerStats.chaosLevel - chaosReduction);
-            }
+        // High chaos affects ingredients
+        if (this.state.playerStats.chaosLevel >= 75) {
+            this.state.playerStats.ingredients = Math.max(0, this.state.playerStats.ingredients - 1);
         }
     }
 
@@ -900,7 +885,6 @@ class Game {
         }
     }
 
-    // Add this method to the Game class
     shareGameResults() {
         // Create canvas from game over screen
         const gameOverContent = document.querySelector('.game-over-content');
@@ -934,8 +918,6 @@ class Game {
     }
 }
 
-// Add this after game class declaration but before initialization
-
 class SoundManager {
     constructor() {
         this.enabled = false;
@@ -944,16 +926,13 @@ class SoundManager {
         this.soundsLoaded = false;
     }
 
-    // Initialize audio context on first user interaction
     init() {
         if (this.initialized) return;
         
         try {
-            // Create audio context
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             this.context = new AudioContext();
             
-            // Resume context for iOS/Safari
             if (this.context.state === 'suspended') {
                 this.context.resume();
             }
@@ -961,7 +940,6 @@ class SoundManager {
             this.enabled = true;
             this.initialized = true;
             
-            // Re-enable sounds in gameSounds
             if (gameSounds) {
                 gameSounds.enableSounds();
             }
@@ -971,52 +949,41 @@ class SoundManager {
     }
 }
 
-// Create global sound manager
 const soundManager = new SoundManager();
 
-// Initialize game but don't auto-start
 const game = new Game();
 document.getElementById('start-game').addEventListener('click', () => game.start());
 
-// Add Noodle text animation
 function setupNoodleWiggle() {
     const noodleText = document.querySelector('.jiggly');
-    if (!noodleText) return; // Guard clause in case element isn't found
+    if (!noodleText) return;
 
-    // Initial wiggle
     noodleText.classList.add('active');
     
     setInterval(() => {
-        if (Math.random() < 0.2) { // 20% chance every 3 seconds
+        if (Math.random() < 0.2) {
             noodleText.classList.remove('active');
-            // Force reflow
             void noodleText.offsetWidth;
             noodleText.classList.add('active');
         }
     }, 3000);
 }
 
-// Call the function after DOM is loaded
 document.addEventListener('DOMContentLoaded', setupNoodleWiggle);
 
-// Add event listeners for mobile touch
 document.addEventListener('touchstart', () => {
     soundManager.init();
 }, { once: true });
 
-// Add click listener for desktop
 document.addEventListener('click', () => {
     soundManager.init();
 }, { once: true });
 
-// New functions added
 function canPlayCard(card) {
-    // Don't check ingredient requirements if the card grants ingredients
     if (card.effects.some(effect => effect.type === 'ingredients' && effect.value > 0)) {
         return true;
     }
     
-    // Only grey out cards if they would consume ingredients and player has none
     if (card.effects.some(effect => effect.type === 'ingredients' && effect.value < 0)) {
         return gameState.ingredients >= Math.abs(Math.min(...card.effects
             .filter(e => e.type === 'ingredients')
@@ -1027,24 +994,18 @@ function canPlayCard(card) {
 }
 
 function processTurn() {
-    // Add 0-3 random workers each turn
-    const newWorkers = Math.floor(Math.random() * 4); // Random number between 0-3
+    const newWorkers = Math.floor(Math.random() * 4);
     gameState.workers += newWorkers;
     
-    // Prevent automatic ingredient loss when at 0
     if (gameState.ingredients > 0) {
         gameState.ingredients = Math.max(0, gameState.ingredients - 1);
     }
-    // ... rest of turn processing
 }
 
-// Debug keyboard shortcuts for testing
 document.addEventListener('keydown', (e) => {
-    // Only process if game exists and Control key is pressed
     if (!game || !e.ctrlKey) return;
 
     switch (e.key.toLowerCase()) {
-        // Chaos controls
         case 'c':
             game.state.playerStats.chaosLevel = Math.min(100, game.state.playerStats.chaosLevel + 15);
             game.updateDisplay();
@@ -1053,8 +1014,6 @@ document.addEventListener('keydown', (e) => {
             game.state.playerStats.chaosLevel = Math.max(0, game.state.playerStats.chaosLevel - 15);
             game.updateDisplay();
             break;
-        
-        // Prestige controls
         case 'p':
             game.state.playerStats.pastaPrestige = Math.min(100, game.state.playerStats.pastaPrestige + 15);
             game.updateDisplay();
