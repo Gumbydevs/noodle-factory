@@ -301,6 +301,21 @@
     }
 }
 
+/* Add new intense animations for max chaos */
+@keyframes chaoticSpin {
+    0% { transform: rotate(0deg) scale(1); }
+    25% { transform: rotate(2deg) scale(1.02); }
+    75% { transform: rotate(-2deg) scale(0.98); }
+    100% { transform: rotate(0deg) scale(1); }
+}
+
+@keyframes colorCycle {
+    0% { background: #1a1515; }
+    33% { background: #151a1a; }
+    66% { background: #1a151a; }
+    100% { background: #1a1515; }
+}
+
 .hidden {
     display: none !important;
 }
@@ -331,8 +346,11 @@ body.chaos-level-2 {
 }
 
 body.chaos-level-3 {
-    animation: chaosBackgroundPulse 5s ease-in-out infinite !important;
-    filter: hue-rotate(25deg) saturate(1.4) !important;
+    animation: 
+        chaosBackgroundPulse 5s ease-in-out infinite,
+        maxChaosWarp 6s ease-in-out infinite,
+        chaosShake 10s ease-in-out infinite !important;
+    filter: hue-rotate(25deg) saturate(1.4) brightness(1.1) !important;
     background: linear-gradient(45deg, #1a1515, #151a1a) !important;
     transform-style: preserve-3d;
     perspective: 1000px;
@@ -340,9 +358,11 @@ body.chaos-level-3 {
 
 body.chaos-level-max {
     animation: 
-        chaosBackgroundPulse 4s ease-in-out infinite,
-        maxChaosWarp 8s ease-in-out infinite !important;
-    filter: hue-rotate(15deg) saturate(1.2) contrast(1.1);
+        chaosBackgroundPulse 3s ease-in-out infinite,
+        maxChaosWarp 4s ease-in-out infinite,
+        chaosShake 8s ease-in-out infinite,
+        glitch 5s infinite !important;
+    filter: hue-rotate(35deg) saturate(1.6) contrast(1.2) !important;
 }
 
 /* More impactful but efficient maxChaosWarp */
@@ -403,8 +423,9 @@ body.chaos-noise::before {
     animation: chaosColorShift 8s infinite !important;
 }
 
+.chaos-level-3 #game-container,
 .chaos-level-max #game-container {
-    position: relative;
+    animation: chaoticSpin 8s infinite;
 }
 
 .chaos-level-max #game-container::before {
@@ -442,6 +463,12 @@ body.chaos-noise::before {
         0s,
         calc(random() * -3s);
     transform-origin: center center;
+}
+
+.chaos-level-max #stats {
+    animation: 
+        statsFloat 4s ease-in-out infinite,
+        chaoticSpin 6s infinite !important;
 }
 
 .stat {
@@ -575,10 +602,11 @@ h1 {
 .chaos-level-3 .card, 
 .chaos-level-max .card {
     animation: 
-        cardFloat 3s ease-in-out infinite,
-        randomJitter 2s ease-in-out infinite !important;
+        cardFloat 2s ease-in-out infinite,
+        randomJitter 1.5s ease-in-out infinite,
+        colorCycle 4s infinite !important;
     will-change: transform;
-    filter: contrast(1.1) brightness(1.05);
+    filter: brightness(1.2) contrast(1.1) !important;
 }
 
 /* Update card hover styles to make animation slower */
@@ -1016,15 +1044,22 @@ h1 {
 }
 
 .chaos-level-3 {
-    animation: chaosWarp 8s infinite;
-    filter: hue-rotate(25deg) saturate(1.3) brightness(1.1);
+    animation: 
+        chaosBackgroundPulse 5s ease-in-out infinite,
+        maxChaosWarp 6s ease-in-out infinite,
+        chaosShake 10s ease-in-out infinite !important;
+    filter: hue-rotate(25deg) saturate(1.4) brightness(1.1) !important;
     transform: none !important;
     width: 100%;
     overflow-x: hidden;
 }
 
 .chaos-level-max {
-    animation: crtWave 8s infinite;
+    animation: 
+        chaosBackgroundPulse 3s ease-in-out infinite,
+        maxChaosWarp 4s ease-in-out infinite,
+        chaosShake 8s ease-in-out infinite,
+        glitch 5s infinite !important;
     filter: brightness(0.95) contrast(110%);
     transform: none !important;
     width: 100%;
@@ -1042,7 +1077,9 @@ h1 {
 }
 
 .chaos-level-max #stats {
-    animation: subtleWiggle 5s infinite;
+    animation: 
+        statsFloat 4s ease-in-out infinite,
+        chaoticSpin 6s infinite !important;
 }
 
 .chaos-level-max .stat-value {
@@ -1058,8 +1095,8 @@ h1 {
 }
 
 .chaos-level-max .message-box {
-    animation: crtDistort 5s infinite;
-    background: linear-gradient(45deg, rgba(40,40,40,0.9), rgba(20,20,20,0.9));
+    animation: glitch 3s infinite;
+    background: linear-gradient(45deg, #2c3e50, #c0392b);
 }
 
 /* Update the noise effect to be more like a CRT screen */
