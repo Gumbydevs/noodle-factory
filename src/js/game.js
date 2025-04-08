@@ -402,6 +402,19 @@ class Game {
                 projectedStats[statKey] = (projectedStats[statKey] || 0) + Number(value);
             });
 
+            // Check for chaos game over BEFORE applying any bounds
+            if (projectedStats.chaosLevel >= 100) {
+                gameSounds.playGameOverSound();
+                this.endGame('chaos');
+                this.isGameOver = true;
+                return;
+            }
+
+            // Apply bounds after game over check
+            if (projectedStats.chaosLevel > 100) {
+                projectedStats.chaosLevel = 100;
+            }
+
             // Apply any chaos ingredient loss before checking game over
             if (projectedStats.chaosLevel >= 75 && projectedStats.ingredients > 0) {
                 projectedStats.ingredients = Math.max(1, projectedStats.ingredients - 1);
