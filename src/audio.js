@@ -56,7 +56,7 @@ export class GameSounds {
         return now + attackTime + decayTime + releaseTime;
     }
 
-    playCardSound() {
+    playCardSound(volumeMultiplier = 1) {
         this.ensureAudioContext();
         if (!this.ctx) return;
         try {
@@ -64,67 +64,68 @@ export class GameSounds {
             const beepGain = this.ctx.createGain();
             const noiseGain = this.ctx.createGain();
             
-            // Create noise buffer for card swoosh
-            const bufferSize = this.ctx.sampleRate * 0.1; // 100ms noise
+            // Multiply base volume by the volume multiplier
+            mainGain.gain.value = 1.2 * volumeMultiplier;
+            
+            // Add frequency variation
+            const freqVariation = 1 + (Math.random() * 0.2 - 0.1); // ±10% variation
+
+            // Create noise buffer for card swoosh with slight variations
+            const bufferSize = this.ctx.sampleRate * (0.08 + Math.random() * 0.04); // 80-120ms noise
             const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
             const output = noiseBuffer.getChannelData(0);
             
-            // Generate noise with curve for swoosh effect
+            // Generate noise with randomized curve
             for (let i = 0; i < bufferSize; i++) {
                 const t = i / bufferSize;
-                // Envelope curve for swoosh effect
-                const envelope = Math.pow(1 - t, 2) * Math.exp(-8 * t);
-                output[i] = (Math.random() * 2 - 1) * envelope;
+                // Increased decay rate and lower initial amplitude
+                const envelope = Math.pow(1 - t, 4) * Math.exp(-12 * t); // More aggressive decay
+                output[i] = (Math.random() * 2 - 1) * envelope * 0.6; // Reduced amplitude
             }
 
-            // Create and setup noise source
+            // Create and setup noise source with variations
             const noiseSource = this.ctx.createBufferSource();
             noiseSource.buffer = noiseBuffer;
+            noiseSource.playbackRate.value = 0.9 + Math.random() * 0.2; // Vary speed
 
-            // Create filter for swoosh sound
+            // Create filter for swoosh sound with variations
             const filter = this.ctx.createBiquadFilter();
             filter.type = 'bandpass';
-            filter.frequency.value = 2000;
+            filter.frequency.value = 2000 * freqVariation;
             filter.Q.value = 1.5;
 
-            // Setup beep oscillators (quieter now)
+            // Setup beep oscillators with variations
             const osc1 = this.ctx.createOscillator();
             const osc2 = this.ctx.createOscillator();
             osc1.type = 'triangle';
-            osc1.frequency.value = 440;
             osc2.type = 'sine';
-            osc2.frequency.value = 880;
+            osc1.frequency.value = 440 * freqVariation;
+            osc2.frequency.value = 880 * freqVariation;
 
-            // Connect noise path
+            // Connect paths
             noiseSource.connect(filter);
             filter.connect(noiseGain);
             noiseGain.connect(mainGain);
-            noiseGain.gain.value = 0.7; // Noise volume
+            noiseGain.gain.value = 0.8;
 
-            // Connect beep path
             osc1.connect(beepGain);
             osc2.connect(beepGain);
             beepGain.connect(mainGain);
-            beepGain.gain.value = 0.15; // Reduced beep volume
-
-            // Connect to main output
+            beepGain.gain.value = 0.03; // Lower this value from 0.2 to reduce just the beep sound when drawing cards
+            
             mainGain.connect(this.gainNode);
 
-            // Timing setup
             const now = this.ctx.currentTime;
             const endTime = this.createEnvelope(mainGain, 0.005, 0.1, 0.3, 0.1);
 
-            // Start all sounds
             noiseSource.start(now);
             osc1.start(now);
             osc2.start(now);
 
-            // Stop sounds
             noiseSource.stop(now + 0.1);
             osc1.stop(endTime);
             osc2.stop(endTime);
 
-            // Cleanup
             setTimeout(() => mainGain.disconnect(), endTime * 1000);
         } catch (e) {
             console.warn('Error playing card sound:', e);
@@ -136,64 +137,46 @@ export class GameSounds {
         if (!this.ctx) return;
         try {
             const mainGain = this.ctx.createGain();
-            const noiseGain1 = this.ctx.createGain();
-            const noiseGain2 = this.ctx.createGain();
+            mainGain.gain.value = 0.03; // Increase volume for draw sound
             
-            // Create noise buffers for two card swooshes
-            const bufferSize = this.ctx.sampleRate * 0.1;
-            const noiseBuffer1 = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-            const noiseBuffer2 = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-            const output1 = noiseBuffer1.getChannelData(0);
-            const output2 = noiseBuffer2.getChannelData(0);
+            // Play two card sounds with variations
+            const delay = 0.08 + (Math.random() * 0.04); // Random delay between cards
+            this.playCardSound();
+            setTimeout(() => this.playCardSound(), delay * 1000);
+
+            // Add extra swoosh effect for card draw
+            const swooshGain = this.ctx.createGain();
+            const noiseBuffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.2, this.ctx.sampleRate);
+            const output = noiseBuffer.getChannelData(0);
             
-            // Generate noise with curve for swoosh effects
-            for (let i = 0; i < bufferSize; i++) {
-                const t = i / bufferSize;
-                const envelope = Math.pow(1 - t, 2) * Math.exp(-8 * t);
-                output1[i] = (Math.random() * 2 - 1) * envelope;
-                output2[i] = (Math.random() * 2 - 1) * envelope;
+            for (let i = 0; i < noiseBuffer.length; i++) {
+                const t = i / noiseBuffer.length;
+                const envelope = Math.pow(1 - t, 3);
+                output[i] = (Math.random() * 2 - 1) * envelope;
             }
 
-            // Create and setup noise sources
-            const noiseSource1 = this.ctx.createBufferSource();
-            const noiseSource2 = this.ctx.createBufferSource();
-            noiseSource1.buffer = noiseBuffer1;
-            noiseSource2.buffer = noiseBuffer2;
+            const noiseSource = this.ctx.createBufferSource();
+            noiseSource.buffer = noiseBuffer;
+            noiseSource.playbackRate.value = 0.8 + Math.random() * 0.4;
 
-            // Create filters for swoosh sounds
-            const filter1 = this.ctx.createBiquadFilter();
-            const filter2 = this.ctx.createBiquadFilter();
-            filter1.type = 'bandpass';
-            filter2.type = 'bandpass';
-            filter1.frequency.value = 2000;
-            filter2.frequency.value = 2000;
-            filter1.Q.value = 1.5;
-            filter2.Q.value = 1.5;
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 1500 + Math.random() * 1000;
+            filter.Q.value = 2;
 
-            // Connect noise paths
-            noiseSource1.connect(filter1);
-            noiseSource2.connect(filter2);
-            filter1.connect(noiseGain1);
-            filter2.connect(noiseGain2);
-            noiseGain1.connect(mainGain);
-            noiseGain2.connect(mainGain);
-            noiseGain1.gain.value = 0.7;
-            noiseGain2.gain.value = 0.7;
-
-            // Connect to main output
+            noiseSource.connect(filter);
+            filter.connect(swooshGain);
+            swooshGain.connect(mainGain);
             mainGain.connect(this.gainNode);
 
-            // Timing setup
             const now = this.ctx.currentTime;
-            mainGain.gain.setValueAtTime(0, now);
-            mainGain.gain.linearRampToValueAtTime(0.7, now + 0.01);
-            mainGain.gain.linearRampToValueAtTime(0, now + 0.2);
+            swooshGain.gain.setValueAtTime(0, now);
+            swooshGain.gain.linearRampToValueAtTime(0.4, now + 0.05);
+            swooshGain.gain.linearRampToValueAtTime(0, now + 0.2);
 
-            // Start sounds with slight delay between them
-            noiseSource1.start(now);
-            noiseSource2.start(now + 0.08); // Slight delay for second card
+            noiseSource.start(now);
+            noiseSource.stop(now + 0.2);
 
-            // Cleanup
             setTimeout(() => mainGain.disconnect(), 300);
         } catch (e) {
             console.warn('Error playing draw cards sound:', e);
@@ -309,28 +292,28 @@ export class GameSounds {
             gainNode.connect(this.gainNode);
 
             const now = this.ctx.currentTime;
-            const duration = 1.5;
+            const duration = 1.6; // Reduced from 1.5 to 0.8 seconds
 
-            // Add proper fade out to prevent clicking
+            // Faster fade out
             gainNode.gain.setValueAtTime(0, now);
             gainNode.gain.linearRampToValueAtTime(0.6, now + 0.1);
-            gainNode.gain.linearRampToValueAtTime(0.4, now + duration - 0.3);
-            gainNode.gain.linearRampToValueAtTime(0, now + duration); // Smooth fade to zero
+            gainNode.gain.linearRampToValueAtTime(0.3, now + duration - 0.2);
+            gainNode.gain.linearRampToValueAtTime(0, now + duration);
 
-            // Dramatic pitch bend down
+            // Faster pitch bend
             osc1.frequency.setValueCurveAtTime(
                 [110, 80, 55], 
                 now, 
-                duration - 0.1 // End slightly before gain fade
+                duration - 0.1
             );
             osc2.frequency.setValueCurveAtTime(
                 [55, 40, 27.5], 
                 now, 
-                duration - 0.1 // End slightly before gain fade
+                duration - 0.1
             );
 
-            // Filter sweep down with smoother ending
-            filter.frequency.exponentialRampToValueAtTime(100, now + duration - 0.2);
+            // Faster filter sweep
+            filter.frequency.exponentialRampToValueAtTime(100, now + duration - 0.1);
 
             osc1.start(now);
             osc2.start(now);
@@ -403,6 +386,161 @@ export class GameSounds {
             setTimeout(() => gainNode.disconnect(), duration * 1000);
         } catch (e) {
             console.warn('Error playing start game sound:', e);
+        }
+    }
+
+    createGrumbleSound(intensity = 1) {
+        this.ensureAudioContext();
+        if (!this.ctx) return;
+        try {
+            const gainNode = this.ctx.createGain();
+            const oscCount = 3;
+            const oscillators = [];
+            
+            for (let i = 0; i < oscCount; i++) {
+                const osc = this.ctx.createOscillator();
+                const oscGain = this.ctx.createGain();
+                
+                // Create grumbly frequencies
+                osc.type = 'sawtooth';
+                osc.frequency.value = 50 + (i * 30) + (Math.random() * 20);
+                
+                // Add modulation
+                const modOsc = this.ctx.createOscillator();
+                modOsc.type = 'sine';
+                modOsc.frequency.value = 2 + (Math.random() * 4);
+                const modGain = this.ctx.createGain();
+                modGain.gain.value = 20 * intensity;
+                
+                modOsc.connect(modGain);
+                modGain.connect(osc.frequency);
+                
+                osc.connect(oscGain);
+                oscGain.connect(gainNode);
+                oscGain.gain.value = 0.2;
+                
+                oscillators.push(osc, modOsc);
+            }
+            
+            gainNode.connect(this.gainNode);
+            
+            // Envelope
+            const now = this.ctx.currentTime;
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.3 * intensity, now + 0.1);
+            gainNode.gain.linearRampToValueAtTime(0, now + 1.5);
+            
+            oscillators.forEach(osc => {
+                osc.start(now);
+                osc.stop(now + 1.5);
+            });
+            
+            setTimeout(() => gainNode.disconnect(), 2000);
+        } catch (e) {
+            console.warn('Error playing grumble sound:', e);
+        }
+    }
+
+    playPowerUpSound() {
+        this.ensureAudioContext();
+        if (!this.ctx) return;
+        try {
+            const gainNode = this.ctx.createGain();
+            const osc = this.ctx.createOscillator();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueCurveAtTime(
+                [300, 600, 900, 1200], 
+                this.ctx.currentTime, 
+                0.2
+            );
+            
+            osc.connect(gainNode);
+            gainNode.connect(this.gainNode);
+            
+            gainNode.gain.setValueAtTime(0, this.ctx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, this.ctx.currentTime + 0.05);
+            gainNode.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.2);
+            
+            osc.start();
+            osc.stop(this.ctx.currentTime + 0.2);
+            
+            setTimeout(() => gainNode.disconnect(), 300);
+        } catch (e) {
+            console.warn('Error playing power up sound:', e);
+        }
+    }
+
+    playBadCardSound() {
+        this.ensureAudioContext();
+        if (!this.ctx) return;
+        try {
+            const gainNode = this.ctx.createGain();
+            const osc = this.ctx.createOscillator();
+            const filter = this.ctx.createBiquadFilter();
+            
+            osc.type = 'sawtooth';
+            osc.frequency.setValueCurveAtTime(
+                [200, 150, 100], 
+                this.ctx.currentTime, 
+                0.3
+            );
+            
+            filter.type = 'lowpass';
+            filter.frequency.value = 1000;
+            filter.Q.value = 10;
+            
+            osc.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(this.gainNode);
+            
+            gainNode.gain.setValueAtTime(0, this.ctx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 0.05);
+            gainNode.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.3);
+            
+            osc.start();
+            osc.stop(this.ctx.currentTime + 0.3);
+            
+            setTimeout(() => gainNode.disconnect(), 400);
+        } catch (e) {
+            console.warn('Error playing bad card sound:', e);
+        }
+    }
+
+    playRandomChatter() {
+        this.ensureAudioContext();
+        if (!this.ctx) return;
+        try {
+            const gainNode = this.ctx.createGain();
+            const duration = 0.2 + (Math.random() * 0.3);
+            const notes = [];
+            
+            for (let i = 0; i < 5; i++) {
+                const osc = this.ctx.createOscillator();
+                const oscGain = this.ctx.createGain();
+                
+                osc.type = ['sine', 'triangle'][Math.floor(Math.random() * 2)];
+                osc.frequency.value = 200 + (Math.random() * 400);
+                
+                osc.connect(oscGain);
+                oscGain.connect(gainNode);
+                
+                oscGain.gain.setValueAtTime(0, this.ctx.currentTime + (i * duration / 5));
+                oscGain.gain.linearRampToValueAtTime(0.1, this.ctx.currentTime + (i * duration / 5) + 0.02);
+                oscGain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + (i * duration / 5) + 0.04);
+                
+                notes.push(osc);
+            }
+            
+            gainNode.connect(this.gainNode);
+            gainNode.gain.value = 0.3;
+            
+            notes.forEach(osc => osc.start());
+            notes.forEach(osc => osc.stop(this.ctx.currentTime + duration));
+            
+            setTimeout(() => gainNode.disconnect(), duration * 1000 + 100);
+        } catch (e) {
+            console.warn('Error playing random chatter:', e);
         }
     }
 

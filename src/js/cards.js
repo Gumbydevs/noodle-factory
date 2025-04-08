@@ -934,7 +934,81 @@ function applyStatModifiers(state, modifiers) {
     return modifiers;
 }
 
+function createSmokeEffect(element) {
+    const rect = element.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    // Create more particles for a denser effect
+    for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'smoke-particle';
+        
+        // Randomize initial positions within the card
+        const randomOffsetX = (Math.random() - 0.5) * rect.width * 0.8;
+        const randomOffsetY = (Math.random() - 0.5) * rect.height * 0.8;
+        
+        particle.style.left = `${centerX + randomOffsetX}px`;
+        particle.style.top = `${centerY + randomOffsetY}px`;
+        
+        // Randomize particle movement
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 50 + Math.random() * 100;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance - 50;
+        
+        particle.style.setProperty('--tx', `${tx}px`);
+        particle.style.setProperty('--ty', `${ty}px`);
+        
+        document.body.appendChild(particle);
+        
+        // Stagger the animations slightly
+        requestAnimationFrame(() => {
+            particle.style.animation = `smoke 0.8s ease-out forwards`;
+        });
+        
+        // Clean up particles
+        setTimeout(() => particle.remove(), 800);
+    }
+}
+
 export function getRandomCard() {
+    const selectedCard = document.querySelector('.card[data-selected="true"]');
+    if (selectedCard) {
+        // First add the disappearing class to stop other animations
+        selectedCard.classList.add('disappearing');
+        
+        // Create smoke effect
+        createSmokeEffect(selectedCard);
+        
+        // Wait a very short moment for the class to take effect
+        requestAnimationFrame(() => {
+            selectedCard.style.opacity = '0';
+            selectedCard.style.transform = 'scale(0.5) translateY(-20px)';
+        });
+
+        // Wait for smoke and disappear animation before continuing
+        return new Promise(resolve => {
+            setTimeout(() => {
+                // Continue with card selection
+                const cardNames = Object.keys(CARDS).filter(name => {
+                    // Filter out the last two drawn cards
+                    if (lastDrawnCards.includes(name)) {
+                        return false;
+                    }
+                    // Special handling for Return of Reggie
+                    if (name === "Return of Reggie") {
+                        // Only include if Reggie has escaped
+                        return gameState?.playerStats?.reggieEscaped === true;
+                    }
+                    return true;
+                });
+                resolve(cardNames[Math.floor(Math.random() * cardNames.length)]);
+            }, 400);
+        });
+    }
+
+    // If no selected card, proceed normally
     const cardNames = Object.keys(CARDS).filter(name => {
         // Filter out the last two drawn cards
         if (lastDrawnCards.includes(name)) {
@@ -947,17 +1021,7 @@ export function getRandomCard() {
         }
         return true;
     });
-    
-    const randomIndex = Math.floor(Math.random() * cardNames.length);
-    const drawnCard = cardNames[randomIndex];
-    
-    // Update last drawn cards, keeping only the last two
-    lastDrawnCards.push(drawnCard);
-    if (lastDrawnCards.length > 2) {
-        lastDrawnCards.shift(); // Remove oldest card
-    }
-    
-    return drawnCard;
+    return cardNames[Math.floor(Math.random() * cardNames.length)];
 }
 
 // filepath: d:\NoodleFactory\src\js\state.js

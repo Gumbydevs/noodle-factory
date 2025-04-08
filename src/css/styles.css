@@ -778,7 +778,7 @@ h1 {
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out !important;
     transform-origin: center center;
     opacity: 1;
     animation: 
@@ -787,7 +787,15 @@ h1 {
     animation-delay: 
         calc(random() * -8s),
         calc(random() * -5s);
-    will-change: transform, background-color;
+    will-change: transform, background-color, opacity;
+}
+
+/* Override all other card animations when disappearing */
+.card.disappearing {
+    animation: none !important;
+    transition: all 0.4s ease-in-out !important;
+    pointer-events: none !important;
+    z-index: 100 !important;
 }
 
 /* Scale animations with chaos levels */
@@ -889,6 +897,7 @@ h1 {
     opacity: 1 !important;
     transform: none !important;  /* Prevent shrinking */
     z-index: 2 !important;
+    transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out !important;
 }
 
 /* Add new jitter animation */
@@ -910,6 +919,15 @@ h1 {
 /* Remove the generic played class animation that was affecting both cards */
 .card.played {
     pointer-events: none !important;
+}
+
+/* Remove conflicting rules */
+.card-container.clearing .card,
+.card-container:not(.played) .card,
+.card.played,
+.card.played[data-selected="true"],
+.card.played:not([data-selected="true"]) {
+    animation: none !important;
 }
 
 /* Add these specific rules to handle chaos states and hover */
@@ -1996,4 +2014,29 @@ h1 {
 .wiggle-selected {
     animation: wiggle-selected 0.5s ease-in-out;
     transform-origin: center center;
+}
+
+/* Smoke particle styling */
+.smoke-particle {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1000;
+    will-change: transform, opacity;
+}
+
+@keyframes smoke {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.9;
+        background: rgba(255, 255, 255, 0.9);
+    }
+    100% {
+        transform: translate(var(--tx), var(--ty)) scale(2.5);
+        opacity: 0;
+        background: rgba(200, 200, 200, 0);
+    }
 }

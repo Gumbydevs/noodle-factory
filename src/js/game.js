@@ -390,13 +390,22 @@ class Game {
     playCard(cardName) {
         if (this.isGameOver) return;
 
-        // Play card sound only if audio is enabled
-        if (soundManager.enabled) {
-            gameSounds.playCardSound();
-        }
-
         const card = CARDS[cardName];
         if (!card) return;
+
+        // Play base card sound first
+        gameSounds.playCardSound();
+
+        // Add effect sounds based on card type
+        if (card.statModifiers) {
+            setTimeout(() => {
+                if (card.statModifiers.prestige > 0 || card.statModifiers.ingredients > 0) {
+                    gameSounds.playPowerUpSound();
+                } else if (card.statModifiers.chaos > 5 || card.statModifiers.ingredients < 0) {
+                    gameSounds.playBadCardSound();
+                }
+            }, 50); // Slight delay for better layering
+        }
 
         // Increment turn counter BEFORE card effects
         this.turn++;
@@ -831,8 +840,9 @@ class Game {
     }
 
     triggerChaosEvent(message) {
-        // Play chaos sound
+        // Play chaos sound AND grumble sound for more impact
         gameSounds.playChaosSound();
+        gameSounds.createGrumbleSound(this.state.playerStats.chaosLevel / 50); // Intensity based on chaos level
 
         const messageBox = document.getElementById('game-messages');
         messageBox.textContent = message;
@@ -937,10 +947,16 @@ class Game {
 
         // High chaos affects ingredients less in early game
         if (this.state.playerStats.chaosLevel >= 75) {
+            gameSounds.createGrumbleSound(1.5); // More intense grumble at high chaos
             const ingredientLoss = this.turn < 12 ? 0.5 : 1;
             this.state.playerStats.ingredients = Math.max(0, 
                 Math.round(this.state.playerStats.ingredients - ingredientLoss)
             );
+        }
+
+        // Add random chatter sound occasionally
+        if (Math.random() < 0.2) { // 20% chance each turn
+            gameSounds.playRandomChatter();
         }
     }
 
