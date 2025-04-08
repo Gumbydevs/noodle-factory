@@ -7,10 +7,10 @@ const LOCAL_STORAGE_KEY = 'noodleFactoryPlayedCards';
 export const CARDS = {
     "Sobbing Intern": {
         description: "An intern's tears might boost morale... or cause chaos.",
-        requirements: null, // No requirements
+        requirements: null,
         statModifiers: {
-            workers: 2,  // Reduced from 3
-            chaos: 8    // Increased from 5
+            workers: 3,    // Increased from 2
+            chaos: 5      // Reduced from 8
         },
         effect: (state) => {
             savePlayedCard("Sobbing Intern");
@@ -31,20 +31,18 @@ export const CARDS = {
     },
     "Overtime Whistle": {
         description: "Push your workers harder for more prestige.",
-        requirements: null, // No requirements
+        requirements: null,
         statModifiers: {
-            prestige: 6,  // Reduced from 10
-            workers: -2   // Changed from -3
+            prestige: 6,
+            workers: -2
         },
         effect: (state) => {
             savePlayedCard("Overtime Whistle");
-            let bonus = "";
-            // Risk/Reward: If you have a well-staffed factory, get an extra prestige bonus.
             if (state.playerStats.workerCount > 20) {
-                bonus = " Extra energy surges from a well-staffed factory!";
                 state.playerStats.pastaPrestige += 5;
+                return "Workers exhausted but productive! Extra energy surges from a well-staffed factory!";
             }
-            return "Workers exhausted but productive!" + bonus;
+            return "Workers exhausted but productive!";
         }
     },
     "Noodle Slap": {
@@ -61,7 +59,7 @@ export const CARDS = {
     },
     "Noodle Kraken": {
         description: "A massive tentacle made of pasta emerges from Vat 7!",
-        requirements: null, // No requirements
+        requirements: null,
         statModifiers: {
             chaos: 12,
             prestige: 8,
@@ -69,21 +67,18 @@ export const CARDS = {
         },
         effect: (state) => {
             savePlayedCard("Noodle Kraken");
-            let bonus = "";
-            // Risk/Reward: In a calm state, the Kraken strikes with extra force.
             if (state.playerStats.chaosLevel < 30) {
-                bonus = " In the calm, the Kraken strikes with extra force!";
                 state.playerStats.pastaPrestige += 4;
+                return "The Kraken bestows its noodly wisdom upon the factory!";
+            } else {
+                state.playerStats.lostWorkers += 4;
+                return "The Kraken rampages through the factory, taking workers with it!";
             }
-            state.playerStats.lostWorkers += 2;
-            return "The tentacle waves menacingly with marinara dripping from its noodly appendages!" + bonus;
         }
     },
     "Vat Explosion": {
         description: "Vat 3 is building dangerous pressure levels!",
-        requirements: {
-            ingredients: 2 // Requires at least 2 ingredients
-        },
+        requirements: { ingredients: 2 }, // Requires at least 2 ingredients
         statModifiers: {
             ingredients: -2,
             chaos: 15,
@@ -91,21 +86,17 @@ export const CARDS = {
         },
         effect: (state) => {
             savePlayedCard("Vat Explosion");
-            let bonus = "";
-            // Risk/Reward: If chaos is already high, the explosion is even more catastrophic.
             if (state.playerStats.chaosLevel > 70) {
-                bonus = " The excessive chaos amplifies the explosion's impact!";
                 state.playerStats.lostWorkers += 2;
                 state.playerStats.lostIngredients += 1;
+                return "Workers: <red>---</red> | Ingredients: <red>--</red> | Chaos: <red>+++</red>";
             }
-            state.playerStats.lostWorkers += 3;
-            state.playerStats.lostIngredients += 2;
-            return "The explosion sends pasta shrapnel in all directions!" + bonus;
+            return "Workers: <red>--</red> | Ingredients: <red>-</red> | Chaos: <red>++</red>";
         }
     },
     "Pasta Prophet": {
         description: "A mystic appears, preaching the gospel of the Flying Spaghetti Monster.",
-        requirements: null, // No requirements
+        requirements: null,
         statModifiers: {
             prestige: 12,
             chaos: 6,
@@ -114,14 +105,16 @@ export const CARDS = {
         effect: (state) => {
             savePlayedCard("Pasta Prophet");
             state.playerStats.usedMagicCards = true;
-            return "R'amen!";
+            if (state.playerStats.chaosLevel < 40) {
+                state.playerStats.prestige += 4;
+                return "R'amen! The prophecy brings enlightenment!\nWorkers: <green>++</green> | Prestige: <green>+++</green> | Chaos: <red>+</red>";
+            }
+            return "R'amen! The chaos corrupts the prophecy!\nPrestige: <green>+</green> | Chaos: <red>+++</red> | Workers: <red>-</red>";
         }
     },
     "Quantum Marinara": {
         description: "The sauce has achieved quantum superposition!",
-        requirements: {
-            ingredients: 1 // Requires at least 1 ingredient
-        },
+        requirements: { ingredients: 1 }, // Requires at least 1 ingredient
         statModifiers: {
             ingredients: 3,
             chaos: 6,
@@ -156,18 +149,16 @@ export const CARDS = {
         },
         effect: (state) => {
             savePlayedCard("Time-Traveling Tagliatelle");
-            let bonus = "";
-            // Risk/Reward: If you have plenty of ingredients, time-travelers feast and boost your prestige.
             if (state.playerStats.ingredients > 5) {
-                bonus = " The abundance of ingredients creates a feast for time-travelers!";
                 state.playerStats.pastaPrestige += 3;
+                return "Ingredients: <green>++</green> | Prestige: <green>+++</green> | Chaos: <red>+</red>";
             }
-            return "Customers are eating tomorrow's lunch yesterday!" + bonus;
+            return "Ingredients: <green>+</green> | Prestige: <green>+</green> | Chaos: <red>++</red>";
         }
     },
     "Eldritch Al Dente": {
         description: "The pasta has achieved consciousness... and it hungers.",
-        requirements: null, // No requirements
+        requirements: null,
         statModifiers: {
             chaos: 18,
             workers: -4,
@@ -175,7 +166,13 @@ export const CARDS = {
         },
         effect: (state) => {
             savePlayedCard("Eldritch Al Dente");
-            return "Ph'nglui mglw'nafh Spaghetti R'lyeh wgah'nagl fhtagn!";
+            if (state.playerStats.chaosLevel < 40) {
+                state.playerStats.pastaPrestige += 8;
+                return "Ph'nglui mglw'nafh Spaghetti R'lyeh wgah'nagl fhtagn!\nPrestige: <green>+++</green> | Chaos: <red>++</red> | Workers: <red>-</red>";
+            } else {
+                state.playerStats.lostWorkers += 6;
+                return "The pasta demands sacrifices!\nWorkers: <red>---</red> | Chaos: <red>+++</red> | Prestige: <green>+</green>";
+            }
         }
     },
     "Noodle Necromancer": {
@@ -201,7 +198,13 @@ export const CARDS = {
         },
         effect: (state) => {
             savePlayedCard("Pasta Fusion Reactor");
-            return "The pasta has achieved nuclear fusion!";
+            if (state.playerStats.chaosLevel < 50) {
+                state.playerStats.prestige += 10;
+                return "The power of the atom spaghetti is yours to command!\nPrestige: <green>+++</green> | Workers: <red>--</red> | Chaos: <red>++</red>";
+            } else {
+                state.playerStats.lostWorkers += 8;
+                return "The reactor goes critical! A catastrophic pasta meltdown!\nWorkers: <red>---</red> | Chaos: <red>+++</red> | Ingredients: <red>--</red>";
+            }
         }
     },
     "Workers Strike": {
@@ -245,6 +248,11 @@ export const CARDS = {
         },
         effect: (state) => {
             savePlayedCard("Unlocked Door");
+            if (state.playerStats.workerEnergy > 25) {
+                state.playerStats.chaos -= 5;
+                return "Alert workers catch the problem early!";
+            }
+            state.playerStats.lostIngredients += 2;
             return "Raccoons have ransacked the ingredient storage!";
         }
     },
@@ -272,6 +280,10 @@ export const CARDS = {
         },
         effect: (state) => {
             savePlayedCard("Emergency Repairs");
+            if (state.playerStats.chaosLevel < 50) {
+                state.playerStats.chaos -= 4;
+                return "The machine purrs like new... mostly.";
+            }
             return "The machine purrs like new... mostly.";
         }
     },
@@ -408,9 +420,9 @@ export const CARDS = {
         description: "Send workers to learn advanced pasta-making techniques.",
         requirements: null,
         statModifiers: {
-            workers: 3,     // Reduced from 5
-            prestige: 4,    // Reduced from 8
-            chaos: -2       // Changed from -4
+            workers: 4,     // Increased from 3
+            prestige: 6,    // Increased from 4
+            chaos: -3       // Improved from -2
         },
         effect: (state) => {
             savePlayedCard("Pasta Training Seminar");
@@ -484,16 +496,16 @@ export const CARDS = {
     },
     "Pasta Paradise": {
         description: "Transform the factory into a worker-friendly utopia.",
-        requirements: { ingredients: 2 },
+        requirements: { ingredients: 1 }, // Reduced from 2
         statModifiers: {
-            workers: 5,      // Reduced from 10
-            prestige: 4,     // Reduced from 6
-            chaos: -4,       // Changed from -8
-            ingredients: -2
+            workers: 5,
+            prestige: 8,    // Increased from 4
+            chaos: -6,      // Improved from -4
+            ingredients: -1  // Reduced cost from -2
         },
         effect: (state) => {
             savePlayedCard("Pasta Paradise");
-            return "The factory now has a pasta fountain in the lobby!";
+            return "The factory is now a pasta paradise!";
         }
     },
     "Pasta Festival": {
@@ -671,7 +683,6 @@ export const CARDS = {
             state.playerStats.chaosSteadyTurns = 0;
             state.playerStats.reggieEscaped = true;
             let bonus = "";
-            // Risk/Reward: A dramatic escape under high chaos slightly penalizes prestige.
             if (state.playerStats.chaosLevel > 50) {
                 bonus = " In the chaos, his escape is even more dramatic!";
                 state.playerStats.pastaPrestige -= 2;
@@ -691,7 +702,7 @@ export const CARDS = {
         effect: (state) => {
             savePlayedCard("Return of Reggie");
             if (state.playerStats.reggieEscaped) {
-                state.playerStats.reggieComplete = true; // This triggers the achievement check
+                state.playerStats.reggieComplete = true;
             }
             return "Great to be back! Now, about these Himalayan noodle techniques...";
         }
@@ -723,9 +734,6 @@ export const CARDS = {
             return "She's filming everything and threatening to post it on PastaTok!";
         }
     },
-
-    // --- New Cards with Additional Variety and Risk/Reward Elements ---
-
     "Mystery Meatball": {
         description: "A mysterious meatball appears on the production line. Is it a blessing or a curse?",
         requirements: null,
@@ -736,11 +744,12 @@ export const CARDS = {
         },
         effect: (state) => {
             savePlayedCard("Mystery Meatball");
-            if (Math.random() < 0.5) {
+            if (state.playerStats.chaosLevel < 35) {
+                state.playerStats.ingredients += 2;
                 return "The meatball boosts your ingredient quality and reputation!";
-            } else {
-                return "The meatball's mystery creates a small mess, stirring up extra chaos!";
             }
+            state.playerStats.chaos += 4;
+            return "The meatball's mystery creates a small mess, stirring up extra chaos!";
         }
     },
     "Saucy Negotiations": {
@@ -799,6 +808,84 @@ export const CARDS = {
             savePlayedCard("Caffeine Infusion");
             return "The caffeine kick revives the team—productivity and morale spike instantly!";
         }
+    },
+    "Supply Chain Mastery": {
+        description: "Optimize your ingredient delivery network.",
+        requirements: null,
+        statModifiers: {
+            ingredients: 3,
+            prestige: 4,
+            chaos: -2
+        },
+        effect: (state) => {
+            savePlayedCard("Supply Chain Mastery");
+            return "Your ingredient supplies are flowing smoothly!";
+        }
+    },
+    "Worker Wellness Program": {
+        description: "Implement healthy pasta breaks and ergonomic stations.",
+        requirements: null,
+        statModifiers: {
+            workers: 4,
+            chaos: -4,
+            prestige: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Worker Wellness Program");
+            return "Happy workers make better pasta!";
+        }
+    },
+    "Quality Control Initiative": {
+        description: "Implement strict pasta quality standards.",
+        requirements: { ingredients: 1 },
+        statModifiers: {
+            prestige: 8,
+            chaos: -3,
+            workers: -1
+        },
+        effect: (state) => {
+            savePlayedCard("Quality Control Initiative");
+            return "Your pasta quality reaches new heights!";
+        }
+    },
+    "Pasta Innovation Lab": {
+        description: "Set up a research facility for new pasta shapes.",
+        requirements: { ingredients: 2 },
+        statModifiers: {
+            prestige: 10,
+            chaos: 4,
+            ingredients: -1
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Innovation Lab");
+            return "Revolutionary pasta designs emerge!";
+        }
+    },
+    "Emergency Ingredient Run": {
+        description: "Send workers on a quick supply run.",
+        requirements: null,
+        statModifiers: {
+            ingredients: 4,
+            workers: -1,
+            chaos: 2
+        },
+        effect: (state) => {
+            savePlayedCard("Emergency Ingredient Run");
+            return "Fresh supplies acquired just in time!";
+        }
+    },
+    "Pasta Mentorship": {
+        description: "Experienced workers train newcomers in pasta arts.",
+        requirements: null,
+        statModifiers: {
+            workers: 3,
+            prestige: 4,
+            chaos: -2
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Mentorship");
+            return "Knowledge passes to the next generation!";
+        }
     }
 };
 
@@ -814,7 +901,6 @@ function savePlayedCard(cardName) {
     checkCardAchievements(); // Make sure this is called after saving
 }
 
-// Fix the achievement check logic to prevent false triggers
 function checkCardAchievements() {
     const played = getPlayedCards();
     // Don't check if no cards have been played
@@ -823,11 +909,9 @@ function checkCardAchievements() {
     const totalCards = Object.keys(CARDS).length;
     const playedCount = Object.keys(played).length;
     const percentage = (playedCount / totalCards) * 100;
-
     console.log(`Cards played: ${playedCount}/${totalCards} (${percentage.toFixed(1)}%)`);
 }
 
-// Add new helper function to maintain balance
 function applyStatModifiers(state, modifiers) {
     // Ensure chaos doesn't drop too low
     if (modifiers.chaos && modifiers.chaos < 0) {
@@ -863,13 +947,13 @@ export function getRandomCard() {
 // filepath: d:\NoodleFactory\src\js\state.js
 export const resetGameState = () => {
     gameState.playerStats = {
-        pastaPrestige: 0,
         chaosLevel: 0,
+        pastaPrestige: 0,
         ingredients: [
-            "Basic Flour",
             "Water",
             "Salt",
-            "Egg"
+            "Egg",
+            "Basic Flour"
         ],
         workerCount: Math.floor(Math.random() * 6) + 15  // 15-20 range for better starting balance
     };
