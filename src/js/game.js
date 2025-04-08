@@ -459,6 +459,21 @@ class Game {
             otherCard.style.pointerEvents = 'none';
         }
 
+        // Add smoke effect
+        if (clickedCard) {
+            const rect = clickedCard.getBoundingClientRect();
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    createSmokeParticle(
+                        rect.left + Math.random() * rect.width,
+                        rect.top + Math.random() * rect.height
+                    );
+                }, i * 50);
+            }
+        }
+
+        clickedCard.classList.add('dissolving');
+
         // Check if playing this card would cause game over BEFORE applying effects
         if (card.statModifiers) {
             const projectedStats = { ...this.state.playerStats };
@@ -1006,6 +1021,30 @@ class Game {
             });
         });
     }
+}
+
+function createSmokeParticle(x, y) {
+    const particle = document.createElement('div');
+    particle.className = 'smoke-particle';
+    particle.style.left = `${x}px`;
+    particle.style.top = `${y}px`;
+    
+    // Random movement
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 50 + Math.random() * 100;
+    const tx = Math.cos(angle) * distance;
+    const ty = Math.sin(angle) * distance - 100;
+    
+    particle.style.setProperty('--tx', `${tx}px`);
+    particle.style.setProperty('--ty', `${ty}px`);
+    
+    document.body.appendChild(particle);
+    
+    // Add animation
+    particle.style.animation = 'smoke 1s ease-out forwards';
+    
+    // Remove after animation
+    setTimeout(() => particle.remove(), 1000);
 }
 
 class SoundManager {

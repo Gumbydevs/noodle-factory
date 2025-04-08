@@ -89,9 +89,9 @@ export const CARDS = {
             if (state.playerStats.chaosLevel > 70) {
                 state.playerStats.lostWorkers += 2;
                 state.playerStats.lostIngredients += 1;
-                return "Workers: <red>---</red> | Ingredients: <red>--</red> | Chaos: <red>+++</red>";
+                return "A vat exploded! Workers are panicking and ingredients are lost!";
             }
-            return "Workers: <red>--</red> | Ingredients: <red>-</red> | Chaos: <red>++</red>";
+            return "There was an explosion in the vat! Chaos reigns!";
         }
     },
     "Pasta Prophet": {
@@ -107,9 +107,9 @@ export const CARDS = {
             state.playerStats.usedMagicCards = true;
             if (state.playerStats.chaosLevel < 40) {
                 state.playerStats.prestige += 4;
-                return "R'amen! The prophecy brings enlightenment!\nWorkers: <green>++</green> | Prestige: <green>+++</green> | Chaos: <red>+</red>";
+                return "R'amen! The prophecy brings enlightenment!";
             }
-            return "R'amen! The chaos corrupts the prophecy!\nPrestige: <green>+</green> | Chaos: <red>+++</red> | Workers: <red>-</red>";
+            return "R'amen! The chaos corrupts the prophecy!";
         }
     },
     "Quantum Marinara": {
@@ -151,9 +151,9 @@ export const CARDS = {
             savePlayedCard("Time-Traveling Tagliatelle");
             if (state.playerStats.ingredients > 5) {
                 state.playerStats.pastaPrestige += 3;
-                return "Ingredients: <green>++</green> | Prestige: <green>+++</green> | Chaos: <red>+</red>";
+                return "Time-traveling pasta is a hit!";
             }
-            return "Ingredients: <green>+</green> | Prestige: <green>+</green> | Chaos: <red>++</red>";
+            return "Time is a flat circle, and so is the pasta!";
         }
     },
     "Eldritch Al Dente": {
@@ -168,10 +168,10 @@ export const CARDS = {
             savePlayedCard("Eldritch Al Dente");
             if (state.playerStats.chaosLevel < 40) {
                 state.playerStats.pastaPrestige += 8;
-                return "Ph'nglui mglw'nafh Spaghetti R'lyeh wgah'nagl fhtagn!\nPrestige: <green>+++</green> | Chaos: <red>++</red> | Workers: <red>-</red>";
+                return "Ph'nglui mglw'nafh Spaghetti R'lyeh wgah'nagl fhtagn!";
             } else {
                 state.playerStats.lostWorkers += 6;
-                return "The pasta demands sacrifices!\nWorkers: <red>---</red> | Chaos: <red>+++</red> | Prestige: <green>+</green>";
+                return "The pasta demands sacrifices!";
             }
         }
     },
@@ -200,10 +200,10 @@ export const CARDS = {
             savePlayedCard("Pasta Fusion Reactor");
             if (state.playerStats.chaosLevel < 50) {
                 state.playerStats.prestige += 10;
-                return "The power of the atom spaghetti is yours to command!\nPrestige: <green>+++</green> | Workers: <red>--</red> | Chaos: <red>++</red>";
+                return "The power of the atom spaghetti is yours to command!";
             } else {
                 state.playerStats.lostWorkers += 8;
-                return "The reactor goes critical! A catastrophic pasta meltdown!\nWorkers: <red>---</red> | Chaos: <red>+++</red> | Ingredients: <red>--</red>";
+                return "The reactor goes critical! A catastrophic pasta meltdown!";
             }
         }
     },

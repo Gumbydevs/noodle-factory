@@ -398,6 +398,33 @@
     100% { transform: translate(0, 0) rotate(0deg); }
 }
 
+@keyframes selectedCardVanish {
+    0% { 
+        transform: scale(1);
+        opacity: 1;
+        background: #555;
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+    20% {
+        transform: scale(1.05);
+        opacity: 0.9;
+        background: #666;
+        clip-path: polygon(2% 2%, 98% 2%, 98% 98%, 2% 98%);
+    }
+    60% {
+        transform: scale(1.1) translateY(-5px);
+        opacity: 0.5;
+        background: #777;
+        clip-path: polygon(5% 5%, 95% 5%, 95% 95%, 5% 95%);
+    }
+    100% { 
+        transform: scale(0.8) translateY(-20px);
+        opacity: 0;
+        background: #888;
+        clip-path: polygon(48% 48%, 52% 48%, 52% 52%, 48% 52%);
+    }
+}
+
 .hidden {
     display: none !important;
 }
@@ -778,16 +805,19 @@ h1 {
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    transition: transform 0.3s ease-out, opacity 0.3s ease-out !important;
+    transition: background-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
     transform-origin: center center;
     opacity: 1;
     animation: 
-        cardLife 8s ease-in-out infinite,
-        cardTwitch 5s ease-in-out infinite;
+        cardLife 4.5s ease-in-out infinite,
+        cardFloat 3s ease-in-out infinite;
     animation-delay: 
-        calc(random() * -8s),
-        calc(random() * -5s);
-    will-change: transform, background-color, opacity;
+        calc(random() * -4s),
+        calc(random() * -3s);
+    will-change: transform, opacity, background-color;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
 }
 
 /* Override all other card animations when disappearing */
@@ -840,12 +870,24 @@ h1 {
     .card {
         animation: 
             cardFloat 3s ease-in-out infinite,
-            cardLife 4.5s ease-in-out infinite,
-            cardAlive 6s ease-in-out infinite !important;
-        animation-delay: 
-            0s,
-            calc(random() * -4s),
-            calc(random() * -6s);
+            cardLife 4s ease-in-out infinite !important;
+        transform: none !important;
+        transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+    }
+
+    .card:active:not(.played) {
+        background: #555;
+        transform: scale(0.98) !important;
+    }
+
+    .card.played[data-selected="true"] {
+        animation: selectedCardVanish 0.5s ease-out forwards !important;
+    }
+
+    .card.played:not([data-selected="true"]) {
+        animation: none !important;
+        transform: scale(0.5) !important;
+        opacity: 0 !important;
     }
 
     .chaos-level-1 .card {
@@ -859,56 +901,38 @@ h1 {
         animation: 
             cardFloat 2.5s ease-in-out infinite,
             cardLife 3.5s ease-in-out infinite,
-            cardAliveChaos2 4s ease-in-out infinite !important;
+            cardTwitchChaos 3s ease-in-out infinite !important;
     }
 
-    .chaos-level-3 .card {
+    .chaos-level-3 .card,
+    .chaos-level-max .card {
         animation: 
             cardFloat 2s ease-in-out infinite,
             cardLife 3s ease-in-out infinite,
-            cardAliveChaos3 3s ease-in-out infinite,
-            colorCycle 4s linear infinite !important;
+            colorCycle 4s infinite !important;
     }
 
-    .chaos-level-max .card {
-        animation: 
-            cardFloat 1.5s ease-in-out infinite,
-            cardLife 2.5s ease-in-out infinite,
-            cardAliveChaos3 2s ease-in-out infinite,
-            colorCycle 3s linear infinite !important;
+    /* Keep other mobile rules... */
+    
+    .card.dissolving {
+        animation: selectedCardVanish 0.5s ease-out forwards !important;
+        pointer-events: none;
+        z-index: 999;
     }
 }
 
 /* Update card hover styles to make animation slower */
-.card:hover,
-.chaos-level-1 .card:hover,
-.chaos-level-2 .card:hover,
-.chaos-level-3 .card:hover,
-.chaos-level-max .card:hover {
-    animation: hoverExcited 1.2s ease-in-out infinite !important;
+.card:hover:not(.played) {
     background: #555;
-    cursor: pointer;
-    z-index: 2;
+    transform: translateY(-5px);
 }
 
 /* Update the card played animations */
 .card.played[data-selected="true"] {
-    animation: selectedCardJitter 0.4s ease-in-out !important;
-    opacity: 1 !important;
-    transform: none !important;  /* Prevent shrinking */
-    z-index: 2 !important;
-    transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out !important;
+    animation: selectedCardVanish 0.5s ease-out forwards !important;
+    pointer-events: none;
 }
 
-/* Add new jitter animation */
-@keyframes selectedCardJitter {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
-    100% { transform: translateX(0); }
-}
-
-/* Only shrink and fade the unselected card */
 .card.played:not([data-selected="true"]) {
     transform: scale(0.5) !important;
     opacity: 0 !important;
@@ -2026,6 +2050,7 @@ h1 {
     pointer-events: none;
     z-index: 1000;
     will-change: transform, opacity;
+    animation: smoke 1s ease-out forwards;
 }
 
 @keyframes smoke {
@@ -2034,9 +2059,24 @@ h1 {
         opacity: 0.9;
         background: rgba(255, 255, 255, 0.9);
     }
+    50% {
+        opacity: 0.6;
+        background: rgba(230, 230, 230, 0.6);
+    }
     100% {
         transform: translate(var(--tx), var(--ty)) scale(2.5);
         opacity: 0;
         background: rgba(200, 200, 200, 0);
     }
+}
+
+/* Add dissolving card styles */
+.card.dissolving {
+    animation: selectedCardVanish 0.5s ease-out forwards !important;
+    pointer-events: none;
+}
+
+/* Ensure the dissolving card stays above the smoke */
+.card.dissolving {
+    z-index: 999;
 }
