@@ -293,10 +293,9 @@
 
 /* Update this color cycle animation for better compatibility */
 @keyframes colorCycle {
-    0% { background: #1a1515; }
-    33% { background: #151a1a; }
-    66% { background: #1a151a; }
-    100% { background: #1a1515; }
+    33% { background-color: #151a1a; }
+    66% { background-color: #1a151a; }
+    100% { background-color: #1a1515; }
 }
 
 /* Add new keyframes for stat value changes */
@@ -347,6 +346,20 @@
     85% { transform: rotate(-2deg) translateY(-2px); }
     88% { transform: rotate(1.5deg) translateY(1px); }
     92% { transform: rotate(-1deg) translateY(-1px); }
+}
+
+/* Add new life-like twitching keyframes */
+@keyframes cardLife {
+    20% { transform: translate3d(1px, -1px, 0) rotate(0.5deg); }
+    40% { transform: translate3d(-1px, 0px, 0) rotate(-0.3deg); }
+    60% { transform: translate3d(1px, 1px, 0) rotate(0.4deg); }
+    80% { transform: translate3d(-1px, -1px, 0) rotate(-0.2deg); }
+    100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+}
+
+@keyframes cardFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
 }
 
 .hidden {
@@ -714,7 +727,7 @@ h1 {
     position: relative;
 }
 
-/* Optimize card animations */
+/* Optimize card animations with combined transforms */
 .card {
     display: flex;
     flex-direction: column;
@@ -733,51 +746,68 @@ h1 {
     opacity: 1;
     animation: 
         cardFloat 3s ease-in-out infinite,
-        cardTwitch 4s ease-in-out infinite;
+        cardLife 4.5s ease-in-out infinite;
     animation-delay: 
         0s,
-        calc(random() * -8s); /* Random start time for twitching */
-    will-change: transform; /* Optimize transform animations */
+        calc(random() * -4s);
+    will-change: transform, background-color;
 }
 
-/* Scale twitching with chaos levels */
+/* Scale animations with chaos levels */
 .chaos-level-1 .card {
     animation: 
-        cardFloat 3s ease-in-out infinite,
-        cardTwitch 3.5s ease-in-out infinite;
+        cardFloat 2.8s ease-in-out infinite,
+        cardLife 4s ease-in-out infinite;
     animation-delay: 
         0s,
-        calc(random() * -6s);
+        calc(random() * -3s);
 }
 
 .chaos-level-2 .card {
     animation: 
-        cardFloat 3s ease-in-out infinite,
-        cardTwitchChaos 3s ease-in-out infinite;
+        cardFloat 2.5s ease-in-out infinite,
+        cardLife 3.5s ease-in-out infinite;
     animation-delay: 
         0s,
-        calc(random() * -4s);
+        calc(random() * -2s);
 }
 
-/* Update specifically for high chaos cards to ensure color cycle works on all devices */
-.chaos-level-3 .card, 
+.chaos-level-3 .card {
+    animation: 
+        cardFloat 2s cubic-bezier(0.4, 0, 0.6, 1) infinite,
+        cardLife 2.5s ease-in-out infinite,
+        colorCycle 4s linear infinite !important;
+    animation-delay: 
+        0s,
+        calc(random() * -2s),
+        0s;
+    background: #1a1515;
+    transition: background-color 0.3s ease;
+}
+
 .chaos-level-max .card {
     animation: 
-        cardFloat 2s ease-in-out infinite,
-        randomJitter 1.5s ease-in-out infinite,
-        colorCycle 4s infinite !important;
-    will-change: transform, background-color;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    filter: brightness(1.2) contrast(1.1) !important;
+        cardFloat 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite,
+        cardLife 2s ease-in-out infinite,
+        colorCycle 3s linear infinite !important;
+    animation-delay: 
+        0s,
+        calc(random() * -1.5s),
+        0s;
+    background: #1a1515;
+    transition: background-color 0.3s ease;
 }
 
-/* Override mobile animation reset for color cycle */
+/* Ensure animations work on mobile */
 @media (hover: none) and (pointer: coarse) {
-    .chaos-level-3 .card,
-    .chaos-level-max .card {
-        animation: colorCycle 4s infinite !important;
-        will-change: background-color;
+    .card {
+        animation: 
+            cardFloat 3s cubic-bezier(0.4, 0, 0.6, 1) infinite,
+            cardLife 4s ease-in-out infinite !important;
+        animation-delay: 
+            0s,
+            calc(random() * -3s);
+        transform-origin: center center;
     }
 }
 
@@ -861,7 +891,7 @@ h1 {
     .chaos-level-max .card {
         animation: 
             cardFloat 3s ease-in-out infinite,
-            randomJitter 2s ease-in-out infinite !important;
+            cardLife 4.5s ease-in-out infinite !important;
         transform: none !important;
     }
 
@@ -905,31 +935,35 @@ h1 {
 .card:nth-child(odd) {
     animation: 
         cardFloat 3s ease-in-out infinite,
+        cardLife 4.5s ease-in-out infinite,
         randomJitter 1.7s ease-in-out infinite;
     animation-delay: 
         -1.5s,
+        calc(random() * -4s),
         calc(random() * -3s); /* Different random start time */
 }
 
 .card:nth-child(even) {
     animation: 
         cardFloat 3s ease-in-out infinite,
+        cardLife 4.5s ease-in-out infinite,
         randomJitter 2.3s ease-in-out infinite;
     animation-delay: 
         0s,
+        calc(random() * -4s),
         calc(random() * -2s); /* Different random start time */
 }
 
 #card-left {
     animation-delay: 
-        calc(random() * -3s),
-        calc(random() * -2s);
+        calc(random() * -4s),
+        calc(random() * -3s);
 }
 
 #card-right {
     animation-delay: 
-        calc(random() * -3s),
-        calc(random() * -2s);
+        calc(random() * -4s),
+        calc(random() * -3s);
 }
 
 .card h3 {
@@ -1712,29 +1746,34 @@ h1 {
     .card {
         animation: 
             cardFloat 4s ease-in-out infinite,
+            cardLife 4.5s ease-in-out infinite,
             cardTwitch 4s ease-in-out infinite !important;
         animation-delay: 
             0s,
+            calc(random() * -4s),
             calc(random() * -8s);
     }
 
     .chaos-level-1 .card {
         animation: 
-            cardFloat 4s ease-in-out infinite,
+            cardFloat 2.8s ease-in-out infinite,
+            cardLife 4s ease-in-out infinite,
             cardTwitch 3.5s ease-in-out infinite !important;
     }
 
     .chaos-level-2 .card {
         animation: 
-            cardFloat 3.5s ease-in-out infinite,
+            cardFloat 2.5s ease-in-out infinite,
+            cardLife 3.5s ease-in-out infinite,
             cardTwitchChaos 3s ease-in-out infinite !important;
     }
 
     .chaos-level-3 .card,
     .chaos-level-max .card {
         animation: 
-            cardFloat 3s ease-in-out infinite,
-            cardTwitchChaos 2.5s ease-in-out infinite !important;
+            cardFloat 2s ease-in-out infinite,
+            cardLife 3s ease-in-out infinite,
+            colorCycle 4s infinite !important;
     }
 
     /* New mobile-specific animations */
