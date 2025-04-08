@@ -210,6 +210,18 @@ class Game {
         body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
         messageBox.classList.remove('chaos-warning');
         
+        // Check for threshold crossings and play appropriate sounds
+        if (this._lastChaosLevel) {
+            const thresholds = [25, 45, 75, 90];
+            for (const threshold of thresholds) {
+                if (chaos >= threshold && this._lastChaosLevel < threshold) {
+                    gameSounds.playChaosSoundForLevel(threshold);
+                    break;
+                }
+            }
+        }
+        this._lastChaosLevel = chaos;
+        
         // Add proper mobile-friendly chaos classes
         if (chaos >= 90) { // Changed from 100 to 90
             body.classList.add('chaos-level-max');

@@ -223,6 +223,172 @@ export class GameSounds {
         }
     }
 
+    playLowChaosSound() {
+        this.ensureAudioContext();
+        if (!this.ctx) return;
+        try {
+            const gainNode = this.ctx.createGain();
+            gainNode.gain.value = 0.15; // Much lower base volume
+            
+            const osc1 = this.ctx.createOscillator();
+            const osc2 = this.ctx.createOscillator();
+            
+            // Use softer waveforms
+            osc1.type = 'triangle';
+            osc2.type = 'sine';
+            
+            // Lower frequencies for subtle unease
+            osc1.frequency.value = 110; // A2
+            osc2.frequency.value = 113; // Slightly detuned for organic movement
+            
+            // Add subtle filter sweep
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.Q.value = 1;
+            filter.frequency.value = 800;
+            
+            osc1.connect(filter);
+            osc2.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(this.gainNode);
+
+            const now = this.ctx.currentTime;
+            const duration = 1.2;
+            
+            // Gentle envelope
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.15, now + 0.2);
+            gainNode.gain.linearRampToValueAtTime(0, now + duration);
+            
+            // Subtle filter movement
+            filter.frequency.linearRampToValueAtTime(400, now + duration);
+            
+            osc1.start(now);
+            osc2.start(now);
+            osc1.stop(now + duration);
+            osc2.stop(now + duration);
+
+            setTimeout(() => gainNode.disconnect(), duration * 1000);
+        } catch (e) {
+            console.warn('Error playing low chaos sound:', e);
+        }
+    }
+
+    playMidChaosSound() {
+        this.ensureAudioContext();
+        if (!this.ctx) return;
+        try {
+            const gainNode = this.ctx.createGain();
+            gainNode.gain.value = 0.2;
+            
+            // Create three oscillators for richer texture
+            const oscs = [];
+            const freqs = [146.83, 220, 293.66]; // D3, A3, D4 - minor triad
+            
+            freqs.forEach(freq => {
+                const osc = this.ctx.createOscillator();
+                const oscGain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.value = freq;
+                oscGain.gain.value = 0.3;
+                
+                osc.connect(oscGain);
+                oscGain.connect(gainNode);
+                oscs.push({ osc, gain: oscGain });
+            });
+            
+            // Add gentle modulation
+            const lfo = this.ctx.createOscillator();
+            const lfoGain = this.ctx.createGain();
+            lfo.frequency.value = 3;
+            lfoGain.gain.value = 0.15;
+            
+            lfo.connect(lfoGain);
+            lfoGain.connect(gainNode.gain);
+            
+            gainNode.connect(this.gainNode);
+            
+            const now = this.ctx.currentTime;
+            const duration = 1.0;
+            
+            // Stagger the oscillator starts for organic feel
+            oscs.forEach((osc, i) => {
+                const startTime = now + (i * 0.1);
+                osc.osc.start(startTime);
+                osc.osc.stop(now + duration);
+                osc.gain.gain.setValueAtTime(0, startTime);
+                osc.gain.gain.linearRampToValueAtTime(0.3, startTime + 0.1);
+                osc.gain.gain.linearRampToValueAtTime(0, now + duration);
+            });
+            
+            lfo.start(now);
+            lfo.stop(now + duration);
+
+            setTimeout(() => gainNode.disconnect(), duration * 1000);
+        } catch (e) {
+            console.warn('Error playing mid chaos sound:', e);
+        }
+    }
+
+    playHighChaosSound() {
+        this.ensureAudioContext();
+        if (!this.ctx) return;
+        try {
+            const gainNode = this.ctx.createGain();
+            const oscillators = [];
+            const filter = this.ctx.createBiquadFilter();
+
+            // Create dissonant chord
+            const frequencies = [220, 277.18, 440]; // Dissonant intervals
+            
+            frequencies.forEach(freq => {
+                const osc = this.ctx.createOscillator();
+                osc.type = 'sawtooth';
+                osc.frequency.value = freq;
+                oscillators.push(osc);
+                
+                const oscGain = this.ctx.createGain();
+                oscGain.gain.value = 0.3;
+                
+                osc.connect(oscGain);
+                oscGain.connect(filter);
+            });
+
+            filter.type = 'bandpass';
+            filter.frequency.value = 800;
+            filter.Q.value = 3;
+
+            filter.connect(gainNode);
+            gainNode.connect(this.gainNode);
+
+            const endTime = this.createEnvelope(gainNode, 0.05, 0.2, 0.5, 0.3);
+
+            oscillators.forEach(osc => {
+                osc.start();
+                osc.stop(endTime);
+            });
+
+            // Add frequency sweep
+            filter.frequency.exponentialRampToValueAtTime(2000, endTime);
+
+            setTimeout(() => gainNode.disconnect(), endTime * 1000);
+        } catch (e) {
+            console.warn('Error playing high chaos sound:', e);
+        }
+    }
+
+    playChaosSoundForLevel(chaosLevel) {
+        if (chaosLevel >= 90) {
+            this.playChaosSound(); // Original intense chaos sound
+        } else if (chaosLevel >= 75) {
+            this.playHighChaosSound();
+        } else if (chaosLevel >= 45) {
+            this.playMidChaosSound();
+        } else if (chaosLevel >= 25) {
+            this.playLowChaosSound();
+        }
+    }
+
     playAchievementSound() {
         this.ensureAudioContext();
         if (!this.ctx) return;
