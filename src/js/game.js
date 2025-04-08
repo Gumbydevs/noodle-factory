@@ -1074,6 +1074,108 @@ class SoundManager {
             console.error('Audio initialization failed:', e);
         }
     }
+
+    playCardSound(volumeMultiplier = 1) {
+        this.ensureAudioContext();
+        if (!this.ctx) return;
+        try {
+            const mainGain = this.ctx.createGain();
+            const beepGain = this.ctx.createGain();
+            const noiseGain = this.ctx.createGain();
+            
+            // Use the pentatonic scale from musicLoops for in-key notes
+            const pentatonicNotes = {
+                'C3': 130.81, 'Eb3': 155.56, 'F3': 174.61, 
+                'G3': 196.00, 'Bb3': 233.08, 'C4': 261.63
+            };
+
+            // Get random notes from the pentatonic scale
+            const notes = Object.values(pentatonicNotes);
+            const note1 = notes[Math.floor(Math.random() * notes.length)];
+            const note2 = notes[Math.floor(Math.random() * notes.length)];
+            
+            mainGain.gain.value = 1.2 * volumeMultiplier;
+            
+            // Keep existing noise generation code
+            // ...existing code...
+
+            // Setup beep oscillators with pentatonic notes
+            const osc1 = this.ctx.createOscillator();
+            const osc2 = this.ctx.createOscillator();
+            osc1.type = 'triangle';
+            osc2.type = 'sine';
+            osc1.frequency.value = note1;
+            osc2.frequency.value = note2;
+
+            // Keep rest of the existing code
+            // ...existing code...
+        } catch (e) {
+            console.warn('Error playing card sound:', e);
+        }
+    }
+
+    playDrawCardsSound() {
+        this.ensureAudioContext();
+        if (!this.ctx) return;
+        try {
+            const mainGain = this.ctx.createGain();
+            mainGain.gain.value = 0.03; // Keep volume low
+            
+            // Use notes from C minor pentatonic scale to match background music
+            const musicalNotes = {
+                'C4': 261.63,
+                'Eb4': 311.13,
+                'F4': 349.23,
+                'G4': 392.00,
+                'Bb4': 466.16
+            };
+
+            // Create musical interval by selecting two adjacent notes
+            const notesList = Object.values(musicalNotes);
+            const startIndex = Math.floor(Math.random() * (notesList.length - 1));
+            const note1 = notesList[startIndex];
+            const note2 = notesList[startIndex + 1];
+
+            // Play first note
+            const osc1 = this.ctx.createOscillator();
+            osc1.type = 'sine';
+            osc1.frequency.value = note1;
+            const gain1 = this.ctx.createGain();
+            gain1.gain.setValueAtTime(0, this.ctx.currentTime);
+            gain1.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 0.05);
+            gain1.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.2);
+            osc1.connect(gain1);
+            gain1.connect(mainGain);
+            mainGain.connect(this.gainNode);
+
+            // Play second note slightly later
+            const osc2 = this.ctx.createOscillator();
+            osc2.type = 'sine';
+            osc2.frequency.value = note2;
+            const gain2 = this.ctx.createGain();
+            gain2.gain.setValueAtTime(0, this.ctx.currentTime + 0.1);
+            gain2.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 0.15);
+            gain2.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.3);
+            osc2.connect(gain2);
+            gain2.connect(mainGain);
+
+            osc1.start(this.ctx.currentTime);
+            osc2.start(this.ctx.currentTime + 0.1);
+            osc1.stop(this.ctx.currentTime + 0.2);
+            osc2.stop(this.ctx.currentTime + 0.3);
+
+            // Keep the swoosh effect code
+            // ...existing code...
+
+            setTimeout(() => {
+                mainGain.disconnect();
+                gain1.disconnect();
+                gain2.disconnect();
+            }, 400);
+        } catch (e) {
+            console.warn('Error playing draw cards sound:', e);
+        }
+    }
 }
 
 const soundManager = new SoundManager();
