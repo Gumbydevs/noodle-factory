@@ -752,30 +752,14 @@ class Game {
         const gameOverScreen = document.createElement('div');
         gameOverScreen.className = 'game-over-screen';
         
-        // Determine end game message
-        let message = '';
-        switch(reason) {
-            case 'ingredients':
-                message = 'You ran out of ingredients and cannot play any cards!';
-                break;
-            case 'chaos':
-                message = 'Your factory descended into total chaos!';
-                break;
-            case 'workers':
-                message = 'Your workers have all quit!';
-                break;
-            default:
-                message = 'The factory has ceased operations!';
-        }
+        // Add game over screen
+        gameContainer.appendChild(gameOverScreen);
 
-        // Get and update high score before creating game over screen
-        const highScore = updateHighScore(this.turn);
-
-        // Update the game over screen HTML to change button text
+        // Set the inner HTML after appending to DOM
         gameOverScreen.innerHTML = `
             <div class="game-over-content">
                 <h2>Game Over!</h2>
-                <p class="end-reason">${message}</p>
+                <p class="end-reason">${reason}</p>
                 
                 <div class="score-display">
                     <div class="current-score">
@@ -785,7 +769,7 @@ class Game {
                     </div>
                     <div class="high-score">
                         <h3>Best Score</h3>
-                        <span class="score-value">${highScore}</span>
+                        <span class="score-value">${updateHighScore(this.turn)}</span>
                         <span class="score-label">TURNS</span>
                     </div>
                 </div>
@@ -829,7 +813,7 @@ class Game {
 
                 <div class="buttons-section secondary-buttons">
                     <button id="share-results" class="button secondary">Share Results</button>
-                    <button id="reset-achievements" class="button secondary small">Reset Progress</button>
+                    <button id="home-button" class="button secondary small">Home</button>
                 </div>
             </div>
         `;
@@ -838,34 +822,30 @@ class Game {
         this.hideCards();
         document.getElementById('game-messages').style.display = 'none';
         
-        // Add game over screen
-        gameContainer.appendChild(gameOverScreen);
-        this.checkHighScore();
-        
-        // Update the reset handler to show clear confirmation
-        document.getElementById('reset-achievements').addEventListener('click', () => {
-            resetAchievements();
-            this.achievements = new Set(); // Clear local achievements
-            localStorage.removeItem('noodleFactoryHighScore'); // Reset high score
-            // Update achievements display and high score display
-            document.querySelector('.achievements-grid').innerHTML = 'All progress has been reset!';
-            document.querySelector('.high-score .score-value').textContent = '0';
-        });
+        // Add event listeners AFTER the screen is in the DOM
+        const homeButton = document.getElementById('home-button');
+        const newGameButton = document.getElementById('new-game');
+        const shareButton = document.getElementById('share-results');
 
-        // Add event listener to new game button
-        document.getElementById('new-game').addEventListener('click', () => {
-            // Remove game over screen
-            gameOverScreen.remove();
-            // Show message box again
-            document.getElementById('game-messages').style.display = 'block';
-            // Start new game
-            this.start();
-        });
+        if (homeButton) {
+            homeButton.onclick = () => {
+                window.location.href = 'index.html';
+            };
+        }
 
-        // Add event listener to share results button
-        document.getElementById('share-results').addEventListener('click', () => {
-            this.shareGameResults();
-        });
+        if (newGameButton) {
+            newGameButton.onclick = () => {
+                gameOverScreen.remove();
+                document.getElementById('game-messages').style.display = 'block';
+                this.start();
+            };
+        }
+
+        if (shareButton) {
+            shareButton.onclick = () => {
+                this.shareGameResults();
+            };
+        }
     }
 
     start() {
