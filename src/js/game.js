@@ -744,19 +744,19 @@ class Game {
                     <div class="stat-grid">
                         <div class="final-stat prestige-color">
                             <span>Prestige</span>
-                            <span>${this.state.playerStats.pastaPrestige}</span>
+                            <span>${Math.round(this.state.playerStats.pastaPrestige)}</span>
                         </div>
                         <div class="final-stat chaos-color">
                             <span>Chaos</span>
-                            <span>${this.state.playerStats.chaosLevel}</span>
+                            <span>${Math.round(this.state.playerStats.chaosLevel)}</span>
                         </div>
                         <div class="final-stat ingredients-color">
                             <span>Ingredients</span>
-                            <span>${this.state.playerStats.ingredients}</span>
+                            <span>${Math.round(this.state.playerStats.ingredients)}</span>
                         </div>
                         <div class="final-stat energy-color">
                             <span>Workers</span>
-                            <span>${this.state.playerStats.workerCount}</span>
+                            <span>${Math.round(this.state.playerStats.workerCount)}</span>
                         </div>
                     </div>
                 </div>
