@@ -8,7 +8,7 @@ export const ACHIEVEMENTS = {
         reward: "Welcome to management!"
     },
     "Living on the Edge": {
-        description: "Reach 30 chaos and survive",
+        description: "Reach 30 chaos",
         check: (stats) => stats.chaosLevel >= 30,
         reward: "You thrive in chaos!"
     },
@@ -18,10 +18,16 @@ export const ACHIEVEMENTS = {
         reward: "We aren't sure if this is a good thing..."
     },
     "Chaos Lord": {
-        description: "Reach 80 chaos and maintain control",
-        check: (stats) => stats.chaosLevel >= 80,
+        description: "Reach 70 chaos",
+        check: (stats) => stats.chaosLevel >= 70,
+        reward: "You are a master of chaos!"
+    },
+    "Chaos OverLord": {
+        description: "Reach 100 chaos and maintain control",
+        check: (stats) => stats.chaosLevel >= 100,
         reward: "Master the forces of pasta chaos"
     },
+    
     "Master Chef": {
         description: "Reach 100 prestige",
         check: (stats) => stats.pastaPrestige >= 100,

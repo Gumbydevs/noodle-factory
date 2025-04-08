@@ -30,31 +30,13 @@
     100% { transform: skew(0deg); }
 }
 
-@keyframes glitch {
-    0% {
-        clip-path: inset(40% 0 61% 0);
-        transform: translate(-10px, -5px);
-    }
-    20% {
-        clip-path: inset(92% 0 1% 0);
-        transform: translate(10px, 5px);
-    }
-    40% {
-        clip-path: inset(43% 0 1% 0);
-        transform: translate(-10px, 5px);
-    }
-    60% {
-        clip-path: inset(25% 0 58% 0);
-        transform: translate(10px, -5px);
-    }
-    80% {
-        clip-path: inset(54% 0 7% 0);
-        transform: translate(-10px, 5px);
-    }
-    100% {
-        clip-path: inset(58% 0 43% 0);
-        transform: translate(10px, -5px);
-    }
+/* Replace the glitch keyframes with heatwave distortion */
+@keyframes heatwave {
+    0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+    25% { transform: translate3d(2px, -1px, 0) rotate(0.5deg); }
+    50% { transform: translate3d(-1px, 2px, 0) rotate(-0.5deg); }
+    75% { transform: translate3d(1px, -2px, 0) rotate(0.25deg); }
+    100% { transform: translate3d(0, 0, 0) rotate(0deg); }
 }
 
 @keyframes noise {
@@ -309,6 +291,7 @@
     100% { transform: rotate(0deg) scale(1); }
 }
 
+/* Update this color cycle animation for better compatibility */
 @keyframes colorCycle {
     0% { background: #1a1515; }
     33% { background: #151a1a; }
@@ -406,19 +389,56 @@ body.chaos-level-3 {
     perspective: 1000px;
 }
 
+/* Update chaos-level-max for better performance */
 body.chaos-level-max {
     animation: 
-        chaosBackgroundPulse 3s ease-in-out infinite,
-        maxChaosWarp 4s ease-in-out infinite,
-        chaosShake 8s ease-in-out infinite,
-        glitch 5s infinite !important;
-    filter: hue-rotate(35deg) saturate(1.6) contrast(1.2) !important;
+        chaosBackgroundPulse 4s ease-in-out infinite,
+        maxChaosWarp 6s ease-in-out infinite !important;
+    will-change: transform;
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* Remove the old glitch overlay and replace with heat distortion */
+body.chaos-level-max::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        0deg,
+        transparent,
+        rgba(255, 255, 255, 0.03) 50%,
+        transparent
+    );
+    pointer-events: none;
+    z-index: 1;
+    will-change: transform, opacity;
+    animation: heatwaveGradient 4s ease-in-out infinite;
+}
+
+/* Optimize gradient animation */
+@keyframes heatwaveGradient {
+    0%, 100% { 
+        opacity: 0.3;
+        transform: translateY(0);
+    }
+    50% { 
+        opacity: 0.2;
+        transform: translateY(-5px);
+    }
 }
 
 /* More impactful but efficient maxChaosWarp */
 @keyframes maxChaosWarp {
-    0%, 100% { transform: perspective(1000px) rotate(0deg); }
-    50% { transform: perspective(1000px) rotate(2deg); }
+    0%, 100% { 
+        transform: perspective(2000px) rotate3d(1, 1, 0, 1deg); 
+    }
+    50% { 
+        transform: perspective(2000px) rotate3d(-1, 1, 0, 1deg); 
+    }
 }
 
 body.chaos-noise {
@@ -475,7 +495,10 @@ body.chaos-noise::before {
 
 .chaos-level-3 #game-container,
 .chaos-level-max #game-container {
-    animation: chaoticSpin 8s infinite;
+    animation: maxChaosWarp 6s ease-in-out infinite;
+    will-change: transform;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
 }
 
 .chaos-level-max #game-container::before {
@@ -736,33 +759,26 @@ h1 {
         calc(random() * -4s);
 }
 
-.chaos-level-3 .card {
-    animation: 
-        cardFloat 3s ease-in-out infinite,
-        cardTwitchChaos 2.5s ease-in-out infinite;
-    animation-delay: 
-        0s,
-        calc(random() * -3s);
-}
-
-.chaos-level-max .card {
-    animation: 
-        cardFloat 3s ease-in-out infinite,
-        cardTwitchChaos 2s ease-in-out infinite;
-    animation-delay: 
-        0s,
-        calc(random() * -2s);
-}
-
-/* Optimize card animations while keeping the effect strong */
+/* Update specifically for high chaos cards to ensure color cycle works on all devices */
 .chaos-level-3 .card, 
 .chaos-level-max .card {
     animation: 
         cardFloat 2s ease-in-out infinite,
         randomJitter 1.5s ease-in-out infinite,
         colorCycle 4s infinite !important;
-    will-change: transform;
+    will-change: transform, background-color;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
     filter: brightness(1.2) contrast(1.1) !important;
+}
+
+/* Override mobile animation reset for color cycle */
+@media (hover: none) and (pointer: coarse) {
+    .chaos-level-3 .card,
+    .chaos-level-max .card {
+        animation: colorCycle 4s infinite !important;
+        will-change: background-color;
+    }
 }
 
 /* Update card hover styles to make animation slower */
@@ -1218,14 +1234,11 @@ h1 {
 
 .chaos-level-max {
     animation: 
-        chaosBackgroundPulse 3s ease-in-out infinite,
-        maxChaosWarp 4s ease-in-out infinite,
-        chaosShake 8s ease-in-out infinite,
-        glitch 5s infinite !important;
-    filter: brightness(0.95) contrast(110%);
-    transform: none !important;
-    width: 100%;
-    overflow-x: hidden;
+        chaosBackgroundPulse 4s ease-in-out infinite,
+        maxChaosWarp 6s ease-in-out infinite !important;
+    will-change: transform;
+    backface-visibility: hidden;
+    perspective: 1000px;
 }
 
 .chaos-level-max body {
@@ -1234,8 +1247,10 @@ h1 {
 }
 
 .chaos-level-max #game-container {
-    animation: crtDistort 4s infinite;
+    animation: maxChaosWarp 6s ease-in-out infinite;
+    will-change: transform;
     transform-style: preserve-3d;
+    backface-visibility: hidden;
 }
 
 .chaos-level-max #stats {
@@ -1257,7 +1272,7 @@ h1 {
 }
 
 .chaos-level-max .message-box {
-    animation: glitch 3s infinite;
+    animation: heatwave 3s infinite;
     background: linear-gradient(45deg, #2c3e50, #c0392b);
 }
 
