@@ -144,7 +144,8 @@ class Game {
             prestige: this.state.playerStats.pastaPrestige,
             chaos: this.state.playerStats.chaosLevel,
             ingredients: this.state.playerStats.ingredients,
-            energy: this.state.playerStats.workerCount
+            energy: this.state.playerStats.workerCount,
+            turn: this.turn  // Add turn counter here
         };
 
         // Update values and add animations
@@ -349,6 +350,10 @@ class Game {
         const card = CARDS[cardName];
         if (!card) return;
 
+        // Increment turn counter BEFORE card effects
+        this.turn++;  // Move this line from the bottom to here
+        this.updateDisplay();  // Update display to show new turn number
+
         // Get the clicked card element more reliably
         const clickedCard = Array.from(document.querySelectorAll('.card')).find(
             card => card.querySelector('h3').textContent === cardName
@@ -506,7 +511,6 @@ class Game {
 
         // Update display and check game state
         this.updateDisplay();
-        this.turn++;
 
         // Check win/lose conditions
         if (this.state.playerStats.chaosLevel >= 100) {
