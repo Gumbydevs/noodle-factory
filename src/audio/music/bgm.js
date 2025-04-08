@@ -80,7 +80,9 @@ export class MusicLoops {
         this.musicalScales = {
             pentatonic: ['C3', 'Eb3', 'F3', 'G3', 'Bb3', 'C4', 'Eb4', 'F4', 'G4', 'Bb4'],
             dorian: ['C3', 'D3', 'Eb3', 'F3', 'G3', 'A3', 'Bb3', 'C4'],
-            mixolydian: ['G2', 'A2', 'B2', 'C3', 'D3', 'E3', 'F3', 'G3']
+            mixolydian: ['G2', 'A2', 'B2', 'C3', 'D3', 'E3', 'F3', 'G3'],
+            // Add blues scale for more variation
+            blues: ['C3', 'Eb3', 'F3', 'F#3', 'G3', 'Bb3', 'C4']
         };
 
         // More melodic bass patterns
@@ -620,36 +622,29 @@ export class MusicLoops {
     }
     
     playBassNote(step, time) {
-        // Jazz-inspired modal bassline with more DFAM character
-        const bassPatterns = this.bassPatterns;
-    
-        // More complex pattern selection with chaos influence
-        const patternShift = Math.floor(this.chaosLevel / 25);
-        const patternIndex = (Math.floor(step / 4) + patternShift) % bassPatterns.length;
-        const noteIndex = step % 4;
+        // Generate bass pattern based on chaos level
+        const scale = this.chaosLevel > 50 ? 
+            this.musicalScales.blues : 
+            this.musicalScales.pentatonic;
         
-        // Get base note with chance of variation based on chaos
-        let bassNote = bassPatterns[patternIndex][noteIndex];
+        // Base pattern becomes more varied with chaos
+        const patternLength = 4 + Math.floor(this.chaosLevel / 25);
+        let noteIndex = (step + Math.floor(this.chaosLevel / 20)) % patternLength;
         
-        // More chaotic variations at higher chaos levels
-        if (this.chaosLevel > 30) {
-            const variationChance = this.chaosLevel / 200;
-            
-            if (Math.random() < variationChance) {
-                // Use pentatonic scale for variations instead of chromatic
-                const scale = this.musicalScales.pentatonic;
-                const currentIndex = scale.indexOf(bassNote) !== -1 ? 
-                    scale.indexOf(bassNote) : 
-                    Math.floor(Math.random() * scale.length);
-                    
-                // Move by steps in the scale rather than random jumps
-                const direction = Math.random() > 0.5 ? 1 : -1;
-                const newIndex = (currentIndex + direction + scale.length) % scale.length;
-                bassNote = scale[newIndex];
-            }
+        // Add occasional octave jumps
+        const octaveJump = Math.random() < (this.chaosLevel / 200) ? 12 : 0;
+        
+        // Select note from scale
+        const scaleIndex = (noteIndex * 2 + Math.floor(this.chaosLevel / 30)) % scale.length;
+        let bassNote = scale[scaleIndex];
+        
+        // Add variations based on chaos
+        if (this.chaosLevel > 30 && Math.random() < this.chaosLevel/200) {
+            const direction = Math.random() > 0.5 ? 1 : -1;
+            const newIndex = (scaleIndex + direction + scale.length) % scale.length;
+            bassNote = scale[newIndex];
         }
         
-        // Play the bass note with Moog-like qualities
         this.playMoogBass(bassNote, time, 0.4, 0.5);
     }
     
@@ -741,42 +736,27 @@ export class MusicLoops {
     }
     
     playChordStab(step, time) {
-        // More consonant jazz chord patterns
-        const chordPatterns = [
-            // Cm9 (minor pentatonic based)
-            [['C3', 'Eb3', 'G3', 'Bb3', 'D4'], 0.3],
-            // G9 (mixolydian color)
-            [['G2', 'B2', 'D3', 'F3', 'A3'], 0.3],
-            // Fm11 (dorian sound)
-            [['F2', 'Ab2', 'C3', 'Eb3', 'G3'], 0.3],
-            // Eb6/9 (lydian flavor)
-            [['Eb3', 'G3', 'Bb3', 'C4', 'F4'], 0.35]
-        ];
+        const scale = this.chaosLevel > 60 ? 
+            this.musicalScales.blues : 
+            this.musicalScales.pentatonic;
         
-        // Select chord based on step and chaos level
-        const chaosShift = Math.floor(this.chaosLevel / 30); // Change chord progression at high chaos
-        const patternIndex = (Math.floor(step / 8) + chaosShift) % chordPatterns.length;
-        let [chordNotes, duration] = chordPatterns[patternIndex];
+        // Generate chord based on current scale position
+        const baseIndex = (step + Math.floor(this.chaosLevel / 25)) % scale.length;
+        const chordNotes = [];
         
-        // More extreme chord alterations at high chaos levels
-        if (this.chaosLevel > 70 && Math.random() < this.chaosLevel/150) {
-            // Sometimes play altered or cluster chords
-            const alterations = [
-                ['G#2', 'C3', 'F#3', 'B3', 'E4'], // Altered tension chord
-                ['F2', 'Bb2', 'Eb3', 'Ab3', 'C4'], // Quartal harmony
-                ['D2', 'Eb3', 'E3', 'A3', 'Bb3']   // Cluster harmony
-            ];
-            
-            chordNotes = alterations[Math.floor(Math.random() * alterations.length)];
-            duration = 0.4 + (Math.random() * 0.2); // Longer duration for tension
+        // Build chord from scale degrees
+        for (let i = 0; i < 4; i++) {
+            const noteIndex = (baseIndex + (i * 2)) % scale.length;
+            chordNotes.push(scale[noteIndex]);
         }
         
-        // Play chord with increasing arpeggio speed based on chaos
-        const arpeggioSpeed = 0.01 * (1 + this.chaosLevel/70);
+        const duration = 0.3 + (Math.random() * 0.2);
         
+        // Arpeggiate the chord
+        const arpeggioSpeed = 0.01 * (1 + this.chaosLevel/70);
         chordNotes.forEach((note, i) => {
             const noteTime = time + (i * arpeggioSpeed);
-            this.playChordNote(note, noteTime, duration - (i * arpeggioSpeed * 0.5), 0.15);
+            this.playChordNote(note, noteTime, duration, 0.15);
         });
     }
     
@@ -835,12 +815,13 @@ export class MusicLoops {
     }
     
     playSynthAccent(step, time) {
-        // Use pentatonic scale for more pleasing accents
-        const scaleChoice = this.chaosLevel > 70 ? 
-            this.musicalScales.dorian : 
+        const scale = this.chaosLevel > 70 ? 
+            this.musicalScales.blues : 
             this.musicalScales.pentatonic;
-            
-        const note = scaleChoice[Math.floor(Math.random() * scaleChoice.length)];
+        
+        // Create melodic movement based on step
+        const baseIndex = (step * 2 + Math.floor(this.chaosLevel / 20)) % scale.length;
+        const note = scale[baseIndex];
         
         if (!this.notes[note]) return;
         
