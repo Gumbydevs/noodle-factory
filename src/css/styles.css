@@ -1862,6 +1862,37 @@ h1 {
     }
 }
 
+/* Add these rules after the existing card styles but before media queries */
+@media (hover: none) {
+    .card,
+    .card:hover,
+    .card:active {
+        background: #444 !important;  /* Force default background */
+        transform: none !important;   /* Prevent any transform */
+    }
+
+    /* Ensure divider line is always visible */
+    .card .card-effects {
+        border-top: 1px solid #555 !important;
+    }
+
+    /* Override any hover states that might get stuck */
+    .card::after,
+    .card:hover::after,
+    .card:active::after {
+        display: none !important;
+    }
+}
+
+/* Ensure new cards don't inherit any hover states */
+.card-container.clearing .card,
+.card-container:not(.played) .card {
+    background: #444 !important;
+    transform: none !important;
+    transition: none !important;
+    border-top-color: #555 !important;
+}
+
 .wiggle-selected {
     animation: wiggle-selected 0.5s ease-in-out;
     transform-origin: center center;
