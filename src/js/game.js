@@ -638,29 +638,7 @@ class Game {
         // Show effect message
         if (card.effect) {
             const message = card.effect(this.state);
-            const messageBox = document.getElementById('game-messages');
-            const textSpan = document.createElement('span');
-            textSpan.className = 'message-text';
-            messageBox.innerHTML = ''; // Clear existing content
-            messageBox.appendChild(textSpan);
-            
-            // Immediately show the card effect message (no fade)
-            textSpan.textContent = message;
-            messageBox.classList.remove('situation');
-            messageBox.classList.add('feedback');
-
-            // Longer display time (4 seconds) before next transition
-            setTimeout(() => {
-                textSpan.classList.add('fading');
-                
-                setTimeout(() => {
-                    const randomSituation = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
-                    messageBox.classList.remove('feedback');
-                    messageBox.classList.add('situation');
-                    textSpan.textContent = randomSituation;
-                    textSpan.classList.remove('fading');
-                }, 500);
-            }, 4000);
+            this.showEffectMessage(message);
         }
 
         // Update display and check game state
@@ -924,52 +902,46 @@ class Game {
     }
 
     triggerChaosEvent(message) {
-        // Add randomization here - only 15% chance to play sounds
+        const messageBox = document.getElementById('game-messages');
+        if (!messageBox) return;
+
+        // Add randomization for sounds
         if (Math.random() > 0.85) {
             gameSounds.playChaosSound();
             gameSounds.createGrumbleSound(this.state.playerStats.chaosLevel / 50);
         }
 
-        const messageBox = document.getElementById('game-messages');
-        // Store the current message if it exists
-        const currentMessage = messageBox.textContent;
+        // Split chaos message into words
+        const words = message.split(' ');
+        const wrappedWords = words.map((word, index) => 
+            `<span style="--word-index: ${index}">${word}</span>`
+        ).join(' ');
         
-        // Show chaos message briefly
-        messageBox.textContent = message;
-        messageBox.classList.add('chaos-warning', 'active');
+        // Create text container
+        const textSpan = document.createElement('span');
+        textSpan.className = 'message-text';
+        textSpan.innerHTML = wrappedWords;
         
-        // Return to previous message or clear warning after delay
+        // Clear and update message box
+        messageBox.innerHTML = '';
+        messageBox.appendChild(textSpan);
+
+        // Update classes in the correct order
+        messageBox.className = 'message-box chaos-warning active';
+        
+        // Store the type of message for restoration
+        messageBox.setAttribute('data-previous-type', 'chaos');
+        
+        // Return to previous message state after delay
         setTimeout(() => {
-            messageBox.classList.remove('active', 'chaos-warning');
-            // Only restore previous message if it wasn't a chaos message
-            if (currentMessage && !currentMessage.includes('chaos')) {
-                messageBox.textContent = currentMessage;
-            }
+            messageBox.className = 'message-box situation';
+            const situationMessage = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
+            const situationWords = situationMessage.split(' ');
+            const wrappedSituation = situationWords.map((word, index) => 
+                `<span style="--word-index: ${index}">${word}</span>`
+            ).join(' ');
+            textSpan.innerHTML = wrappedSituation;
         }, 2000);
-        
-        // Random negative effect
-        const effects = [
-            () => {
-                if (this.state.playerStats.ingredients > 0) {
-                    return "An ingredient vanishes into the chaos!";
-                }
-                return "The chaos searches for ingredients to consume...";
-            },
-            () => {
-                if (this.reduceWorkers(2)) {
-                    return "The chaos drains worker energy!";
-                }
-                return "The workers resist the chaos!";
-            },
-            () => {
-                this.state.playerStats.pastaPrestige = Math.max(0, this.state.playerStats.pastaPrestige - 5);
-                return "Your reputation suffers from the chaos!";
-            }
-        ];
-        
-        const randomEffect = effects[Math.floor(Math.random() * effects.length)];
-        const effectMessage = randomEffect();
-        messageBox.textContent = `${message} ${effectMessage}`;
     }
 
     checkHighScore() {
@@ -1069,14 +1041,37 @@ class Game {
     showEffectMessage(message) {
         const messageBox = document.getElementById('game-messages');
         if (messageBox) {
-            messageBox.textContent = message;
-            messageBox.classList.remove('situation');
-            messageBox.classList.add('feedback');
+            // Split the message into words and wrap each in a span
+            const words = message.split(' ');
+            const wrappedWords = words.map((word, index) => 
+                `<span style="--word-index: ${index}">${word}</span>`
+            ).join(' ');
             
+            // Create text container
+            const textSpan = document.createElement('span');
+            textSpan.className = 'message-text';
+            textSpan.innerHTML = wrappedWords;
+            
+            // Clear and update message box
+            messageBox.innerHTML = '';
+            messageBox.appendChild(textSpan);
+
+            // Add proper classes in the correct order
+            messageBox.className = 'message-box feedback';
+            
+            // Schedule return to situation message
             setTimeout(() => {
-                messageBox.classList.remove('feedback');
-                messageBox.classList.add('situation');
-                messageBox.textContent = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
+                const randomSituation = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
+                
+                // Split situation message into words
+                const situationWords = randomSituation.split(' ');
+                const wrappedSituation = situationWords.map((word, index) => 
+                    `<span style="--word-index: ${index}">${word}</span>`
+                ).join(' ');
+                
+                // Update classes in correct order
+                messageBox.className = 'message-box situation';
+                textSpan.innerHTML = wrappedSituation;
             }, 3000);
         }
     }

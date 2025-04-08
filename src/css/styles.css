@@ -475,6 +475,58 @@
     100% { background: linear-gradient(45deg, #444, #484438); }
 }
 
+/* Add these new keyframes near your other animation definitions */
+@keyframes colorCycleWord {
+    0% { color: #3498db; }  /* Blue */
+    25% { color: #2ecc71; }  /* Green */
+    50% { color: #f1c40f; }  /* Yellow */
+    75% { color: #e74c3c; }  /* Red */
+    100% { color: #3498db; }  /* Blue */
+}
+
+@keyframes rainbowText {
+    0% { color: #3498db; }  /* Blue */
+    20% { color: #2ecc71; }  /* Green */
+    40% { color: #f1c40f; }  /* Yellow */
+    60% { color: #e74c3c; }  /* Red */
+    80% { color: #9b59b6; }  /* Purple */
+    100% { color: #3498db; }  /* Blue */
+}
+
+@keyframes chaosText {
+    0% { color: #e74c3c; text-shadow: 0 0 5px #e74c3c33; }    /* Red */
+    33% { color: #c0392b; text-shadow: 0 0 8px #c0392b33; }    /* Dark Red */
+    66% { color: #ff5555; text-shadow: 0 0 12px #ff555533; }   /* Bright Red */
+    100% { color: #e74c3c; text-shadow: 0 0 5px #e74c3c33; }   /* Red */
+}
+
+/* Add these style rules to handle the message text effects */
+.chaos-level-1 .message-text span {
+    animation: colorCycleWord 4s infinite;
+    animation-delay: calc(var(--word-index) * -0.3s);
+    color: inherit; /* Use the color from message type */
+}
+
+.chaos-level-2 .message-text span {
+    animation: rainbowText 3s infinite;
+    animation-delay: calc(var(--word-index) * -0.2s);
+    text-shadow: 0 0 5px currentColor;
+    color: inherit;
+}
+
+.chaos-level-3 .message-text span {
+    animation: chaosText 2s infinite;
+    animation-delay: calc(var(--word-index) * -0.1s);
+    color: inherit;
+}
+
+.chaos-level-max .message-text span {
+    animation: rainbowText 1s infinite;
+    animation-delay: calc(var(--word-index) * -0.1s);
+    text-shadow: 0 0 8px currentColor;
+    color: inherit;
+}
+
 .hidden {
     display: none !important;
 }
@@ -1303,6 +1355,20 @@ h1 {
     justify-content: center;
     box-sizing: border-box; /* Add this to include padding in width calculation */
     overflow: hidden; /* Prevent overflow */
+}
+
+/* Update message type styles */
+.message-box.feedback .message-text span {
+    color: #ffd700; /* Yellow for feedback */
+}
+
+.message-box.situation .message-text span {
+    color: #3498db; /* Blue for situations */
+}
+
+.message-box.chaos-warning .message-text span {
+    color: #e74c3c; /* Red for chaos warnings */
+    text-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
 }
 
 .message-box {

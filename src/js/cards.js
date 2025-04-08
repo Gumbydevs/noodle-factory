@@ -9,7 +9,7 @@ export const CARDS = {
         description: "The alphabet pasta starts spelling out ominous messages.",
         requirements: null,
         statModifiers: {
-            chaos: 17,
+            chaos: 11,
             prestige: 4,
             workers: -5
         },
