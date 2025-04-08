@@ -746,7 +746,7 @@ class Game {
                 return "The chaos searches for ingredients to consume...";
             },
             () => {
-                if (this.reduceWorkers(5)) {
+                if (this.reduceWorkers(2)) {
                     return "The chaos drains worker energy!";
                 }
                 return "The workers resist the chaos!";
@@ -813,10 +813,10 @@ class Game {
             }
         }
 
-        // 2. Higher prestige reduces worker loss from chaos
+        // 2. Modified: Higher prestige reduces worker loss from chaos
         if (this.state.playerStats.chaosLevel >= 50) {
-            const prestigeProtection = Math.min(0.5, this.state.playerStats.pastaPrestige / 100);
-            if (Math.random() > prestigeProtection) {
+            const prestigeProtection = Math.min(0.7, this.state.playerStats.pastaPrestige / 100); // Increased from 0.5 to 0.7
+            if (Math.random() > prestigeProtection && Math.random() < 0.3) { // Added 30% chance to trigger
                 this.reduceWorkers(1);
             }
         }
