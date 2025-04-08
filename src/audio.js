@@ -427,19 +427,139 @@ export class GameSounds {
         }
     }
 
+    playMaxChaosSound() {
+        this.ensureAudioContext();
+        if (!this.ctx) return;
+        try {
+            const gainNode = this.ctx.createGain();
+            gainNode.gain.value = 0.3; // Slightly higher volume for max chaos
+            
+            // Create array of oscillators with extreme dissonant frequencies
+            const freqs = [55, 58.27, 87.31, 92.50, 110, 116.54]; // More frequencies
+            const oscillators = [];
+            
+            freqs.forEach(baseFreq => {
+                const osc = this.ctx.createOscillator();
+                osc.type = 'sawtooth';
+                osc.frequency.value = baseFreq;
+                
+                const oscGain = this.ctx.createGain();
+                oscGain.gain.value = 0.2;
+                
+                // Add extreme random detuning
+                osc.detune.value = Math.random() * 50 - 25;
+                
+                osc.connect(oscGain);
+                oscGain.connect(gainNode);
+                oscillators.push(osc);
+            });
+            
+            gainNode.connect(this.gainNode);
+            
+            const now = this.ctx.currentTime;
+            const duration = 2.0; // Longer duration
+            
+            oscillators.forEach(osc => {
+                osc.start(now);
+                osc.frequency.setValueCurveAtTime(
+                    [osc.frequency.value, osc.frequency.value * 2, osc.frequency.value * 0.5],
+                    now,
+                    duration
+                );
+                osc.stop(now + duration);
+            });
+            
+            // Add noise component
+            const noiseBuffer = this.ctx.createBuffer(1, this.ctx.sampleRate * 2, this.ctx.sampleRate);
+            const noiseData = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < noiseBuffer.length; i++) {
+                noiseData[i] = Math.random() * 2 - 1;
+            }
+            
+            const noiseSource = this.ctx.createBufferSource();
+            noiseSource.buffer = noiseBuffer;
+            
+            const noiseFilter = this.ctx.createBiquadFilter();
+            noiseFilter.type = 'bandpass';
+            noiseFilter.frequency.value = 500;
+            noiseFilter.Q.value = 0.5;
+            
+            noiseSource.connect(noiseFilter);
+            noiseFilter.connect(gainNode);
+            
+            noiseSource.start(now);
+            noiseSource.stop(now + duration);
+            
+            setTimeout(() => gainNode.disconnect(), duration * 1000);
+        } catch (e) {
+            console.warn('Error playing max chaos sound:', e);
+        }
+    }
+
+    playPreMaxChaosSound() {
+        this.ensureAudioContext();
+        if (!this.ctx) return;
+        try {
+            const gainNode = this.ctx.createGain();
+            gainNode.gain.value = 0.25;
+            
+            // Create dissonant chord with different frequencies than max chaos
+            const frequencies = [146.83, 185.00, 220.00, 277.18]; // Different frequency set
+            const oscillators = [];
+            
+            frequencies.forEach(freq => {
+                const osc = this.ctx.createOscillator();
+                osc.type = 'square'; // Different waveform than max chaos
+                osc.frequency.value = freq;
+                
+                const oscGain = this.ctx.createGain();
+                oscGain.gain.value = 0.15;
+                
+                osc.connect(oscGain);
+                oscGain.connect(gainNode);
+                oscillators.push(osc);
+            });
+            
+            gainNode.connect(this.gainNode);
+            
+            const now = this.ctx.currentTime;
+            const duration = 1.5;
+            
+            oscillators.forEach(osc => {
+                osc.start(now);
+                // Add pitch bending
+                osc.frequency.setValueCurveAtTime(
+                    [osc.frequency.value, osc.frequency.value * 1.5, osc.frequency.value * 0.8],
+                    now,
+                    duration
+                );
+                osc.stop(now + duration);
+            });
+            
+            setTimeout(() => gainNode.disconnect(), duration * 1000);
+        } catch (e) {
+            console.warn('Error playing pre-max chaos sound:', e);
+        }
+    }
+
     playChaosSoundForLevel(chaosLevel) {
-        // Ensure we're initializing audio
         this.ensureAudioContext();
         if (!this.ctx) return;
         
         try {
-            if (chaosLevel >= 90) {
-                // Play a sequence of intense sounds for maximum chaos
+            if (chaosLevel >= 100) {
+                // Final chaos sound - most intense
                 this.playChaosSound();
                 setTimeout(() => {
                     this.playHighChaosSound();
+                    // Add an extra layer of discordant sounds
+                    setTimeout(() => this.playMidChaosSound(), 100);
                 }, 100);
-            } else if (chaosLevel >= 75) {
+            } else if (chaosLevel >= 90) {
+                // Pre-final chaos - very intense but not maximum
+                this.playChaosSound();
+                setTimeout(() => this.playHighChaosSound(), 150);
+            } else if (chaosLevel >= 70) {
                 this.playHighChaosSound();
             } else if (chaosLevel >= 45) {
                 this.playMidChaosSound();

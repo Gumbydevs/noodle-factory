@@ -212,16 +212,23 @@ class Game {
         
         // Check for threshold crossings and play appropriate sounds
         if (this._lastChaosLevel) {
-            const thresholds = [25, 45, 75, 90];
+            const thresholds = [25, 45, 70, 90, 100];
             for (const threshold of thresholds) {
                 if (chaos >= threshold && this._lastChaosLevel < threshold) {
-                    if (threshold === 90) {
-                        // Play both sounds at max volume for 90+ chaos
-                        gameSounds.playChaosSoundForLevel(90);
-                        setTimeout(() => gameSounds.createGrumbleSound(2.0), 200); // Delayed grumble
+                    if (threshold === 100) {
+                        // Final chaos sound with maximum intensity
+                        gameSounds.playMaxChaosSound();  // New dedicated method for 100
+                        setTimeout(() => gameSounds.createGrumbleSound(3.0), 200);
+                    } else if (threshold === 90) {
+                        // Near-final chaos sound, distinct from max
+                        gameSounds.playPreMaxChaosSound();  // New dedicated method for 90
+                        setTimeout(() => gameSounds.createGrumbleSound(2.5), 200);
+                    } else if (threshold === 70) {
+                        // Original high chaos sound
+                        gameSounds.playHighChaosSound();
+                        gameSounds.createGrumbleSound(2.0);
                     } else {
                         gameSounds.playChaosSoundForLevel(threshold);
-                        // Add grumble sound with intensity based on threshold
                         gameSounds.createGrumbleSound(threshold / 50);
                     }
                     break;
