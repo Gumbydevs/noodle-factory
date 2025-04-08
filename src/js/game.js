@@ -442,13 +442,22 @@ class Game {
         // Set data-selected attributes and played class
         if (clickedCard) {
             clickedCard.setAttribute('data-selected', 'true');
-            clickedCard.classList.add('played');
+            clickedCard.classList.add('dissolving');
             clickedCard.style.pointerEvents = 'none';
             
-            // Add timeout to fade selected card after unselected card animation
+            // Create smoke effect synchronized with card animation
+            const rect = clickedCard.getBoundingClientRect();
+            // Delay smoke to start during wiggle animation
             setTimeout(() => {
-                clickedCard.style.opacity = '0';
-            }, 500); // Wait for unselected card animation
+                for (let i = 0; i < 12; i++) {
+                    setTimeout(() => {
+                        createSmokeParticle(
+                            rect.left + (Math.random() * rect.width),
+                            rect.top + (Math.random() * rect.height)
+                        );
+                    }, i * 40); // Spread smoke creation over 480ms
+                }
+            }, 200); // Start smoke after initial wiggle
         }
         
         if (otherCard) {
