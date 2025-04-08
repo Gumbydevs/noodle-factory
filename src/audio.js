@@ -16,6 +16,10 @@ export class GameSounds {
                 }
             }, { once: true });
         });
+
+        this.chatterInterval = null;
+        this.lastChatterTime = 0;
+        this.startRandomChatter();
     }
 
     initAudio() {
@@ -80,7 +84,7 @@ export class GameSounds {
                 const t = i / bufferSize;
                 // Increased decay rate and lower initial amplitude
                 const envelope = Math.pow(1 - t, 4) * Math.exp(-12 * t); // More aggressive decay
-                output[i] = (Math.random() * 2 - 1) * envelope * 0.6; // Reduced amplitude
+                output[i] = (Math.random() * 2 - 1) * envelope * 1.0; // Reduced amplitude
             }
 
             // Create and setup noise source with variations
@@ -424,17 +428,17 @@ export class GameSounds {
                 
                 osc.connect(oscGain);
                 oscGain.connect(gainNode);
-                oscGain.gain.value = 0.2;
+                oscGain.gain.value = 0.15; // Reduced from 0.2 to 0.15
                 
                 oscillators.push(osc, modOsc);
             }
             
             gainNode.connect(this.gainNode);
             
-            // Envelope
+            // Envelope with reduced intensity
             const now = this.ctx.currentTime;
             gainNode.gain.setValueAtTime(0, now);
-            gainNode.gain.linearRampToValueAtTime(0.3 * intensity, now + 0.1);
+            gainNode.gain.linearRampToValueAtTime(0.2 * intensity, now + 0.1); // Reduced from 0.3 to 0.2
             gainNode.gain.linearRampToValueAtTime(0, now + 1.5);
             
             oscillators.forEach(osc => {
@@ -454,25 +458,41 @@ export class GameSounds {
         try {
             const gainNode = this.ctx.createGain();
             const osc = this.ctx.createOscillator();
+            const filter = this.ctx.createBiquadFilter();
             
-            osc.type = 'sine';
+            // Use notes from C minor pentatonic scale (same as BGM)
+            const notes = [261.63, 311.13, 349.23, 392.00, 466.16]; // C4, Eb4, F4, G4, Bb4
+            const startNote = notes[0];  // C4
+            const peakNote = notes[4];   // Bb4
+            const endNote = notes[2];    // F4
+            
+            osc.type = 'triangle'; // Softer waveform for better blend
             osc.frequency.setValueCurveAtTime(
-                [300, 600, 900, 1200], 
+                [startNote, peakNote, endNote], 
                 this.ctx.currentTime, 
                 0.2
             );
             
-            osc.connect(gainNode);
+            // Add filter sweep for more musical tone
+            filter.type = 'bandpass';
+            filter.frequency.value = 800;
+            filter.Q.value = 2;
+            
+            osc.connect(filter);
+            filter.connect(gainNode);
             gainNode.connect(this.gainNode);
             
             gainNode.gain.setValueAtTime(0, this.ctx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.3, this.ctx.currentTime + 0.05);
+            gainNode.gain.linearRampToValueAtTime(0.1, this.ctx.currentTime + 0.05);
             gainNode.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.2);
             
             osc.start();
             osc.stop(this.ctx.currentTime + 0.2);
             
-            setTimeout(() => gainNode.disconnect(), 300);
+            setTimeout(() => {
+                gainNode.disconnect();
+                filter.disconnect();
+            }, 300);
         } catch (e) {
             console.warn('Error playing power up sound:', e);
         }
@@ -486,29 +506,37 @@ export class GameSounds {
             const osc = this.ctx.createOscillator();
             const filter = this.ctx.createBiquadFilter();
             
-            osc.type = 'sawtooth';
+            // Use descending notes from C minor pentatonic (same as BGM)
+            const notes = [466.16, 392.00, 311.13]; // Bb4, G4, Eb4
+            
+            osc.type = 'triangle'; // Changed from sawtooth for better blend
             osc.frequency.setValueCurveAtTime(
-                [200, 150, 100], 
+                notes,
                 this.ctx.currentTime, 
                 0.3
             );
             
+            // Resonant filter for darker tone
             filter.type = 'lowpass';
-            filter.frequency.value = 1000;
-            filter.Q.value = 10;
+            filter.frequency.value = 2000;
+            filter.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.3);
+            filter.Q.value = 4;
             
             osc.connect(filter);
             filter.connect(gainNode);
             gainNode.connect(this.gainNode);
             
             gainNode.gain.setValueAtTime(0, this.ctx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 0.05);
+            gainNode.gain.linearRampToValueAtTime(0.08, this.ctx.currentTime + 0.05);
             gainNode.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.3);
             
             osc.start();
             osc.stop(this.ctx.currentTime + 0.3);
             
-            setTimeout(() => gainNode.disconnect(), 400);
+            setTimeout(() => {
+                gainNode.disconnect();
+                filter.disconnect();
+            }, 400);
         } catch (e) {
             console.warn('Error playing bad card sound:', e);
         }
@@ -519,36 +547,101 @@ export class GameSounds {
         if (!this.ctx) return;
         try {
             const gainNode = this.ctx.createGain();
-            const duration = 0.2 + (Math.random() * 0.3);
-            const notes = [];
+            // More variation in duration (0.6 to 1.4 seconds)
+            const duration = 0.6 + (Math.random() * 0.8);
             
-            for (let i = 0; i < 5; i++) {
-                const osc = this.ctx.createOscillator();
-                const oscGain = this.ctx.createGain();
+            // Random base pitch for the entire phrase
+            const phrasePitch = 0.8 + (Math.random() * 0.8); // 0.8 to 1.6 pitch multiplier
+            
+            // Create multiple syllables for duck speech
+            const syllables = Math.floor(2 + Math.random() * 5); // 2-6 syllables
+            
+            for (let i = 0; i < syllables; i++) {
+                const carrier = this.ctx.createOscillator();
+                const modulator = this.ctx.createOscillator();
+                const modulatorGain = this.ctx.createGain();
+                const syllableGain = this.ctx.createGain();
                 
-                osc.type = ['sine', 'triangle'][Math.floor(Math.random() * 2)];
-                osc.frequency.value = 200 + (Math.random() * 400);
+                // Create formant filter for duck-like sound
+                const formantFilter = this.ctx.createBiquadFilter();
+                formantFilter.type = 'bandpass';
+                formantFilter.Q.value = 5;
                 
-                osc.connect(oscGain);
-                oscGain.connect(gainNode);
+                // Varied frequencies for each syllable with overall pitch variation
+                const syllablePitch = 1 + (Math.random() * 0.4 - 0.2); // ±20% pitch variation per syllable
+                const baseFreq = (120 + (Math.random() * 60)) * phrasePitch * syllablePitch;
                 
-                oscGain.gain.setValueAtTime(0, this.ctx.currentTime + (i * duration / 5));
-                oscGain.gain.linearRampToValueAtTime(0.1, this.ctx.currentTime + (i * duration / 5) + 0.02);
-                oscGain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + (i * duration / 5) + 0.04);
+                carrier.type = 'sawtooth';
+                carrier.frequency.value = baseFreq;
+                modulator.frequency.value = 12 + (Math.random() * 12); // More modulation variation
+                modulatorGain.gain.value = baseFreq * 0.7;
+                formantFilter.frequency.value = (500 + (Math.random() * 600)) * phrasePitch;
                 
-                notes.push(osc);
+                // Connect the audio graph
+                modulator.connect(modulatorGain);
+                modulatorGain.connect(carrier.frequency);
+                carrier.connect(formantFilter);
+                formantFilter.connect(syllableGain);
+                syllableGain.connect(gainNode);
+                
+                // Create envelope for each syllable
+                const syllableTime = this.ctx.currentTime + (i * (duration / syllables));
+                const syllableDuration = (duration / syllables) * (0.5 + Math.random() * 0.4); // Variable syllable length
+                
+                syllableGain.gain.setValueAtTime(0, syllableTime);
+                syllableGain.gain.linearRampToValueAtTime(0.6, syllableTime + 0.02);
+                syllableGain.gain.linearRampToValueAtTime(0.3, syllableTime + syllableDuration * 0.5);
+                syllableGain.gain.linearRampToValueAtTime(0, syllableTime + syllableDuration);
+                
+                carrier.start(syllableTime);
+                modulator.start(syllableTime);
+                carrier.stop(syllableTime + syllableDuration);
+                modulator.stop(syllableTime + syllableDuration);
             }
             
             gainNode.connect(this.gainNode);
-            gainNode.gain.value = 0.3;
+            gainNode.gain.value = 0.3 + (Math.random() * 0.2); // Random volume between 0.3 and 0.5
             
-            notes.forEach(osc => osc.start());
-            notes.forEach(osc => osc.stop(this.ctx.currentTime + duration));
-            
-            setTimeout(() => gainNode.disconnect(), duration * 1000 + 100);
+            setTimeout(() => gainNode.disconnect(), duration * 1000 + 200);
         } catch (e) {
             console.warn('Error playing random chatter:', e);
         }
+    }
+
+    startRandomChatter() {
+        if (this.chatterInterval) {
+            clearInterval(this.chatterInterval);
+        }
+
+        const scheduleNextChatter = () => {
+            const now = Date.now();
+            const timeSinceLastChatter = now - this.lastChatterTime;
+            
+            // Base interval between 25-65 seconds
+            let minInterval = 25000;
+            let maxInterval = 65000;
+            
+            // Check chaos level using window.gameInstance instead of window.game
+            const chaosLevel = window.gameInstance?.state?.playerStats?.chaosLevel;
+            if (chaosLevel > 50) {
+                const reductionFactor = Math.min(0.5, (chaosLevel - 50) / 100);
+                minInterval *= (1 - reductionFactor);
+                maxInterval *= (1 - reductionFactor);
+            }
+            
+            // Only play if enough time has passed
+            if (timeSinceLastChatter > minInterval) {
+                this.playRandomChatter();
+                this.lastChatterTime = now;
+            }
+            
+            // Schedule next chatter
+            const nextInterval = minInterval + Math.random() * (maxInterval - minInterval);
+            this.chatterInterval = setTimeout(scheduleNextChatter, nextInterval);
+        };
+
+        // Start the cycle
+        scheduleNextChatter();
     }
 
     setVolume(value) {

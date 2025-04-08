@@ -52,6 +52,9 @@ const SITUATIONS = [
 
 class Game {
     constructor() {
+        // Add static reference to game instance
+        window.gameInstance = this;
+
         this.state = {
             playerStats: {
                 pastaPrestige: 0,
@@ -394,11 +397,40 @@ class Game {
     playCard(cardName) {
         if (this.isGameOver) return;
 
-        // Play card sound only (removed music triggers)
-        gameSounds.playCardSound();
-
         const card = CARDS[cardName];
         if (!card) return;
+
+        // Play appropriate sound based on card effects
+        if (card.statModifiers) {
+            let isPositiveCard = false;
+            let isNegativeCard = false;
+
+            // Check if card is generally positive or negative
+            Object.entries(card.statModifiers).forEach(([stat, value]) => {
+                if (stat === 'chaos') {
+                    // Negative chaos change is good
+                    if (value < 0) isPositiveCard = true;
+                    if (value > 10) isNegativeCard = true;
+                } else {
+                    // Positive changes to other stats are good
+                    if (value > 0) isPositiveCard = true;
+                    if (value < 0) isNegativeCard = true;
+                }
+            });
+
+            // Play appropriate sound
+            if (isPositiveCard && !isNegativeCard) {
+                gameSounds.playPowerUpSound();
+            } else if (isNegativeCard && !isPositiveCard) {
+                gameSounds.playBadCardSound();
+            } else {
+                // Mixed or neutral cards just use regular card sound
+                gameSounds.playCardSound();
+            }
+        } else {
+            // Default card sound if no modifiers
+            gameSounds.playCardSound();
+        }
 
         // Increment turn counter BEFORE card effects
         this.turn++;
@@ -1256,6 +1288,13 @@ document.addEventListener('keydown', (e) => {
         case 'o':
             game.state.playerStats.pastaPrestige = Math.max(0, game.state.playerStats.pastaPrestige - 15);
             game.updateDisplay();
+            break;
+        case ' ':  // Add space key handler
+            if (gameSounds) {
+                e.preventDefault();
+                gameSounds.playRandomChatter();
+                console.log('Debug: Triggered random chatter sound');
+            }
             break;
     }
 });
