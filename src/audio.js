@@ -6,7 +6,7 @@ export class GameSounds {
         
         // Load saved preferences
         const sfxEnabled = localStorage.getItem('sfxEnabled') !== 'false';
-        this.volume = sfxEnabled ? 0.2 : 0;
+        this.volume = sfxEnabled ? 0.5 : 0;
         
         // Add touch event listeners for mobile
         ['touchstart', 'click'].forEach(eventType => {
