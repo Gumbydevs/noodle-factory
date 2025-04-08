@@ -131,10 +131,11 @@
 }
 
 @keyframes noodleWiggle {
-    0% { transform: rotate(0deg); }
-    25% { transform: rotate(2deg); }
-    75% { transform: rotate(-2deg); }
-    100% { transform: rotate(0deg); }
+    0% { transform: rotate(0deg) scaleX(1); }
+    25% { transform: rotate(3deg) scaleX(1.1); }
+    50% { transform: rotate(-2deg) scaleX(0.95); }
+    75% { transform: rotate(2deg) scaleX(1.05); }
+    100% { transform: rotate(0deg) scaleX(1); }
 }
 
 /* Add intermittent animation trigger */
@@ -279,23 +280,23 @@
 /* noodle animations */
 @keyframes noodleFlyAcross {
     0% {
-        transform: translateX(-100vw);
+        transform: translateX(-120vw) scaleX(0.8);
         opacity: 0;
     }
-    5% {
-        transform: translateX(-80vw);
+    10% {
+        transform: translateX(-80vw) scaleX(1.2);
         opacity: 1;
     }
     45% {
-        transform: translateX(0);
+        transform: translateX(0) scaleX(0.9);
         opacity: 1;
     }
-    95% {
-        transform: translateX(80vw);
+    85% {
+        transform: translateX(80vw) scaleX(1.1);
         opacity: 1;
     }
     100% {
-        transform: translateX(100vw);
+        transform: translateX(120vw) scaleX(1.5);
         opacity: 0;
     }
 }
@@ -1097,23 +1098,28 @@ h1 {
     top: -20px;
 }
 
-/* Fix noodle decoration styles */
 .noodle-decoration {
+    animation: noodleFlyAcross 8s ease-in-out forwards;  /* Added 'forwards' to maintain final state */
     position: fixed;
     bottom: 20px;
-    left: -120px; /* Start off-screen */
-    width: 120px;
-    z-index: 9999;
-    animation: noodleFlyAcross 8s linear infinite;
+    left: 0;
+    width: 100%;
     pointer-events: none;
+    z-index: 1000;
+    opacity: 0;  /* Start hidden */
 }
 
 .noodle-worm {
     width: 100%;
     height: 100%;
     display: block;
-    animation: noodleWiggle 1s ease-in-out infinite;
+    animation: noodleWiggle 0.8s ease-in-out;
     transform-origin: center center;
+    transform-box: fill-box;
+}
+
+.noodle-worm.moving {
+    animation: noodleWiggle 1.2s ease-in-out infinite;
 }
 
 .game-over-screen {

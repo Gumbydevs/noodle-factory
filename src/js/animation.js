@@ -34,27 +34,60 @@ function triggerNoodleRoll() {
 }
 
 function randomizeNoodle() {
-    const noodleBody = document.querySelector('.noodle-body');
-    const noodleTop = document.querySelector('.noodle-body-top');
-    const svg = document.querySelector('.noodle-worm');
+    // First, remove any existing noodle
+    const oldNoodle = document.querySelector('.noodle-decoration');
+    if (oldNoodle) {
+        oldNoodle.remove();
+    }
+
+    // Create new noodle element
+    const noodleDecoration = document.createElement('div');
+    noodleDecoration.className = 'noodle-decoration';
     
-    // Generate random size
-    const thickness = Math.random() * 5 + 1;
-    const length = Math.random() * 200 + 60;
+    // Add the SVG content with guaranteed yellow color
+    noodleDecoration.innerHTML = `
+        <svg class="noodle-worm" viewBox="0 0 180 60">
+            <path class="noodle-body" stroke="#FFD700" stroke-width="3" fill="none">
+                <animate attributeName="d" dur="1.2s" repeatCount="indefinite"/>
+            </path>
+            <path class="noodle-body-top" stroke="#FFD700" stroke-width="2" fill="none">
+                <animate attributeName="d" dur="1.2s" repeatCount="indefinite"/>
+            </path>
+        </svg>
+    `;
+    
+    document.body.appendChild(noodleDecoration);
+    
+    // Add this new code to remove the element after animation
+    noodleDecoration.addEventListener('animationend', () => {
+        noodleDecoration.remove();
+    });
+
+    const svg = noodleDecoration.querySelector('.noodle-worm');
+    const noodleBody = noodleDecoration.querySelector('.noodle-body');
+    const noodleTop = noodleDecoration.querySelector('.noodle-body-top');
+    
+    // Generate random sizes
+    const thickness = Math.random() * 3 + 2;  // 2-5 thickness
+    const length = Math.random() * 300 + 100;  // 100-400 length
+    const speed = Math.random() * 4 + 2; // 2-6 seconds
+    const size = Math.random() * 120 + 100; // 100-220px width
+    
+    // Apply random properties
+    noodleDecoration.style.setProperty('--animation-duration', `${speed}s`);
+    noodleDecoration.style.width = `${size}px`;
+    
     const midX = length / 2;
     
-    // Reset animation and position
-    svg.classList.remove('moving');
-    
-    // Adjust viewBox and paths
+    // Adjust viewBox and paths with new dimensions
     svg.setAttribute('viewBox', `0 0 ${Math.max(180, length + 20)} 60`);
     
     const basePath = `M5,30 Q${midX-25},10 ${midX},30 T${length},30`;
     const animationPath = `M5,30 Q${midX-25},50 ${midX},30 T${length},30`;
     
-    // Set attributes
+    // Set attributes with new thickness values
     noodleBody.setAttribute('stroke-width', thickness);
-    noodleTop.setAttribute('stroke-width', Math.max(1, thickness - 2));
+    noodleTop.setAttribute('stroke-width', Math.max(1, thickness * 0.6)); // Thinner top line
     
     [noodleBody, noodleTop].forEach(path => {
         path.setAttribute('d', basePath);
@@ -64,7 +97,6 @@ function randomizeNoodle() {
                                      ${basePath}`);
     });
 
-    // Start the movement animation after setting new size
     requestAnimationFrame(() => {
         svg.classList.add('moving');
     });
@@ -72,13 +104,14 @@ function randomizeNoodle() {
 
 let noodleTimeout;
 
+// Update the scheduling to ensure noodles are visible long enough
 function scheduleNextNoodle() {
     if (noodleTimeout) {
         clearTimeout(noodleTimeout);
     }
     
-    const minDelay = 30000; // 30 seconds
-    const maxDelay = 90000; // 90 seconds
+    const minDelay = 15000;  // 15 seconds minimum
+    const maxDelay = 45000;  // 45 seconds maximum
     const delay = Math.random() * (maxDelay - minDelay) + minDelay;
     
     noodleTimeout = setTimeout(() => {
@@ -87,10 +120,10 @@ function scheduleNextNoodle() {
     }, delay);
 }
 
-// Start the cycle
-window.addEventListener('load', () => {
-    randomizeNoodle();  // Show first noodle immediately
-    scheduleNextNoodle();  // Schedule next one with delay
+// Update the window load event handler to show first noodle immediately
+window.addEventListener('DOMContentLoaded', () => {
+    randomizeNoodle();
+    scheduleNextNoodle();
 });
 
 export { triggerNoodleRoll, randomizeNoodle };
