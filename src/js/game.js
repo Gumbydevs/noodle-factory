@@ -314,7 +314,7 @@ class Game {
     }
 
     playCard(cardName) {
-        if (this.isGameOver) return;
+        if (this.isGameOver) return;  // This check exists but isGameOver wasn't being set
 
         // Play card sound only if audio is enabled
         if (soundManager.enabled) {
@@ -383,12 +383,14 @@ class Game {
             if (projectedStats.ingredients <= 0 && !card.statModifiers.ingredients) {
                 gameSounds.playGameOverSound();
                 this.endGame('ingredients');
+                this.isGameOver = true;  // Add this line for redundancy
                 return;
             }
 
             if (projectedStats.workerCount <= 0) {
                 gameSounds.playGameOverSound();
                 this.endGame('workers');
+                this.isGameOver = true;  // Add this line for redundancy
                 return;
             }
         }
@@ -460,16 +462,19 @@ class Game {
         if (this.state.playerStats.chaosLevel >= 100) {
             gameSounds.playGameOverSound();
             this.endGame('chaos');
-            return;
+            this.isGameOver = true;  // Add this line for redundancy
+            return;  // Make sure we return here to prevent further card processing
         }
         if (this.state.playerStats.workerCount <= 0) {
             gameSounds.playGameOverSound();
             this.endGame('workers');
+            this.isGameOver = true;  // Add this line for redundancy
             return;
         }
         if (this.state.playerStats.ingredients <= 0) {
             gameSounds.playGameOverSound();
             this.endGame('ingredients');
+            this.isGameOver = true;  // Add this line for redundancy
             return;
         }
 
@@ -522,6 +527,7 @@ class Game {
     }
 
     endGame(reason = '') {
+        this.isGameOver = true;  // Add this line at the start of endGame
         this.checkHighScore();
         
         // Reset all chaos effects
@@ -977,5 +983,33 @@ function processTurn() {
     }
     // ... rest of turn processing
 }
+
+// Debug keyboard shortcuts for testing
+document.addEventListener('keydown', (e) => {
+    // Only process if game exists and Control key is pressed
+    if (!game || !e.ctrlKey) return;
+
+    switch (e.key.toLowerCase()) {
+        // Chaos controls
+        case 'c':
+            game.state.playerStats.chaosLevel = Math.min(100, game.state.playerStats.chaosLevel + 15);
+            game.updateDisplay();
+            break;
+        case 'x':
+            game.state.playerStats.chaosLevel = Math.max(0, game.state.playerStats.chaosLevel - 15);
+            game.updateDisplay();
+            break;
+        
+        // Prestige controls
+        case 'p':
+            game.state.playerStats.pastaPrestige = Math.min(100, game.state.playerStats.pastaPrestige + 15);
+            game.updateDisplay();
+            break;
+        case 'o':
+            game.state.playerStats.pastaPrestige = Math.max(0, game.state.playerStats.pastaPrestige - 15);
+            game.updateDisplay();
+            break;
+    }
+});
 
 export default Game;
