@@ -131,19 +131,44 @@ class Game {
     }
 
     updateDisplay() {
+        // Track previous values to detect changes
+        const prevStats = {
+            prestige: parseFloat(document.getElementById('prestige').textContent),
+            chaos: parseFloat(document.getElementById('chaos').textContent),
+            ingredients: parseFloat(document.getElementById('ingredients').textContent),
+            energy: parseFloat(document.getElementById('energy').textContent)
+        };
+        
         // Update all stat displays
         const stats = {
-            'prestige': this.state.playerStats.pastaPrestige,
-            'chaos': this.state.playerStats.chaosLevel,
-            'ingredients': this.state.playerStats.ingredients,
-            'energy': this.state.playerStats.workerCount,
-            'turn': this.turn
+            prestige: this.state.playerStats.pastaPrestige,
+            chaos: this.state.playerStats.chaosLevel,
+            ingredients: this.state.playerStats.ingredients,
+            energy: this.state.playerStats.workerCount
         };
 
-        // Update text values
+        // Update values and add animations
         Object.entries(stats).forEach(([stat, value]) => {
             const element = document.getElementById(stat);
             if (element) {
+                const prevValue = prevStats[stat];
+                if (prevValue !== value) {
+                    // Remove existing animation classes
+                    element.classList.remove('increase', 'decrease');
+                    void element.offsetWidth; // Force reflow
+                    
+                    // Add appropriate animation class
+                    if (value > prevValue) {
+                        element.classList.add('increase');
+                    } else if (value < prevValue) {
+                        element.classList.add('decrease');
+                    }
+                    
+                    // Remove animation classes after they complete
+                    setTimeout(() => {
+                        element.classList.remove('increase', 'decrease');
+                    }, 600);
+                }
                 element.textContent = value;
             }
         });
