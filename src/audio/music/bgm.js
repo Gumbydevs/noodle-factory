@@ -752,34 +752,37 @@ export class MusicLoops {
             [['C3', 'Eb3', 'G3', 'D4'], ['G3', 'Bb3', 'D4', 'F4']]
         ];
 
-        let chordNotes;
+        let chordNotes = [];  // Initialize as empty array
         if (this.chaosLevel < 50) {
             // Use fixed jazz progressions
             const progIndex = Math.floor(step / 8) % jazzProgressions.length;
             const chordIndex = (step / 4) % 2;
-            chordNotes = jazzProgressions[progIndex][chordIndex];
+            chordNotes = jazzProgressions[progIndex][chordIndex] || [];  // Fallback to empty array
         } else {
             // Generate chord but maintain jazz feel
             const scale = this.musicalScales.pentatonic;
             const baseIndex = (step + Math.floor(this.chaosLevel / 25)) % scale.length;
-            chordNotes = [];
             
             // Build jazz-like voicing
             const intervals = [0, 2, 4, 6]; // Minor 7th-like structure
             intervals.forEach(interval => {
                 const noteIndex = (baseIndex + interval) % scale.length;
-                chordNotes.push(scale[noteIndex]);
+                const note = scale[noteIndex];
+                if (note) chordNotes.push(note);  // Only add valid notes
             });
         }
         
-        const duration = 0.2 + (Math.random() * 0.1);
-        
-        // Arpeggiate with swing feel
-        chordNotes.forEach((note, i) => {
-            const swingOffset = i % 2 === 1 ? 0.03 : 0;
-            const noteTime = time + (i * 0.02) + swingOffset;
-            this.playChordNote(note, noteTime, duration, 0.15);
-        });
+        // Only proceed if we have notes to play
+        if (chordNotes.length > 0) {
+            const duration = 0.2 + (Math.random() * 0.1);
+            
+            // Arpeggiate with swing feel
+            chordNotes.forEach((note, i) => {
+                const swingOffset = i % 2 === 1 ? 0.03 : 0;
+                const noteTime = time + (i * 0.02) + swingOffset;
+                this.playChordNote(note, noteTime, duration, 0.15);
+            });
+        }
     }
 
     playChordNote(note, time, duration, gain) {
