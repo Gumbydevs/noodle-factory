@@ -215,7 +215,15 @@ class Game {
             const thresholds = [25, 45, 75, 90];
             for (const threshold of thresholds) {
                 if (chaos >= threshold && this._lastChaosLevel < threshold) {
-                    gameSounds.playChaosSoundForLevel(threshold);
+                    if (threshold === 90) {
+                        // Play both sounds at max volume for 90+ chaos
+                        gameSounds.playChaosSoundForLevel(90);
+                        setTimeout(() => gameSounds.createGrumbleSound(2.0), 200); // Delayed grumble
+                    } else {
+                        gameSounds.playChaosSoundForLevel(threshold);
+                        // Add grumble sound with intensity based on threshold
+                        gameSounds.createGrumbleSound(threshold / 50);
+                    }
                     break;
                 }
             }

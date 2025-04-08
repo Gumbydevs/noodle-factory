@@ -192,34 +192,84 @@ export class GameSounds {
         if (!this.ctx) return;
         try {
             const gainNode = this.ctx.createGain();
-            const osc = this.ctx.createOscillator();
-            const filter = this.ctx.createBiquadFilter();
+            gainNode.gain.value = 0.25; // Controlled volume
 
-            // Create a sweeping chaos effect
-            osc.type = 'sawtooth';
-            osc.frequency.value = 100;
+            // Multiple oscillators for rich texture
+            const oscs = [];
+            // Discordant frequencies for maximum tension
+            const freqs = [55, 58.27, 87.31, 92.50]; // Very dissonant low cluster
+
+            freqs.forEach(baseFreq => {
+                const osc = this.ctx.createOscillator();
+                const oscGain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.value = baseFreq;
+                
+                // Add subtle random pitch variation
+                osc.detune.value = Math.random() * 10 - 5;
+                
+                osc.connect(oscGain);
+                oscGain.connect(gainNode);
+                oscs.push({ osc, gain: oscGain });
+                
+                // Individual gain envelopes
+                oscGain.gain.value = 0.15;
+            });
+
+            // Add noise for chaos texture
+            const noiseLength = this.ctx.sampleRate * 2;  // 2 seconds
+            const noiseBuffer = this.ctx.createBuffer(1, noiseLength, this.ctx.sampleRate);
+            const noise = noiseBuffer.getChannelData(0);
+            for (let i = 0; i < noiseLength; i++) {
+                noise[i] = Math.random() * 2 - 1;
+            }
+
+            const noiseSource = this.ctx.createBufferSource();
+            const noiseGain = this.ctx.createGain();
+            const noiseFilter = this.ctx.createBiquadFilter();
             
-            // Add filter sweep
-            filter.type = 'bandpass';
-            filter.frequency.value = 1000;
-            filter.Q.value = 10;
+            noiseSource.buffer = noiseBuffer;
+            noiseFilter.type = 'bandpass';
+            noiseFilter.frequency.value = 250;
+            noiseFilter.Q.value = 0.5;
+            
+            noiseSource.connect(noiseFilter);
+            noiseFilter.connect(noiseGain);
+            noiseGain.connect(gainNode);
+            noiseGain.gain.value = 0.15;
 
-            // Modulate filter frequency
-            filter.frequency.linearRampToValueAtTime(3000, this.ctx.currentTime + 0.3);
-
-            osc.connect(filter);
-            filter.connect(gainNode);
             gainNode.connect(this.gainNode);
 
-            const endTime = this.createEnvelope(gainNode, 0.05, 0.2, 0.4, 0.1);
+            const now = this.ctx.currentTime;
+            const duration = 1.5;
 
-            osc.start();
-            osc.frequency.linearRampToValueAtTime(200, endTime);
-            osc.stop(endTime);
+            // Start everything
+            oscs.forEach(({ osc, gain }) => {
+                osc.start(now);
+                osc.stop(now + duration);
+                
+                // Modulate each oscillator differently
+                osc.frequency.setValueCurveAtTime(
+                    [osc.frequency.value, osc.frequency.value * 1.5, osc.frequency.value * 0.75],
+                    now,
+                    duration
+                );
+            });
 
-            setTimeout(() => gainNode.disconnect(), endTime * 1000);
+            noiseSource.start(now);
+            noiseSource.stop(now + duration);
+
+            // Main envelope
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.25, now + 0.1);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
+
+            // Filter sweep on noise
+            noiseFilter.frequency.exponentialRampToValueAtTime(2000, now + duration);
+
+            setTimeout(() => gainNode.disconnect(), duration * 1000);
         } catch (e) {
-            console.warn('Error playing chaos sound:', e);
+            console.warn('Error playing final chaos sound:', e);
         }
     }
 
@@ -378,14 +428,26 @@ export class GameSounds {
     }
 
     playChaosSoundForLevel(chaosLevel) {
-        if (chaosLevel >= 90) {
-            this.playChaosSound(); // Original intense chaos sound
-        } else if (chaosLevel >= 75) {
-            this.playHighChaosSound();
-        } else if (chaosLevel >= 45) {
-            this.playMidChaosSound();
-        } else if (chaosLevel >= 25) {
-            this.playLowChaosSound();
+        // Ensure we're initializing audio
+        this.ensureAudioContext();
+        if (!this.ctx) return;
+        
+        try {
+            if (chaosLevel >= 90) {
+                // Play a sequence of intense sounds for maximum chaos
+                this.playChaosSound();
+                setTimeout(() => {
+                    this.playHighChaosSound();
+                }, 100);
+            } else if (chaosLevel >= 75) {
+                this.playHighChaosSound();
+            } else if (chaosLevel >= 45) {
+                this.playMidChaosSound();
+            } else if (chaosLevel >= 25) {
+                this.playLowChaosSound();
+            }
+        } catch (e) {
+            console.warn('Error playing chaos sound for level:', chaosLevel, e);
         }
     }
 
