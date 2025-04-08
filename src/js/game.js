@@ -926,19 +926,26 @@ class Game {
     triggerChaosEvent(message) {
         // Add randomization here - only 15% chance to play sounds
         if (Math.random() > 0.85) {
-            // Play chaos sound AND grumble sound for more impact
             gameSounds.playChaosSound();
             gameSounds.createGrumbleSound(this.state.playerStats.chaosLevel / 50);
         }
 
         const messageBox = document.getElementById('game-messages');
+        // Store the current message if it exists
+        const currentMessage = messageBox.textContent;
+        
+        // Show chaos message briefly
         messageBox.textContent = message;
         messageBox.classList.add('chaos-warning', 'active');
         
-        // Remove animation classes after they complete
+        // Return to previous message or clear warning after delay
         setTimeout(() => {
-            messageBox.classList.remove('active');
-        }, 3000);
+            messageBox.classList.remove('active', 'chaos-warning');
+            // Only restore previous message if it wasn't a chaos message
+            if (currentMessage && !currentMessage.includes('chaos')) {
+                messageBox.textContent = currentMessage;
+            }
+        }, 2000);
         
         // Random negative effect
         const effects = [
