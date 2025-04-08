@@ -216,12 +216,13 @@ export class GameSounds {
                 oscGain.gain.value = 0.15;
             });
 
-            // Add noise for chaos texture
+            // Keep the noise part as is, but with lower base volume
             const noiseLength = this.ctx.sampleRate * 2;  // 2 seconds
             const noiseBuffer = this.ctx.createBuffer(1, noiseLength, this.ctx.sampleRate);
             const noise = noiseBuffer.getChannelData(0);
+            
             for (let i = 0; i < noiseLength; i++) {
-                noise[i] = Math.random() * 2 - 1;
+                noise[i] = (Math.random() * 2 - 1);
             }
 
             const noiseSource = this.ctx.createBufferSource();
@@ -236,7 +237,9 @@ export class GameSounds {
             noiseSource.connect(noiseFilter);
             noiseFilter.connect(noiseGain);
             noiseGain.connect(gainNode);
-            noiseGain.gain.value = 0.15;
+            
+            // Randomize the noise volume between 0.05 and 0.15 (previously fixed at 0.15)
+            noiseGain.gain.value = 0.05 + (Math.random() * 0.1);
 
             gainNode.connect(this.gainNode);
 

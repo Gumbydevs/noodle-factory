@@ -432,11 +432,15 @@ class Game {
             // Check if card is generally positive or negative
             Object.entries(card.statModifiers).forEach(([stat, value]) => {
                 if (stat === 'chaos') {
-                    // Negative chaos change is good
-                    if (value < 0) isPositiveCard = true;
+                    // Comment out the chaos sound trigger
+                    /* // For chaos cards, add randomization to sound trigger
+                    if (value > 0 && Math.random() > 0.85) { // Only 15% chance to play sound for chaos increase
+                        gameSounds.playChaosSound();
+                    }
+                    */
                     if (value > 10) isNegativeCard = true;
                 } else {
-                    // Positive changes to other stats are good
+                    // Keep existing positive/negative card checks
                     if (value > 0) isPositiveCard = true;
                     if (value < 0) isNegativeCard = true;
                 }
@@ -940,9 +944,12 @@ class Game {
     }
 
     triggerChaosEvent(message) {
-        // Play chaos sound AND grumble sound for more impact
-        gameSounds.playChaosSound();
-        gameSounds.createGrumbleSound(this.state.playerStats.chaosLevel / 50); // Intensity based on chaos level
+        // Add randomization here - only 15% chance to play sounds
+        if (Math.random() > 0.85) {
+            // Play chaos sound AND grumble sound for more impact
+            gameSounds.playChaosSound();
+            gameSounds.createGrumbleSound(this.state.playerStats.chaosLevel / 50);
+        }
 
         const messageBox = document.getElementById('game-messages');
         messageBox.textContent = message;
