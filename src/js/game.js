@@ -327,13 +327,24 @@ class Game {
             ingredients: 'ingredients-color',
             workers: 'energy-color'
         };
+
+        function getIntensitySymbols(value) {
+            const absValue = Math.abs(value);
+            const isPositive = value > 0;
+            const symbol = isPositive ? 
+                '<span style="color: #2ecc71;">+</span>' : 
+                '<span style="color: #e74c3c;">-</span>';
+                
+            if (absValue >= 8) return symbol.repeat(3);
+            if (absValue >= 4) return symbol.repeat(2);
+            return symbol;
+        }
         
         return Object.entries(modifiers)
             .map(([stat, value]) => {
-                const sign = value > 0 ? '<span style="color: #2ecc71;">+</span>' : '<span style="color: #e74c3c;">-</span>';
                 const statName = stat.charAt(0).toUpperCase() + stat.slice(1);
-                const absValue = Math.abs(value);
-                return `<span class="stat-modifier ${colorClasses[stat]}">${statName}: ${sign}${absValue}</span>`;
+                const symbols = getIntensitySymbols(value);
+                return `<span class="stat-modifier ${colorClasses[stat]}">${statName}: ${symbols}</span>`;
             })
             .join('');
     }
