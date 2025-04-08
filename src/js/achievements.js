@@ -23,8 +23,8 @@ export const ACHIEVEMENTS = {
         reward: "You are a master of chaos!"
     },
     "Chaos OverLord": {
-        description: "Reach 100 chaos and maintain control",
-        check: (stats) => stats.chaosLevel >= 100,
+        description: "Survive a turn with 100+ chaos and maintain control",
+        check: (stats) => stats.chaosLevel >= 100 && stats.chaosControlTurns >= 1,
         reward: "Master the forces of pasta chaos"
     },
     

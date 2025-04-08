@@ -139,13 +139,13 @@ class Game {
             energy: parseFloat(document.getElementById('energy').textContent)
         };
         
-        // Update all stat displays
+        // Update all stat displays with formatted values
         const stats = {
-            prestige: this.state.playerStats.pastaPrestige,
-            chaos: this.state.playerStats.chaosLevel,
+            prestige: Math.round(this.state.playerStats.pastaPrestige * 10) / 10, // Round to 1 decimal
+            chaos: Math.round(this.state.playerStats.chaosLevel),  // Keep chaos as whole number
             ingredients: this.state.playerStats.ingredients,
-            energy: this.state.playerStats.workerCount,
-            turn: this.turn  // Add turn counter here
+            energy: Math.round(this.state.playerStats.workerCount),
+            turn: this.turn
         };
 
         // Update values and add animations
@@ -342,6 +342,12 @@ class Game {
         // Copy modifiers to avoid mutating the original
         let balancedMods = { ...modifiers };
         
+        // Add small random chaos variation (-2 to +2)
+        if (balancedMods.chaos) {
+            const chaosVariation = (Math.random() * 4) - 2; // Random number between -2 and +2
+            balancedMods.chaos = Number((balancedMods.chaos + chaosVariation).toFixed(1));
+        }
+
         // Ensure chaos doesn't drop too low
         if (balancedMods.chaos && balancedMods.chaos < 0) {
             const minChaos = 5;
@@ -350,7 +356,7 @@ class Game {
             }
         }
 
-        // Cap prestige at 100
+        // Cap stats at their maximum values
         if (balancedMods.prestige) {
             const maxPrestige = 100;
             const currentPrestige = state.playerStats.pastaPrestige;
@@ -359,7 +365,6 @@ class Game {
             }
         }
 
-        // Cap workers at 50
         if (balancedMods.workers) {
             const maxWorkers = 50;
             const currentWorkers = state.playerStats.workerCount;
@@ -367,13 +372,6 @@ class Game {
                 balancedMods.workers = maxWorkers - currentWorkers;
             }
         }
-
-        // Scale down large stat changes
-        Object.keys(balancedMods).forEach(stat => {
-            if (Math.abs(balancedMods[stat]) > 10) {
-                balancedMods[stat] = Math.sign(balancedMods[stat]) * 10;
-            }
-        });
 
         return balancedMods;
     }
@@ -900,17 +898,38 @@ class Game {
 
     processTurnEffects() {
         // Natural progression effects each turn
-        this.state.playerStats.chaosLevel = Math.min(100, this.state.playerStats.chaosLevel + 1);
-        this.state.playerStats.pastaPrestige = Math.max(0, this.state.playerStats.pastaPrestige - 1);
+        // Add small random chaos increase
+        const chaosBase = this.turn < 10 ? 0.5 : 1;
+        const chaosRandom = Math.random() * 0.5; // 0 to 0.5 additional chaos
+        const chaosIncrease = Number((chaosBase + chaosRandom).toFixed(1));
         
-        // Workers get tired
+        this.state.playerStats.chaosLevel = Math.min(100, 
+            Number((this.state.playerStats.chaosLevel + chaosIncrease).toFixed(1))
+        );
+        
+        // Prestige decay scales with game progress but is now more predictable
+        const prestigeDecay = this.turn < 5 ? 0.2 : 
+                             this.turn < 10 ? 0.3 :
+                             this.turn < 15 ? 0.4 : 0.5;
+        
+        this.state.playerStats.pastaPrestige = Number(
+            Math.max(0, this.state.playerStats.pastaPrestige - prestigeDecay).toFixed(1)
+        );
+        
+        // Workers get tired more gradually and predictably
         if (this.state.playerStats.workerCount > 15) {
-            this.state.playerStats.workerCount--;
+            const workerFatigue = this.turn < 8 ? 0.5 : 1;
+            this.state.playerStats.workerCount = Math.max(15, 
+                Math.round(this.state.playerStats.workerCount - workerFatigue)
+            );
         }
 
-        // High chaos affects ingredients
+        // High chaos affects ingredients less in early game
         if (this.state.playerStats.chaosLevel >= 75) {
-            this.state.playerStats.ingredients = Math.max(0, this.state.playerStats.ingredients - 1);
+            const ingredientLoss = this.turn < 12 ? 0.5 : 1;
+            this.state.playerStats.ingredients = Math.max(0, 
+                Math.round(this.state.playerStats.ingredients - ingredientLoss)
+            );
         }
     }
 
