@@ -29,11 +29,16 @@ function updateResource(resource, amount) {
     
     // Apply caps and natural progression for player stats
     if (resource === 'chaosLevel') {
-        // Modified chaos calculation to make reductions more effective
-        const chaosReduction = amount < 0 ? amount * 1.5 : amount; // 50% more effective reduction
-        gameState.playerStats.chaosLevel = Math.min(100, gameState.playerStats.chaosLevel + chaosReduction);
-        // Increased minimum chaos level slightly
-        if (gameState.playerStats.chaosLevel < 8) gameState.playerStats.chaosLevel = 8;
+        // Fix chaos reduction by ensuring proper handling of negative values
+        const chaosReduction = amount < 0 ? Math.abs(amount) * 1.8 : amount; // Use absolute value for reduction
+        const adjustedAmount = amount < 0 ? -chaosReduction : chaosReduction; // Re-apply negative sign if needed
+        
+        const currentChaos = gameState.playerStats.chaosLevel;
+        const finalAmount = currentChaos > 70 ? adjustedAmount * 0.8 : 
+                           currentChaos > 50 ? adjustedAmount * 0.9 : 
+                           adjustedAmount;
+        
+        gameState.playerStats.chaosLevel = Math.min(100, Math.max(5, currentChaos + finalAmount));
         updateChaosEffects(gameState.playerStats.chaosLevel);
     }
     else if (resource === 'pastaPrestige') {

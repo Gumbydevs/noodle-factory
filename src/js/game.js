@@ -1018,15 +1018,22 @@ class Game {
     }
 
     processTurnEffects() {
-        // Natural progression effects each turn
-        // Add small random chaos increase
-        const chaosBase = this.turn < 10 ? 0.5 : 1;
-        const chaosRandom = Math.random() * 0.5; // 0 to 0.5 additional chaos
-        const chaosIncrease = Number((chaosBase + chaosRandom).toFixed(1));
-        
-        this.state.playerStats.chaosLevel = Math.min(100, 
-            Number((this.state.playerStats.chaosLevel + chaosIncrease).toFixed(1))
-        );
+        // Natural progression effects - chaos increases every 3-5 turns
+        if (this.turn % (3 + Math.floor(Math.random() * 3)) === 0) {  // Random interval between 3-5 turns
+            const chaosBase = this.turn < 10 ? 0.3 : 0.8; // Reduced base values
+            const chaosRandom = Math.random() * 0.4; // Reduced randomness
+            
+            // Add scaling based on current chaos level
+            const currentChaos = Number(this.state.playerStats.chaosLevel) || 0;
+            const chaosMultiplier = currentChaos > 75 ? 0.6 : 
+                                   currentChaos > 50 ? 0.8 : 1;
+            
+            const chaosIncrease = Number((chaosBase + chaosRandom) * chaosMultiplier);
+            
+            this.state.playerStats.chaosLevel = Math.min(100, 
+                Number(currentChaos + chaosIncrease)
+            );
+        }
         
         // Prestige decay scales with game progress but is now more predictable
         const prestigeDecay = this.turn < 5 ? 0.2 : 
