@@ -726,8 +726,10 @@ class Game {
         document.getElementById('reset-achievements').addEventListener('click', () => {
             resetAchievements();
             this.achievements = new Set(); // Clear local achievements
-            // Update achievements display without triggering new checks
+            localStorage.removeItem('noodleFactoryHighScore'); // Reset high score
+            // Update achievements display and high score display
             document.querySelector('.achievements-grid').innerHTML = 'All progress has been reset!';
+            document.querySelector('.high-score .score-value').textContent = '0';
         });
 
         // Add event listener to new game button
