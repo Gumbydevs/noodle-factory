@@ -1023,12 +1023,17 @@ class Game {
             const chaosBase = this.turn < 10 ? 0.3 : 0.8; // Reduced base values
             const chaosRandom = Math.random() * 0.4; // Reduced randomness
             
-            // Add scaling based on current chaos level
+            // Add scaling based on current chaos level and prestige
             const currentChaos = Number(this.state.playerStats.chaosLevel) || 0;
+            const currentPrestige = Number(this.state.playerStats.pastaPrestige) || 0;
+            
+            // Add prestige multiplier when prestige is between 66-100
+            const prestigeMultiplier = (currentPrestige >= 66 && currentPrestige <= 100) ? 1.2 : 1;
+            
             const chaosMultiplier = currentChaos > 75 ? 0.6 : 
                                    currentChaos > 50 ? 0.8 : 1;
             
-            const chaosIncrease = Number((chaosBase + chaosRandom) * chaosMultiplier);
+            const chaosIncrease = Number((chaosBase + chaosRandom) * chaosMultiplier * prestigeMultiplier);
             
             this.state.playerStats.chaosLevel = Math.min(100, 
                 Number(currentChaos + chaosIncrease)
