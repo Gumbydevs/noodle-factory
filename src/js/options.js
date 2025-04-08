@@ -1,5 +1,6 @@
 import { resetAchievements } from './achievements.js';
 import { gameSounds } from '../audio.js';
+import { musicLoops } from '../audio/music/bgm.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const sfxToggle = document.getElementById('sfx-toggle');
@@ -18,9 +19,29 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('sfxEnabled', e.target.checked);
     });
 
-    // Disable music toggle
-    musicToggle.checked = false;
-    musicToggle.disabled = true;
+    // Update music toggle
+    musicToggle.disabled = false;
+    musicToggle.checked = localStorage.getItem('musicEnabled') === 'true';
+
+    // Handle music toggle
+    musicToggle.addEventListener('change', (e) => {
+        musicLoops.setEnabled(e.target.checked);
+    });
+
+    // Handle music volume
+    const musicVolume = document.getElementById('music-volume');
+    const volumeValue = document.querySelector('.volume-value');
+    
+    // Load saved volume (now starts at 100%)
+    const savedVolume = localStorage.getItem('musicVolume') || 1.0;
+    musicVolume.value = savedVolume * 100;
+    volumeValue.textContent = `${Math.round(savedVolume * 100)}%`;
+
+    musicVolume.addEventListener('input', (e) => {
+        const value = e.target.value / 100;
+        volumeValue.textContent = `${e.target.value}%`;
+        musicLoops.setVolume(value);
+    });
 
     // Reset progress
     resetButton.addEventListener('click', () => {

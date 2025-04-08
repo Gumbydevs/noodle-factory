@@ -5,6 +5,7 @@ import { ACHIEVEMENTS, checkAchievements, getUnlockedAchievements, resetAchievem
 import { updateHighScore, getHighScore } from './highscore.js';
 import { triggerNoodleRoll } from './animation.js';
 import { gameSounds } from '../audio.js'; // Note the .js extension
+import { musicLoops } from '../audio/music/bgm.js';
 
 const SITUATIONS = [
     "The factory floor hums with the sound of pasta machines.",
@@ -199,6 +200,9 @@ class Game {
         const body = document.body;
         const messageBox = document.getElementById('game-messages');
         
+        // Update music based on chaos level
+        musicLoops.updateChaosLevel(chaos);
+        
         // Remove all chaos classes first
         body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
         messageBox.classList.remove('chaos-warning');
@@ -390,22 +394,11 @@ class Game {
     playCard(cardName) {
         if (this.isGameOver) return;
 
-        const card = CARDS[cardName];
-        if (!card) return;
-
-        // Play base card sound first
+        // Play card sound only (removed music triggers)
         gameSounds.playCardSound();
 
-        // Add effect sounds based on card type
-        if (card.statModifiers) {
-            setTimeout(() => {
-                if (card.statModifiers.prestige > 0 || card.statModifiers.ingredients > 0) {
-                    gameSounds.playPowerUpSound();
-                } else if (card.statModifiers.chaos > 5 || card.statModifiers.ingredients < 0) {
-                    gameSounds.playBadCardSound();
-                }
-            }, 50); // Slight delay for better layering
-        }
+        const card = CARDS[cardName];
+        if (!card) return;
 
         // Increment turn counter BEFORE card effects
         this.turn++;
@@ -668,6 +661,9 @@ class Game {
         // Remove CRT effect
         document.querySelector('.crt-overlay').classList.remove('active');
 
+        // Stop background music
+        musicLoops.stopLoop();
+
         // Create game over screen
         const gameContainer = document.getElementById('game-container');
         const gameOverScreen = document.createElement('div');
@@ -799,10 +795,11 @@ class Game {
         // Initialize audio on game start (first user interaction)
         soundManager.init();
 
+        // Start background music if enabled (before any other sounds)
+        musicLoops.startLoop();
+
         // Now play the start game sound
-        if (soundManager.enabled) {
-            gameSounds.playStartGameSound();
-        }
+        gameSounds.playStartGameSound();
 
         resetGameState();
         this.state = {
@@ -1060,29 +1057,21 @@ class SoundManager {
     constructor() {
         this.enabled = false;
         this.initialized = false;
-        this.context = null;
-        this.soundsLoaded = false;
     }
 
-    init() {
+    async init() {
         if (this.initialized) return;
         
         try {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            this.context = new AudioContext();
-            
-            if (this.context.state === 'suspended') {
-                this.context.resume();
+            // Initialize music system first
+            if (musicLoops.enabled) {
+                await musicLoops.startLoop();
             }
             
             this.enabled = true;
             this.initialized = true;
-            
-            if (gameSounds) {
-                gameSounds.enableSounds();
-            }
         } catch (e) {
-            console.log('Audio initialization failed:', e);
+            console.error('Audio initialization failed:', e);
         }
     }
 }
@@ -1107,15 +1096,21 @@ function setupNoodleWiggle() {
     }, 3000);
 }
 
-document.addEventListener('DOMContentLoaded', setupNoodleWiggle);
+function setupInitialAudio() {
+    const handleUserInteraction = async () => {
+        console.log("User interaction - initializing audio");
+        await soundManager.init();
+    };
 
-document.addEventListener('touchstart', () => {
-    soundManager.init();
-}, { once: true });
+    ['touchstart', 'click'].forEach(eventType => {
+        document.addEventListener(eventType, handleUserInteraction, { once: true });
+    });
+}
 
-document.addEventListener('click', () => {
-    soundManager.init();
-}, { once: true });
+document.addEventListener('DOMContentLoaded', () => {
+    setupNoodleWiggle();
+    setupInitialAudio();
+});
 
 function canPlayCard(card) {
     if (card.effects.some(effect => effect.type === 'ingredients' && effect.value > 0)) {

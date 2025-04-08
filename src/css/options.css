@@ -16,9 +16,8 @@
 
 .option-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin: 1rem 0;
+    margin: 15px 0;
     padding: 0.5rem;
 }
 
@@ -102,4 +101,14 @@ input:disabled + .slider:before {
 #back-button {
     margin-top: 2rem;
     width: 100%;
+}
+
+.volume-slider {
+    width: 150px;
+    margin: 0 10px;
+}
+
+.volume-value {
+    min-width: 45px;
+    text-align: right;
 }
