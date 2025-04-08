@@ -749,6 +749,12 @@ class Game {
     }
 
     start() {
+        // Hide options button when game starts
+        const optionsButton = document.getElementById('options-button');
+        if (optionsButton) {
+            optionsButton.style.display = 'none';
+        }
+        
         // Initialize audio on game start (first user interaction)
         soundManager.init();
 
@@ -1062,6 +1068,10 @@ document.addEventListener('keydown', (e) => {
             game.updateDisplay();
             break;
     }
+});
+
+document.getElementById('options-button')?.addEventListener('click', () => {
+    window.location.href = 'options.html';
 });
 
 export default Game;

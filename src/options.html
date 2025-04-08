@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Options - The Noodle Factory</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/options.css">
+</head>
+<body>
+    <div id="options-container">
+        <h1>Options</h1>
+        
+        <div class="options-section">
+            <h2>Audio Settings</h2>
+            <div class="option-row">
+                <label for="sfx-toggle">Sound Effects</label>
+                <label class="switch">
+                    <input type="checkbox" id="sfx-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="option-row">
+                <label for="music-toggle">Music</label>
+                <label class="switch">
+                    <input type="checkbox" id="music-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="options-section danger-zone">
+            <h2>Danger Zone</h2>
+            <div class="option-row">
+                <button id="reset-progress" class="button danger">Reset All Progress</button>
+            </div>
+            <p class="warning-text">This will permanently delete all achievements and high scores!</p>
+        </div>
+
+        <button id="back-button" class="button">Back to Game</button>
+    </div>
+    <script type="module" src="js/options.js"></script>
+</body>
+</html>
