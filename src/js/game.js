@@ -179,7 +179,7 @@ class Game {
             'prestige-progress': (this.state.playerStats.pastaPrestige / 100) * 100,
             'chaos-progress': (this.state.playerStats.chaosLevel / 100) * 100,
             'ingredients-progress': (this.state.playerStats.ingredients / 20) * 100,
-            'workers-progress': (this.state.playerStats.workerCount / 100) * 100,
+            'workers-progress': (this.state.playerStats.workerCount / 50) * 100, // Changed from 100 to 50
             'turn-progress': (this.turn / 50) * 100
         };
 
