@@ -339,6 +339,46 @@ class Game {
             .join('');
     }
 
+    applyStatModifiers(state, modifiers) {
+        // Copy modifiers to avoid mutating the original
+        let balancedMods = { ...modifiers };
+        
+        // Ensure chaos doesn't drop too low
+        if (balancedMods.chaos && balancedMods.chaos < 0) {
+            const minChaos = 5;
+            if (state.playerStats.chaosLevel + balancedMods.chaos < minChaos) {
+                balancedMods.chaos = minChaos - state.playerStats.chaosLevel;
+            }
+        }
+
+        // Cap prestige at 100
+        if (balancedMods.prestige) {
+            const maxPrestige = 100;
+            const currentPrestige = state.playerStats.pastaPrestige;
+            if (currentPrestige + balancedMods.prestige > maxPrestige) {
+                balancedMods.prestige = maxPrestige - currentPrestige;
+            }
+        }
+
+        // Cap workers at 50
+        if (balancedMods.workers) {
+            const maxWorkers = 50;
+            const currentWorkers = state.playerStats.workerCount;
+            if (currentWorkers + balancedMods.workers > maxWorkers) {
+                balancedMods.workers = maxWorkers - currentWorkers;
+            }
+        }
+
+        // Scale down large stat changes
+        Object.keys(balancedMods).forEach(stat => {
+            if (Math.abs(balancedMods[stat]) > 10) {
+                balancedMods[stat] = Math.sign(balancedMods[stat]) * 10;
+            }
+        });
+
+        return balancedMods;
+    }
+
     playCard(cardName) {
         if (this.isGameOver) return;
 
@@ -452,7 +492,7 @@ class Game {
 
         // Apply stat modifications with balance checks
         if (card.statModifiers) {
-            const balancedModifiers = applyStatModifiers(this.state, {...card.statModifiers});
+            const balancedModifiers = this.applyStatModifiers(this.state, {...card.statModifiers});
             Object.entries(balancedModifiers).forEach(([stat, value]) => {
                 const statKey = stat === 'workers' ? 'workerCount' : 
                               stat === 'prestige' ? 'pastaPrestige' : 
@@ -461,15 +501,13 @@ class Game {
                 
                 // Apply natural progression
                 if (statKey === 'chaosLevel') {
-                    // Chaos increases naturally each turn
-                    value += 2;
+                    value += 2; // Chaos increases naturally each turn
                 } else if (statKey === 'pastaPrestige') {
-                    // Prestige decays slightly each turn
-                    value -= 1;
+                    value -= 1; // Prestige decays slightly each turn
                 }
 
                 const currentValue = this.state.playerStats[statKey] || 0;
-                this.state.playerStats[statKey] = currentValue + Number(value);
+                this.state.playerStats[statKey] = Math.max(0, currentValue + Number(value));
             });
         }
 
@@ -536,14 +574,13 @@ class Game {
             document.querySelectorAll('.card').forEach(card => {
                 card.remove();  // Completely remove old cards
             });
+            // Draw new cards immediately after cleanup
+            this.drawNewCards();
         };
 
-        // Draw new cards if game continues
+        // Schedule cleanup and new cards if game continues
         if (!this.isGameOver) {
-            setTimeout(() => {
-                cleanup();
-                this.drawNewCards();
-            }, 500);
+            setTimeout(cleanup, 500);
         }
     }
 
