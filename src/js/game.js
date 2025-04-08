@@ -357,6 +357,15 @@ class Game {
             card => card !== clickedCard
         );
 
+        // Add wiggle animation to selected card before other effects
+        if (clickedCard) {
+            clickedCard.classList.add('wiggle-selected');
+            // Remove the class after animation completes
+            setTimeout(() => {
+                clickedCard.classList.remove('wiggle-selected');
+            }, 500);
+        }
+
         // Immediately remove all hover and animation related classes/styles
         document.querySelectorAll('.card').forEach(card => {
             card.style.cssText = '';  // Clear all inline styles

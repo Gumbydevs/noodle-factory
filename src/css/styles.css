@@ -342,6 +342,13 @@
     100% { transform: scale(1); }
 }
 
+@keyframes wiggle-selected {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+    100% { transform: rotate(0deg); }
+}
+
 .hidden {
     display: none !important;
 }
@@ -1741,4 +1748,9 @@ h1 {
         opacity: 0 !important;
         pointer-events: none !important;
     }
+}
+
+.wiggle-selected {
+    animation: wiggle-selected 0.5s ease-in-out;
+    transform-origin: center center;
 }
