@@ -1906,70 +1906,81 @@ h1 {
     }
 }
 
-/* Update the media query to only affect hover on mobile */
+/* Add this media query to disable hover effects on touch devices */
+@media (hover: none) {
+    .card:hover,
+    .chaos-level-1 .card:hover,
+    .chaos-level-2 .card:hover,
+    .chaos-level-3 .card:hover,
+    .chaos-level-max .card:hover {
+        animation: none !important;
+        transform: none !important;
+    }
+
+    /* Replace hover animations with touch animations */
+    .card:active {
+        animation: touchExcited 0.3s ease-in-out !important;
+    }
+
+    .card,
+    .card:hover,
+    .card:active {
+        background: #444 !important;  /* Force default background */
+        transform: none !important;   /* Prevent any transform */
+    }
+
+    /* Ensure divider line is always visible */
+    .card .card-effects {
+        border-top: 1px solid #555 !important;
+    }
+
+    /* Override any hover states that might get stuck */
+    .card::after,
+    .card:hover::after,
+    .card:active::after {
+        display: none !important;
+    }
+}
+
+/* Update the existing card hover styles to be more specific */
+@media (hover: hover) {
+    .card:hover {
+        animation: hoverExcited 1s ease-in-out infinite !important;
+    }
+}
+
 @media (hover: none) and (pointer: coarse) {
-    /* Reset all card styles initially */
-    .card {
-        animation: 
-            cardFloat 4s ease-in-out infinite,
-            cardLife 4.5s ease-in-out infinite,
-            cardTwitch 4s ease-in-out infinite !important;
-        animation-delay: 
-            0s,
-            calc(random() * -4s),
-            calc(random() * -8s);
+    /* Force override ALL card animations on touch devices */
+    .card,
+    .card:hover,
+    .card:active,
+    .card.chaos-level-1,
+    .card.chaos-level-2,
+    .card.chaos-level-3,
+    .card.chaos-level-max {
+        animation: none !important;
+        transform: none !important;
+        transition: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+        touch-action: manipulation !important;
     }
 
-    .chaos-level-1 .card {
-        animation: 
-            cardFloat 2.8s ease-in-out infinite,
-            cardLife 4s ease-in-out infinite,
-            cardTwitch 3.5s ease-in-out infinite !important;
-    }
-
-    .chaos-level-2 .card {
-        animation: 
-            cardFloat 2.5s ease-in-out infinite,
-            cardLife 3.5s ease-in-out infinite,
-            cardTwitchChaos 3s ease-in-out infinite !important;
-    }
-
-    .chaos-level-3 .card,
-    .chaos-level-max .card {
-        animation: 
-            cardFloat 2s ease-in-out infinite,
-            cardLife 3s ease-in-out infinite,
-            colorCycle 4s infinite !important;
-    }
-
-    /* New mobile-specific animations */
-    @keyframes mobileCardFloat {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-3px); }
-    }
-
-    @keyframes mobileRandomTwitch {
-        0%, 85%, 100% { transform: rotate(0deg); }
-        88% { transform: rotate(-1deg); }
-        91% { transform: 1deg); }
-        94% { transform: rotate(-0.5deg); }
-        97% { transform: rotate(0.25deg); }
-    }
-
-    /* Keep existing played card states */
+    /* Only animate when card is actually played */
     .card.played[data-selected="true"] {
         animation: none !important;
         transform: scale(0.8) translateY(-20px) !important;
         opacity: 0 !important;
         pointer-events: none !important;
     }
+}
 
-    .card.played:not([data-selected="true"]) {
-        animation: none !important;
-        transform: scale(0.5) !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-    }
+/* Ensure new cards don't inherit any hover states */
+.card-container.clearing .card,
+.card-container:not(.played) .card {
+    background: #444 !important;
+    transform: none !important;
+    transition: none !important;
+    border-top-color: #555 !important;
 }
 
 /* Force remove stuck states when cards are removed */
@@ -2025,28 +2036,6 @@ h1 {
         transform: scale(0.8) translateY(-20px) !important;
         opacity: 0 !important;
         pointer-events: none !important;
-    }
-}
-
-/* Add these rules after the existing card styles but before media queries */
-@media (hover: none) {
-    .card,
-    .card:hover,
-    .card:active {
-        background: #444 !important;  /* Force default background */
-        transform: none !important;   /* Prevent any transform */
-    }
-
-    /* Ensure divider line is always visible */
-    .card .card-effects {
-        border-top: 1px solid #555 !important;
-    }
-
-    /* Override any hover states that might get stuck */
-    .card::after,
-    .card:hover::after,
-    .card:active::after {
-        display: none !important;
     }
 }
 
