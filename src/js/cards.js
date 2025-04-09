@@ -1098,12 +1098,13 @@ export const CARDS = {
         }
     },
     "Automated Pasta Line": {
-        description: "Install an automated production line for basic pasta shapes.",
+        description: "Install an automated production line that kills worker morale but increases efficiency.",
         type: "upgrade",
         requirements: { prestige: 25 },
         permanentStats: {
-            workerEfficiency: 0.2,  // 20% less worker loss
-            chaosReduction: -0.2    // 20% more chaos gain
+            workerEfficiency: 0.2,     // 20% less worker loss
+            chaosReduction: -0.2,      // 20% more chaos gain
+            workerLossRate: -0.15      // 15% more worker loss rate (they feel replaceable)
         },
         statModifiers: {
             workers: -3,
@@ -1117,11 +1118,12 @@ export const CARDS = {
         }
     },
     "Golden Pasta Extruder": {
-        description: "Install a premium pasta-making machine that increases prestige gain.",
+        description: "Install a premium pasta-making machine that's high maintenance.",
         type: "upgrade",
         requirements: { prestige: 30 },
         permanentStats: {
-            prestigeGain: 0.25  // 25% more prestige gain
+            prestigeGain: 0.25,        // 25% more prestige gain
+            ingredientGain: -0.15      // 15% chance to lose extra ingredient each turn
         },
         statModifiers: {
             prestige: 12,
@@ -1151,12 +1153,13 @@ export const CARDS = {
         }
     },
     "Pasta Quality Lab": {
-        description: "Install a state-of-the-art quality testing facility.",
+        description: "Install a strict quality testing facility that slows production.",
         type: "upgrade",
         requirements: { prestige: 20 },
         permanentStats: {
-            prestigeGain: 0.15,  // 15% more prestige gain
-            chaosReduction: 0.1  // 10% less chaos gain
+            prestigeGain: 0.15,        // 15% more prestige gain
+            chaosReduction: 0.1,       // 10% less chaos gain
+            ingredientGain: -0.1       // 10% chance to lose extra ingredient (strict quality control)
         },
         statModifiers: {
             prestige: 8,
@@ -1187,12 +1190,13 @@ export const CARDS = {
         }
     },
     "Industrial Kitchen": {
-        description: "Upgrade your kitchen with professional equipment.",
+        description: "Upgrade your kitchen with complex professional equipment.",
         type: "upgrade",
         requirements: { prestige: 22 },
         permanentStats: {
-            prestigeGain: 0.2,  // 20% more prestige gain
-            chaosReduction: -0.1  // 10% more chaos gain
+            prestigeGain: 0.2,         // 20% more prestige gain
+            chaosReduction: -0.1,      // 10% more chaos gain
+            workerEfficiency: -0.1     // 10% less worker efficiency (equipment is complicated)
         },
         statModifiers: {
             prestige: 10,
@@ -1310,10 +1314,14 @@ export function applyUpgradeEffects(state) {
     if (upgrades.automation) {
         state.playerStats.workerLossRate *= 0.8;
         state.playerStats.chaosGainRate *= 1.2;
+        state.playerStats.workerLossRate *= 1.15; // Workers quit more often
     }
     
     if (upgrades.goldenExtruder) {
         state.playerStats.prestigeGainRate *= 1.25;
+        if (Math.random() < 0.15) {
+            state.playerStats.ingredients = Math.max(0, state.playerStats.ingredients - 1);
+        }
     }
     
     if (upgrades.quantumDrying) {
@@ -1323,6 +1331,9 @@ export function applyUpgradeEffects(state) {
     if (upgrades.qualityLab) {
         state.playerStats.prestigeGainRate *= 1.15;
         state.playerStats.chaosGainRate *= 0.9;
+        if (Math.random() < 0.1) {
+            state.playerStats.ingredients = Math.max(0, state.playerStats.ingredients - 1);
+        }
     }
     
     if (upgrades.breakRoom) {
@@ -1332,6 +1343,7 @@ export function applyUpgradeEffects(state) {
     if (upgrades.industrialKitchen) {
         state.playerStats.prestigeGainRate *= 1.2;
         state.playerStats.chaosGainRate *= 1.1;
+        state.playerStats.workerEfficiency *= 0.9;
     }
     
     if (upgrades.pastaArchives) {
