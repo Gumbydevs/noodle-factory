@@ -324,10 +324,21 @@
 }
 
 @keyframes wiggle-selected {
-    0% { transform: rotate(0deg); }
-    25% { transform: rotate(-5deg); }
-    75% { transform: rotate(5deg); }
-    100% { transform: rotate(0deg); }
+    0% { transform: rotate(0deg) scale(1); }
+    25% { transform: rotate(-5deg) scale(1.05); }
+    75% { transform: rotate(5deg) scale(1.05); }
+    100% { transform: rotate(0deg) scale(1.1); opacity: 0; }
+}
+
+@keyframes shrinkFadeAway {
+    0% { 
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% { 
+        transform: scale(0.5);
+        opacity: 0;
+    }
 }
 
 /* Add these new keyframes near your other animation definitions */
@@ -430,7 +441,7 @@
         clip-path: polygon(15% 15%, 85% 15%, 85% 85%, 15% 85%);
     }
     100% { 
-        transform: scale(0.8) translateY(-20px);
+        transform: scale(0.5);
         opacity: 0;
         background: #999;
         clip-path: polygon(45% 45%, 55% 45%, 55% 55%, 45% 55%);
@@ -917,7 +928,7 @@ h1 {
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    transition: background-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out, background-color 0.3s ease;
     transform-origin: center center;
     opacity: 1;
     animation: 
@@ -932,12 +943,39 @@ h1 {
     -webkit-transform: translateZ(0);
 }
 
-/* Override all other card animations when disappearing */
-.card.disappearing {
-    animation: none !important;
-    transition: all 0.4s ease-in-out !important;
-    pointer-events: none !important;
-    z-index: 100 !important;
+/* Card animation states */
+.card {
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out, background-color 0.3s ease;
+    will-change: transform, opacity;
+}
+
+.card.played[data-selected="true"] {
+    animation: wiggle-selected 0.5s ease-in-out forwards !important;
+    transform-origin: center center;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.card.played:not([data-selected="true"]) {
+    animation: shrinkFadeAway 0.5s ease-out forwards !important;
+    pointer-events: none;
+}
+
+/* Override any conflicting card states */
+.card.played {
+    position: relative;
+    z-index: 1;
+}
+
+.card.played[data-selected="true"],
+.card.played:not([data-selected="true"]) {
+    transition: none;
+}
+
+/* Remove any conflicting animations when card is being played */
+.card.played {
+    pointer-events: none;
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
 }
 
 /* Scale animations with chaos levels */
@@ -2377,12 +2415,20 @@ h1 {
     font-size: 0.55em;
     display: flex;
     flex-direction: column;
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease-out;
     cursor: pointer;
+    transform-origin: center center;
 }
 
 .upgrade-card.selling {
+    z-index: 1000;
     background: #4a4a4a;
+}
+
+.upgrade-card.disappearing {
+    transform: scale(0);
+    opacity: 0;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
 }
 
 .sell-confirm {

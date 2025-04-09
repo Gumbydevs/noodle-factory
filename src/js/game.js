@@ -394,12 +394,33 @@ class Game {
             }
             return true;
         });
-        const shuffledCards = [...availableCards].sort(() => Math.random() - 0.5);
-        const [leftCard, rightCard] = shuffledCards.slice(0, 2);
 
-        // Generate random colors for the flashy effects
-        const randomColor1 = '#' + Math.floor(Math.random()*16777215).toString(16);
-        const randomColor2 = '#' + Math.floor(Math.random()*16777215).toString(16);
+        // NEW CODE: Modify card selection based on prestige
+        let shuffledCards;
+        if (this.state.playerStats.pastaPrestige >= 100) {
+            // At max prestige, 75% chance for at least one upgrade card
+            const upgradeCards = availableCards.filter(name => CARDS[name].type === "upgrade");
+            const regularCards = availableCards.filter(name => CARDS[name].type !== "upgrade");
+            
+            if (Math.random() < 0.75 && upgradeCards.length > 0) {
+                // Ensure at least one upgrade card
+                shuffledCards = [
+                    upgradeCards[Math.floor(Math.random() * upgradeCards.length)],
+                    regularCards[Math.floor(Math.random() * regularCards.length)]
+                ];
+                // Randomize order
+                if (Math.random() < 0.5) {
+                    shuffledCards.reverse();
+                }
+            } else {
+                shuffledCards = [...availableCards].sort(() => Math.random() - 0.5);
+            }
+        } else {
+            // Original behavior for non-max prestige
+            shuffledCards = [...availableCards].sort(() => Math.random() - 0.5);
+        }
+        
+        const [leftCard, rightCard] = shuffledCards.slice(0, 2);
 
         cardsContainer.innerHTML = `
             <div class="card ${this.checkCardPlayable(CARDS[leftCard]) ? '' : 'disabled'}" id="card-left">
@@ -449,35 +470,6 @@ class Game {
         const card = CARDS[cardName];
         if (!card) return;
 
-        // Apply immediate stat changes for upgrades
-        if (card.type === "upgrade") {
-            if (card.requirements) {
-                const { prestige } = card.requirements;
-                if (prestige && this.state.playerStats.pastaPrestige < prestige) {
-                    gameSounds.playBadCardSound();
-                    this.showEffectMessage("Not enough prestige for this upgrade!");
-                    return;
-                }
-            }
-            
-            // Pin the upgrade card AND draw new cards immediately
-            this.pinUpgradeCard(cardName, card);
-            this.drawNewCards(); // Added this line
-            
-            // Apply permanent upgrade effects
-            const upgradeEffect = card.effect(this.state);
-            this.showEffectMessage(upgradeEffect);
-            
-            // Update permanent stats
-            this.applyUpgradeStats(card.permanentStats);
-            
-            return; // Exit early after handling upgrade
-        }
-
-        // Increment turn counter BEFORE card effects
-        this.turn++;
-        this.updateDisplay();
-
         // Get the clicked card element more reliably
         const clickedCard = Array.from(document.querySelectorAll('.card')).find(
             card => card.querySelector('h3').textContent === cardName
@@ -486,148 +478,133 @@ class Game {
             card => card !== clickedCard
         );
 
-        // Add wiggle animation to selected card before other effects
-        if (clickedCard) {
-            clickedCard.classList.add('wiggle-selected');
-            // Remove the class after animation completes
-            setTimeout(() => {
-                clickedCard.classList.remove('wiggle-selected');
-            }, 500);
+        // Handle upgrade cards differently
+        if (card.type === "upgrade") {
+            // Mark cards as played for animation
+            if (clickedCard) {
+                clickedCard.classList.add('played');
+                clickedCard.setAttribute('data-selected', 'true');
+            }
+            if (otherCard) {
+                otherCard.classList.add('played');
+                otherCard.setAttribute('data-selected', 'false');
+            }
+
+            // Apply immediate stat modifiers first
+            if (card.statModifiers) {
+                const balancedModifiers = applyStatModifiers(this.state, {...card.statModifiers});
+                Object.entries(balancedModifiers).forEach(([stat, value]) => {
+                    const statKey = stat === 'workers' ? 'workerCount' : 
+                                  stat === 'prestige' ? 'pastaPrestige' : 
+                                  stat === 'chaos' ? 'chaosLevel' : 
+                                  stat;
+                    
+                    const currentValue = this.state.playerStats[statKey] || 0;
+                    this.state.playerStats[statKey] = Math.max(0, currentValue + Number(value));
+                });
+            }
+
+            // Pin the upgrade card to the upgrades section
+            if (this.pinUpgradeCard(cardName, card)) {
+                // Apply permanent stats after successful pinning
+                if (card.permanentStats) {
+                    this.applyUpgradeStats(card.permanentStats);
+                }
+                // Store the upgrade in state
+                this.state.playerStats.factoryUpgrades[cardName] = card;
+            }
+
+            // Update display after all changes
+            this.updateDisplay();
+            
+            // Increment turn counter
+            this.turn++;
+            
+            // Process turn effects
+            this.processTurnEffects();
+            
+            // Draw new cards after a delay
+            if (!this.isGameOver) {
+                setTimeout(() => {
+                    document.querySelectorAll('.card').forEach(card => card.remove());
+                    this.drawNewCards();
+                }, 800);
+            }
+            return;
         }
 
-        // Immediately remove all hover and animation related classes/styles
-        document.querySelectorAll('.card').forEach(card => {
-            card.style.cssText = '';  // Clear all inline styles
-            card.classList.remove('hover', 'wiggle', 'active');  // Remove any animation classes
-            
-            // Force removal of any :hover pseudo states
-            card.addEventListener('touchend', function() {
-                this.blur();
-            }, { once: true });
-        });
+        // Rest of the existing playCard code for non-upgrade cards...
+        // Play card sound immediately
+        gameSounds.playCardSound();
 
-        // Set data-selected attributes and played class
         if (clickedCard) {
-            clickedCard.setAttribute('data-selected', 'true');
-            clickedCard.classList.add('dissolving');
-            clickedCard.style.pointerEvents = 'none';
-            
-            // Create smoke effect synchronized with card animation
+            // Get card position for effects
             const rect = clickedCard.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
 
-            // Add visual effects based on card type
+            // Create various effects based on card type or modifiers
             if (card.statModifiers) {
-                let isPositiveCard = false;
-                let isNegativeCard = false;
+                // Money effect for prestige gains
+                if (card.statModifiers.prestige > 0) {
+                    createMoneyEffect(centerX, centerY);
+                }
 
-                // Check if card is generally positive or negative
-                Object.entries(card.statModifiers).forEach(([stat, value]) => {
-                    if (stat === 'chaos') {
-                        if (value < 0) isPositiveCard = true;
-                        if (value > 10) isNegativeCard = true;
-                    } else {
-                        if (value > 0) isPositiveCard = true;
-                        if (value < 0) isNegativeCard = true;
-                    }
-                });
+                // Noodle explosion for chaos changes
+                if (Math.abs(card.statModifiers.chaos) > 5) {
+                    createNoodleExplosion(centerX, centerY);
+                }
 
-                // Play random effects based on card type
-                if (isPositiveCard && !isNegativeCard) {
-                    const effect = Math.random();
-                    if (effect < 0.33) {
-                        createMoneyEffect(centerX, centerY);
-                    } else if (effect < 0.66) {
-                        createNoodleExplosion(centerX, centerY);
-                    } else {
-                        createWaterSplash(centerX, centerY);
-                    }
-                } else if (isNegativeCard && !isPositiveCard) {
-                    // Only create smoke for negative cards
-                    createFireParticle(centerX, centerY);
-                    for (let i = 0; i < 8; i++) {
+                // Smoke for worker changes
+                if (card.statModifiers.workers) {
+                    for (let i = 0; i < 5; i++) {
                         setTimeout(() => {
                             createSmokeParticle(
-                                rect.left + (Math.random() * rect.width),
-                                rect.top + (Math.random() * rect.height)
+                                centerX + (Math.random() - 0.5) * 50,
+                                centerY + (Math.random() - 0.5) * 50
                             );
-                        }, i * 50);
-                    }
-                } else {
-                    // Mixed effects for cards with both positive and negative effects
-                    if (Math.random() < 0.5) {
-                        createNoodleExplosion(centerX, centerY);
-                    } else {
-                        createWaterSplash(centerX, centerY);
+                        }, i * 100);
                     }
                 }
+
+                // Water splash for ingredient changes
+                if (card.statModifiers.ingredients) {
+                    createWaterSplash(centerX, centerY);
+                }
             }
+
+            // Fire effect for "magical" or special cards
+            if (card.description.toLowerCase().includes('magic') || 
+                card.description.toLowerCase().includes('mystic') ||
+                card.description.toLowerCase().includes('spirit')) {
+                for (let i = 0; i < 8; i++) {
+                    setTimeout(() => {
+                        createFireParticle(
+                            centerX + (Math.random() - 0.5) * 40,
+                            centerY + (Math.random() - 0.5) * 40
+                        );
+                    }, i * 80);
+                }
+            }
+
+            // Existing card animation
+            clickedCard.classList.add('played');
+            clickedCard.setAttribute('data-selected', 'true');
+            clickedCard.style.zIndex = '100';
         }
-        
+
+        // Increment turn counter
+        this.turn++;
+
+        // Apply visual feedback for cards BEFORE stat changes
+        if (clickedCard) {
+            clickedCard.classList.add('played');
+            clickedCard.setAttribute('data-selected', 'true');
+            clickedCard.style.zIndex = '100';
+        }
         if (otherCard) {
-            otherCard.setAttribute('data-selected', 'false');
             otherCard.classList.add('played');
-            otherCard.style.transform = 'scale(0.5)';
-            otherCard.style.opacity = '0';
-            otherCard.style.pointerEvents = 'none';
-        }
-
-        // Check if playing this card would cause game over BEFORE applying effects
-        if (card.statModifiers) {
-            const projectedStats = { ...this.state.playerStats };
-            
-            // Calculate all changes first including chaos effects
-            Object.entries(card.statModifiers).forEach(([stat, value]) => {
-                const statKey = stat === 'workers' ? 'workerCount' : 
-                              stat === 'prestige' ? 'pastaPrestige' : 
-                              stat === 'chaos' ? 'chaosLevel' : 
-                              stat;
-                
-                projectedStats[statKey] = (projectedStats[statKey] || 0) + Number(value);
-            });
-
-            // Check for chaos game over BEFORE applying any bounds
-            if (projectedStats.chaosLevel >= 100) {
-                // Track turns at max chaos
-                projectedStats.turnsAtMaxChaos = (this.state.playerStats.turnsAtMaxChaos || 0) + 1;
-                
-                // Only trigger game over if we've been at max chaos for more than 2 turns
-                if (projectedStats.turnsAtMaxChaos > 2) {
-                    gameSounds.playGameOverSound();
-                    this.endGame('chaos');
-                    this.isGameOver = true;
-                    return;
-                }
-            } else {
-                // Reset turns at max chaos if chaos drops below 100
-                projectedStats.turnsAtMaxChaos = 0;
-            }
-            
-            // Apply bounds after game over check
-            if (projectedStats.chaosLevel > 100) {
-                projectedStats.chaosLevel = 100;
-            }
-
-            // Apply any chaos ingredient loss before checking game over
-            if (projectedStats.chaosLevel >= 75 && projectedStats.ingredients > 0) {
-                projectedStats.ingredients = Math.max(1, projectedStats.ingredients - 1);
-            }
-
-            // Now check game-ending conditions with all effects considered
-            if (projectedStats.ingredients <= 0 && !card.statModifiers.ingredients) {
-                gameSounds.playGameOverSound();
-                this.endGame('ingredients');
-                this.isGameOver = true;
-                return;
-            }
-
-            if (projectedStats.workerCount <= 0) {
-                gameSounds.playGameOverSound();
-                this.endGame('workers');
-                this.isGameOver = true;
-                return;
-            }
+            otherCard.setAttribute('data-selected', 'false');
         }
 
         // Apply stat modifications with balance checks
@@ -639,24 +616,13 @@ class Game {
                               stat === 'chaos' ? 'chaosLevel' : 
                               stat;
                 
-                // Apply natural progression
-                if (statKey === 'chaosLevel') {
-                    value += 2; // Chaos increases naturally each turn
-                } else if (statKey === 'pastaPrestige') {
-                    value -= 1; // Prestige decays slightly each turn
-                }
-
                 const currentValue = this.state.playerStats[statKey] || 0;
                 this.state.playerStats[statKey] = Math.max(0, currentValue + Number(value));
             });
+
+            // Update display after stat changes
+            this.updateDisplay();
         }
-
-        // Process turn effects including prestige
-        this.processTurnEffects();
-
-        // Visual feedback for card play
-        const cardElements = document.querySelectorAll('.card');
-        cardElements.forEach(card => card.classList.add('played'));
 
         // Show effect message
         if (card.effect) {
@@ -664,140 +630,138 @@ class Game {
             this.showEffectMessage(message);
         }
 
-        // Update display and check game state
-        this.updateDisplay();
+        // Process turn effects and check game state
+        this.processTurnEffects();
 
-        // Check win/lose conditions
+        // Check for game over conditions
+        if (this.checkGameOver()) {
+            return;
+        }
+
+        // Schedule cleanup and new cards after animations complete
+        if (!this.isGameOver) {
+            setTimeout(() => {
+                document.querySelectorAll('.card').forEach(card => card.remove());
+                this.drawNewCards();
+            }, 800);
+        }
+    }
+
+    addUpgradeClickHandler(upgradeElement, card) {
+        upgradeElement.addEventListener('click', () => {
+            const confirmDialog = document.createElement('div');
+            confirmDialog.className = 'sell-confirm';
+            confirmDialog.innerHTML = `
+                <p class="sell-text">Remove this upgrade?</p>
+                <div class="sell-buttons">
+                    <button class="sell-yes">Yes</button>
+                    <button class="sell-no">No</button>
+                </div>
+            `;
+            
+            upgradeElement.appendChild(confirmDialog);
+            
+            const yesButton = confirmDialog.querySelector('.sell-yes');
+            const noButton = confirmDialog.querySelector('.sell-no');
+            
+            yesButton.onclick = (e) => {
+                e.stopPropagation();
+                // Remove permanent stats
+                if (card.permanentStats) {
+                    this.removeUpgradeStats(card.permanentStats);
+                }
+                
+                // Remove from state
+                delete this.state.playerStats.factoryUpgrades[card.name];
+                
+                // Animate removal
+                upgradeElement.classList.add('disappearing');
+                setTimeout(() => upgradeElement.remove(), 300);
+                
+                // Update display
+                this.updateDisplay();
+            };
+            
+            noButton.onclick = (e) => {
+                e.stopPropagation();
+                confirmDialog.remove();
+            };
+        });
+    }
+
+    checkGameOver() {
         if (this.state.playerStats.chaosLevel >= 100) {
             gameSounds.playGameOverSound();
             this.endGame('chaos');
             this.isGameOver = true;
-            return;
+            return true;
         }
         if (this.state.playerStats.workerCount <= 0) {
             gameSounds.playGameOverSound();
             this.endGame('workers');
             this.isGameOver = true;
-            return;
+            return true;
         }
         if (this.state.playerStats.ingredients <= 0) {
             gameSounds.playGameOverSound();
             this.endGame('ingredients');
             this.isGameOver = true;
-            return;
+            return true;
         }
-
-        // Add this before drawing new cards
-        const cleanup = () => {
-            document.querySelectorAll('.card').forEach(card => {
-                card.remove();  // Completely remove old cards
-            });
-            // Draw new cards immediately after cleanup
-            this.drawNewCards();
-        };
-
-        // Schedule cleanup and new cards if game continues
-        if (!this.isGameOver) {
-            setTimeout(cleanup, 500);
-        }
+        return false;
     }
 
     pinUpgradeCard(cardName, card) {
         const upgradesGrid = document.querySelector('.upgrades-grid');
         const existingUpgrades = upgradesGrid.querySelectorAll('.upgrade-card');
         
-        // Check if we already have 2 upgrades
         if (existingUpgrades.length >= 2) {
             gameSounds.playUpgradeBlockedSound();
             this.showEffectMessage("Maximum of 2 factory upgrades allowed! Sell an upgrade first.");
             return false;
         }
         
-        // Create miniature upgrade card
+        const originalCard = document.querySelector('.card[data-selected="true"]');
+        if (!originalCard) return false;
+
+        const origRect = originalCard.getBoundingClientRect();
+        const targetRect = upgradesGrid.getBoundingClientRect();
+        
         const upgradeElement = document.createElement('div');
         upgradeElement.className = 'upgrade-card';
+        upgradeElement.style.position = 'fixed';
+        upgradeElement.style.left = `${origRect.left}px`;
+        upgradeElement.style.top = `${origRect.top}px`;
+        upgradeElement.style.width = `${origRect.width}px`;
+        upgradeElement.style.height = `${origRect.height}px`;
         upgradeElement.innerHTML = `
             <h4>${cardName}</h4>
             <div class="upgrade-effects">
                 ${this.formatPermanentEffects(card.permanentStats)}
             </div>
         `;
-
-        // Add click handler for selling
-        upgradeElement.addEventListener('click', () => {
-            if (!upgradeElement.classList.contains('selling')) {
-                // First click - show sell confirmation
-                upgradeElement.classList.add('selling');
-                const originalRect = upgradeElement.getBoundingClientRect();
-                
-                upgradeElement.style.position = 'relative';
-                upgradeElement.style.zIndex = '1000';
-                upgradeElement.style.transform = 'scale(1.2) translateY(-10px)';
-                
-                const sellConfirm = document.createElement('div');
-                sellConfirm.className = 'sell-confirm';
-                sellConfirm.innerHTML = `
-                    <div class="sell-text">Sell upgrade?</div>
-                    <div class="sell-buttons">
-                        <button class="sell-yes">Yes</button>
-                        <button class="sell-no">No</button>
-                    </div>
-                `;
-                upgradeElement.appendChild(sellConfirm);
-
-                // Handle Yes/No clicks
-                sellConfirm.querySelector('.sell-yes').onclick = (e) => {
-                    e.stopPropagation();
-                    gameSounds.playUpgradeSellSound();
-                    // Give ingredients as reward
-                    this.state.playerStats.ingredients += 3;
-                    // Remove upgrade effects
-                     this.removeUpgradeStats(card.permanentStats);
-                    // Remove the upgrade card with animation
-                    upgradeElement.style.transform = 'scale(0)';
-                    setTimeout(() => upgradeElement.remove(), 300);
-                    this.updateDisplay();
-                };
-
-                sellConfirm.querySelector('.sell-no').onclick = (e) => {
-                    e.stopPropagation();
-                    upgradeElement.classList.remove('selling');
-                    upgradeElement.style.transform = '';
-                    sellConfirm.remove();
-                };
-            }
-        });
         
-        // Animate the card shrinking and moving
-        const originalCard = document.querySelector('.card[data-selected="true"]');
-        if (originalCard) {
-            const origRect = originalCard.getBoundingClientRect();
-            const targetRect = upgradesGrid.getBoundingClientRect();
-            
-            upgradeElement.style.position = 'fixed';
-            upgradeElement.style.left = `${origRect.left}px`;
-            upgradeElement.style.top = `${origRect.top}px`;
-            upgradeElement.style.width = `${origRect.width}px`;
-            upgradeElement.style.height = `${origRect.height}px`;
-            
-            document.body.appendChild(upgradeElement);
-            
-            requestAnimationFrame(() => {
-                upgradeElement.style.transition = 'all 0.5s ease-out';
-                upgradeElement.style.transform = 'scale(0.5)';
-                upgradeElement.style.left = `${targetRect.left}px`;
-                upgradeElement.style.top = `${targetRect.top}px`;
-            });
+        document.body.appendChild(upgradeElement);
+
+        // Force a reflow
+        void upgradeElement.offsetHeight;
+        
+        // Animate to final position
+        requestAnimationFrame(() => {
+            upgradeElement.style.transition = 'all 0.5s ease-out';
+            upgradeElement.style.transform = 'scale(0.4)';
+            upgradeElement.style.left = `${targetRect.left}px`;
+            upgradeElement.style.top = `${targetRect.top}px`;
             
             setTimeout(() => {
                 upgradeElement.style = ''; // Reset styles
                 upgradesGrid.appendChild(upgradeElement);
                 gameSounds.playUpgradePinSound();
+                
+                // Add click handler for selling
+                this.addUpgradeClickHandler(upgradeElement, card);
             }, 500);
-        } else {
-            upgradesGrid.appendChild(upgradeElement);
-            gameSounds.playUpgradePinSound();
-        }
+        });
         
         return true;
     }
