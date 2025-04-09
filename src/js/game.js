@@ -1113,60 +1113,42 @@ class Game {
     }
 
     processTurnEffects() {
-        // Apply upgrade effects first
+        // Apply upgrade effects first - Add this line!
         applyUpgradeEffects(this.state);
 
         // Natural progression effects - chaos increases every 3-5 turns
-        if (this.turn % (3 + Math.floor(Math.random() * 3)) === 0) {  // Random interval between 3-5 turns
-            const chaosBase = this.turn < 10 ? 0.3 : 0.8; // Reduced base values
-            const chaosRandom = Math.random() * 0.4; // Reduced randomness
+        if (this.turn % (3 + Math.floor(Math.random() * 3)) === 0) {
+            const chaosBase = this.turn < 10 ? 0.3 : 0.8;
+            const chaosRandom = Math.random() * 0.4;
             
-            // Add scaling based on current chaos level and prestige
             const currentChaos = Number(this.state.playerStats.chaosLevel) || 0;
             const currentPrestige = Number(this.state.playerStats.pastaPrestige) || 0;
             
-            // Add prestige multiplier when prestige is between 66-100
+            // Modify the chaos calculation to use chaosGainRate
             const prestigeMultiplier = (currentPrestige >= 66 && currentPrestige <= 100) ? 1.2 : 1;
+            const chaosMultiplier = currentChaos > 75 ? 0.6 : currentChaos > 50 ? 0.8 : 1;
             
-            const chaosMultiplier = currentChaos > 75 ? 0.6 : 
-                                   currentChaos > 50 ? 0.8 : 1;
+            // Apply the chaosGainRate from upgrades here
+            const chaosIncrease = Number((chaosBase + chaosRandom) * chaosMultiplier * prestigeMultiplier * this.state.playerStats.chaosGainRate);
             
-            const chaosIncrease = Number((chaosBase + chaosRandom) * chaosMultiplier * prestigeMultiplier);
-            
-            this.state.playerStats.chaosLevel = Math.min(100, 
-                Number(currentChaos + chaosIncrease)
-            );
+            this.state.playerStats.chaosLevel = Math.min(100, Number(currentChaos + chaosIncrease));
         }
         
-        // Prestige decay scales with game progress but is now more predictable
-        const prestigeDecay = this.turn < 5 ? 0.2 : 
-                             this.turn < 10 ? 0.3 :
-                             this.turn < 15 ? 0.4 : 0.5;
+        // Apply prestigeGainRate to prestige decay
+        const prestigeDecay = (this.turn < 5 ? 0.2 : 
+                              this.turn < 10 ? 0.3 :
+                              this.turn < 15 ? 0.4 : 0.5) / this.state.playerStats.prestigeGainRate;
         
         this.state.playerStats.pastaPrestige = Number(
             Math.max(0, this.state.playerStats.pastaPrestige - prestigeDecay).toFixed(1)
         );
         
-        // Workers get tired more gradually and predictably
+        // Apply workerLossRate to worker fatigue
         if (this.state.playerStats.workerCount > 15) {
-            const workerFatigue = this.turn < 8 ? 0.5 : 1;
+            const workerFatigue = (this.turn < 8 ? 0.5 : 1) * this.state.playerStats.workerLossRate;
             this.state.playerStats.workerCount = Math.max(15, 
                 Math.round(this.state.playerStats.workerCount - workerFatigue)
             );
-        }
-
-        // High chaos affects ingredients less in early game
-        if (this.state.playerStats.chaosLevel >= 75) {
-            gameSounds.createGrumbleSound(1.5); // More intense grumble at high chaos
-            const ingredientLoss = this.turn < 12 ? 0.5 : 1;
-            this.state.playerStats.ingredients = Math.max(0, 
-                Math.round(this.state.playerStats.ingredients - ingredientLoss)
-            );
-        }
-
-        // Add random chatter sound occasionally
-        if (Math.random() < 0.2) { // 20% chance each turn
-            gameSounds.playRandomChatter();
         }
     }
 

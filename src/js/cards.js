@@ -1384,6 +1384,29 @@ export function getRandomCard() {
         }
         return true;
     });
+
+    // Add weighted probability for upgrade cards at higher prestige
+    if (gameState?.playerStats?.pastaPrestige >= 25) {
+        const upgradeCards = cardNames.filter(name => CARDS[name].type === "upgrade");
+        const regularCards = cardNames.filter(name => CARDS[name].type !== "upgrade");
+        
+        // Increase upgrade chance based on prestige, starting at 25
+        let upgradeChance;
+        if (gameState.playerStats.pastaPrestige >= 50) {
+            // Original scaling for 50+ prestige
+            upgradeChance = Math.min(0.75, (gameState.playerStats.pastaPrestige - 50) / 100);
+        } else {
+            // New scaled chance for 25-49 prestige
+            upgradeChance = Math.min(0.35, (gameState.playerStats.pastaPrestige - 25) / 100);
+        }
+        
+        if (Math.random() < upgradeChance && upgradeCards.length > 0) {
+            return upgradeCards[Math.floor(Math.random() * upgradeCards.length)];
+        }
+        
+        return regularCards[Math.floor(Math.random() * regularCards.length)];
+    }
+
     return cardNames[Math.floor(Math.random() * cardNames.length)];
 }
 
