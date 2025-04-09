@@ -395,15 +395,19 @@ class Game {
             return true;
         });
 
-        // NEW CODE: Modify card selection based on prestige
+        // NEW CODE: Modify card selection based on prestige and upgrade slots
         let shuffledCards;
+        const upgradesGrid = document.querySelector('.upgrades-grid');
+        const existingUpgrades = upgradesGrid.querySelectorAll('.upgrade-card');
+        const slotsAreFull = existingUpgrades.length >= 2;
+
         if (this.state.playerStats.pastaPrestige >= 100) {
-            // At max prestige, 75% chance for at least one upgrade card
+            // At max prestige, check slots before offering upgrades
             const upgradeCards = availableCards.filter(name => CARDS[name].type === "upgrade");
             const regularCards = availableCards.filter(name => CARDS[name].type !== "upgrade");
             
-            if (Math.random() < 0.75 && upgradeCards.length > 0) {
-                // Ensure at least one upgrade card
+            if (!slotsAreFull && Math.random() < 0.75 && upgradeCards.length > 0) {
+                // Original high chance for upgrade when slots available
                 shuffledCards = [
                     upgradeCards[Math.floor(Math.random() * upgradeCards.length)],
                     regularCards[Math.floor(Math.random() * regularCards.length)]
@@ -413,13 +417,24 @@ class Game {
                     shuffledCards.reverse();
                 }
             } else {
-                shuffledCards = [...availableCards].sort(() => Math.random() - 0.5);
+                // When slots are full, heavily reduce upgrade chance (only 15% chance)
+                if (slotsAreFull && Math.random() > 0.85 && upgradeCards.length > 0) {
+                    shuffledCards = [
+                        upgradeCards[Math.floor(Math.random() * upgradeCards.length)],
+                        regularCards[Math.floor(Math.random() * regularCards.length)]
+                    ];
+                    if (Math.random() < 0.5) {
+                        shuffledCards.reverse();
+                    }
+                } else {
+                    shuffledCards = [...regularCards].sort(() => Math.random() - 0.5);
+                }
             }
         } else {
             // Original behavior for non-max prestige
             shuffledCards = [...availableCards].sort(() => Math.random() - 0.5);
         }
-        
+
         const [leftCard, rightCard] = shuffledCards.slice(0, 2);
 
         cardsContainer.innerHTML = `
