@@ -980,6 +980,16 @@ h1 {
     .card:hover:not(.played):not(.unplayable) {
         transform: translateY(-5px);
     }
+
+    /* Update the card hover styles to ensure they work during chaos */
+    .card:hover:not(.played):not([data-selected="true"]),
+    .chaos-level-1 .card:hover:not(.played):not([data-selected="true"]),
+    .chaos-level-2 .card:hover:not(.played):not([data-selected="true"]),
+    .chaos-level-3 .card:hover:not(.played):not([data-selected="true"]),
+    .chaos-level-max .card:hover:not(.played):not([data-selected="true"]) {
+        animation: hoverExcited 1s ease-in-out infinite !important;
+        transform: scale(1.05);
+    }
 }
 
 /* Touch device optimizations */
