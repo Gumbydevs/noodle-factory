@@ -506,6 +506,10 @@ class Game {
 
         // Handle upgrade cards differently
         if (card.type === "upgrade") {
+            // Play both card sound and upgrade sound
+            gameSounds.playCardSound();
+            gameSounds.playUpgradePinSound();
+
             // Mark cards as played for animation
             if (clickedCard) {
                 clickedCard.classList.add('played');
@@ -692,6 +696,24 @@ class Game {
             
             yesButton.onclick = (e) => {
                 e.stopPropagation();
+                // Play sell sound first
+                gameSounds.playUpgradeSellSound();
+                
+                // Add benefits from selling
+                const chaosReduction = 3 + Math.random() * 4; // Random 3-7 reduction
+                const ingredientGain = 2 + Math.floor(Math.random() * 3); // Random 2-4 ingredients
+                
+                // Apply benefits
+                this.state.playerStats.chaosLevel = Math.max(0, 
+                    this.state.playerStats.chaosLevel - chaosReduction);
+                this.state.playerStats.ingredients = Math.min(20, 
+                    this.state.playerStats.ingredients + ingredientGain);
+                
+                // Show feedback message
+                this.showEffectMessage(
+                    `<span style="color: #4CAF50">Recycled upgrade: -${Math.round(chaosReduction)} chaos, +${ingredientGain} ingredients</span>`
+                );
+                
                 // Remove permanent stats
                 if (card.permanentStats) {
                     this.removeUpgradeStats(card.permanentStats);
@@ -786,7 +808,14 @@ class Game {
             setTimeout(() => {
                 upgradeElement.style = ''; // Reset styles
                 upgradesGrid.appendChild(upgradeElement);
-                gameSounds.playUpgradePinSound();
+                
+                // Debug logging
+                console.log('Playing upgrade pin sound...');
+                try {
+                    gameSounds.playUpgradePinSound();
+                } catch (e) {
+                    console.error('Error playing upgrade pin sound:', e);
+                }
                 
                 // Add click handler for selling upgrades
                 this.addUpgradeClickHandler(upgradeElement, card);
