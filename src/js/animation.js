@@ -120,22 +120,39 @@ function handleCardClick(card) {
     card.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max');
     
     // Force a reflow to ensure clean animation state
-    void card.offsetHeight;
+    void card.offsetWidth;
+    
+    // Remove any existing event listeners
+    card.removeEventListener('animationend', hideCard);
     
     // Set up the card for playing animation
     card.dataset.selected = 'true';
     card.classList.add('played');
     card.style.zIndex = '100';
     
-    // Ensure the playing animation takes precedence
-    requestAnimationFrame(() => {
-        card.style.animation = 'selectedCardVanish 0.8s ease-out forwards';
-    });
-    
-    // Clean up after animation
-    card.addEventListener('animationend', () => {
+    // Function to hide the card after animation
+    function hideCard() {
         card.style.display = 'none';
-    }, { once: true });
+        card.removeEventListener('animationend', hideCard);
+    }
+    
+    // Add event listener for animation end
+    card.addEventListener('animationend', hideCard, { once: true });
+    
+    // Start the animation on next frame, ensuring mobile browsers have time to process
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            if ('ontouchstart' in window) {
+                // Mobile devices: simpler animation
+                card.style.transform = 'scale(0.8) translateY(-20px)';
+                card.style.opacity = '0';
+                card.style.transition = 'transform 0.8s ease-out, opacity 0.8s ease-out';
+            } else {
+                // Desktop: full animation
+                card.style.animation = 'selectedCardVanish 0.8s ease-out forwards';
+            }
+        });
+    });
 }
 
 // Handle cards that weren't selected

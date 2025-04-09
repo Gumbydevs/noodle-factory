@@ -851,8 +851,15 @@ class Game {
         const origRect = originalCard.getBoundingClientRect();
         const gridRect = upgradesGrid.getBoundingClientRect();
         
-        // Calculate target position based on number of existing upgrades
-        const targetX = gridRect.left + (existingUpgrades.length * (120 + 10)); // 120px card width + 10px gap
+        // Calculate the target position - the position of the next empty slot
+        const slotWidth = 120; // Width of upgrade card
+        const slotGap = 10; // Gap between cards
+        const slot = existingUpgrades.length; // Which slot to use (0 or 1)
+        
+        // Center the upgrades within the grid
+        const totalWidth = (slotWidth * 2) + slotGap; // Width of both slots + gap
+        const startX = gridRect.left + (gridRect.width - totalWidth) / 2; // Start position to center cards
+        const targetX = startX + (slot * (slotWidth + slotGap));
         const targetY = gridRect.top;
         
         const upgradeElement = document.createElement('div');
@@ -885,8 +892,6 @@ class Game {
                 upgradeElement.style = ''; // Reset styles
                 upgradesGrid.appendChild(upgradeElement);
                 
-                // Debug logging
-                console.log('Playing upgrade pin sound...');
                 try {
                     gameSounds.playUpgradePinSound();
                 } catch (e) {

@@ -330,6 +330,22 @@
     100% { transform: rotate(0deg) scale(1.1); opacity: 0; }
 }
 
+/* Update selectedCardVanish animation to be more reliable */
+@keyframes selectedCardVanish {
+    0% { 
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1) translateY(-10px);
+        opacity: 0.8;
+    }
+    100% { 
+        transform: scale(0.5) translateY(-40px);
+        opacity: 0;
+    }
+}
+
 @keyframes shrinkFadeAway {
     0% { 
         transform: scale(1);
@@ -974,6 +990,38 @@ h1 {
     
     .card:active:not(.played):not(.unplayable) {
         transform: scale(0.98);
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Reset default card states */
+    .card {
+        transition: transform 0.3s ease-out;
+        backface-visibility: hidden;
+        transform: translateZ(0);
+        will-change: transform, opacity;
+    }
+    
+    /* Override chaos animations on touch */
+    .card.chaos-level-1,
+    .card.chaos-level-2,
+    .card.chaos-level-3,
+    .card.chaos-level-max {
+        animation: none !important;
+    }
+
+    /* Ensure played card animations work properly */
+    .card.played[data-selected="true"] {
+        animation: selectedCardVanish 0.8s ease-out forwards !important;
+        pointer-events: none;
+        z-index: 100;
+        transform-origin: center center;
+    }
+
+    .card:not([data-selected="true"]).played {
+        animation: shrinkFadeAway 0.5s ease-out forwards !important;
+        pointer-events: none;
     }
 }
 
