@@ -364,6 +364,11 @@ class Game {
             if (cardName === "Return of Reggie") {
                 return this.state.playerStats.reggieEscaped === true;
             }
+            // Filter out upgrade cards that don't meet prestige requirements
+            if (CARDS[cardName].type === "upgrade") {
+                const requiredPrestige = CARDS[cardName].requirements?.prestige || 0;
+                return this.state.playerStats.pastaPrestige >= requiredPrestige;
+            }
             return true;
         });
         const shuffledCards = [...availableCards].sort(() => Math.random() - 0.5);
