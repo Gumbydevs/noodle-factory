@@ -3,10 +3,14 @@ export class GameSounds {
         this.ctx = null;
         this.gainNode = null;
         this.isInitialized = false;
+        this.isPreloaded = false;
         
         // Load saved preferences
         const sfxEnabled = localStorage.getItem('sfxEnabled') !== 'false';
         this.volume = sfxEnabled ? 0.8 : 0;
+        
+        // Store audio buffers
+        this.buffers = {};
         
         // Add touch event listeners for mobile
         ['touchstart', 'click'].forEach(eventType => {
@@ -20,6 +24,35 @@ export class GameSounds {
         this.chatterInterval = null;
         this.lastChatterTime = 0;
         this.startRandomChatter();
+    }
+
+    async preload() {
+        if (this.isPreloaded) return;
+        
+        try {
+            // Initialize audio context if not already done
+            if (!this.ctx) {
+                await this.initAudio();
+            }
+
+            // Pre-create commonly used oscillator types
+            this.oscillatorTypes = ['sine', 'triangle', 'sawtooth', 'square'].map(type => {
+                const osc = this.ctx.createOscillator();
+                osc.type = type;
+                return osc;
+            });
+
+            // Pre-create gain node
+            if (!this.gainNode) {
+                this.gainNode = this.ctx.createGain();
+                this.gainNode.connect(this.ctx.destination);
+                this.gainNode.gain.value = this.volume;
+            }
+
+            this.isPreloaded = true;
+        } catch (e) {
+            console.warn('Error preloading audio:', e);
+        }
     }
 
     initAudio() {

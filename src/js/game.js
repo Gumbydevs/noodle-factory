@@ -6,6 +6,7 @@ import { updateHighScore, getHighScore } from './highscore.js';
 import { triggerNoodleRoll } from './animation.js';
 import { gameSounds } from '../audio.js'; // Note the .js extension
 import { musicLoops } from '../audio/music/bgm.js';
+import { AssetLoader } from './assetLoader.js';
 
 const SITUATIONS = [
     "The factory floor hums with the sound of pasta machines.",
@@ -1773,7 +1774,12 @@ function setupInitialAudio() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize asset loader first
+    const assetLoader = new AssetLoader();
+    await assetLoader.init();
+
+    // After assets are loaded, initialize game components
     setupNoodleWiggle();
     setupInitialAudio();
 });

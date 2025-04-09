@@ -1,7 +1,19 @@
 export class MusicLoops {
     constructor() {
-        this.audioContext = null;
+        this.ctx = null;
         this.gainNode = null;
+        this.isLooping = false;
+        this.currentLoop = null;
+        this.nextLoop = null;
+        this.isPreloaded = false;
+        this.buffers = {};
+        
+        // Load saved preference
+        const musicEnabled = localStorage.getItem('musicEnabled') !== 'false';
+        this.enabled = musicEnabled;
+        this.volume = musicEnabled ? 0.4 : 0;
+
+        this.audioContext = null;
         this.currentLoop = null;
         this.isPlaying = false;
         this.baseVolume = 0.115; // MUSIC GLOBAL VOLUME - restored to original value
@@ -99,6 +111,40 @@ export class MusicLoops {
 
         // Melodic accent notes (pentatonic-based)
         this.accentNotes = ['Eb4', 'F4', 'G4', 'Bb4', 'C5', 'Eb5'];
+    }
+
+    async preload() {
+        if (this.isPreloaded) return;
+
+        try {
+            if (!this.ctx) {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                this.gainNode = this.ctx.createGain();
+                this.gainNode.connect(this.ctx.destination);
+                this.gainNode.gain.value = this.volume;
+            }
+
+            // Pre-create common nodes
+            this.filter = this.ctx.createBiquadFilter();
+            this.filter.type = 'lowpass';
+            this.filter.frequency.value = 22050;
+            this.filter.connect(this.gainNode);
+
+            // Initialize oscillator bank for music generation
+            this.oscillatorBank = {
+                sine: this.ctx.createOscillator(),
+                triangle: this.ctx.createOscillator(),
+                square: this.ctx.createOscillator(),
+            };
+
+            Object.entries(this.oscillatorBank).forEach(([type, osc]) => {
+                osc.type = type;
+            });
+
+            this.isPreloaded = true;
+        } catch (e) {
+            console.warn('Error preloading music system:', e);
+        }
     }
 
     initAudio() {

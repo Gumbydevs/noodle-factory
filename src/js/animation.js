@@ -1,36 +1,20 @@
+let noodleRollEnabled = true;
+
 function triggerNoodleRoll() {
-    const noodle = document.getElementById('noodle-tumbleweed');
+    if (!noodleRollEnabled) return;
     
-    if (!noodle.classList.contains('rolling')) {
-        // Adjusted ranges to maintain noodle-like proportions
-        const lengthScale = Math.random() * 2.0 + 0.8; // 0.8x to 2.8x length (longer range)
-        const thicknessScale = Math.random() * 0.6 + 0.2; // 0.2x to 0.8x thickness (thinner range)
+    const noodleDecoration = document.querySelector('.noodle-decoration');
+    if (!noodleDecoration) return;
 
-        // Prevent non-noodle shapes by enforcing minimum length-to-thickness ratio
-        const minRatio = 3; // Minimum length to thickness ratio
-        const actualRatio = lengthScale / thicknessScale;
-        
-        // Adjust length if ratio is too small
-        const finalLengthScale = actualRatio < minRatio ? 
-            thicknessScale * minRatio : lengthScale;
+    // Reset animation and opacity
+    noodleDecoration.style.animation = 'none';
+    noodleDecoration.style.opacity = '0';
 
-        // Direct transform application with ratio check
-        noodle.style.transform = '';  // Reset transform first
-        requestAnimationFrame(() => {
-            noodle.style.transform = `scaleX(${finalLengthScale}) scaleY(${thicknessScale})`;
-            noodle.classList.remove('hidden');
-            noodle.classList.add('rolling');
-        });
-        
-        setTimeout(() => {
-            noodle.classList.remove('rolling');
-            noodle.classList.add('hidden');
-            noodle.style.transform = '';
-        }, 4000);
-        
-        // Debug output to verify variations
-        console.log(`Noodle size - Length: ${finalLengthScale.toFixed(2)}x, Thickness: ${thicknessScale.toFixed(2)}x, Ratio: ${(finalLengthScale/thicknessScale).toFixed(2)}`);
-    }
+    // Force reflow
+    void noodleDecoration.offsetWidth;
+
+    // Start new animation
+    noodleDecoration.style.animation = 'noodleFlyAcross 8s ease-in-out forwards';
 }
 
 function randomizeNoodle() {
@@ -124,6 +108,7 @@ function scheduleNextNoodle() {
 window.addEventListener('DOMContentLoaded', () => {
     randomizeNoodle();
     scheduleNextNoodle();
+    setupGameTransitions();
 });
 
 // Card animation handling
@@ -181,10 +166,109 @@ function resetCardState(card) {
     card.removeAttribute('data-selected');
 }
 
+function setupGameTransitions() {
+    // Fade in game container
+    const gameContainer = document.getElementById('game-container');
+    if (gameContainer) {
+        gameContainer.style.opacity = '0';
+        gameContainer.style.transition = 'opacity 0.5s ease-in-out';
+        
+        // Delay to allow for initial setup
+        setTimeout(() => {
+            gameContainer.style.opacity = '1';
+        }, 100);
+    }
+
+    // Add subtle animations to stats
+    const stats = document.getElementById('stats');
+    if (stats) {
+        stats.style.transform = 'translateY(20px)';
+        stats.style.opacity = '0';
+        stats.style.transition = 'transform 0.5s ease-out, opacity 0.5s ease-out';
+        
+        setTimeout(() => {
+            stats.style.transform = 'translateY(0)';
+            stats.style.opacity = '1';
+        }, 300);
+    }
+
+    // Animate each stat individually
+    document.querySelectorAll('.stat').forEach((stat, index) => {
+        stat.style.transform = 'translateY(20px)';
+        stat.style.opacity = '0';
+        stat.style.transition = 'transform 0.5s ease-out, opacity 0.5s ease-out';
+        
+        setTimeout(() => {
+            stat.style.transform = 'translateY(0)';
+            stat.style.opacity = '1';
+        }, 400 + (index * 100));
+    });
+
+    // Add hover effects for cards
+    setupCardAnimations();
+}
+
+function setupCardAnimations() {
+    // Observe for new cards being added
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.addedNodes.length) {
+                mutation.addedNodes.forEach((node) => {
+                    if (node.classList && node.classList.contains('card')) {
+                        addCardHoverEffects(node);
+                    }
+                });
+            }
+        });
+    });
+
+    // Start observing the cards container
+    const cardsContainer = document.getElementById('cards-container');
+    if (cardsContainer) {
+        observer.observe(cardsContainer, {
+            childList: true,
+            subtree: true
+        });
+    }
+}
+
+function addCardHoverEffects(card) {
+    // Add initial state
+    card.style.transform = 'translateY(20px)';
+    card.style.opacity = '0';
+    card.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+
+    // Force reflow
+    void card.offsetWidth;
+
+    // Animate in
+    card.style.transform = 'translateY(0)';
+    card.style.opacity = '1';
+
+    // Add hover animations
+    card.addEventListener('mouseenter', () => {
+        if (!card.classList.contains('unplayable')) {
+            card.style.transform = 'translateY(-5px)';
+        }
+    });
+
+    card.addEventListener('mouseleave', () => {
+        if (!card.classList.contains('unplayable')) {
+            card.style.transform = 'translateY(0)';
+        }
+    });
+}
+
+function setNoodleRollEnabled(enabled) {
+    noodleRollEnabled = enabled;
+}
+
 export { 
     triggerNoodleRoll, 
     randomizeNoodle,
     handleCardClick,
     handleUnselectedCards,
-    resetCardState
+    resetCardState,
+    setNoodleRollEnabled,
+    setupGameTransitions
 };
