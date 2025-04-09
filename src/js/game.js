@@ -764,10 +764,21 @@ class Game {
         
         return Object.entries(permanentStats)
             .map(([stat, value]) => {
-                const prefix = value > 0 ? '+' : '';
-                const percent = value * 100;
+                let signs;
+                const absValue = Math.abs(value * 100); // Convert decimal to percentage
+                if (absValue <= 5) {
+                    signs = (value > 0 ? '+' : '-').repeat(1);
+                } else if (absValue <= 8) {
+                    signs = (value > 0 ? '+' : '-').repeat(2);
+                } else if (absValue <= 13) {
+                    signs = (value > 0 ? '+' : '-').repeat(3);
+                } else {
+                    signs = (value > 0 ? '+' : '-').repeat(4);
+                }
+                
+                const signClass = value > 0 ? 'positive' : 'negative';
                 return `<div class="permanent-effect ${stat}-color">
-                    ${stat}: ${prefix}${percent}%
+                    ${stat}: <span class="${signClass}">${signs}</span>
                 </div>`;
             })
             .join('');
