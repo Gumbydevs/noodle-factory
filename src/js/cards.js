@@ -411,7 +411,11 @@ export const CARDS = {
     },
     "Emergency Repairs": {
         description: "The ancient pasta extruder needs fixing.",
-        requirements: { ingredients: 2 },
+        type: "action",  // Add type for consistency
+        requirements: {
+            ingredients: 2,
+            workers: 4  // Add missing requirement
+        },
         statModifiers: {
             workers: -4,
             prestige: 8,
@@ -1244,7 +1248,7 @@ function checkCardAchievements() {
     console.log(`Cards played: ${playedCount}/${totalCards} (${percentage.toFixed(1)}%)`);
 }
 
-function applyStatModifiers(state, modifiers) {
+export function applyStatModifiers(state, modifiers) {
     if (modifiers.chaos && modifiers.chaos < 0) {
         const minChaos = 5;
         if (state.playerStats.chaosLevel + modifiers.chaos < minChaos) {
@@ -1367,6 +1371,25 @@ export function getRandomCard() {
         return true;
     });
     return cardNames[Math.floor(Math.random() * cardNames.length)];
+}
+
+// Also update checkCardPlayable function to check for additional stat costs
+function checkCardPlayable(card) {
+    if (!card.requirements) return true;
+    
+    // Check for negative modifiers that would reduce stats below their minimums
+    if (card.statModifiers) {
+        if (card.statModifiers.workers < 0 && 
+            Math.abs(card.statModifiers.workers) >= state.playerStats.workerCount) {
+            return false;
+        }
+        if (card.statModifiers.ingredients < 0 && 
+            Math.abs(card.statModifiers.ingredients) >= state.playerStats.ingredients) {
+            return false;
+        }
+    }
+    
+    return true;
 }
 
 // filepath: d:\NoodleFactory\src\js\state.js

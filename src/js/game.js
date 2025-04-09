@@ -1,4 +1,4 @@
-import { CARDS, getRandomCard, applyUpgradeEffects } from './cards.js';
+import { CARDS, getRandomCard, applyStatModifiers, applyUpgradeEffects } from './cards.js';
 import events from './events.js';
 import { gameState, updateResource, resetGameState, updateChaosEffects } from './state.js';
 import { ACHIEVEMENTS, checkAchievements, getUnlockedAchievements, resetAchievements } from './achievements.js';
@@ -318,6 +318,25 @@ class Game {
         }
     }
 
+    formatCardEffects(modifiers) {
+        if (!modifiers) return '';
+        
+        const colorClasses = {
+            prestige: 'prestige-color',
+            chaos: 'chaos-color',
+            ingredients: 'ingredients-color',
+            workers: 'energy-color'
+        };
+
+        return Object.entries(modifiers)
+            .map(([stat, value]) => {
+                const statName = stat.charAt(0).toUpperCase() + stat.slice(1);
+                const symbol = value > 0 ? '+' : '';
+                return `<span class="stat-modifier ${colorClasses[stat]}">${statName}: ${symbol}${value}</span>`;
+            })
+            .join('');
+    }
+
     drawNewCards() {
         document.querySelectorAll('.card').forEach(card => {
             card.style.cssText = '';  // Reset all inline styles
@@ -347,7 +366,7 @@ class Game {
                 <div class="card-effects">
                     ${this.formatCardEffects(CARDS[leftCard].statModifiers)}
                 </div>
-                ${CARDS[leftCard].requirements?.prestige ? 
+                ${CARDS[leftCard].type === "upgrade" && CARDS[leftCard].requirements?.prestige ? 
                     `<div class="requirement">Requires ${CARDS[leftCard].requirements.prestige} Prestige</div>` : ''}
             </div>
             <div class="card ${this.checkCardPlayable(CARDS[rightCard]) ? '' : 'disabled'}" id="card-right">
@@ -357,7 +376,7 @@ class Game {
                 <div class="card-effects">
                     ${this.formatCardEffects(CARDS[rightCard].statModifiers)}
                 </div>
-                ${CARDS[rightCard].requirements?.prestige ? 
+                ${CARDS[rightCard].type === "upgrade" && CARDS[rightCard].requirements?.prestige ? 
                     `<div class="requirement">Requires ${CARDS[rightCard].requirements.prestige} Prestige</div>` : ''}
             </div>
         `;
@@ -370,134 +389,46 @@ class Game {
     }
 
     checkCardPlayable(card) {
-        if (!card.requirements) return true;
+        if (!card) return true;
         
-        if (card.requirements.prestige && this.state.playerStats.pastaPrestige < card.requirements.prestige) {
-            return false;
+        // For upgrades, check prestige requirement
+        if (card.type === "upgrade") {
+            if (card.requirements?.prestige && 
+                this.state.playerStats.pastaPrestige < card.requirements.prestige) {
+                return false;
+            }
         }
-        if (card.requirements.ingredients && this.state.playerStats.ingredients < card.requirements.ingredients) {
-            return false;
+        
+        // For all cards, check if we have enough resources for negative modifiers
+        if (card.statModifiers) {
+            if (card.statModifiers.workers < 0 && 
+                this.state.playerStats.workerCount + card.statModifiers.workers < 1) {
+                return false;
+            }
+            if (card.statModifiers.ingredients < 0 && 
+                this.state.playerStats.ingredients + card.statModifiers.ingredients < 0) {
+                return false;
+            }
         }
+        
         return true;
     }
 
-    showDisabledCardFeedback(cardName) {
-        const card = CARDS[cardName];
-        if (card.requirements?.prestige) {
-            gameSounds.playBadCardSound();
-            this.showEffectMessage(`Requires ${card.requirements.prestige} Prestige to unlock!`);
-        }
-    }
-
-    formatCardEffects(modifiers) {
-        if (!modifiers) return '';
-        
-        const colorClasses = {
-            prestige: 'prestige-color',
-            chaos: 'chaos-color',
-            ingredients: 'ingredients-color',
-            workers: 'energy-color'
-        };
-
-        function getIntensitySymbols(value) {
-            const absValue = Math.abs(value);
-            const isPositive = value > 0;
-            const symbol = isPositive ? 
-                '<span style="color: #2ecc71;">+</span>' : 
-                '<span style="color: #e74c3c;">-</span>';
-                
-            if (absValue >= 8) return symbol.repeat(3);
-            if (absValue >= 4) return symbol.repeat(2);
-            return symbol;
-        }
-        
-        return Object.entries(modifiers)
-            .map(([stat, value]) => {
-                const statName = stat.charAt(0).toUpperCase() + stat.slice(1);
-                const symbols = getIntensitySymbols(value);
-                return `<span class="stat-modifier ${colorClasses[stat]}">${statName}: ${symbols}</span>`;
-            })
-            .join('');
-    }
-
-    applyStatModifiers(state, modifiers) {
-        // Copy modifiers to avoid mutating the original
-        let balancedMods = { ...modifiers };
-        
-        // Add small random chaos variation (-2 to +2)
-        if (balancedMods.chaos) {
-            const chaosVariation = (Math.random() * 4) - 2; // Random number between -2 and +2
-            balancedMods.chaos = Number((balancedMods.chaos + chaosVariation).toFixed(1));
-        }
-
-        // Ensure chaos doesn't drop too low
-        if (balancedMods.chaos && balancedMods.chaos < 0) {
-            const minChaos = 5;
-            if (state.playerStats.chaosLevel + balancedMods.chaos < minChaos) {
-                balancedMods.chaos = minChaos - state.playerStats.chaosLevel;
-            }
-        }
-
-        // Cap stats at their maximum values
-        if (balancedMods.prestige) {
-            const maxPrestige = 100;
-            const currentPrestige = state.playerStats.pastaPrestige;
-            if (currentPrestige + balancedMods.prestige > maxPrestige) {
-                balancedMods.prestige = maxPrestige - currentPrestige;
-            }
-        }
-
-        if (balancedMods.workers) {
-            const maxWorkers = 50;
-            const currentWorkers = state.playerStats.workerCount;
-            if (currentWorkers + balancedMods.workers > maxWorkers) {
-                balancedMods.workers = maxWorkers - currentWorkers;
-            }
-        }
-
-        return balancedMods;
-    }
-
     playCard(cardName) {
-        if (this.isGameOver) return;
-
         const card = CARDS[cardName];
         if (!card) return;
 
-        // Play appropriate sound based on card effects
-        if (card.statModifiers) {
-            let isPositiveCard = false;
-            let isNegativeCard = false;
-
-            // Check if card is generally positive or negative
-            Object.entries(card.statModifiers).forEach(([stat, value]) => {
-                if (stat === 'chaos') {
-                    // Comment out the chaos sound trigger
-                    /* // For chaos cards, add randomization to sound trigger
-                    if (value > 0 && Math.random() > 0.85) { // Only 15% chance to play sound for chaos increase
-                        gameSounds.playChaosSound();
-                    }
-                    */
-                    if (value > 10) isNegativeCard = true;
-                } else {
-                    // Keep existing positive/negative card checks
-                    if (value > 0) isPositiveCard = true;
-                    if (value < 0) isNegativeCard = true;
-                }
-            });
-
-            // Play appropriate sound
-            if (isPositiveCard && !isNegativeCard) {
-                gameSounds.playPowerUpSound();
-            } else if (isNegativeCard && !isPositiveCard) {
-                gameSounds.playBadCardSound();
-            } else {
-                // Mixed or neutral cards just use regular card sound
-                gameSounds.playCardSound();
+        // Apply immediate stat changes for upgrades
+        if (card.type === "upgrade") {
+            if (card.statModifiers) {
+                Object.entries(card.statModifiers).forEach(([stat, value]) => {
+                    const statKey = stat === 'workers' ? 'workerCount' : 
+                                stat === 'prestige' ? 'pastaPrestige' : 
+                                stat === 'chaos' ? 'chaosLevel' : stat;
+                    
+                    this.state.playerStats[statKey] = (this.state.playerStats[statKey] || 0) + value;
+                });
             }
-        } else {
-            // Default card sound if no modifiers
-            gameSounds.playCardSound();
         }
 
         // Increment turn counter BEFORE card effects
@@ -658,7 +589,7 @@ class Game {
 
         // Apply stat modifications with balance checks
         if (card.statModifiers) {
-            const balancedModifiers = this.applyStatModifiers(this.state, {...card.statModifiers});
+            const balancedModifiers = applyStatModifiers(this.state, {...card.statModifiers});
             Object.entries(balancedModifiers).forEach(([stat, value]) => {
                 const statKey = stat === 'workers' ? 'workerCount' : 
                               stat === 'prestige' ? 'pastaPrestige' : 
