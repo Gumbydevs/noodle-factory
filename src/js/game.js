@@ -894,6 +894,15 @@ class Game {
     }
 
     endGame(reason = '') {
+        // Convert reason to descriptive message
+        const gameOverMessages = {
+            'workers': 'Your workforce has abandoned the factory, leaving production at a standstill.',
+            'chaos': 'The factory has been consumed by chaos, lost to an interdimensional pasta incident.',
+            'ingredients': 'Production has ceased - the pantry is empty, and not a single noodle can be made.'
+        };
+
+        const endMessage = gameOverMessages[reason] || '';
+        
         this.isGameOver = true;
         this.checkHighScore();
         
@@ -919,7 +928,7 @@ class Game {
         gameOverScreen.innerHTML = `
             <div class="game-over-content">
                 <h2>Game Over!</h2>
-                <p class="end-reason">${reason}</p>
+                <p class="end-reason">${endMessage}</p>
                 
                 <div class="score-display">
                     <div class="current-score">
