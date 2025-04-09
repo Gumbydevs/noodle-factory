@@ -374,26 +374,30 @@ class Game {
         const shuffledCards = [...availableCards].sort(() => Math.random() - 0.5);
         const [leftCard, rightCard] = shuffledCards.slice(0, 2);
 
+        // Generate random colors for the flashy effects
+        const randomColor1 = '#' + Math.floor(Math.random()*16777215).toString(16);
+        const randomColor2 = '#' + Math.floor(Math.random()*16777215).toString(16);
+
         cardsContainer.innerHTML = `
             <div class="card ${this.checkCardPlayable(CARDS[leftCard]) ? '' : 'disabled'}" id="card-left">
-                ${CARDS[leftCard].type === "upgrade" ? '<div class="upgrade-label">Upgrade</div>' : ''}
+                ${CARDS[leftCard].type === "upgrade" ? `<div class="upgrade-label" style="animation: rainbowText 2s infinite"}>Upgrade</div>` : ''}
                 <h3>${leftCard}</h3>
                 <div class="card-description">${CARDS[leftCard].description}</div>
                 <div class="card-effects">
                     ${this.formatCardEffects(CARDS[leftCard].statModifiers)}
                 </div>
-                ${CARDS[leftCard].type === "upgrade" && CARDS[leftCard].requirements?.prestige ? 
-                    `<div class="requirement">Requires ${CARDS[leftCard].requirements.prestige} Prestige</div>` : ''}
+                ${CARDS[leftCard].type === "upgrade" ? 
+                    `<div class="requirement" style="animation: rainbowText 3s infinite">Prestigious Upgrade</div>` : ''}
             </div>
             <div class="card ${this.checkCardPlayable(CARDS[rightCard]) ? '' : 'disabled'}" id="card-right">
-                ${CARDS[rightCard].type === "upgrade" ? '<div class="upgrade-label">Upgrade</div>' : ''}
+                ${CARDS[rightCard].type === "upgrade" ? `<div class="upgrade-label" style="animation: rainbowText 2s infinite">Upgrade</div>` : ''}
                 <h3>${rightCard}</h3>
                 <div class="card-description">${CARDS[rightCard].description}</div>
                 <div class="card-effects">
                     ${this.formatCardEffects(CARDS[rightCard].statModifiers)}
                 </div>
-                ${CARDS[rightCard].type === "upgrade" && CARDS[rightCard].requirements?.prestige ? 
-                    `<div class="requirement">Requires ${CARDS[rightCard].requirements.prestige} Prestige</div>` : ''}
+                ${CARDS[rightCard].type === "upgrade" ? 
+                    `<div class="requirement" style="animation: rainbowText 3s infinite">Prestigious Upgrade</div>` : ''}
             </div>
         `;
 
