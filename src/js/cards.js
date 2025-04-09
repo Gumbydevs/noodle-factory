@@ -1414,18 +1414,7 @@ export function getRandomCard() {
 function checkCardPlayable(card) {
     if (!card.requirements) return true;
     
-    // Check for negative modifiers that would reduce stats below their minimums
-    if (card.statModifiers) {
-        if (card.statModifiers.workers < 0 && 
-            Math.abs(card.statModifiers.workers) >= state.playerStats.workerCount) {
-            return false;
-        }
-        if (card.statModifiers.ingredients < 0 && 
-            Math.abs(card.statModifiers.ingredients) >= state.playerStats.ingredients) {
-            return false;
-        }
-    }
-    
+    // All cards should be playable regardless of consequences
     return true;
 }
 
