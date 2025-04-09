@@ -710,7 +710,7 @@ class Game {
             const confirmDialog = document.createElement('div');
             confirmDialog.className = 'sell-confirm';
             confirmDialog.innerHTML = `
-                <p class="sell-text">Remove this upgrade?</p>
+                <p class="sell-text">Sell this upgrade?</p>
                 <div class="sell-buttons">
                     <button class="sell-yes">Yes</button>
                     <button class="sell-no">No</button>
