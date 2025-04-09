@@ -321,18 +321,29 @@ class Game {
     formatCardEffects(modifiers) {
         if (!modifiers) return '';
         
-        const colorClasses = {
-            prestige: 'prestige-color',
-            chaos: 'chaos-color',
-            ingredients: 'ingredients-color',
-            workers: 'energy-color'
-        };
-
         return Object.entries(modifiers)
             .map(([stat, value]) => {
                 const statName = stat.charAt(0).toUpperCase() + stat.slice(1);
-                const symbol = value > 0 ? '+' : '';
-                return `<span class="stat-modifier ${colorClasses[stat]}">${statName}: ${symbol}${value}</span>`;
+                
+                // New threshold logic for signs
+                let signs;
+                const absValue = Math.abs(value);
+                if (absValue <= 5) {
+                    signs = (value > 0 ? '+' : '-').repeat(1);
+                } else if (absValue <= 8) {
+                    signs = (value > 0 ? '+' : '-').repeat(2);
+                } else if (absValue <= 13) {
+                    signs = (value > 0 ? '+' : '-').repeat(3);
+                } else {
+                    signs = (value > 0 ? '+' : '-').repeat(4);
+                }
+                    
+                const signClass = value > 0 ? 'positive' : 'negative';
+                // Map 'workers' to 'energy' for color class
+                const statClass = stat === 'workers' ? 'energy-color' : `${stat}-color`;
+
+                // Include the colon in the colored span
+                return `<span class="stat-modifier"><span class="${statClass}">${statName}:</span> <span class="${signClass}">${signs}</span></span>`;
             })
             .join('');
     }

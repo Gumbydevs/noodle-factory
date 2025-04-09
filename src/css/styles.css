@@ -854,6 +854,16 @@ body.chaos-level-max .stat-progress-fill.turn-color {
     color: #9b59b6; /* Purple */
 }
 
+/* Color classes for stat names */
+.prestige-color { color: #f1c40f; }    /* Golden yellow */
+.chaos-color { color: #e74c3c; }        /* Red */
+.ingredients-color { color: #2ecc71; }  /* Green */
+.energy-color { color: #3498db; }       /* Blue */
+
+/* Plus/minus sign colors */
+.positive { color: #2ecc71 !important; } /* Always green for plus */
+.negative { color: #e74c3c !important; } /* Always red for minus */
+
 /* Add matching color classes for stat modifiers using the same colors as stat bars */
 .stat-modifier.prestige {
     color: var(--prestige-color, #27ae60);  /* matches prestige-color */
