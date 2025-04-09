@@ -708,6 +708,7 @@ class Game {
         
         // Check if we already have 2 upgrades
         if (existingUpgrades.length >= 2) {
+            gameSounds.playUpgradeBlockedSound();
             this.showEffectMessage("Maximum of 2 factory upgrades allowed! Sell an upgrade first.");
             return false;
         }
@@ -747,6 +748,7 @@ class Game {
                 // Handle Yes/No clicks
                 sellConfirm.querySelector('.sell-yes').onclick = (e) => {
                     e.stopPropagation();
+                    gameSounds.playUpgradeSellSound();
                     // Give ingredients as reward
                     this.state.playerStats.ingredients += 3;
                     // Remove upgrade effects
@@ -790,9 +792,11 @@ class Game {
             setTimeout(() => {
                 upgradeElement.style = ''; // Reset styles
                 upgradesGrid.appendChild(upgradeElement);
+                gameSounds.playUpgradePinSound();
             }, 500);
         } else {
             upgradesGrid.appendChild(upgradeElement);
+            gameSounds.playUpgradePinSound();
         }
         
         return true;

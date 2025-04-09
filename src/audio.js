@@ -499,6 +499,161 @@ export class GameSounds {
         }
     }
 
+    playUpgradePinSound() {
+        this.ensureAudioContext();
+        if (!this.ctx) return;
+        try {
+            const gainNode = this.ctx.createGain();
+            gainNode.gain.value = 0.15;
+
+            // Mechanical click
+            const clickOsc = this.ctx.createOscillator();
+            clickOsc.type = 'square';
+            clickOsc.frequency.value = 150;
+            
+            // Mechanical whir
+            const whirOsc = this.ctx.createOscillator();
+            whirOsc.type = 'triangle';
+            whirOsc.frequency.value = 220;
+
+            // Metal clang
+            const clangOsc = this.ctx.createOscillator();
+            clangOsc.type = 'sine';
+            clangOsc.frequency.value = 440;
+
+            // Filter for mechanical sound
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 1000;
+            filter.Q.value = 2;
+
+            // Connect everything - with error checking
+            try {
+                [clickOsc, whirOsc, clangOsc].forEach(osc => {
+                    if (osc && osc.connect) osc.connect(filter);
+                });
+                if (filter && filter.connect) filter.connect(gainNode);
+                if (gainNode && gainNode.connect) gainNode.connect(this.gainNode);
+            } catch (connErr) {
+                console.warn('Connection error:', connErr);
+                return;
+            }
+
+            const now = this.ctx.currentTime;
+            
+            // Safer timing for oscillators
+            const schedulingOffset = 0.005; // 5ms safety margin
+            
+            // Click sound
+            try {
+                clickOsc.start(now + schedulingOffset);
+                clickOsc.stop(now + 0.1 + schedulingOffset);
+            } catch (e) {
+                console.warn('Click oscillator error:', e);
+            }
+            
+            // Whir sound
+            whirOsc.start(now + 0.05 + schedulingOffset);
+            whirOsc.frequency.exponentialRampToValueAtTime(110, now + 0.2 + schedulingOffset);
+            whirOsc.stop(now + 0.2 + schedulingOffset);
+            
+            // Clang sound
+            clangOsc.start(now + 0.15 + schedulingOffset);
+            clangOsc.stop(now + 0.25 + schedulingOffset);
+
+            // Envelope
+            gainNode.gain.setValueAtTime(0.15, now);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+            // Cleanup with error checking
+            const cleanup = () => {
+                try {
+                    gainNode.disconnect();
+                    [clickOsc, whirOsc, clangOsc].forEach(osc => {
+                        try { osc.disconnect(); } catch {}
+                    });
+                    filter.disconnect();
+                } catch {}
+            };
+            setTimeout(cleanup, 400);
+        } catch (e) {
+            console.warn('Error playing upgrade pin sound:', e);
+        }
+    }
+
+    playUpgradeBlockedSound() {
+        this.ensureAudioContext();
+        if (!this.ctx) return;
+        try {
+            const gainNode = this.ctx.createGain();
+            const osc = this.ctx.createOscillator();
+            
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(110, this.ctx.currentTime + 0.2);
+            
+            osc.connect(gainNode);
+            gainNode.connect(this.gainNode);
+            
+            gainNode.gain.setValueAtTime(0.1, this.ctx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+            
+            osc.start();
+            osc.stop(this.ctx.currentTime + 0.2);
+            
+            setTimeout(() => gainNode.disconnect(), 300);
+        } catch (e) {
+            console.warn('Error playing upgrade blocked sound:', e);
+        }
+    }
+
+    playUpgradeSellSound() {
+        this.ensureAudioContext();
+        if (!this.ctx) return;
+        try {
+            const gainNode = this.ctx.createGain();
+            gainNode.gain.value = 0.1;
+
+            // Cash register ding
+            const dingOsc = this.ctx.createOscillator();
+            dingOsc.type = 'sine';
+            dingOsc.frequency.value = 880;
+
+            // Coin sound
+            const coinOsc = this.ctx.createOscillator();
+            coinOsc.type = 'triangle';
+            coinOsc.frequency.value = 1320;
+
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.value = 2000;
+            filter.Q.value = 1;
+
+            [dingOsc, coinOsc].forEach(osc => osc.connect(filter));
+            filter.connect(gainNode);
+            gainNode.connect(this.gainNode);
+
+            const now = this.ctx.currentTime;
+
+            // Ding sound
+            dingOsc.start(now);
+            dingOsc.stop(now + 0.15);
+
+            // Coin sound
+            coinOsc.start(now + 0.1);
+            coinOsc.frequency.exponentialRampToValueAtTime(660, now + 0.3);
+            coinOsc.stop(now + 0.3);
+
+            // Envelope
+            gainNode.gain.setValueAtTime(0.1, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+
+            setTimeout(() => gainNode.disconnect(), 400);
+        } catch (e) {
+            console.warn('Error playing upgrade sell sound:', e);
+        }
+    }
+
     playPreMaxChaosSound() {
         this.ensureAudioContext();
         if (!this.ctx) return;
