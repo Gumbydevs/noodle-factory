@@ -446,13 +446,21 @@ class Game {
         `;
 
         // Add click handlers with requirement checks
-        document.getElementById('card-left').onclick = () => 
-            this.checkCardPlayable(CARDS[leftCard]) ? this.playCard(leftCard) : this.showDisabledCardFeedback(leftCard);
-        document.getElementById('card-right').onclick = () => 
-            this.checkCardPlayable(CARDS[rightCard]) ? this.playCard(rightCard) : this.showDisabledCardFeedback(rightCard);
+        document.getElementById('card-left').onclick = () => {
+            if (!this.checkCardPlayable(CARDS[leftCard], true)) { // Pass true for clicks
+                return;
+            }
+            this.playCard(leftCard);
+        };
+        document.getElementById('card-right').onclick = () => {
+            if (!this.checkCardPlayable(CARDS[rightCard], true)) { // Pass true for clicks
+                return;
+            }
+            this.playCard(rightCard);
+        };
     }
 
-    checkCardPlayable(card) {
+    checkCardPlayable(card, isClick = false) {  // Add isClick parameter
         if (!card) return true;
         
         // For upgrades, check prestige requirement and slot availability
@@ -460,6 +468,11 @@ class Game {
             // First check prestige requirement
             if (card.requirements?.prestige && 
                 this.state.playerStats.pastaPrestige < card.requirements.prestige) {
+                // Only show message and play sound if actually clicked
+                if (isClick) {
+                    gameSounds.playUpgradeBlockedSound();
+                    this.showEffectMessage(`<span style="color: #ff6347;">Not enough prestige! Requires ${card.requirements.prestige} prestige.</span>`);
+                }
                 return false;
             }
             
@@ -467,9 +480,8 @@ class Game {
             const upgradesGrid = document.querySelector('.upgrades-grid');
             const existingUpgrades = upgradesGrid.querySelectorAll('.upgrade-card');
             if (existingUpgrades.length >= 2) {
-                // Play blocked sound and show message only when actually trying to play
-                if (this._lastCheckedCard !== card) {
-                    this._lastCheckedCard = card;
+                // Only show message and play sound if actually clicked
+                if (isClick) {
                     gameSounds.playUpgradeBlockedSound();
                     this.showEffectMessage("Maximum of 2 factory upgrades allowed! Sell an upgrade first.");
                 }
@@ -477,7 +489,7 @@ class Game {
             }
         }
         
-        return true; // Allow all other cards to be played regardless of consequences
+        return true;
     }
 
     playCard(cardName) {
@@ -731,7 +743,7 @@ class Game {
         
         if (existingUpgrades.length >= 2) {
             gameSounds.playUpgradeBlockedSound();
-            this.showEffectMessage("Maximum of 2 factory upgrades allowed! Sell an upgrade first.");
+            this.showEffectMessage(`<span style="color: #ff6347;">Maximum of 2 factory upgrades allowed! Sell an upgrade first.</span>`);
             return false;
         }
         
