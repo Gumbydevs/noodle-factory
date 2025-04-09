@@ -725,10 +725,14 @@ class Game {
         if (!originalCard) return false;
 
         const origRect = originalCard.getBoundingClientRect();
-        const targetRect = upgradesGrid.getBoundingClientRect();
+        const gridRect = upgradesGrid.getBoundingClientRect();
+        
+        // Calculate target position based on number of existing upgrades
+        const targetX = gridRect.left + (existingUpgrades.length * (120 + 10)); // 120px card width + 10px gap
+        const targetY = gridRect.top;
         
         const upgradeElement = document.createElement('div');
-        upgradeElement.className = 'upgrade-card';
+        upgradeElement.className = 'upgrade-card pinning';
         upgradeElement.style.position = 'fixed';
         upgradeElement.style.left = `${origRect.left}px`;
         upgradeElement.style.top = `${origRect.top}px`;
@@ -750,15 +754,15 @@ class Game {
         requestAnimationFrame(() => {
             upgradeElement.style.transition = 'all 0.5s ease-out';
             upgradeElement.style.transform = 'scale(0.4)';
-            upgradeElement.style.left = `${targetRect.left}px`;
-            upgradeElement.style.top = `${targetRect.top}px`;
+            upgradeElement.style.left = `${targetX}px`;
+            upgradeElement.style.top = `${targetY}px`;
             
             setTimeout(() => {
                 upgradeElement.style = ''; // Reset styles
                 upgradesGrid.appendChild(upgradeElement);
                 gameSounds.playUpgradePinSound();
                 
-                // Add click handler for selling
+                // Add click handler for selling upgrades
                 this.addUpgradeClickHandler(upgradeElement, card);
             }, 500);
         });
