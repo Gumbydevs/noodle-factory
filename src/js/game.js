@@ -451,15 +451,27 @@ class Game {
 
         // Apply immediate stat changes for upgrades
         if (card.type === "upgrade") {
-            if (card.statModifiers) {
-                Object.entries(card.statModifiers).forEach(([stat, value]) => {
-                    const statKey = stat === 'workers' ? 'workerCount' : 
-                                stat === 'prestige' ? 'pastaPrestige' : 
-                                stat === 'chaos' ? 'chaosLevel' : stat;
-                    
-                    this.state.playerStats[statKey] = (this.state.playerStats[statKey] || 0) + value;
-                });
+            if (card.requirements) {
+                const { prestige } = card.requirements;
+                if (prestige && this.state.playerStats.pastaPrestige < prestige) {
+                    gameSounds.playBadCardSound();
+                    this.showEffectMessage("Not enough prestige for this upgrade!");
+                    return;
+                }
             }
+            
+            // Pin the upgrade card AND draw new cards immediately
+            this.pinUpgradeCard(cardName, card);
+            this.drawNewCards(); // Added this line
+            
+            // Apply permanent upgrade effects
+            const upgradeEffect = card.effect(this.state);
+            this.showEffectMessage(upgradeEffect);
+            
+            // Update permanent stats
+            this.applyUpgradeStats(card.permanentStats);
+            
+            return; // Exit early after handling upgrade
         }
 
         // Increment turn counter BEFORE card effects
@@ -637,43 +649,6 @@ class Game {
                 const currentValue = this.state.playerStats[statKey] || 0;
                 this.state.playerStats[statKey] = Math.max(0, currentValue + Number(value));
             });
-        }
-
-        if (card.type === "upgrade") {
-            if (card.requirements) {
-                const { prestige } = card.requirements;
-                if (prestige && this.state.playerStats.pastaPrestige < prestige) {
-                    gameSounds.playBadCardSound();
-                    this.showEffectMessage("Not enough prestige for this upgrade!");
-                    return;
-                }
-            }
-            
-            // Pin the upgrade card BEFORE hiding other cards
-            this.pinUpgradeCard(cardName, card);
-            
-            // Apply permanent upgrade effects
-            const upgradeEffect = card.effect(this.state);
-            this.showEffectMessage(upgradeEffect);
-            
-            // Update permanent stats
-            this.applyUpgradeStats(card.permanentStats);
-            
-            // Don't immediately draw new cards for upgrades
-            setTimeout(() => {
-                document.querySelectorAll('.card').forEach(card => {
-                    card.classList.add('played');
-                    card.style.transform = 'scale(0.5)';
-                    card.style.opacity = '0';
-                });
-                
-                // Draw new cards after animation
-                setTimeout(() => {
-                    this.drawNewCards();
-                }, 500);
-            }, 1000);
-            
-            return; // Exit early after handling upgrade
         }
 
         // Process turn effects including prestige
