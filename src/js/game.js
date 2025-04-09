@@ -455,10 +455,24 @@ class Game {
     checkCardPlayable(card) {
         if (!card) return true;
         
-        // For upgrades, check prestige requirement
+        // For upgrades, check prestige requirement and slot availability
         if (card.type === "upgrade") {
+            // First check prestige requirement
             if (card.requirements?.prestige && 
                 this.state.playerStats.pastaPrestige < card.requirements.prestige) {
+                return false;
+            }
+            
+            // Then check upgrade slots
+            const upgradesGrid = document.querySelector('.upgrades-grid');
+            const existingUpgrades = upgradesGrid.querySelectorAll('.upgrade-card');
+            if (existingUpgrades.length >= 2) {
+                // Play blocked sound and show message only when actually trying to play
+                if (this._lastCheckedCard !== card) {
+                    this._lastCheckedCard = card;
+                    gameSounds.playUpgradeBlockedSound();
+                    this.showEffectMessage("Maximum of 2 factory upgrades allowed! Sell an upgrade first.");
+                }
                 return false;
             }
         }
