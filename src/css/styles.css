@@ -1294,13 +1294,13 @@ h1 {
     background: linear-gradient(135deg, #2c3e50, #3498db);
     border: 2px solid #f1c40e;
     border-radius: 12px;
-    padding: 12px 20px;
+    padding: 10px 24px;
     color: #fff;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     animation: achievementSlide 0.5s ease-out;
-    width: 480px;
+    width: 600px;
     max-width: 90vw;
-    min-height: 90px;
+    min-height: 75px;
     pointer-events: auto;
     transform-origin: center;
     opacity: 1;
