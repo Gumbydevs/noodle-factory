@@ -718,6 +718,13 @@ class Game {
 
     pinUpgradeCard(cardName, card) {
         const upgradesGrid = document.querySelector('.upgrades-grid');
+        const existingUpgrades = upgradesGrid.querySelectorAll('.upgrade-card');
+        
+        // Check if we already have 2 upgrades
+        if (existingUpgrades.length >= 2) {
+            this.showEffectMessage("Maximum of 2 factory upgrades allowed! Sell an upgrade first.");
+            return false;
+        }
         
         // Create miniature upgrade card
         const upgradeElement = document.createElement('div');
@@ -728,6 +735,50 @@ class Game {
                 ${this.formatPermanentEffects(card.permanentStats)}
             </div>
         `;
+
+        // Add click handler for selling
+        upgradeElement.addEventListener('click', () => {
+            if (!upgradeElement.classList.contains('selling')) {
+                // First click - show sell confirmation
+                upgradeElement.classList.add('selling');
+                const originalRect = upgradeElement.getBoundingClientRect();
+                
+                upgradeElement.style.position = 'relative';
+                upgradeElement.style.zIndex = '1000';
+                upgradeElement.style.transform = 'scale(1.2) translateY(-10px)';
+                
+                const sellConfirm = document.createElement('div');
+                sellConfirm.className = 'sell-confirm';
+                sellConfirm.innerHTML = `
+                    <div class="sell-text">Sell upgrade?</div>
+                    <div class="sell-buttons">
+                        <button class="sell-yes">Yes</button>
+                        <button class="sell-no">No</button>
+                    </div>
+                `;
+                upgradeElement.appendChild(sellConfirm);
+
+                // Handle Yes/No clicks
+                sellConfirm.querySelector('.sell-yes').onclick = (e) => {
+                    e.stopPropagation();
+                    // Give ingredients as reward
+                    this.state.playerStats.ingredients += 3;
+                    // Remove upgrade effects
+                     this.removeUpgradeStats(card.permanentStats);
+                    // Remove the upgrade card with animation
+                    upgradeElement.style.transform = 'scale(0)';
+                    setTimeout(() => upgradeElement.remove(), 300);
+                    this.updateDisplay();
+                };
+
+                sellConfirm.querySelector('.sell-no').onclick = (e) => {
+                    e.stopPropagation();
+                    upgradeElement.classList.remove('selling');
+                    upgradeElement.style.transform = '';
+                    sellConfirm.remove();
+                };
+            }
+        });
         
         // Animate the card shrinking and moving
         const originalCard = document.querySelector('.card[data-selected="true"]');
@@ -757,6 +808,8 @@ class Game {
         } else {
             upgradesGrid.appendChild(upgradeElement);
         }
+        
+        return true;
     }
 
     formatPermanentEffects(permanentStats) {
@@ -797,6 +850,24 @@ class Game {
                     break;
                 case 'workerEfficiency':
                     this.state.playerStats.workerLossRate *= (1 - value);
+                    break;
+            }
+        });
+    }
+
+    removeUpgradeStats(permanentStats) {
+        if (!permanentStats) return;
+        
+        Object.entries(permanentStats).forEach(([stat, value]) => {
+            switch(stat) {
+                case 'prestigeGain':
+                    this.state.playerStats.prestigeGainRate -= value;
+                    break;
+                case 'chaosReduction':
+                    this.state.playerStats.chaosGainRate /= (1 - value);
+                    break;
+                case 'workerEfficiency':
+                    this.state.playerStats.workerLossRate /= (1 - value);
                     break;
             }
         });
