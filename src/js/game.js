@@ -1011,12 +1011,8 @@ class Game {
             document.body.appendChild(container);
         }
 
-        // Count existing popups to offset new ones
-        const existingPopups = container.children.length;
-        
         const popup = document.createElement('div');
         popup.className = 'achievement-popup';
-        popup.style.transform = `translateY(${existingPopups * 110}px)`; // Offset based on existing popups
         popup.innerHTML = `
             <h3>Achievement Unlocked!</h3>
             <p class="achievement-name">${name}</p>
@@ -1024,17 +1020,33 @@ class Game {
             <p class="achievement-reward">${achievement.reward}</p>
         `;
         
+        // Add popup to container but hide it initially
+        popup.style.opacity = '0';
         container.appendChild(popup);
+        
+        // Force a reflow to get accurate height
+        void popup.offsetHeight;
+        
+        // Get actual popup content height plus 1px gap
+        const popupHeight = popup.getBoundingClientRect().height + 1;
+        
+        // Show popup and position all popups
+        popup.style.opacity = '1';
+        
+        // Immediately position all popups with correct spacing
+        Array.from(container.children).forEach((p, index) => {
+            p.style.transform = `translateY(${index * popupHeight}px)`;
+        });
 
         // Remove popup after animation
         setTimeout(() => {
             popup.style.opacity = '0';
-            popup.style.transform = 'translateY(-20px)';
+            popup.style.transform = 'translateY(-10px)';
             setTimeout(() => {
                 popup.remove();
                 // Adjust positions of remaining popups
                 Array.from(container.children).forEach((remaining, index) => {
-                    remaining.style.transform = `translateY(${index * 110}px)`;
+                    remaining.style.transform = `translateY(${index * popupHeight}px)`;
                 });
             }, 500);
         }, 4500);
