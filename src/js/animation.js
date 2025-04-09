@@ -122,37 +122,42 @@ function handleCardClick(card) {
     // Force a reflow to ensure clean animation state
     void card.offsetWidth;
     
-    // Remove any existing event listeners
-    card.removeEventListener('animationend', hideCard);
-    
     // Set up the card for playing animation
     card.dataset.selected = 'true';
     card.classList.add('played');
     card.style.zIndex = '100';
     
-    // Function to hide the card after animation
-    function hideCard() {
-        card.style.display = 'none';
-        card.removeEventListener('animationend', hideCard);
-    }
-    
-    // Add event listener for animation end
-    card.addEventListener('animationend', hideCard, { once: true });
-    
-    // Start the animation on next frame, ensuring mobile browsers have time to process
-    requestAnimationFrame(() => {
+    if ('ontouchstart' in window) {
+        // Mobile devices: simpler transition-based animation
+        card.style.transition = 'transform 0.8s ease-out, opacity 0.8s ease-out';
+        
+        // Function to hide the card after transition
+        function hideCard() {
+            card.style.display = 'none';
+            card.removeEventListener('transitionend', hideCard);
+        }
+        
+        // Add event listener for transition end
+        card.addEventListener('transitionend', hideCard, { once: true });
+        
+        // Start the transition
         requestAnimationFrame(() => {
-            if ('ontouchstart' in window) {
-                // Mobile devices: simpler animation
-                card.style.transform = 'scale(0.8) translateY(-20px)';
-                card.style.opacity = '0';
-                card.style.transition = 'transform 0.8s ease-out, opacity 0.8s ease-out';
-            } else {
-                // Desktop: full animation
-                card.style.animation = 'selectedCardVanish 0.8s ease-out forwards';
-            }
+            card.style.transform = 'scale(0.8) translateY(-20px)';
+            card.style.opacity = '0';
         });
-    });
+    } else {
+        // Desktop: animation-based
+        function hideCard() {
+            card.style.display = 'none';
+            card.removeEventListener('animationend', hideCard);
+        }
+        
+        card.addEventListener('animationend', hideCard, { once: true });
+        
+        requestAnimationFrame(() => {
+            card.style.animation = 'selectedCardVanish 0.8s ease-out forwards';
+        });
+    }
 }
 
 // Handle cards that weren't selected
