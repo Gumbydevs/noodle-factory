@@ -413,32 +413,18 @@
     0% { 
         transform: rotate(0deg) scale(1);
         opacity: 1;
-        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
     }
     20% { 
         transform: rotate(-5deg) scale(1.1);
         opacity: 0.9;
-        clip-path: polygon(5% 5%, 95% 5%, 95% 95%, 5% 95%);
-    }
-    40% {
-        transform: rotate(3deg) scale(1.05);
-        opacity: 0.8;
-        clip-path: polygon(10% 10%, 90% 10%, 90% 90%, 10% 90%);
     }
     60% {
-        transform: rotate(-2deg) scale(0.95);
+        transform: rotate(2deg) scale(0.9);
         opacity: 0.6;
-        clip-path: polygon(20% 20%, 80% 20%, 80% 80%, 20% 80%);
-    }
-    80% {
-        transform: rotate(1deg) scale(0.9);
-        opacity: 0.3;
-        clip-path: polygon(30% 30%, 70% 30%, 70% 70%, 30% 70%);
     }
     100% { 
         transform: scale(0.5);
         opacity: 0;
-        clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%);
     }
 }
 
@@ -908,7 +894,13 @@ h1 {
     position: relative;
 }
 
-/* Optimize card animations with combined transforms */
+.card-container {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+    perspective: 1000px;
+}
+
 .card {
     display: flex;
     flex-direction: column;
@@ -922,304 +914,79 @@ h1 {
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    transition: transform 0.3s ease-out, opacity 0.3s ease-out, background-color 0.3s ease;
-    transform-origin: center center;
-    opacity: 1;
-    animation: 
-        cardLife 4.5s ease-in-out infinite,
-        cardFloat 3s ease-in-out infinite;
-    animation-delay: 
-        calc(random() * -4s),
-        calc(random() * -3s);
-    will-change: transform, opacity, background-color;
     backface-visibility: hidden;
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-}
-
-/* Card animation states */
-.card {
-    transition: transform 0.3s ease-out, opacity 0.3s ease-out, background-color 0.3s ease;
+    transform-style: preserve-3d;
     will-change: transform, opacity;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    transform: translateZ(0);
 }
 
-/* Fix the card dissolving animation by adding important flags */
-.card.played[data-selected="true"] {
-    animation: selectedCardVanish 0.8s ease-out forwards !important;
+/* Card animations */
+.card[data-selected="true"] {
+    animation: selectedCard 0.8s ease-out forwards;
     pointer-events: none;
     z-index: 100;
-    will-change: transform, opacity, clip-path;
-    transform-origin: center center;
-    transition: none !important;
-    /* Override any other animations */
-    transform: none !important;
-    opacity: 1 !important;
 }
 
-/* Ensure other animations don't interfere */
-.card.played[data-selected="true"]:not(.dissolving) {
-    animation: none !important;
-}
-
-/* Remove any conflicting hover states */
-.card.played[data-selected="true"]:hover {
-    animation: selectedCardVanish 0.8s ease-out forwards !important;
-    transform: none !important;
-}
-
-/* Card play animations - add after basic .card styles */
-.card.played:not([data-selected="true"]) {
-    animation: shrinkFadeAway 0.5s ease-out forwards !important;
-    pointer-events: none;
-    transition: none;
-}
-
-/* Add this to ensure no other animations interfere */
-.card.played {
-    animation: none !important;
+.card:not([data-selected="true"]).played {
+    animation: unselectedCard 0.5s ease-out forwards;
     pointer-events: none;
 }
 
-/* Scale animations with chaos levels */
-.chaos-level-1 .card {
-    animation: 
-        cardLife 6s ease-in-out infinite,
-        cardTwitch 4s ease-in-out infinite,
-        chromaticBackground1 4s ease-in-out infinite !important;
-    animation-delay: 
-        calc(random() * -6s),
-        calc(random() * -4s);
-}
-
-.chaos-level-2 .card {
-    animation: 
-        cardLife 5s ease-in-out infinite,
-        cardTwitch 3s ease-in-out infinite,
-        chromaticBackground2 3s ease-in-out infinite !important;
-    animation-delay: 
-        calc(random() * -5s),
-        calc(random() * -3s);
-}
-
-.chaos-level-3 .card {
-    animation: 
-        cardLife 4s ease-in-out infinite,
-        cardTwitch 2s ease-in-out infinite,
-        chromaticBackground3 2s ease-in-out infinite !important;
-    animation-delay: 
-        calc(random() * -4s),
-        calc(random() * -2s);
-}
-
-.chaos-level-max .card {
-    animation: 
-        cardLife 3s ease-in-out infinite,
-        cardTwitch 1.5s ease-in-out infinite,
-        chromaticBackgroundMax 1.5s ease-in-out infinite !important;
-    animation-delay: 
-        calc(random() * -3s),
-        calc(random() * -1.5s);
-}
-
-/* Ensure animations work on mobile */
-@media (hover: none) and (pointer: coarse) {
-    .card {
-        animation: 
-            cardFloat 3s ease-in-out infinite,
-            cardLife 4s ease-in-out infinite !important;
-        transform: none !important;
-        transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease;
+@keyframes selectedCard {
+    0% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
     }
-
-    .card:active:not(.played) {
-        background: #555;
-        transform: scale(0.98) !important;
+    20% {
+        transform: scale(1.1) rotate(-5deg);
+        opacity: 0.9;
     }
-
-    .card.played[data-selected="true"] {
-        animation: selectedCardVanish 0.5s ease-out forwards !important;
+    60% {
+        transform: scale(0.9) rotate(2deg);
+        opacity: 0.6;
     }
-
-    .card.played:not([data-selected="true"]) {
-        animation: none !important;
-        transform: scale(0.5) !important;
-        opacity: 0 !important;
-    }
-
-    .chaos-level-1 .card {
-        animation: 
-            cardFloat 2.8s ease-in-out infinite,
-            cardLife 4s ease-in-out infinite,
-            cardAliveChaos1 5s ease-in-out infinite !important;
-    }
-
-    .chaos-level-2 .card {
-        animation: 
-            cardFloat 2.5s ease-in-out infinite,
-            cardLife 3.5s ease-in-out infinite,
-            cardTwitchChaos 3s ease-in-out infinite !important;
-    }
-
-    .chaos-level-3 .card,
-    .chaos-level-max .card {
-        animation: 
-            cardFloat 2s ease-in-out infinite,
-            cardLife 3s ease-in-out infinite,
-            colorCycle 4s infinite !important;
-    }
-
-    /* Keep other mobile rules... */
-    
-    .card.dissolving {
-        animation: selectedCardVanish 0.8s ease-out forwards !important;
-        pointer-events: none;
-        z-index: 999;
-        will-change: transform, opacity, clip-path;
-        transform-origin: center center;
+    100% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
     }
 }
 
-/* Update card hover styles to make animation slower */
-.card:hover:not(.played) {
-    background: #555;
-    transform: translateY(-5px);
+@keyframes unselectedCard {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
 }
 
-/* Update the card played animations */
-.card.played:not([data-selected="true"]) {
-    transform: scale(0.5) !important;
-    opacity: 0 !important;
-    transition: transform 0.3s ease-out, opacity 0.3s ease-out !important;
-    pointer-events: none !important;
+/* Hover effects only on non-touch devices */
+@media (hover: hover) {
+    .card:hover:not(.played):not(.unplayable) {
+        transform: translateY(-5px);
+    }
 }
 
-/* Remove the generic played class animation that was affecting both cards */
-.card.played {
-    pointer-events: none !important;
-    animation: none !important;
-}
-
-/* Remove conflicting rules */
-.card-container.clearing .card,
-.card-container:not(.played) .card,
-.card.played,
-.card.played[data-selected="true"],
-.card.played:not([data-selected="true"]) {
-    animation: none !important;
-}
-
-/* Add these specific rules to handle chaos states and hover */
-.chaos-level-1 .card,
-.chaos-level-2 .card,
-.chaos-level-3 .card,
-.chaos-level-max .card {
-    transform: none; /* Reset any existing transforms */
-    transition: transform 0.3s ease-out;
-}
-
-.chaos-level-1 .card:hover,
-.chaos-level-2 .card:hover,
-.chaos-level-3 .card:hover,
-.chaos-level-max .card:hover,
-.chaos-level-1 .card:active,
-.chaos-level-2 .card:active,
-.chaos-level-3 .card:active,
-.chaos-level-max .card:active {
-    transform: translateY(-10px);
-}
-
-/* Force hover state to be removed when card is played */
-.card.played {
-    transform: none !important;
-    transition: none !important;
-}
-
-/* Ensure touch devices maintain hover effect until card is played */
+/* Touch device optimizations */
 @media (hover: none) {
-    /* More aggressive override for touch devices */
-    .card,
-    .card:hover,
-    .card:active,
-    .card.played,
-    .chaos-level-1 .card,
-    .chaos-level-2 .card,
-    .chaos-level-3 .card,
-    .chaos-level-max .card {
-        animation: 
-            cardFloat 3s ease-in-out infinite,
-            cardLife 4.5s ease-in-out infinite !important;
-        transform: none !important;
-    }
-
-    /* ONLY apply these transforms when card is actually played */
-    .card.played[data-selected="true"] {
-        animation: none !important;
-        transform: scale(0.8) translateY(-20px) !important;
-        opacity: 0 !important;
-        transition: transform 0.5s ease-out, opacity 0.5s ease-out !important;
-    }
-
-    .card.played:not([data-selected="true"]) {
-        animation: none !important;
-        transform: scale(0.5) !important;
-        opacity: 0 !important;
-        transition: transform 0.3s ease-out, opacity 0.3s ease-out !important;
-    }
-
-    /* Remove touchExcited animation completely for touch devices */
-    @keyframes touchExcited {
-        0%, 100% { transform: scale(0.8) translateY(-20px); }
-    }
-
-    .card:hover {
-        transform: none !important;
-        animation: none !important;
+    .card {
+        transition: transform 0.2s ease-out;
     }
     
-    .card {
-        touch-action: manipulation;  /* Optimizes for touch */
+    .card:active:not(.played):not(.unplayable) {
+        transform: scale(0.98);
     }
 }
 
-/* Reset any transform when new cards are drawn */
-.card-container:not(.played) .card {
-    transform: none !important;
+/* Reset states */
+.card.clearing,
+.card-container.clearing .card {
     animation: none !important;
+    transform: none !important;
     transition: none !important;
-}
-
-.card:nth-child(odd) {
-    animation: 
-        cardFloat 3s ease-in-out infinite,
-        cardLife 4.5s ease-in-out infinite,
-        randomJitter 1.7s ease-in-out infinite;
-    animation-delay: 
-        -1.5s,
-        calc(random() * -4s),
-        calc(random() * -3s); /* Different random start time */
-}
-
-.card:nth-child(even) {
-    animation: 
-        cardFloat 3s ease-in-out infinite,
-        cardLife 4.5s ease-in-out infinite,
-        randomJitter 2.3s ease-in-out infinite;
-    animation-delay: 
-        0s,
-        calc(random() * -4s),
-        calc(random() * -2s); /* Different random start time */
-}
-
-#card-left {
-    animation-delay: 
-        calc(random() * -4s),
-        calc(random() * -3s);
-}
-
-#card-right {
-    animation-delay: 
-        calc(random() * -4s),
-        calc(random() * -3s);
 }
 
 .card h3 {
@@ -1258,17 +1025,16 @@ h1 {
 }
 
 .card.unplayable {
-    opacity: 0.85;  /* Increased from 0.7 for better visibility */
+    opacity: 0.85;
     cursor: not-allowed;
-    background: #383838;  /* Slightly lighter for better contrast */
-    filter: grayscale(50%);  /* Reduced from 80% to be less severe */
+    background: #383838;
+    filter: grayscale(50%);
     border: 1px solid #555;
 }
 
 .card.unplayable:hover {
     transform: none;
-    background: #383838;  /* Match the new background */
-    animation: none;
+    background: #383838;
 }
 
 .card.unplayable h3 {

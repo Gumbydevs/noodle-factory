@@ -126,4 +126,49 @@ window.addEventListener('DOMContentLoaded', () => {
     scheduleNextNoodle();
 });
 
-export { triggerNoodleRoll, randomizeNoodle };
+// Card animation handling
+function handleCardClick(card) {
+    if (card.classList.contains('unplayable')) return;
+    
+    // Remove any existing animations
+    card.style.animation = 'none';
+    card.offsetHeight; // Trigger reflow
+    
+    // Mark as selected and trigger vanish animation
+    card.dataset.selected = 'true';
+    card.classList.add('played');
+    
+    // Ensure animations complete
+    card.addEventListener('animationend', () => {
+        card.style.display = 'none';
+    }, { once: true });
+}
+
+// Handle cards that weren't selected
+function handleUnselectedCards(cards) {
+    cards.forEach(card => {
+        if (!card.dataset.selected) {
+            card.classList.add('played');
+            card.addEventListener('animationend', () => {
+                card.style.display = 'none';
+            }, { once: true });
+        }
+    });
+}
+
+// Reset card state when new cards are drawn
+function resetCardState(card) {
+    card.style.animation = '';
+    card.style.transform = '';
+    card.style.display = '';
+    card.classList.remove('played');
+    card.removeAttribute('data-selected');
+}
+
+export { 
+    triggerNoodleRoll, 
+    randomizeNoodle,
+    handleCardClick,
+    handleUnselectedCards,
+    resetCardState
+};
