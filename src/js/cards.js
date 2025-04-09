@@ -1222,6 +1222,45 @@ export const CARDS = {
             state.playerStats.factoryUpgrades.pastaArchives = true;
             return "Ancient pasta wisdom flows through your factory!";
         }
+    },
+    "Sentient Supply Bot": {
+        description: "Install an AI-powered supply robot that occasionally malfunctions.",
+        type: "upgrade",
+        requirements: { prestige: 25 },
+        permanentStats: {
+            ingredientGain: 0.25,    // 25% chance for extra ingredients
+            workerEfficiency: -0.15  // Workers are 15% less efficient (scared of the robot)
+        },
+        statModifiers: {
+            ingredients: 3,
+            workers: -2,
+            chaos: 8
+        },
+        effect: (state) => {
+            savePlayedCard("Sentient Supply Bot");
+            state.playerStats.factoryUpgrades.supplyBot = true;
+            return "The robot seems friendly... mostly.";
+        }
+    },
+    "Quantum Ingredient Replicator": {
+        description: "A device that duplicates ingredients by pulling from parallel universes.",
+        type: "upgrade",
+        requirements: { prestige: 30 },
+        permanentStats: {
+            ingredientGain: 0.2,     // 20% chance for extra ingredients
+            chaosReduction: -0.25,   // 25% more chaos gain (unstable parallel universes)
+            prestigeGain: -0.1      // 10% less prestige (customers suspicious of duplicated ingredients)
+        },
+        statModifiers: {
+            ingredients: 4,
+            chaos: 12,
+            prestige: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Quantum Ingredient Replicator");
+            state.playerStats.factoryUpgrades.quantumReplicator = true;
+            return "Reality bends as ingredients multiply... concerning.";
+        }
     }
 }; // End of CARDS object
 
