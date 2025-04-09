@@ -412,13 +412,21 @@ class Game {
         const existingUpgrades = upgradesGrid.querySelectorAll('.upgrade-card');
         const slotsAreFull = existingUpgrades.length >= 2;
 
-        if (this.state.playerStats.pastaPrestige >= 100) {
-            // At max prestige, check slots before offering upgrades
+        if (this.state.playerStats.pastaPrestige >= 25) {
             const upgradeCards = availableCards.filter(name => CARDS[name].type === "upgrade");
             const regularCards = availableCards.filter(name => CARDS[name].type !== "upgrade");
             
-            if (!slotsAreFull && Math.random() < 0.75 && upgradeCards.length > 0) {
-                // Original high chance for upgrade when slots available
+            // New scaled chances based on prestige
+            let upgradeChance;
+            if (this.state.playerStats.pastaPrestige >= 50) {
+                // Reduced chance for 50+ prestige (was 0.75)
+                upgradeChance = Math.min(0.45, (this.state.playerStats.pastaPrestige - 50) / 150);
+            } else {
+                // Reduced chance for 25-49 prestige (was 0.35)
+                upgradeChance = Math.min(0.25, (this.state.playerStats.pastaPrestige - 25) / 150);
+            }
+            
+            if (Math.random() < upgradeChance && upgradeCards.length > 0) {
                 shuffledCards = [
                     upgradeCards[Math.floor(Math.random() * upgradeCards.length)],
                     regularCards[Math.floor(Math.random() * regularCards.length)]
@@ -428,21 +436,9 @@ class Game {
                     shuffledCards.reverse();
                 }
             } else {
-                // When slots are full, heavily reduce upgrade chance (only 15% chance)
-                if (slotsAreFull && Math.random() > 0.85 && upgradeCards.length > 0) {
-                    shuffledCards = [
-                        upgradeCards[Math.floor(Math.random() * upgradeCards.length)],
-                        regularCards[Math.floor(Math.random() * regularCards.length)]
-                    ];
-                    if (Math.random() < 0.5) {
-                        shuffledCards.reverse();
-                    }
-                } else {
-                    shuffledCards = [...regularCards].sort(() => Math.random() - 0.5);
-                }
+                shuffledCards = [...regularCards].sort(() => Math.random() - 0.5);
             }
         } else {
-            // Original behavior for non-max prestige
             shuffledCards = [...availableCards].sort(() => Math.random() - 0.5);
         }
 
@@ -868,21 +864,42 @@ class Game {
         
         return Object.entries(permanentStats)
             .map(([stat, value]) => {
+                // Convert value to appropriate number of signs
+                const absValue = Math.abs(value * 100);
                 let signs;
-                const absValue = Math.abs(value * 100); // Convert decimal to percentage
-                if (absValue <= 5) {
+                if (absValue <= 15) {
                     signs = (value > 0 ? '+' : '-').repeat(1);
-                } else if (absValue <= 8) {
+                } else if (absValue <= 25) {
                     signs = (value > 0 ? '+' : '-').repeat(2);
-                } else if (absValue <= 13) {
+                } else if (absValue <= 35) {
                     signs = (value > 0 ? '+' : '-').repeat(3);
                 } else {
                     signs = (value > 0 ? '+' : '-').repeat(4);
                 }
                 
+                // Map stats to display names
+                const statDisplay = {
+                    'prestigeGain': 'Prestige',
+                    'chaosReduction': 'Chaos',
+                    'workerEfficiency': 'Workers',
+                    'workerLossRate': 'Workers',
+                    'ingredientGain': 'Ingredients'
+                }[stat] || stat;
+
+                // Get color class
+                const colorClass = {
+                    'prestigeGain': 'prestige-color',
+                    'chaosReduction': 'chaos-color',
+                    'workerEfficiency': 'energy-color',
+                    'workerLossRate': 'energy-color',
+                    'ingredientGain': 'ingredients-color'
+                }[stat] || '';
+                
                 const signClass = value > 0 ? 'positive' : 'negative';
-                return `<div class="permanent-effect ${stat}-color">
-                    ${stat}: <span class="${signClass}">${signs}</span>
+                
+                return `<div class="permanent-effect">
+                    <span class="${colorClass}">${statDisplay}:</span>
+                    <span class="${signClass}">${signs}</span>
                 </div>`;
             })
             .join('');
