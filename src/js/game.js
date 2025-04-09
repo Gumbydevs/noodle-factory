@@ -536,6 +536,7 @@ class Game {
             if (clickedCard) {
                 clickedCard.classList.add('played');
                 clickedCard.setAttribute('data-selected', 'true');
+                clickedCard.style.zIndex = '100';
             }
             if (otherCard) {
                 otherCard.classList.add('played');
