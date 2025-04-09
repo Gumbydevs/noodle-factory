@@ -50,6 +50,29 @@ const SITUATIONS = [
     "Vending machine dispensing uncooked pasta instead of snacks."
 ];
 
+const TOOLTIPS = [
+    "Some say keeping chaos at exactly 50% leads to... interesting developments.",
+    "High prestige pasta attracts more prestigious opportunities...",
+    "The ancient scrolls mention something about surviving three days at maximum chaos.",
+    "Workers whisper about hidden upgrades requiring specific achievements.",
+    "Legend speaks of a worker who maintained perfect efficiency through chaos.",
+    "The old maintenance manual suggests patterns in the chaos levels.",
+    "Factory veterans claim certain card combinations trigger special events.",
+    "Sometimes losing a few ingredients leads to unexpected discoveries.",
+    "Rumor has it the pasta archives hold secrets about managing chaos.",
+    "An old note mentions 'predictable chaos' every few turns...",
+    "The employee handbook has a torn page about 'prestigeous timing'.",
+    "Some workers swear the factory changes behavior at specific prestige levels.",
+    "Mysterious formulas on the wall hint at optimal worker-to-chaos ratios.",
+    "The suggestion box contains notes about 'chaos-prestige synergy'.",
+    "Factory elders speak of special events triggered by perfect timing.",
+    "Ancient pasta wisdom suggests balance between growth and stability.",
+    "The factory's oldest machines seem to respond to specific resource levels.",
+    "Keeping ingredients above certain thresholds might prevent... incidents.",
+    "Scattered research notes mention experiments with controlled chaos.",
+    "The night shift reports strange patterns in resource consumption."
+];
+
 class Game {
     constructor() {
         // Add static reference to game instance
@@ -1242,19 +1265,25 @@ class Game {
             // Add proper classes in the correct order
             messageBox.className = 'message-box feedback';
             
-            // Schedule return to situation message
+            // Schedule return to random situation or tooltip message
             setTimeout(() => {
-                const randomSituation = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
+                // Combine situations and tooltips with 70/30 ratio
+                const allMessages = [...SITUATIONS];
+                // Only add tooltips occasionally
+                if (Math.random() < 0.3) {
+                    allMessages.push(...TOOLTIPS);
+                }
+                const randomMessage = allMessages[Math.floor(Math.random() * allMessages.length)];
                 
-                // Split situation message into words
-                const situationWords = randomSituation.split(' ');
-                const wrappedSituation = situationWords.map((word, index) => 
+                // Split situation/tooltip message into words
+                const messageWords = randomMessage.split(' ');
+                const wrappedMessage = messageWords.map((word, index) => 
                     `<span style="--word-index: ${index}">${word}</span>`
                 ).join(' ');
                 
                 // Update classes in correct order
                 messageBox.className = 'message-box situation';
-                textSpan.innerHTML = wrappedSituation;
+                textSpan.innerHTML = wrappedMessage;
             }, 3000);
         }
     }
