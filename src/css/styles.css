@@ -2158,8 +2158,47 @@ h1 {
 }
 
 .wiggle-selected {
-    animation: wiggle-selected 0.5s ease-in-out;
+    animation: wiggle-selected 0.5s ease-in-out !important;
     transform-origin: center center;
+}
+
+/* Fix card dissolving animation */
+.card.dissolving {
+    animation: selectedCardVanish 0.8s ease-out forwards !important;
+    pointer-events: none;
+    z-index: 999;
+    will-change: transform, opacity, clip-path;
+    transform-origin: center center;
+}
+
+/* Ensure no other animations interfere with the dissolving animation */
+.card.dissolving.chaos-level-1,
+.card.dissolving.chaos-level-2,
+.card.dissolving.chaos-level-3,
+.card.dissolving.chaos-level-max {
+    animation: selectedCardVanish 0.8s ease-out forwards !important;
+}
+
+/* Fix upgrade card pinning animation */
+.upgrade-card {
+    position: relative;
+    transition: all 0.5s ease-out;
+    transform-origin: center center;
+    will-change: transform, opacity;
+}
+
+/* Override any interfering animations when card is being moved to upgrades */
+.card[data-selected="true"] {
+    z-index: 1000;
+    position: fixed;
+    pointer-events: none;
+    transition: all 0.5s ease-out;
+    will-change: transform;
+}
+
+/* Ensure the original card stays visible during transition */
+.card[data-selected="true"]:not(.dissolving) {
+    opacity: 1 !important;
 }
 
 /* Smoke particle styling */
