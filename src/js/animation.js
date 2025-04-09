@@ -130,15 +130,24 @@ window.addEventListener('DOMContentLoaded', () => {
 function handleCardClick(card) {
     if (card.classList.contains('unplayable')) return;
     
-    // Remove any existing animations
-    card.style.animation = 'none';
-    card.offsetHeight; // Trigger reflow
+    // First, remove all existing animations and transformations
+    card.style.cssText = '';
+    card.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max');
     
-    // Mark as selected and trigger vanish animation
+    // Force a reflow to ensure clean animation state
+    void card.offsetHeight;
+    
+    // Set up the card for playing animation
     card.dataset.selected = 'true';
     card.classList.add('played');
+    card.style.zIndex = '100';
     
-    // Ensure animations complete
+    // Ensure the playing animation takes precedence
+    requestAnimationFrame(() => {
+        card.style.animation = 'selectedCardVanish 0.8s ease-out forwards';
+    });
+    
+    // Clean up after animation
     card.addEventListener('animationend', () => {
         card.style.display = 'none';
     }, { once: true });
@@ -148,7 +157,14 @@ function handleCardClick(card) {
 function handleUnselectedCards(cards) {
     cards.forEach(card => {
         if (!card.dataset.selected) {
+            // Remove chaos animations first
+            card.style.cssText = '';
+            card.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max');
+            void card.offsetHeight;
+            
             card.classList.add('played');
+            card.style.animation = 'shrinkFadeAway 0.5s ease-out forwards';
+            
             card.addEventListener('animationend', () => {
                 card.style.display = 'none';
             }, { once: true });

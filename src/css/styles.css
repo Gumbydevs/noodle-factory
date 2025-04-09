@@ -921,46 +921,42 @@ h1 {
     transform: translateZ(0);
 }
 
-/* Card animations */
+/* Card playing animations - these must override chaos effects */
 .card[data-selected="true"] {
-    animation: selectedCard 0.8s ease-out forwards;
+    animation: selectedCardVanish 0.8s ease-out forwards !important;
     pointer-events: none;
     z-index: 100;
+    transform-origin: center center;
+    will-change: transform, opacity;
+    animation-delay: 0s !important;
 }
 
 .card:not([data-selected="true"]).played {
-    animation: unselectedCard 0.5s ease-out forwards;
+    animation: shrinkFadeAway 0.5s ease-out forwards !important;
     pointer-events: none;
+    animation-delay: 0s !important;
 }
 
-@keyframes selectedCard {
-    0% {
-        transform: scale(1) rotate(0deg);
-        opacity: 1;
-    }
-    20% {
-        transform: scale(1.1) rotate(-5deg);
-        opacity: 0.9;
-    }
-    60% {
-        transform: scale(0.9) rotate(2deg);
-        opacity: 0.6;
-    }
-    100% {
-        transform: scale(0) rotate(0deg);
-        opacity: 0;
-    }
+/* Chaos level card styles */
+.chaos-level-1 .card:not(.played):not([data-selected="true"]),
+.chaos-level-2 .card:not(.played):not([data-selected="true"]),
+.chaos-level-3 .card:not(.played):not([data-selected="true"]),
+.chaos-level-max .card:not(.played):not([data-selected="true"]) {
+    animation: none !important;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
 }
 
-@keyframes unselectedCard {
-    0% {
-        transform: scale(1);
-        opacity: 1;
-    }
-    100% {
-        transform: scale(0);
-        opacity: 0;
-    }
+/* Only apply chaos animations to cards that aren't being played */
+.chaos-level-1 .card:not(.played):not([data-selected="true"]) {
+    animation: subtleWiggle 4s ease-in-out infinite;
+}
+
+.chaos-level-2 .card:not(.played):not([data-selected="true"]) {
+    animation: subtleWiggle 3s ease-in-out infinite, subtleDistort 5s infinite;
+}
+
+.chaos-level-3 .card:not(.played):not([data-selected="true"]) {
+    animation: distort 4s infinite, wiggle 3s infinite;
 }
 
 /* Hover effects only on non-touch devices */
