@@ -9,7 +9,8 @@
 </head>
 <body>
     <div id="game-container">
-        <h1>The <span class="jiggly">Noodle</span> Factory</h1>
+        <h1>The <span class="jiggly">Noodle</span> Factory <span class="jiggly">🍜</span></h1>
+        
         <div id="stats">
             <div class="stat">
                 <div class="stat-label">Prestige</div>
@@ -48,20 +49,9 @@
             </div>
         </div>
 
-        <div id="game-messages" class="message-box"></div>
-        
-        <div id="cards-container">
-            <div id="card-left" class="card">
-                <h3></h3>
-                <p class="card-description"></p>
-                <div class="card-effects"></div>
-            </div>
-            <div id="card-right" class="card">
-                <h3></h3>
-                <p class="card-description"></p>
-                <div class="card-effects"></div>
-            </div>
-        </div>
+        <div id="game-messages"></div>
+
+        <div id="cards-container" class="hidden"></div>
 
         <div class="noodle-decoration">
             <svg class="noodle-worm" width="120" height="60" viewBox="0 0 180 60">
@@ -95,7 +85,8 @@
         </div>
 
         <div class="button-container">
-            <button id="start-game" class="button">Start Run</button>
+            <button id="start-game" class="button primary">Start New Run</button>
+            <!-- Continue button will be added dynamically when there's a save -->
             <button id="options-button" class="button secondary">Options</button>
         </div>
     </div>

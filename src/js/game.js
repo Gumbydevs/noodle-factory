@@ -1,6 +1,6 @@
 import { CARDS, getRandomCard, applyStatModifiers, applyUpgradeEffects } from './cards.js';
 import events from './events.js';
-import { gameState, updateResource, resetGameState, updateChaosEffects } from './state.js';
+import { gameState, updateResource, resetGameState, updateChaosEffects, saveGameState, loadGameState, clearSavedGame, hasSavedGame } from './state.js';
 import { ACHIEVEMENTS, checkAchievements, getUnlockedAchievements, resetAchievements } from './achievements.js';
 import { updateHighScore, getHighScore } from './highscore.js';
 import { triggerNoodleRoll } from './animation.js';
@@ -36,7 +36,7 @@ const SITUATIONS = [
     "The night shift left all the pasta tied in knots. Literally.",
     "Tuesday's pasta batch grew hair overnight. Green hair.",
     "Rats are stealing noodles to build a fort in the corner.",
-    "The emergency pasta button got pressed. There is no emergency pasta button.",
+    "The emergency pasta button got pressed.",
     "Coffee machine making pasta, pasta machine making coffee.",
     "Conveyor belt running backwards. Pasta going uphill!",
     "Ingredient delivery guy dropped off mystery meat. Meatballs???",
@@ -93,11 +93,14 @@ class Game {
         // Add static reference to game instance
         window.gameInstance = this;
 
+        // Initialize isGameStarted as false - we'll set it properly when actually starting/loading a game
+        this.isGameStarted = false;
+
         this.state = {
             playerStats: {
                 pastaPrestige: 0,
                 chaosLevel: 0,
-                ingredients: Math.floor(Math.random() * 6) + 5, // Random 5-10 ingredients
+                ingredients: Math.floor(Math.random() * 6) + 5,
                 workerCount: Math.floor(Math.random() * 6) + 15,
                 lostWorkers: 0,
                 lostIngredients: 0,
@@ -145,6 +148,11 @@ class Game {
         // Initial display update
         this.updateInitialDisplay();
 
+        // Only show start/continue buttons if game hasn't started
+        if (!this.isGameStarted) {
+            this.updateStartScreenButtons();
+        }
+
         // Hide cards initially
         this.hideCards();
         
@@ -160,6 +168,33 @@ class Game {
             messageBox.textContent = "Click below to start managing your Noodle Factory!";
             messageBox.classList.remove('feedback');
             messageBox.classList.add('situation');
+        }
+    }
+
+    updateStartScreenButtons() {
+        const startButton = document.getElementById('start-game');
+        if (!startButton || this.isGameStarted) return;
+
+        const hasSave = hasSavedGame();
+        
+        // Update start button text
+        startButton.textContent = 'Start New Run';
+        
+        // Create or update continue button
+        let continueButton = document.getElementById('continue-game');
+        if (hasSave) {
+            if (!continueButton) {
+                continueButton = document.createElement('button');
+                continueButton.id = 'continue-game';
+                continueButton.className = 'button primary';
+                continueButton.textContent = 'Continue Run';
+                startButton.parentNode.insertBefore(continueButton, startButton.nextSibling);
+                
+                // Add continue button handler
+                continueButton.addEventListener('click', () => this.loadGame());
+            }
+        } else if (continueButton) {
+            continueButton.remove();
         }
     }
 
@@ -1101,9 +1136,30 @@ class Game {
                 this.shareGameResults();
             };
         }
+
+        // Clear saved game on game over
+        clearSavedGame();
+        
+        // Update start screen buttons after game over
+        this.updateStartScreenButtons();
     }
 
     start() {
+        // Set game started flag first
+        this.isGameStarted = true;
+
+        // Remove continue button if it exists
+        const continueButton = document.getElementById('continue-game');
+        if (continueButton) {
+            continueButton.parentElement.removeChild(continueButton);
+        }
+
+        // Hide start screen elements
+        const startButton = document.getElementById('start-game');
+        if (startButton) {
+            startButton.classList.add('hidden');
+        }
+
         // Hide options button when game starts
         const optionsButton = document.getElementById('options-button');
         if (optionsButton) {
@@ -1177,6 +1233,9 @@ class Game {
         messageBox.textContent = "Welcome to your first day as Noodle Factory Manager! What's your first move?";
         messageBox.classList.remove('feedback');
         messageBox.classList.add('situation');
+
+        // Clear any existing saved game when starting new game
+        clearSavedGame();
     }
 
     checkProgression() {
@@ -1306,6 +1365,24 @@ class Game {
         
         // Rest of the existing code...
         // ...existing worker and prestige decay logic...
+
+        // Auto-save at the end of every turn
+        if (!this.isGameOver) {
+            this.autoSave();
+        }
+    }
+
+    autoSave() {
+        if (this.isGameOver) return;
+        
+        const saved = saveGameState({
+            ...this.state,
+            turn: this.turn
+        });
+
+        if (!saved) {
+            console.error('Failed to auto-save game state');
+        }
     }
 
     showEffectMessage(message) {
@@ -1356,6 +1433,49 @@ class Game {
                 textSpan.innerHTML = wrappedMessage;
             }, 3000);
         }
+    }
+
+    loadGame() {
+        const savedState = loadGameState();
+        if (!savedState) {
+            return;
+        }
+
+        // Set game started flag first
+        this.isGameStarted = true;
+
+        // Hide start screen elements, continue button, and options button
+        document.getElementById('start-game').classList.add('hidden');
+        const continueButton = document.getElementById('continue-game');
+        if (continueButton) {
+            continueButton.remove();
+        }
+        
+        // Hide options button when loading game
+        const optionsButton = document.getElementById('options-button');
+        if (optionsButton) {
+            optionsButton.style.display = 'none';
+        }
+
+        // Reset current game state
+        this.state = savedState;
+        this.turn = savedState.turn;
+        this.isGameOver = false;
+
+        // Clear and reset UI
+        document.body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
+        document.getElementById('game-messages').style.display = 'block';
+
+        // Show cards container (it might be hidden)
+        this.showCards();
+
+        // Update display and draw cards
+        this.updateDisplay();
+        this.drawNewCards();
+
+        // Play sound and show message
+        gameSounds.playStartGameSound();
+        this.showEffectMessage("Game loaded successfully!");
     }
 
     shareGameResults() {

@@ -1224,6 +1224,7 @@ h1 {
 .message-text {
     display: -webkit-box;
     -webkit-line-clamp: 2; /* Show max 2 lines */
+    line-clamp: 2; /* Standard property */
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2268,3 +2269,58 @@ h1 {
 .upgrade-card .prestigeGain-color { color: #f1c40f; }
 .upgrade-card .chaosReduction-color { color: #e74c3c; }
 .upgrade-card .workerEfficiency-color { color: #3498db; }
+
+/* Save/Load functionality styles */
+.save-load-container {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.save-load-container button {
+    padding: 8px 16px;
+    font-size: 14px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid #666;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.save-load-container button:hover {
+    background: rgba(30, 30, 30, 0.9);
+    border-color: #888;
+    transform: translateY(-1px);
+}
+
+.save-load-container button:active {
+    transform: translateY(1px);
+}
+
+/* Animation for save/load feedback */
+@keyframes saveLoadFeedback {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* Start screen button styles */
+.button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: center;
+    margin-top: 20px;
+}
+
+#continue-game {
+    margin-top: 2px;
+    background-color: #27ae60; /* Different color from new game button */
+}
+
+#continue-game:hover {
+    background-color: #2ecc71;
+}

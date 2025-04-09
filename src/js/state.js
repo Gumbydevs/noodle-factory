@@ -24,6 +24,57 @@ const gameState = {
     currentStatus: 'Game in Progress',
 };
 
+// Save game constants
+const SAVE_GAME_KEY = 'noodleFactorySaveGame';
+
+export function saveGameState(state) {
+    try {
+        const saveData = {
+            playerStats: state.playerStats,
+            resourceMeters: state.resourceMeters,
+            currentStatus: state.currentStatus,
+            turn: state.turn,
+            version: '1.0.0', // Add version for future compatibility
+            timestamp: Date.now()
+        };
+        localStorage.setItem(SAVE_GAME_KEY, JSON.stringify(saveData));
+        return true;
+    } catch (e) {
+        console.error('Error saving game:', e);
+        return false;
+    }
+}
+
+export function loadGameState() {
+    try {
+        const saveData = localStorage.getItem(SAVE_GAME_KEY);
+        if (!saveData) return null;
+        
+        const parsedData = JSON.parse(saveData);
+        
+        // Version check for future compatibility
+        if (!parsedData.version) return null;
+        
+        return {
+            playerStats: parsedData.playerStats,
+            resourceMeters: parsedData.resourceMeters,
+            currentStatus: parsedData.currentStatus,
+            turn: parsedData.turn
+        };
+    } catch (e) {
+        console.error('Error loading game:', e);
+        return null;
+    }
+}
+
+export function hasSavedGame() {
+    return localStorage.getItem(SAVE_GAME_KEY) !== null;
+}
+
+export function clearSavedGame() {
+    localStorage.removeItem(SAVE_GAME_KEY);
+}
+
 function updateResource(resource, amount) {
     if (gameState.resourceMeters[resource] !== undefined) {
         gameState.resourceMeters[resource] = Math.max(0, Math.min(100, gameState.resourceMeters[resource] + amount));
