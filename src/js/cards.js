@@ -1348,11 +1348,18 @@ export function getRandomCard() {
         return new Promise(resolve => {
             setTimeout(() => {
                 const cardNames = Object.keys(CARDS).filter(name => {
+                    // Skip cards in lastDrawnCards
                     if (lastDrawnCards.includes(name)) {
                         return false;
                     }
+                    // Check for Reggie's Return special case
                     if (name === "Return of Reggie") {
                         return gameState?.playerStats?.reggieEscaped === true;
+                    }
+                    // Filter out upgrade cards that don't meet prestige requirements
+                    if (CARDS[name].type === "upgrade") {
+                        const requiredPrestige = CARDS[name].requirements?.prestige || 0;
+                        return gameState?.playerStats?.pastaPrestige >= requiredPrestige;
                     }
                     return true;
                 });
@@ -1362,11 +1369,18 @@ export function getRandomCard() {
     }
 
     const cardNames = Object.keys(CARDS).filter(name => {
+        // Skip cards in lastDrawnCards
         if (lastDrawnCards.includes(name)) {
             return false;
         }
+        // Check for Reggie's Return special case
         if (name === "Return of Reggie") {
             return gameState?.playerStats?.reggieEscaped === true;
+        }
+        // Filter out upgrade cards that don't meet prestige requirements
+        if (CARDS[name].type === "upgrade") {
+            const requiredPrestige = CARDS[name].requirements?.prestige || 0;
+            return gameState?.playerStats?.pastaPrestige >= requiredPrestige;
         }
         return true;
     });
