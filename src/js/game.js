@@ -99,7 +99,7 @@ class Game {
         if (!document.querySelector('.upgrades-container')) {
             const upgradesContainer = document.createElement('div');
             upgradesContainer.className = 'upgrades-container';
-            upgradesContainer.innerHTML = '<h3>Factory Upgrades</h3><div class="upgrades-grid"></div>';
+            upgradesContainer.innerHTML = '<div class="upgrades-grid"></div>'; // Removed the h3 heading
             document.getElementById('game-container').appendChild(upgradesContainer);
         }
 
