@@ -1,4 +1,4 @@
-import { CARDS, getRandomCard } from './cards.js';
+import { CARDS, getRandomCard, applyUpgradeEffects } from './cards.js';
 import events from './events.js';
 import { gameState, updateResource, resetGameState, updateChaosEffects } from './state.js';
 import { ACHIEVEMENTS, checkAchievements, getUnlockedAchievements, resetAchievements } from './achievements.js';
@@ -64,11 +64,16 @@ class Game {
                 lostWorkers: 0,
                 lostIngredients: 0,
                 chaosSteadyTurns: 0,
+                turnsAtMaxChaos: 0, // Add this to track turns at max chaos
                 usedMagicCards: false,
                 survivedStrikes: 0,
                 strikeDeaths: 0,
                 perfectCooks: 0,
-                highestPrestigeDish: 0
+                highestPrestigeDish: 0,
+                factoryUpgrades: {},
+                prestigeGainRate: 1,
+                chaosGainRate: 1,
+                workerLossRate: 1
             }
         };
         this.isGameOver = false;
@@ -88,6 +93,14 @@ class Game {
             const overlay = document.createElement('div');
             overlay.className = 'crt-overlay';
             document.body.appendChild(overlay);
+        }
+
+        // Create upgrade container if it doesn't exist
+        if (!document.querySelector('.upgrades-container')) {
+            const upgradesContainer = document.createElement('div');
+            upgradesContainer.className = 'upgrades-container';
+            upgradesContainer.innerHTML = '<h3>Factory Upgrades</h3><div class="upgrades-grid"></div>';
+            document.getElementById('game-container').appendChild(upgradesContainer);
         }
 
         // Initial display update
@@ -326,27 +339,54 @@ class Game {
         const shuffledCards = [...availableCards].sort(() => Math.random() - 0.5);
         const [leftCard, rightCard] = shuffledCards.slice(0, 2);
 
-        // Create new card elements
         cardsContainer.innerHTML = `
-            <div class="card" id="card-left">
+            <div class="card ${this.checkCardPlayable(CARDS[leftCard]) ? '' : 'disabled'}" id="card-left">
+                ${CARDS[leftCard].type === "upgrade" ? '<div class="upgrade-label">Upgrade</div>' : ''}
                 <h3>${leftCard}</h3>
                 <div class="card-description">${CARDS[leftCard].description}</div>
                 <div class="card-effects">
                     ${this.formatCardEffects(CARDS[leftCard].statModifiers)}
                 </div>
+                ${CARDS[leftCard].requirements?.prestige ? 
+                    `<div class="requirement">Requires ${CARDS[leftCard].requirements.prestige} Prestige</div>` : ''}
             </div>
-            <div class="card" id="card-right">
+            <div class="card ${this.checkCardPlayable(CARDS[rightCard]) ? '' : 'disabled'}" id="card-right">
+                ${CARDS[rightCard].type === "upgrade" ? '<div class="upgrade-label">Upgrade</div>' : ''}
                 <h3>${rightCard}</h3>
                 <div class="card-description">${CARDS[rightCard].description}</div>
                 <div class="card-effects">
                     ${this.formatCardEffects(CARDS[rightCard].statModifiers)}
                 </div>
+                ${CARDS[rightCard].requirements?.prestige ? 
+                    `<div class="requirement">Requires ${CARDS[rightCard].requirements.prestige} Prestige</div>` : ''}
             </div>
         `;
 
-        // Add click handlers
-        document.getElementById('card-left').onclick = () => this.playCard(leftCard);
-        document.getElementById('card-right').onclick = () => this.playCard(rightCard);
+        // Add click handlers with requirement checks
+        document.getElementById('card-left').onclick = () => 
+            this.checkCardPlayable(CARDS[leftCard]) ? this.playCard(leftCard) : this.showDisabledCardFeedback(leftCard);
+        document.getElementById('card-right').onclick = () => 
+            this.checkCardPlayable(CARDS[rightCard]) ? this.playCard(rightCard) : this.showDisabledCardFeedback(rightCard);
+    }
+
+    checkCardPlayable(card) {
+        if (!card.requirements) return true;
+        
+        if (card.requirements.prestige && this.state.playerStats.pastaPrestige < card.requirements.prestige) {
+            return false;
+        }
+        if (card.requirements.ingredients && this.state.playerStats.ingredients < card.requirements.ingredients) {
+            return false;
+        }
+        return true;
+    }
+
+    showDisabledCardFeedback(cardName) {
+        const card = CARDS[cardName];
+        if (card.requirements?.prestige) {
+            gameSounds.playBadCardSound();
+            this.showEffectMessage(`Requires ${card.requirements.prestige} Prestige to unlock!`);
+        }
     }
 
     formatCardEffects(modifiers) {
@@ -575,12 +615,21 @@ class Game {
 
             // Check for chaos game over BEFORE applying any bounds
             if (projectedStats.chaosLevel >= 100) {
-                gameSounds.playGameOverSound();
-                this.endGame('chaos');
-                this.isGameOver = true;
-                return;
+                // Track turns at max chaos
+                projectedStats.turnsAtMaxChaos = (this.state.playerStats.turnsAtMaxChaos || 0) + 1;
+                
+                // Only trigger game over if we've been at max chaos for more than 2 turns
+                if (projectedStats.turnsAtMaxChaos > 2) {
+                    gameSounds.playGameOverSound();
+                    this.endGame('chaos');
+                    this.isGameOver = true;
+                    return;
+                }
+            } else {
+                // Reset turns at max chaos if chaos drops below 100
+                projectedStats.turnsAtMaxChaos = 0;
             }
-
+            
             // Apply bounds after game over check
             if (projectedStats.chaosLevel > 100) {
                 projectedStats.chaosLevel = 100;
@@ -626,6 +675,43 @@ class Game {
                 const currentValue = this.state.playerStats[statKey] || 0;
                 this.state.playerStats[statKey] = Math.max(0, currentValue + Number(value));
             });
+        }
+
+        if (card.type === "upgrade") {
+            if (card.requirements) {
+                const { prestige } = card.requirements;
+                if (prestige && this.state.playerStats.pastaPrestige < prestige) {
+                    gameSounds.playBadCardSound();
+                    this.showEffectMessage("Not enough prestige for this upgrade!");
+                    return;
+                }
+            }
+            
+            // Pin the upgrade card BEFORE hiding other cards
+            this.pinUpgradeCard(cardName, card);
+            
+            // Apply permanent upgrade effects
+            const upgradeEffect = card.effect(this.state);
+            this.showEffectMessage(upgradeEffect);
+            
+            // Update permanent stats
+            this.applyUpgradeStats(card.permanentStats);
+            
+            // Don't immediately draw new cards for upgrades
+            setTimeout(() => {
+                document.querySelectorAll('.card').forEach(card => {
+                    card.classList.add('played');
+                    card.style.transform = 'scale(0.5)';
+                    card.style.opacity = '0';
+                });
+                
+                // Draw new cards after animation
+                setTimeout(() => {
+                    this.drawNewCards();
+                }, 500);
+            }, 1000);
+            
+            return; // Exit early after handling upgrade
         }
 
         // Process turn effects including prestige
@@ -677,6 +763,81 @@ class Game {
         if (!this.isGameOver) {
             setTimeout(cleanup, 500);
         }
+    }
+
+    pinUpgradeCard(cardName, card) {
+        const upgradesGrid = document.querySelector('.upgrades-grid');
+        
+        // Create miniature upgrade card
+        const upgradeElement = document.createElement('div');
+        upgradeElement.className = 'upgrade-card';
+        upgradeElement.innerHTML = `
+            <h4>${cardName}</h4>
+            <div class="upgrade-effects">
+                ${this.formatPermanentEffects(card.permanentStats)}
+            </div>
+        `;
+        
+        // Animate the card shrinking and moving
+        const originalCard = document.querySelector('.card[data-selected="true"]');
+        if (originalCard) {
+            const origRect = originalCard.getBoundingClientRect();
+            const targetRect = upgradesGrid.getBoundingClientRect();
+            
+            upgradeElement.style.position = 'fixed';
+            upgradeElement.style.left = `${origRect.left}px`;
+            upgradeElement.style.top = `${origRect.top}px`;
+            upgradeElement.style.width = `${origRect.width}px`;
+            upgradeElement.style.height = `${origRect.height}px`;
+            
+            document.body.appendChild(upgradeElement);
+            
+            requestAnimationFrame(() => {
+                upgradeElement.style.transition = 'all 0.5s ease-out';
+                upgradeElement.style.transform = 'scale(0.5)';
+                upgradeElement.style.left = `${targetRect.left}px`;
+                upgradeElement.style.top = `${targetRect.top}px`;
+            });
+            
+            setTimeout(() => {
+                upgradeElement.style = ''; // Reset styles
+                upgradesGrid.appendChild(upgradeElement);
+            }, 500);
+        } else {
+            upgradesGrid.appendChild(upgradeElement);
+        }
+    }
+
+    formatPermanentEffects(permanentStats) {
+        if (!permanentStats) return '';
+        
+        return Object.entries(permanentStats)
+            .map(([stat, value]) => {
+                const prefix = value > 0 ? '+' : '';
+                const percent = value * 100;
+                return `<div class="permanent-effect ${stat}-color">
+                    ${stat}: ${prefix}${percent}%
+                </div>`;
+            })
+            .join('');
+    }
+
+    applyUpgradeStats(permanentStats) {
+        if (!permanentStats) return;
+        
+        Object.entries(permanentStats).forEach(([stat, value]) => {
+            switch(stat) {
+                case 'prestigeGain':
+                    this.state.playerStats.prestigeGainRate += value;
+                    break;
+                case 'chaosReduction':
+                    this.state.playerStats.chaosGainRate *= (1 - value);
+                    break;
+                case 'workerEfficiency':
+                    this.state.playerStats.workerLossRate *= (1 - value);
+                    break;
+            }
+        });
     }
 
     checkAchievements() {
@@ -852,12 +1013,17 @@ class Game {
                 lostWorkers: 0,
                 lostIngredients: 0,
                 chaosSteadyTurns: 0,
+                turnsAtMaxChaos: 0, // Add this to track turns at max chaos
                 usedMagicCards: false,
                 survivedStrikes: 0,
                 strikeDeaths: 0,
                 perfectCooks: 0,
                 highestPrestigeDish: 0,
-                chosenLesserWeevil: false
+                chosenLesserWeevil: false,
+                factoryUpgrades: {},
+                prestigeGainRate: 1,
+                chaosGainRate: 1,
+                workerLossRate: 1
             }
         };
         this.isGameOver = false;
@@ -877,6 +1043,18 @@ class Game {
         document.getElementById('start-game').classList.add('hidden');
         this.showCards();
         
+        // Reset upgrade display
+        const upgradesGrid = document.querySelector('.upgrades-grid');
+        if (upgradesGrid) {
+            upgradesGrid.innerHTML = '';
+        }
+        
+        // Reset upgrade stats
+        this.state.playerStats.factoryUpgrades = {};
+        this.state.playerStats.prestigeGainRate = 1;
+        this.state.playerStats.chaosGainRate = 1;
+        this.state.playerStats.workerLossRate = 1;
+
         this.updateDisplay();
         this.drawNewCards();
         messageBox.textContent = "Welcome to your first day as Noodle Factory Manager! What's your first move?";
@@ -984,6 +1162,9 @@ class Game {
     }
 
     processTurnEffects() {
+        // Apply upgrade effects first
+        applyUpgradeEffects(this.state);
+
         // Natural progression effects - chaos increases every 3-5 turns
         if (this.turn % (3 + Math.floor(Math.random() * 3)) === 0) {  // Random interval between 3-5 turns
             const chaosBase = this.turn < 10 ? 0.3 : 0.8; // Reduced base values
@@ -1194,22 +1375,22 @@ function createNoodleExplosion(x, y) {
 function createMoneyEffect(x, y) {
     const symbols = ['$', '💰', '💵'];
     const symbolCount = 8;
-    
+
     for (let i = 0; i < symbolCount; i++) {
         const symbol = document.createElement('div');
         symbol.className = 'money-symbol';
         symbol.textContent = symbols[Math.floor(Math.random() * symbols.length)];
         symbol.style.left = `${x}px`;
         symbol.style.top = `${y}px`;
-        
+
         const angle = Math.random() * Math.PI * 2;
         const distance = 40 + Math.random() * 80;
         const tx = Math.cos(angle) * distance;
         const ty = Math.sin(angle) * distance - 100;
-        
+
         symbol.style.setProperty('--tx', `${tx}px`);
         symbol.style.setProperty('--ty', `${ty}px`);
-        
+
         document.body.appendChild(symbol);
         setTimeout(() => symbol.remove(), 1500);
     }

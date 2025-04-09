@@ -1092,10 +1092,135 @@ export const CARDS = {
             state.playerStats.pastaPrestige += 5;
             return "The floating pasta display wows visitors and food critics!";
         }
+    },
+    "Automated Pasta Line": {
+        description: "Install an automated production line for basic pasta shapes.",
+        type: "upgrade",
+        requirements: { prestige: 25 },
+        permanentStats: {
+            workerEfficiency: 0.2,  // 20% less worker loss
+            chaosReduction: -0.2    // 20% more chaos gain
+        },
+        statModifiers: {
+            workers: -3,
+            prestige: 5,
+            chaos: 8
+        },
+        effect: (state) => {
+            savePlayedCard("Automated Pasta Line");
+            state.playerStats.factoryUpgrades.automation = true;
+            return "The automated line hums with mechanical efficiency!";
+        }
+    },
+    "Golden Pasta Extruder": {
+        description: "Install a premium pasta-making machine that increases prestige gain.",
+        type: "upgrade",
+        requirements: { prestige: 30 },
+        permanentStats: {
+            prestigeGain: 0.25  // 25% more prestige gain
+        },
+        statModifiers: {
+            prestige: 12,
+            chaos: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Golden Pasta Extruder");
+            state.playerStats.factoryUpgrades.goldenExtruder = true;
+            return "The golden extruder creates pasta of legendary quality!";
+        }
+    },
+    "Quantum Drying Room": {
+        description: "Install a high-tech drying facility that reduces chaos buildup.",
+        type: "upgrade",
+        requirements: { prestige: 35 },
+        permanentStats: {
+            chaosReduction: 0.15  // 15% less chaos gain
+        },
+        statModifiers: {
+            chaos: -15,
+            prestige: 8
+        },
+        effect: (state) => {
+            savePlayedCard("Quantum Drying Room");
+            state.playerStats.factoryUpgrades.quantumDrying = true;
+            return "The quantum-stabilized pasta brings order to chaos!";
+        }
+    },
+    "Pasta Quality Lab": {
+        description: "Install a state-of-the-art quality testing facility.",
+        type: "upgrade",
+        requirements: { prestige: 20 },
+        permanentStats: {
+            prestigeGain: 0.15,  // 15% more prestige gain
+            chaosReduction: 0.1  // 10% less chaos gain
+        },
+        statModifiers: {
+            prestige: 8,
+            chaos: -5
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Quality Lab");
+            state.playerStats.factoryUpgrades.qualityLab = true;
+            return "The new lab ensures consistently perfect pasta!";
+        }
+    },
+    "Worker Break Room": {
+        description: "Build a luxurious pasta-themed break room.",
+        type: "upgrade",
+        requirements: { prestige: 15 },
+        permanentStats: {
+            workerEfficiency: 0.25  // 25% less worker loss
+        },
+        statModifiers: {
+            workers: 5,
+            prestige: 3,
+            chaos: -4
+        },
+        effect: (state) => {
+            savePlayedCard("Worker Break Room");
+            state.playerStats.factoryUpgrades.breakRoom = true;
+            return "Happy workers make better pasta!";
+        }
+    },
+    "Industrial Kitchen": {
+        description: "Upgrade your kitchen with professional equipment.",
+        type: "upgrade",
+        requirements: { prestige: 22 },
+        permanentStats: {
+            prestigeGain: 0.2,  // 20% more prestige gain
+            chaosReduction: -0.1  // 10% more chaos gain
+        },
+        statModifiers: {
+            prestige: 10,
+            chaos: 6,
+            workers: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Industrial Kitchen");
+            state.playerStats.factoryUpgrades.industrialKitchen = true;
+            return "The new kitchen dramatically increases production capacity!";
+        }
+    },
+    "Pasta Archives": {
+        description: "Build a library of ancient pasta knowledge.",
+        type: "upgrade",
+        requirements: { prestige: 28 },
+        permanentStats: {
+            prestigeGain: 0.15,  // 15% more prestige gain
+            workerEfficiency: 0.15  // 15% less worker loss
+        },
+        statModifiers: {
+            prestige: 7,
+            workers: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Archives");
+            state.playerStats.factoryUpgrades.pastaArchives = true;
+            return "Ancient pasta wisdom flows through your factory!";
+        }
     }
-};
+}; // End of CARDS object
 
-// Add these variables at the top level, after the CARDS object
 let lastDrawnCards = [];
 
 function getPlayedCards() {
@@ -1113,7 +1238,6 @@ function savePlayedCard(cardName) {
 function checkCardAchievements() {
     const played = getPlayedCards();
     if (Object.keys(played).length === 0) return;
-    
     const totalCards = Object.keys(CARDS).length;
     const playedCount = Object.keys(played).length;
     const percentage = (playedCount / totalCards) * 100;
@@ -1127,14 +1251,50 @@ function applyStatModifiers(state, modifiers) {
             modifiers.chaos = minChaos - state.playerStats.chaosLevel;
         }
     }
-
     Object.keys(modifiers).forEach(stat => {
         if (Math.abs(modifiers[stat]) > 10) {
             modifiers[stat] = Math.sign(modifiers[stat]) * 10;
         }
     });
-
     return modifiers;
+}
+
+export function applyUpgradeEffects(state) {
+    if (!state?.playerStats?.factoryUpgrades) return;
+    
+    const upgrades = state.playerStats.factoryUpgrades;
+    
+    if (upgrades.automation) {
+        state.playerStats.workerLossRate *= 0.8;
+        state.playerStats.chaosGainRate *= 1.2;
+    }
+    
+    if (upgrades.goldenExtruder) {
+        state.playerStats.prestigeGainRate *= 1.25;
+    }
+    
+    if (upgrades.quantumDrying) {
+        state.playerStats.chaosGainRate *= 0.85;
+    }
+    
+    if (upgrades.qualityLab) {
+        state.playerStats.prestigeGainRate *= 1.15;
+        state.playerStats.chaosGainRate *= 0.9;
+    }
+    
+    if (upgrades.breakRoom) {
+        state.playerStats.workerLossRate *= 0.75;
+    }
+    
+    if (upgrades.industrialKitchen) {
+        state.playerStats.prestigeGainRate *= 1.2;
+        state.playerStats.chaosGainRate *= 1.1;
+    }
+    
+    if (upgrades.pastaArchives) {
+        state.playerStats.prestigeGainRate *= 1.15;
+        state.playerStats.workerLossRate *= 0.85;
+    }
 }
 
 function createSmokeEffect(element) {
@@ -1145,7 +1305,6 @@ function createSmokeEffect(element) {
     for (let i = 0; i < 20; i++) {
         const particle = document.createElement('div');
         particle.className = 'smoke-particle';
-        
         const randomOffsetX = (Math.random() - 0.5) * rect.width * 0.8;
         const randomOffsetY = (Math.random() - 0.5) * rect.height * 0.8;
         

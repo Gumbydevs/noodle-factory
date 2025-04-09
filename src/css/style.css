@@ -1,0 +1,112 @@
+.upgrades-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 10px;
+    max-width: 200px;
+    z-index: 100;
+}
+
+.upgrades-container h3 {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 1em;
+}
+
+.upgrades-grid {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+}
+
+.upgrade-card {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 5px;
+    font-size: 0.8em;
+    transition: transform 0.2s;
+}
+
+.upgrade-card:hover {
+    transform: scale(1.05);
+    z-index: 1;
+}
+
+.upgrade-card h4 {
+    color: #fff;
+    font-size: 0.9em;
+    margin: 0 0 5px 0;
+    text-align: center;
+}
+
+.permanent-effect {
+    font-size: 0.8em;
+    padding: 2px 4px;
+    margin: 2px 0;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.upgrade-label {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: linear-gradient(135deg, #ffd700, #ffa500);
+    padding: 5px 15px;
+    border-radius: 15px;
+    color: #1a1a1a;
+    font-family: 'Audiowide', cursive;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    transform: rotate(15deg);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+    z-index: 2;
+    animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #ffd700;
+    }
+    to {
+        box-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #ffa500;
+    }
+}
+
+.card.disabled {
+    opacity: 0.7;
+    filter: grayscale(40%);
+    cursor: not-allowed;
+}
+
+.card.disabled:hover {
+    transform: none;
+}
+
+.card.disabled:active {
+    animation: shake 0.5s;
+}
+
+.requirement {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 0, 0, 0.2);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    color: #ff6b6b;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}

@@ -12,6 +12,7 @@ const gameState = {
         unitsSold: 0,
         workerCount: getRandomWorkerCount(),
         workersInFactory: 5,
+        turnsAtMaxChaos: 0,
     },
     resourceMeters: {
         noodletude: 50,
@@ -73,7 +74,8 @@ export const resetGameState = () => {
             pastaPrestige: 0,
             chaosLevel: 0,
             ingredients: 0,  // Changed from array to number
-            workerCount: Math.floor(Math.random() * 6) + 15
+            workerCount: Math.floor(Math.random() * 6) + 15,
+            turnsAtMaxChaos: 0,
         }
     };
 };
