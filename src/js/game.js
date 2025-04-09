@@ -716,12 +716,15 @@ class Game {
 
             // Update display after stat changes
             this.updateDisplay();
-        }
 
-        // Show effect message
-        if (card.effect) {
-            const message = card.effect(this.state);
-            this.showEffectMessage(message);
+            // Apply card effect first
+            if (card.effect) {
+                const message = card.effect(this.state);
+                this.showEffectMessage(message);
+            }
+
+            // Check for achievements AFTER both stat changes and card effect
+            this.checkAchievements();
         }
 
         // Process turn effects and check game state

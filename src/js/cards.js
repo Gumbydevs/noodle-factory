@@ -405,7 +405,11 @@ export const CARDS = {
         },
         effect: (state) => {
             savePlayedCard("Lesser Of Two Weevils");
+            // Set the flag in both the passed state and the global state
             state.playerStats.chosenLesserWeevil = true;
+            if (gameState && gameState.playerStats) {
+                gameState.playerStats.chosenLesserWeevil = true;
+            }
             return "Extra protein in the pasta tonight...";
         }
     },
