@@ -1003,20 +1003,40 @@ class Game {
     }
 
     showAchievementPopup(name, achievement) {
+        // Create container if it doesn't exist
+        let container = document.querySelector('.achievement-popups-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'achievement-popups-container';
+            document.body.appendChild(container);
+        }
+
+        // Count existing popups to offset new ones
+        const existingPopups = container.children.length;
+        
         const popup = document.createElement('div');
         popup.className = 'achievement-popup';
+        popup.style.transform = `translateY(${existingPopups * 110}px)`; // Offset based on existing popups
         popup.innerHTML = `
             <h3>Achievement Unlocked!</h3>
             <p class="achievement-name">${name}</p>
             <p class="achievement-desc">${achievement.description}</p>
             <p class="achievement-reward">${achievement.reward}</p>
         `;
-        document.body.appendChild(popup);
+        
+        container.appendChild(popup);
 
-        // Remove popup after animation (increased from 3000 to 4500ms)
+        // Remove popup after animation
         setTimeout(() => {
             popup.style.opacity = '0';
-            setTimeout(() => popup.remove(), 500);
+            popup.style.transform = 'translateY(-20px)';
+            setTimeout(() => {
+                popup.remove();
+                // Adjust positions of remaining popups
+                Array.from(container.children).forEach((remaining, index) => {
+                    remaining.style.transform = `translateY(${index * 110}px)`;
+                });
+            }, 500);
         }, 4500);
     }
 
