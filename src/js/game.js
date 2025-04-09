@@ -419,19 +419,7 @@ class Game {
             }
         }
         
-        // For all cards, check if we have enough resources for negative modifiers
-        if (card.statModifiers) {
-            if (card.statModifiers.workers < 0 && 
-                this.state.playerStats.workerCount + card.statModifiers.workers < 1) {
-                return false;
-            }
-            if (card.statModifiers.ingredients < 0 && 
-                this.state.playerStats.ingredients + card.statModifiers.ingredients < 0) {
-                return false;
-            }
-        }
-        
-        return true;
+        return true; // Allow all other cards to be played regardless of consequences
     }
 
     playCard(cardName) {
