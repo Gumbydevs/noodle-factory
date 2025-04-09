@@ -1338,6 +1338,15 @@ export function applyUpgradeEffects(state) {
         state.playerStats.prestigeGainRate *= 1.15;
         state.playerStats.workerLossRate *= 0.85;
     }
+
+    // Add ingredient gain chances from upgrades
+    if (upgrades.supplyBot && Math.random() < 0.25) {
+        state.playerStats.ingredients = Math.min(20, state.playerStats.ingredients + 1);
+    }
+    
+    if (upgrades.quantumReplicator && Math.random() < 0.20) {
+        state.playerStats.ingredients = Math.min(20, state.playerStats.ingredients + 1);
+    }
 }
 
 function createSmokeEffect(element) {
