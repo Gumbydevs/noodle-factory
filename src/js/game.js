@@ -70,7 +70,17 @@ const TOOLTIPS = [
     "The factory's oldest machines seem to respond to specific resource levels.",
     "Keeping ingredients above certain thresholds might prevent... incidents.",
     "Scattered research notes mention experiments with controlled chaos.",
-    "The night shift reports strange patterns in resource consumption."
+    "The night shift reports strange patterns in resource consumption.",
+    "Ancient factory wisdom speaks of surviving three cycles in pure chaos...",
+    "Some managers swear recycling upgrades releases stabilizing energies.",
+    "Factory records mention emergency protocols involving upgrade dismantling.",
+    "Whispers in the break room suggest upgrades can be sacrificed for control.",
+    "Old maintenance logs hint at a three-turn threshold for chaos containment.",
+    "Factory veterans talk about 'trading permanence for immediate relief'.",
+    "The employee manual's forbidden chapter mentions surviving maximum chaos.",
+    "Scrapped upgrades seem to have a calming effect on the factory.",
+    "Emergency procedures suggest controlled disposal of factory improvements.",
+    "Stories tell of managers who danced with pure chaos for three shifts..."
 ];
 
 class Game {
@@ -87,7 +97,8 @@ class Game {
                 lostWorkers: 0,
                 lostIngredients: 0,
                 chaosSteadyTurns: 0,
-                turnsAtMaxChaos: 0, // Add this to track turns at max chaos
+                turnsAtMaxChaos: 0,
+                hadMaxChaos: false,
                 usedMagicCards: false,
                 survivedStrikes: 0,
                 strikeDeaths: 0,
@@ -753,12 +764,24 @@ class Game {
     }
 
     checkGameOver() {
+        // Track turns at max chaos
         if (this.state.playerStats.chaosLevel >= 100) {
-            gameSounds.playGameOverSound();
-            this.endGame('chaos');
-            this.isGameOver = true;
-            return true;
+            this.state.playerStats.turnsAtMaxChaos = (this.state.playerStats.turnsAtMaxChaos || 0) + 1;
+            this.state.playerStats.chaosControlTurns = (this.state.playerStats.chaosControlTurns || 0) + 1; // Add this line
+            this.state.playerStats.hadMaxChaos = true;
+            
+            if (this.state.playerStats.turnsAtMaxChaos >= 3) {
+                gameSounds.playGameOverSound();
+                this.endGame('chaos');
+                this.isGameOver = true;
+                return true;
+            }
+        } else {
+            this.state.playerStats.turnsAtMaxChaos = 0;
+            // Don't reset chaosControlTurns here as it's for the achievement
         }
+
+        // Rest of the existing checks remain unchanged
         if (this.state.playerStats.workerCount <= 0) {
             gameSounds.playGameOverSound();
             this.endGame('workers');
@@ -1083,7 +1106,8 @@ class Game {
                 lostWorkers: 0,
                 lostIngredients: 0,
                 chaosSteadyTurns: 0,
-                turnsAtMaxChaos: 0, // Add this to track turns at max chaos
+                turnsAtMaxChaos: 0,
+                hadMaxChaos: false,
                 usedMagicCards: false,
                 survivedStrikes: 0,
                 strikeDeaths: 0,

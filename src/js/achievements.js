@@ -27,7 +27,11 @@ export const ACHIEVEMENTS = {
         check: (stats) => stats.chaosLevel >= 100 && stats.chaosControlTurns >= 1,
         reward: "Master the forces of pasta chaos"
     },
-    
+    "Chaos Survivor": {
+        description: "Return from the brink - recover from 100 chaos back to below 90",
+        check: (stats) => stats.hadMaxChaos && stats.chaosLevel < 90,
+        reward: "Dancing with death!"
+    },
     "Master Chef": {
         description: "Reach 100 prestige",
         check: (stats) => stats.pastaPrestige >= 100,

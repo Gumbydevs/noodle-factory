@@ -13,6 +13,7 @@ const gameState = {
         workerCount: getRandomWorkerCount(),
         workersInFactory: 5,
         turnsAtMaxChaos: 0,
+        chaosControlTurns: 0,  // Add this to match the achievement check
     },
     resourceMeters: {
         noodletude: 50,
@@ -76,6 +77,7 @@ export const resetGameState = () => {
             ingredients: 0,  // Changed from array to number
             workerCount: Math.floor(Math.random() * 6) + 15,
             turnsAtMaxChaos: 0,
+            chaosControlTurns: 0,  // Add here too
         }
     };
 };
