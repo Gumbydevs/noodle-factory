@@ -1308,22 +1308,28 @@ class Game {
             
             // Schedule return to random situation or tooltip message
             setTimeout(() => {
-                // Combine situations and tooltips with 70/30 ratio
-                const allMessages = [...SITUATIONS];
-                // Only add tooltips occasionally
-                if (Math.random() < 0.3) {
-                    allMessages.push(...TOOLTIPS);
-                }
-                const randomMessage = allMessages[Math.floor(Math.random() * allMessages.length)];
+                // Modify the ratio to show more tooltips
+                const shouldShowTooltip = Math.random() < 0.3; // 30% chance for tooltips
                 
-                // Split situation/tooltip message into words
-                const messageWords = randomMessage.split(' ');
+                let nextMessage;
+                if (shouldShowTooltip) {
+                    nextMessage = TOOLTIPS[Math.floor(Math.random() * TOOLTIPS.length)];
+                    messageBox.className = 'message-box tooltip'; // Add tooltip class
+                    textSpan.style.color = '#ffd700'; // Gold color for tooltips
+                    textSpan.style.fontStyle = 'italic'; // Italic for tooltips
+                } else {
+                    nextMessage = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
+                    messageBox.className = 'message-box situation';
+                    textSpan.style.color = ''; // Reset color
+                    textSpan.style.fontStyle = ''; // Reset style
+                }
+                
+                // Split message into words
+                const messageWords = nextMessage.split(' ');
                 const wrappedMessage = messageWords.map((word, index) => 
                     `<span style="--word-index: ${index}">${word}</span>`
                 ).join(' ');
                 
-                // Update classes in correct order
-                messageBox.className = 'message-box situation';
                 textSpan.innerHTML = wrappedMessage;
             }, 3000);
         }

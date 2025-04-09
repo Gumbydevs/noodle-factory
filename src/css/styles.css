@@ -1437,6 +1437,12 @@ h1 {
     transition: opacity 0.5s ease-in-out;
 }
 
+.message-box.tooltip {
+    color: #ffd700; /* Make tooltips stand out with golden color */
+    font-style: italic;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.3); /* Subtle glow */
+}
+
 .message-box.fading {
     opacity: 0;
 }
