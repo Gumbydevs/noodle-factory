@@ -2330,12 +2330,12 @@ h1 {
 }
 
 .upgrade-card {
-    width: 100px;
-    height: 80px;
+    width: 120px;
+    height: 60px;
     padding: 8px;
     background: #444;
     border-radius: 8px;
-    font-size: 0.7em;
+    font-size: 0.55em;
     display: flex;
     flex-direction: column;
     transition: transform 0.2s ease;
