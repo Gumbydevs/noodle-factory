@@ -1289,28 +1289,39 @@ h1 {
     opacity: 0;
 }
 
+.achievement-popups-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    z-index: 1000;
+    pointer-events: none;
+    width: 320px; /* Fixed width container */
+}
+
 .achievement-popup {
     position: relative;
     background: linear-gradient(135deg, #2c3e50, #3498db);
     border: 2px solid #f1c40e;
-    border-radius: 8px; /* Reduced from 12px */
-    padding: 6px 16px; /* Further reduced padding */
+    border-radius: 8px;
+    padding: 6px 16px;
     color: #fff;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    animation: achievementSlide 0.5s ease-out;
-    width: 600px;
-    max-width: min(90vw, 600px); /* Use min() to ensure it never exceeds screen or max size */
-    margin: 0 auto;
-    word-wrap: break-word; /* Ensure long text wraps */
+    width: 100%;
     box-sizing: border-box;
-    min-height: 50px; /* Further reduced */
+    min-height: 50px;
     pointer-events: auto;
-    transform-origin: top;
-    opacity: 1;
+    transform-origin: right;
+    opacity: 0;
+    transform: translateX(100%);
     transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+}
+
+.achievement-popup.show {
+    opacity: 1;
+    transform: translateX(0);
 }
 
 .achievement-popup h3 {
