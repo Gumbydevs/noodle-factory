@@ -3,7 +3,7 @@ import events from './events.js';
 import { gameState, updateResource, resetGameState, updateChaosEffects, saveGameState, loadGameState, clearSavedGame, hasSavedGame } from './state.js';
 import { ACHIEVEMENTS, checkAchievements, getUnlockedAchievements, resetAchievements } from './achievements.js';
 import { updateHighScore, getHighScore } from './highscore.js';
-import { triggerNoodleRoll } from './animation.js';
+import { triggerNoodleRoll, handleCardClick, resetCardState, addCardHoverEffects } from './animation.js';
 import { gameSounds } from '../audio.js'; // Note the .js extension
 import { musicLoops } from '../audio/music/bgm.js';
 import { AssetLoader } from './assetLoader.js';
@@ -146,6 +146,22 @@ class Game {
             document.getElementById('game-container').appendChild(upgradesContainer);
         }
 
+        // Show game container properly
+        const gameContainer = document.getElementById('game-container');
+        if (gameContainer) {
+            gameContainer.style.display = 'block';
+            gameContainer.style.opacity = '0';
+            requestAnimationFrame(() => {
+                gameContainer.style.transition = 'opacity 0.5s ease-out';
+                gameContainer.style.opacity = '1';
+            });
+        }
+
+        // Initialize card animations
+        document.querySelectorAll('.card').forEach(card => {
+            this.initializeCardAnimations(card);
+        });
+
         // Initial display update
         this.updateInitialDisplay();
 
@@ -170,6 +186,11 @@ class Game {
             messageBox.classList.remove('feedback');
             messageBox.classList.add('situation');
         }
+    }
+
+    initializeCardAnimations(card) {
+        // Delegate to the centralized animation system
+        addCardHoverEffects(card);
     }
 
     updateStartScreenButtons() {
@@ -424,22 +445,21 @@ class Game {
     }
 
     drawNewCards() {
+        // Remove any existing cards
         document.querySelectorAll('.card').forEach(card => {
-            card.style.cssText = '';  // Reset all inline styles
-            card.classList.remove('hover', 'wiggle', 'active', 'played');  // Remove all animation classes
+            card.remove();
         });
 
         gameSounds.playDrawCardsSound();
         
         const cardsContainer = document.getElementById('cards-container');
-        
+        cardsContainer.classList.remove('hidden');
+
         // Get two random cards
         const availableCards = Object.keys(CARDS).filter(cardName => {
-            // Only include "Return of Reggie" if Reggie has escaped
             if (cardName === "Return of Reggie") {
                 return this.state.playerStats.reggieEscaped === true;
             }
-            // Filter out upgrade cards that don't meet prestige requirements
             if (CARDS[cardName].type === "upgrade") {
                 const requiredPrestige = CARDS[cardName].requirements?.prestige || 0;
                 return this.state.playerStats.pastaPrestige >= requiredPrestige;
@@ -447,79 +467,45 @@ class Game {
             return true;
         });
 
-        // NEW CODE: Modify card selection based on prestige and upgrade slots
-        let shuffledCards;
-        const upgradesGrid = document.querySelector('.upgrades-grid');
-        const existingUpgrades = upgradesGrid.querySelectorAll('.upgrade-card');
-        const slotsAreFull = existingUpgrades.length >= 2;
-
-        if (this.state.playerStats.pastaPrestige >= 25) {
-            const upgradeCards = availableCards.filter(name => CARDS[name].type === "upgrade");
-            const regularCards = availableCards.filter(name => CARDS[name].type !== "upgrade");
-            
-            // New scaled chances based on prestige
-            let upgradeChance;
-            if (this.state.playerStats.pastaPrestige >= 50) {
-                // Reduced chance for 50+ prestige (was 0.75)
-                upgradeChance = Math.min(0.45, (this.state.playerStats.pastaPrestige - 50) / 150);
-            } else {
-                // Reduced chance for 25-49 prestige (was 0.35)
-                upgradeChance = Math.min(0.25, (this.state.playerStats.pastaPrestige - 25) / 150);
-            }
-            
-            if (Math.random() < upgradeChance && upgradeCards.length > 0) {
-                shuffledCards = [
-                    upgradeCards[Math.floor(Math.random() * upgradeCards.length)],
-                    regularCards[Math.floor(Math.random() * regularCards.length)]
-                ];
-                // Randomize order
-                if (Math.random() < 0.5) {
-                    shuffledCards.reverse();
-                }
-            } else {
-                shuffledCards = [...regularCards].sort(() => Math.random() - 0.5);
-            }
-        } else {
-            shuffledCards = [...availableCards].sort(() => Math.random() - 0.5);
-        }
-
-        const [leftCard, rightCard] = shuffledCards.slice(0, 2);
+        // Select cards based on game state
+        let [leftCard, rightCard] = [...availableCards].sort(() => Math.random() - 0.5).slice(0, 2);
 
         cardsContainer.innerHTML = `
-            <div class="card ${this.checkCardPlayable(CARDS[leftCard]) ? '' : 'disabled'}" id="card-left">
-                ${CARDS[leftCard].type === "upgrade" ? `<div class="upgrade-label" style="animation: rainbowText 2s infinite"}>Upgrade</div>` : ''}
+            <div class="card" id="card-left">
+                ${CARDS[leftCard].type === "upgrade" ? `<div class="upgrade-label">Upgrade</div>` : ''}
                 <h3>${leftCard}</h3>
                 <div class="card-description">${CARDS[leftCard].description}</div>
                 <div class="card-effects">
                     ${this.formatCardEffects(CARDS[leftCard].statModifiers)}
                 </div>
-                ${CARDS[leftCard].type === "upgrade" ? 
-                    `<div class="requirement" style="animation: rainbowText 3s infinite">Prestigious Upgrade</div>` : ''}
             </div>
-            <div class="card ${this.checkCardPlayable(CARDS[rightCard]) ? '' : 'disabled'}" id="card-right">
-                ${CARDS[rightCard].type === "upgrade" ? `<div class="upgrade-label" style="animation: rainbowText 2s infinite">Upgrade</div>` : ''}
+            <div class="card" id="card-right">
+                ${CARDS[rightCard].type === "upgrade" ? `<div class="upgrade-label">Upgrade</div>` : ''}
                 <h3>${rightCard}</h3>
                 <div class="card-description">${CARDS[rightCard].description}</div>
                 <div class="card-effects">
                     ${this.formatCardEffects(CARDS[rightCard].statModifiers)}
                 </div>
-                ${CARDS[rightCard].type === "upgrade" ? 
-                    `<div class="requirement" style="animation: rainbowText 3s infinite">Prestigious Upgrade</div>` : ''}
             </div>
         `;
 
+        // Initialize animations for new cards
+        requestAnimationFrame(() => {
+            document.querySelectorAll('.card').forEach(card => {
+                addCardHoverEffects(card);
+            });
+        });
+
         // Add click handlers with requirement checks
         document.getElementById('card-left').onclick = () => {
-            if (!this.checkCardPlayable(CARDS[leftCard], true)) { // Pass true for clicks
-                return;
+            if (this.checkCardPlayable(CARDS[leftCard], true)) {
+                this.playCard(leftCard);
             }
-            this.playCard(leftCard);
         };
         document.getElementById('card-right').onclick = () => {
-            if (!this.checkCardPlayable(CARDS[rightCard], true)) { // Pass true for clicks
-                return;
+            if (this.checkCardPlayable(CARDS[rightCard], true)) {
+                this.playCard(rightCard);
             }
-            this.playCard(rightCard);
         };
     }
 

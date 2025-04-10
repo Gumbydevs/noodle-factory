@@ -111,64 +111,154 @@ window.addEventListener('DOMContentLoaded', () => {
     setupGameTransitions();
 });
 
-// Card animation handling
+// Remove any existing card animations
+document.querySelectorAll('.card').forEach(card => {
+    card.style.cssText = '';
+    card.classList.remove('played', 'dissolving', 'clearing');
+});
+
+// Create unique animation parameters for each card
+function generateRandomParameters() {
+    // Increase the range of motion for floating
+    const floatX1 = -8 + Math.random() * 16;  // -8px to +8px
+    const floatY1 = -10 + Math.random() * 20; // -10px to +10px
+    const floatX2 = -8 + Math.random() * 16;
+    const floatY2 = -10 + Math.random() * 20;
+    const floatX3 = -8 + Math.random() * 16;
+    const floatY3 = -10 + Math.random() * 20;
+    
+    // Increase rotation amounts
+    const rot1 = -2 + Math.random() * 4;   // -2 to +2 degrees
+    const rot2 = -2 + Math.random() * 4;
+    const rot3 = -1 + Math.random() * 2;
+    
+    // More aggressive twitch parameters
+    const twitchX = 30 + Math.random() * 40;  // 30-70px
+    const twitchY = -30 + Math.random() * 60; // -30 to +30px
+    const twitchRot = -20 + Math.random() * 40; // -20 to +20 degrees
+    
+    // Faster and more varied timing
+    const floatDuration = 2 + Math.random() * 1.5;  // 2-3.5s
+    const twitchDuration = 4 + Math.random() * 3;   // 4-7s
+    
+    // More varied vanish parameters
+    const vanishRot = -30 + Math.random() * 60;  // -30 to +30 degrees
+    const vanishX = -60 + Math.random() * 120;   // -60 to +60px
+    const vanishY = 20 + Math.random() * 40;     // 20 to 60px
+
+    return {
+        floatX1, floatY1, floatX2, floatY2, floatX3, floatY3,
+        rot1, rot2, rot3,
+        twitchX, twitchY, twitchRot,
+        floatDuration, twitchDuration,
+        vanishRot, vanishX, vanishY
+    };
+}
+
+// Single source of truth for card animation handling
+function addCardHoverEffects(card) {
+    // Clear any existing animations and styles
+    card.style.cssText = '';
+    card.classList.remove('played', 'dissolving', 'clearing');
+    
+    // Generate random parameters
+    const params = generateRandomParameters();
+    
+    // Set initial offset for more dynamic starting positions
+    card.style.setProperty('--initial-offset-x', `${-3 + Math.random() * 6}px`);
+    card.style.setProperty('--initial-offset-y', `${-3 + Math.random() * 6}px`);
+    card.style.setProperty('--initial-rotation', `${-1 + Math.random() * 2}deg`);
+    
+    // Apply float parameters
+    card.style.setProperty('--float-x1', `${params.floatX1}px`);
+    card.style.setProperty('--float-y1', `${params.floatY1}px`);
+    card.style.setProperty('--float-x2', `${params.floatX2}px`);
+    card.style.setProperty('--float-y2', `${params.floatY2}px`);
+    card.style.setProperty('--float-x3', `${params.floatX3}px`);
+    card.style.setProperty('--float-y3', `${params.floatY3}px`);
+    
+    // Apply rotation parameters
+    card.style.setProperty('--rot1', `${params.rot1}deg`);
+    card.style.setProperty('--rot2', `${params.rot2}deg`);
+    card.style.setProperty('--rot3', `${params.rot3}deg`);
+    
+    // Set twitch parameters
+    card.style.setProperty('--twitch-x', `${params.twitchX}px`);
+    card.style.setProperty('--twitch-y', `${params.twitchY}px`);
+    card.style.setProperty('--twitch-rot', `${params.twitchRot}deg`);
+    
+    // Set timing parameters - ensure animations don't sync
+    card.style.setProperty('--base-duration', `${params.floatDuration}s`);
+    card.style.setProperty('--twitch-duration', `${params.twitchDuration}s`);
+    
+    // Set vanish parameters
+    card.style.setProperty('--vanish-rot', `${params.vanishRot}deg`);
+    card.style.setProperty('--vanish-x', `${params.vanishX}px`);
+    card.style.setProperty('--vanish-y', `${params.vanishY}px`);
+    
+    // Force hardware acceleration
+    card.style.transform = 'translate3d(0,0,0)';
+    card.style.willChange = 'transform';
+    card.style.backfaceVisibility = 'hidden';
+    
+    // Add random timing offset to prevent synchronization
+    requestAnimationFrame(() => {
+        card.style.animationDelay = `-${Math.random() * 4}s`;
+    });
+}
+
+// Handle card selection with proper animations
 function handleCardClick(card) {
     if (card.classList.contains('unplayable')) return;
     
-    // First, remove all existing animations and transformations
-    card.style.cssText = '';
-    card.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max');
-    
-    // Force a reflow to ensure clean animation state
+    // Clear existing animations
+    card.style.animation = 'none';
     void card.offsetWidth;
     
-    // Set up the card for playing animation
-    card.dataset.selected = 'true';
-    card.classList.add('played');
-    card.style.zIndex = '100';
+    // Get current position for more accurate animation
+    const rect = card.getBoundingClientRect();
+    const startX = rect.left;
+    const startY = rect.top;
     
-    if ('ontouchstart' in window) {
-        // Mobile devices: simpler transition-based animation
-        card.style.transition = 'transform 0.8s ease-out, opacity 0.8s ease-out';
+    if (card.dataset.selected === 'true') {
+        // More dramatic selected card animation
+        const angle = -45 + Math.random() * 90;
+        const finalY = -60 - Math.random() * 40;
         
-        // Function to hide the card after transition
-        function hideCard() {
-            card.style.display = 'none';
-            card.removeEventListener('transitionend', hideCard);
-        }
+        card.style.setProperty('--start-x', `${startX}px`);
+        card.style.setProperty('--start-y', `${startY}px`);
+        card.style.setProperty('--vanish-angle', `${angle}deg`);
+        card.style.setProperty('--vanish-y', `${finalY}px`);
         
-        // Add event listener for transition end
-        card.addEventListener('transitionend', hideCard, { once: true });
-        
-        // Start the transition
         requestAnimationFrame(() => {
-            card.style.transform = 'scale(0.8) translateY(-20px)';
-            card.style.opacity = '0';
+            card.style.animation = 'selectedCardVanish 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards';
         });
     } else {
-        // Desktop: animation-based
-        function hideCard() {
-            card.style.display = 'none';
-            card.removeEventListener('animationend', hideCard);
-        }
+        // More dramatic unselected card animation
+        const angle = Math.random() * 360;
+        const distance = 80 + Math.random() * 120;
+        const dx = Math.cos(angle * Math.PI / 180) * distance;
+        const dy = Math.sin(angle * Math.PI / 180) * distance;
         
-        card.addEventListener('animationend', hideCard, { once: true });
+        card.style.setProperty('--fade-x', `${dx}px`);
+        card.style.setProperty('--fade-y', `${dy}px`);
+        card.style.setProperty('--fade-rot', `${-90 + Math.random() * 180}deg`);
         
         requestAnimationFrame(() => {
-            card.style.animation = 'selectedCardVanish 0.8s ease-out forwards';
+            card.style.animation = 'unselectedCardVanish 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards';
         });
     }
 }
 
-// Handle cards that weren't selected
 function handleUnselectedCards(cards) {
     cards.forEach(card => {
         if (!card.dataset.selected) {
-            // Remove chaos animations first
+            // Remove existing animations
             card.style.cssText = '';
             card.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max');
-            void card.offsetHeight;
+            void card.offsetWidth;
             
+            // Add played class and shrink animation
             card.classList.add('played');
             card.style.animation = 'shrinkFadeAway 0.5s ease-out forwards';
             
@@ -181,11 +271,16 @@ function handleUnselectedCards(cards) {
 
 // Reset card state when new cards are drawn
 function resetCardState(card) {
-    card.style.animation = '';
-    card.style.transform = '';
-    card.style.display = '';
-    card.classList.remove('played');
+    // Clear all animations and transforms
+    card.style.cssText = '';
+    card.classList.remove('played', 'dissolving');
     card.removeAttribute('data-selected');
+    
+    // Force reflow
+    void card.offsetWidth;
+    
+    // Add base animations
+    addCardHoverEffects(card);
 }
 
 function setupGameTransitions() {
@@ -230,56 +325,32 @@ function setupGameTransitions() {
     setupCardAnimations();
 }
 
-function setupCardAnimations() {
-    // Observe for new cards being added
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.addedNodes.length) {
-                mutation.addedNodes.forEach((node) => {
-                    if (node.classList && node.classList.contains('card')) {
-                        addCardHoverEffects(node);
-                    }
-                });
+// Observe for new cards being added and apply animations
+const cardObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+            if (node.classList && node.classList.contains('card')) {
+                addCardHoverEffects(node);
             }
         });
     });
+});
 
-    // Start observing the cards container
+function setupCardAnimations() {
     const cardsContainer = document.getElementById('cards-container');
     if (cardsContainer) {
-        observer.observe(cardsContainer, {
+        cardObserver.observe(cardsContainer, {
             childList: true,
             subtree: true
         });
+        
+        // Apply to existing cards
+        cardsContainer.querySelectorAll('.card').forEach(addCardHoverEffects);
     }
 }
 
-function addCardHoverEffects(card) {
-    // Add initial state
-    card.style.transform = 'translateY(20px)';
-    card.style.opacity = '0';
-    card.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
-
-    // Force reflow
-    void card.offsetWidth;
-
-    // Animate in
-    card.style.transform = 'translateY(0)';
-    card.style.opacity = '1';
-
-    // Add hover animations
-    card.addEventListener('mouseenter', () => {
-        if (!card.classList.contains('unplayable')) {
-            card.style.transform = 'translateY(-5px)';
-        }
-    });
-
-    card.addEventListener('mouseleave', () => {
-        if (!card.classList.contains('unplayable')) {
-            card.style.transform = 'translateY(0)';
-        }
-    });
-}
+// Ensure animations are applied when DOM loads
+document.addEventListener('DOMContentLoaded', setupCardAnimations);
 
 function setNoodleRollEnabled(enabled) {
     noodleRollEnabled = enabled;
@@ -288,6 +359,7 @@ function setNoodleRollEnabled(enabled) {
 export { 
     triggerNoodleRoll, 
     randomizeNoodle,
+    addCardHoverEffects,
     handleCardClick,
     handleUnselectedCards,
     resetCardState,

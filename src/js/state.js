@@ -140,15 +140,32 @@ export function updateChaosEffects(chaosLevel) {
     // Remove all existing chaos classes first
     body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
     
-    // Apply appropriate chaos level class
+    // Reset chaos-specific CSS variables
+    document.documentElement.style.setProperty('--chaos-shake', '0');
+    document.documentElement.style.setProperty('--chaos-rotate', '0deg');
+    document.documentElement.style.setProperty('--chaos-scale', '1');
+    
+    // Apply appropriate chaos level class and set intensity variables
     if (chaosLevel >= 80) {
         body.classList.add('chaos-level-max', 'chaos-noise');
+        document.documentElement.style.setProperty('--chaos-shake', '3');
+        document.documentElement.style.setProperty('--chaos-rotate', '2deg');
+        document.documentElement.style.setProperty('--chaos-scale', '1.1');
     } else if (chaosLevel >= 60) {
         body.classList.add('chaos-level-3', 'chaos-noise');
+        document.documentElement.style.setProperty('--chaos-shake', '2');
+        document.documentElement.style.setProperty('--chaos-rotate', '1.5deg');
+        document.documentElement.style.setProperty('--chaos-scale', '1.05');
     } else if (chaosLevel >= 40) {
         body.classList.add('chaos-level-2');
+        document.documentElement.style.setProperty('--chaos-shake', '1');
+        document.documentElement.style.setProperty('--chaos-rotate', '1deg');
+        document.documentElement.style.setProperty('--chaos-scale', '1.02');
     } else if (chaosLevel >= 20) {
         body.classList.add('chaos-level-1');
+        document.documentElement.style.setProperty('--chaos-shake', '0.5');
+        document.documentElement.style.setProperty('--chaos-rotate', '0.5deg');
+        document.documentElement.style.setProperty('--chaos-scale', '1.01');
     }
 }
 
