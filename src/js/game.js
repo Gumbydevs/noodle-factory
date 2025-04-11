@@ -1401,8 +1401,8 @@ class Game {
 
         // Convert reason to descriptive message
         const gameOverMessages = {
-            'workers': `Your workforce has abandoned the factory, and with only $${Math.round(this.state.playerStats.money)} in the bank, you can't afford to hire emergency workers. Without workers, production grinds to a permanent halt.`,
-            'chaos': `After 3 days of maximum chaos, reality itself has fractured! The factory has been consumed by an interdimensional pasta incident, forever lost to the noodle dimension.`,
+            'workers': `Your workforce has abandoned the factory, with only $${Math.round(this.state.playerStats.money)} in the bank, you can't afford resume production.`,
+            'chaos': `After 3 days of maximum chaos, the factory has been consumed. Forever lost to the noodle dimension.`,
             'ingredients': `With no ingredients left and only $${Math.round(this.state.playerStats.money)} in the bank, you can't afford to purchase emergency supplies. ${this.state.playerStats.noodles > 0 ? `Even selling your remaining ${Math.round(this.state.playerStats.noodles)} noodles at a discount won't cover the costs.` : 'With no noodles left to sell for emergency funds, production must stop permanently.'}`
         };
 
