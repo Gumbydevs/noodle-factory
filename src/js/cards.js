@@ -1530,8 +1530,24 @@ export function getRandomCard() {
 function checkCardPlayable(card) {
     if (!card.requirements) return true;
 
-    // All cards should be playable regardless of consequences
-    return true;
+    if (card.statModifiers?.workers < 0) {
+        const workerChange = card.statModifiers.workers;
+        const currentWorkers = gameState.playerStats.workerCount || 0;
+        
+        // Check if we would go below 0 workers
+        if ((currentWorkers + workerChange) < 0) {
+            const severityFactor = Math.abs(workerChange);
+            const costPerWorker = Math.min(150, Math.max(50, 50 + (severityFactor * 15)));
+            
+            // Check if we can afford emergency workers
+            if (gameState.playerStats.money >= costPerWorker || gameState.playerStats.noodles > 0) {
+                return true; // We can afford emergency workers or have noodles to sell
+            }
+            return false; // Can't afford workers and have no noodles
+        }
+    }
+
+    return true; // All other cards are playable
 }
 
 // filepath: d:\NoodleFactory\src\js\state.js

@@ -879,14 +879,18 @@ export class GameSounds {
         if (!this.ctx) return;
         try {
             const gainNode = this.ctx.createGain();
+            gainNode.connect(this.gainNode);
+
+            // Create oscillators for melody
             const osc1 = this.ctx.createOscillator();
             const osc2 = this.ctx.createOscillator();
-            const filter = this.ctx.createBiquadFilter();
-
-            // Setup oscillators for melody
+            
+            // Setup oscillators with softer waveforms
             osc1.type = 'triangle';
             osc2.type = 'sine';
             
+            // Create and setup filter
+            const filter = this.ctx.createBiquadFilter();
             filter.type = 'lowpass';
             filter.frequency.value = 2000;
             filter.Q.value = 2;
@@ -895,7 +899,6 @@ export class GameSounds {
             osc1.connect(filter);
             osc2.connect(filter);
             filter.connect(gainNode);
-            gainNode.connect(this.gainNode);
 
             const now = this.ctx.currentTime;
             const noteLength = 0.15; // Length of each note
@@ -904,40 +907,44 @@ export class GameSounds {
             const melody1 = [220, 330, 440, 550]; // Base melody
             const melody2 = [440, 660, 880, 1100]; // Harmony notes
 
-            // Setup envelope with even lower volume (reduced to 0.07 from 0.1)
+            // Smoother initial envelope
             gainNode.gain.setValueAtTime(0, now);
-            gainNode.gain.linearRampToValueAtTime(0.07, now + 0.1);
+            gainNode.gain.linearRampToValueAtTime(0.1, now + 0.05);
 
-            // Play each note in sequence
+            // Play each note in sequence with improved timing
             melody1.forEach((freq, i) => {
                 const time = now + (i * noteLength);
                 osc1.frequency.setValueAtTime(freq, time);
                 osc2.frequency.setValueAtTime(melody2[i], time);
                 
-                // Create slight pulse for each note (reduced to 0.15/0.08)
-                gainNode.gain.setValueAtTime(0.15, time);
-                gainNode.gain.linearRampToValueAtTime(0.08, time + noteLength * 0.8);
+                // Create smoother pulse for each note
+                gainNode.gain.setValueAtTime(0.1, time);
+                gainNode.gain.linearRampToValueAtTime(0.05, time + noteLength * 0.8);
             });
 
-            // Final fade out
             const duration = noteLength * melody1.length;
-            gainNode.gain.linearRampToValueAtTime(0, now + duration);
+            
+            // Final smooth fade out
+            gainNode.gain.linearRampToValueAtTime(0, now + duration + 0.1);
 
-            // Play the sounds
+            // Start and stop oscillators with proper timing
             osc1.start(now);
             osc2.start(now);
-            osc1.stop(now + duration);
-            osc2.stop(now + duration);
+            osc1.stop(now + duration + 0.2);
+            osc2.stop(now + duration + 0.2);
 
-            // Increase delay to 3.5 seconds before music starts (was 3 seconds)
+            // Start background music with proper delay
             setTimeout(() => {
-                if (window.musicLoops && typeof window.musicLoops.startLoop === 'function') {
+                if (window.musicLoops && window.musicLoops.startLoop) {
                     window.musicLoops.startLoop();
                 }
-            }, 3500);
+            }, 500);
 
             // Cleanup
-            setTimeout(() => gainNode.disconnect(), duration * 1000);
+            setTimeout(() => {
+                gainNode.disconnect();
+                filter.disconnect();
+            }, (duration + 0.3) * 1000);
         } catch (e) {
             console.warn('Error playing start game sound:', e);
         }

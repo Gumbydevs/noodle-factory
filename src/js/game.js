@@ -850,6 +850,58 @@ class Game {
                 }
             }
 
+            // Check if we would run out of workers
+            if (workerChange < 0 && (this.state.playerStats.workerCount + workerChange) < 0) {
+                const neededWorkers = Math.abs(this.state.playerStats.workerCount + workerChange);
+                const severityFactor = Math.abs(workerChange); // How big the negative modifier is
+                
+                // Calculate base cost per worker (50-150 range based on severity)
+                const costPerWorker = Math.min(150, Math.max(50, 50 + (severityFactor * 15)));
+                const totalCost = costPerWorker; // One-time cost for the emergency hire, not per worker
+                
+                if (this.state.playerStats.money >= totalCost) {
+                    // Update money first
+                    this.state.playerStats.money -= totalCost;
+                    // Force display update to show money change
+                    this.updateDisplay();
+                    
+                    // Small delay before adding workers for visual feedback
+                    setTimeout(() => {
+                        this.state.playerStats.workerCount += neededWorkers;
+                        this.updateDisplay();
+                        emergencyMessage = `Emergency workers hired for $${totalCost}!`;
+                        this.showEffectMessage(emergencyMessage);
+                    }, 300);
+                } else {
+                    // If we have noodles, try emergency sale first
+                    if (this.state.playerStats.noodles > 0) {
+                        const noodlesToSell = this.state.playerStats.noodles;
+                        const emergencySalePrice = Math.floor(this.state.playerStats.noodleSalePrice * 0.8);
+                        const income = noodlesToSell * emergencySalePrice;
+                        this.state.playerStats.noodles = 0;
+                        this.state.playerStats.money += income;
+                        
+                        // If we now have enough money, hire workers
+                        if (this.state.playerStats.money >= totalCost) {
+                            this.state.playerStats.money -= totalCost;
+                            this.state.playerStats.workerCount += neededWorkers;
+                            emergencyMessage = `Emergency noodle sale: ${noodlesToSell} noodles sold for $${income}!\nEmergency workers hired for $${totalCost}!`;
+                            this.showEffectMessage(emergencyMessage);
+                        } else {
+                            this.isGameOver = true;
+                            this.gameOverReason = `Not enough money ($${this.state.playerStats.money}) after emergency noodle sale to hire workers ($${totalCost}).`;
+                            this.endGame('workers');
+                            return;
+                        }
+                    } else {
+                        this.isGameOver = true;
+                        this.gameOverReason = `Not enough money ($${this.state.playerStats.money}) to hire emergency workers ($${totalCost}).`;
+                        this.endGame('workers');
+                        return;
+                    }
+                }
+            }
+
             // Rest of the method remains unchanged...
             const clickedCard = Array.from(document.querySelectorAll('.card')).find(
                 card => card.querySelector('h3').textContent === cardName
@@ -1113,12 +1165,19 @@ class Game {
             this.state.playerStats.turnsAtMaxChaos = 0;
         }
 
-        // Only check for worker game over
+        // Check for worker game over, but only if we can't afford emergency workers
         if (this.state.playerStats.workerCount <= 0) {
-            gameSounds.playGameOverSound();
-            this.endGame('workers');
-            this.isGameOver = true;
-            return true;
+            // Calculate emergency worker cost similar to playCard method
+            const severityFactor = 4; // Equivalent to a -4 worker card
+            const costPerWorker = Math.min(150, Math.max(50, 50 + (severityFactor * 15)));
+            
+            // If we can't afford workers, then it's game over
+            if (this.state.playerStats.money < costPerWorker && this.state.playerStats.noodles === 0) {
+                gameSounds.playGameOverSound();
+                this.endGame('workers');
+                this.isGameOver = true;
+                return true;
+            }
         }
 
         return false;
@@ -1342,11 +1401,12 @@ class Game {
 
         // Convert reason to descriptive message
         const gameOverMessages = {
-            'workers': 'Your workforce has abandoned the factory, leaving production at a standstill.',
-            'chaos': 'The factory has been consumed by chaos, lost to an interdimensional pasta incident.',
-            'ingredients': 'Not enough money to purchase emergency ingredients - production halts permanently.'
+            'workers': `Your workforce has abandoned the factory, and with only $${Math.round(this.state.playerStats.money)} in the bank, you can't afford to hire emergency workers. Without workers, production grinds to a permanent halt.`,
+            'chaos': `After 3 days of maximum chaos, reality itself has fractured! The factory has been consumed by an interdimensional pasta incident, forever lost to the noodle dimension.`,
+            'ingredients': `With no ingredients left and only $${Math.round(this.state.playerStats.money)} in the bank, you can't afford to purchase emergency supplies. ${this.state.playerStats.noodles > 0 ? `Even selling your remaining ${Math.round(this.state.playerStats.noodles)} noodles at a discount won't cover the costs.` : 'With no noodles left to sell for emergency funds, production must stop permanently.'}`
         };
 
+        // Use custom reason if provided, otherwise use template
         const endMessage = this.gameOverReason || gameOverMessages[reason] || '';
         
         this.isGameOver = true;
@@ -1559,6 +1619,9 @@ class Game {
         
         // Activate CRT effect
         document.querySelector('.crt-overlay').classList.add('active');
+
+        // Play start game sound
+        gameSounds.playStartGameSound();
 
         // Hide start button and show cards
         document.getElementById('start-game').classList.add('hidden');
