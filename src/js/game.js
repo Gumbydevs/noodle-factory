@@ -804,61 +804,184 @@ class Game {
             // Check if we would run out of ingredients
             if (ingredientChange < 0 && (this.state.playerStats.ingredients + ingredientChange) < 0) {
                 const neededIngredients = Math.abs(this.state.playerStats.ingredients + ingredientChange);
-                // Calculate cost based on magnitude of ingredient loss
                 const severityFactor = Math.abs(ingredientChange);
-                // Scale from 50-150 based on severity
                 const totalCost = Math.min(150, Math.max(50, 50 + (severityFactor * 15)));
                 
                 if (this.state.playerStats.money >= totalCost) {
+                    // Update money first
                     this.state.playerStats.money -= totalCost;
-                    this.state.playerStats.ingredients += neededIngredients;
-                    emergencyMessage = `Emergency ingredients purchased for $${totalCost}!`;
+                    // Force display update to show money change
+                    this.updateDisplay();
+                    
+                    // Small delay before adding ingredients for visual feedback
+                    setTimeout(() => {
+                        this.state.playerStats.ingredients += neededIngredients;
+                        this.updateDisplay();
+                        emergencyMessage = `Emergency ingredients purchased for $${totalCost}!`;
+                        this.showEffectMessage(emergencyMessage);
+                    }, 300);
                 } else {
-                    this.isGameOver = true;
-                    this.gameOverReason = `Ran out of ingredients! Not enough money ($${this.state.playerStats.money}) to purchase emergency ingredients ($${totalCost}).`;
-                    return;
+                    // If we have noodles, try emergency sale first
+                    if (this.state.playerStats.noodles > 0) {
+                        const noodlesToSell = this.state.playerStats.noodles;
+                        const emergencySalePrice = Math.floor(this.state.playerStats.noodleSalePrice * 0.8);
+                        const income = noodlesToSell * emergencySalePrice;
+                        this.state.playerStats.noodles = 0;
+                        this.state.playerStats.money += income;
+                        
+                        // If we now have enough money, buy ingredients
+                        if (this.state.playerStats.money >= totalCost) {
+                            this.state.playerStats.money -= totalCost;
+                            this.state.playerStats.ingredients += neededIngredients;
+                            emergencyMessage = `Emergency noodle sale: ${noodlesToSell} noodles sold for $${income}!\nEmergency ingredients purchased for $${totalCost}!`;
+                            this.showEffectMessage(emergencyMessage);
+                        } else {
+                            this.isGameOver = true;
+                            this.gameOverReason = `Not enough money ($${this.state.playerStats.money}) after emergency noodle sale to purchase ingredients ($${totalCost}).`;
+                            this.endGame('ingredients');
+                            return;
+                        }
+                    } else {
+                        this.isGameOver = true;
+                        this.gameOverReason = `Not enough money ($${this.state.playerStats.money}) to purchase emergency ingredients ($${totalCost}).`;
+                        this.endGame('ingredients');
+                        return;
+                    }
                 }
             }
-            
-            // Check if we would run out of workers
-            if (workerChange < 0 && (this.state.playerStats.workerCount + workerChange) < 1) {
-                const neededWorkers = Math.abs(this.state.playerStats.workerCount + workerChange - 1);
-                const costPerWorker = 25 + Math.floor(Math.random() * 8); // Random cost between 25-32
-                const totalCost = neededWorkers * costPerWorker;
+
+            // Rest of the method remains unchanged...
+            const clickedCard = Array.from(document.querySelectorAll('.card')).find(
+                card => card.querySelector('h3').textContent === cardName
+            );
+            const otherCard = Array.from(document.querySelectorAll('.card')).find(
+                card => card !== clickedCard
+            );
+
+            // Handle upgrade cards differently
+            if (card.type === "upgrade") {
+                // Play both card sound and upgrade sound
+                gameSounds.playCardSound();
+                gameSounds.playUpgradePinSound();
+
+                // Mark cards as played for animation
+                if (clickedCard) {
+                    clickedCard.classList.add('played');
+                    clickedCard.setAttribute('data-selected', 'true');
+                    clickedCard.style.zIndex = '100';
+                }
+                if (otherCard) {
+                    otherCard.classList.add('played');
+                    otherCard.setAttribute('data-selected', 'false');
+                }
+
+                // Apply immediate stat modifiers first
+                if (card.statModifiers) {
+                    const balancedModifiers = applyStatModifiers(this.state, {...card.statModifiers});
+                    Object.entries(balancedModifiers).forEach(([stat, value]) => {
+                        const statKey = stat === 'workers' ? 'workerCount' : 
+                                      stat === 'prestige' ? 'pastaPrestige' : 
+                                      stat === 'chaos' ? 'chaosLevel' : 
+                                      stat;
+                        
+                        const currentValue = this.state.playerStats[statKey] || 0;
+                        this.state.playerStats[statKey] = Math.max(0, currentValue + Number(value));
+                    });
+                }
+
+                // Pin the upgrade card to the upgrades section
+                if (this.pinUpgradeCard(cardName, card)) {
+                    // Apply permanent stats after successful pinning
+                    if (card.permanentStats) {
+                        this.applyUpgradeStats(card.permanentStats);
+                    }
+                    // Store the upgrade in state
+                    this.state.playerStats.factoryUpgrades[cardName] = card;
+                }
+
+                // Update display after all changes
+                this.updateDisplay();
                 
-                if (this.state.playerStats.money >= totalCost) {
-                    this.state.playerStats.money -= totalCost;
-                    this.state.playerStats.workerCount += neededWorkers;
-                    emergencyMessage += emergencyMessage ? '\n' : '';
-                    emergencyMessage += `Hired ${neededWorkers} temporary workers for $${totalCost} ($${costPerWorker} each)!`;
-                } else {
-                    this.isGameOver = true;
-                    this.gameOverReason = `Not enough workers! Not enough money ($${this.state.playerStats.money}) to hire ${neededWorkers} workers at $${costPerWorker} each.`;
-                    return;
+                // Increment turn counter
+                this.turn++;
+                
+                // Process turn effects
+                this.processTurnEffects();
+                
+                // Draw new cards after a delay
+                if (!this.isGameOver) {
+                    setTimeout(() => {
+                        document.querySelectorAll('.card').forEach(card => card.remove());
+                        this.drawNewCards();
+                    }, 800);
                 }
+                return;
             }
-        }
 
-        // Show emergency message if any resources were purchased
-        if (emergencyMessage) {
-            this.showEffectMessage(emergencyMessage);
-        }
-
-        // Existing card play logic
-        const clickedCard = Array.from(document.querySelectorAll('.card')).find(
-            card => card.querySelector('h3').textContent === cardName
-        );
-        const otherCard = Array.from(document.querySelectorAll('.card')).find(
-            card => card !== clickedCard
-        );
-
-        // Handle upgrade cards differently
-        if (card.type === "upgrade") {
-            // Play both card sound and upgrade sound
+            // Rest of the existing playCard code for non-upgrade cards...
+            // Play card sound immediately
             gameSounds.playCardSound();
-            gameSounds.playUpgradePinSound();
 
-            // Mark cards as played for animation
+            if (clickedCard) {
+                // Get card position for effects
+                const rect = clickedCard.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                // Create various effects based on card type or modifiers
+                if (card.statModifiers) {
+                    // Money effect for prestige gains
+                    if (card.statModifiers.prestige > 0) {
+                        createMoneyEffect(centerX, centerY);
+                    }
+
+                    // Noodle explosion for chaos changes
+                    if (Math.abs(card.statModifiers.chaos) > 5) {
+                        createNoodleExplosion(centerX, centerY);
+                    }
+
+                    // Smoke for worker changes
+                    if (card.statModifiers.workers) {
+                        for (let i = 0; i < 5; i++) {
+                            setTimeout(() => {
+                                createSmokeParticle(
+                                    centerX + (Math.random() - 0.5) * 50,
+                                    centerY + (Math.random() - 0.5) * 50
+                                );
+                            }, i * 100);
+                        }
+                    }
+
+                    // Water splash for ingredient changes
+                    if (card.statModifiers.ingredients) {
+                        createWaterSplash(centerX, centerY);
+                    }
+                }
+
+                // Fire effect for "magical" or special cards
+                if (card.description.toLowerCase().includes('magic') || 
+                    card.description.toLowerCase().includes('mystic') ||
+                    card.description.toLowerCase().includes('spirit')) {
+                    for (let i = 0; i < 8; i++) {
+                        setTimeout(() => {
+                            createFireParticle(
+                                centerX + (Math.random() - 0.5) * 40,
+                                centerY + (Math.random() - 0.5) * 40
+                            );
+                        }, i * 80);
+                    }
+                }
+
+                // Existing card animation
+                clickedCard.classList.add('played');
+                clickedCard.setAttribute('data-selected', 'true');
+                clickedCard.style.zIndex = '100';
+            }
+
+            // Increment turn counter
+            this.turn++;
+
+            // Apply visual feedback for cards BEFORE stat changes
             if (clickedCard) {
                 clickedCard.classList.add('played');
                 clickedCard.setAttribute('data-selected', 'true');
@@ -869,7 +992,7 @@ class Game {
                 otherCard.setAttribute('data-selected', 'false');
             }
 
-            // Apply immediate stat modifiers first
+            // Apply stat modifications with balance checks
             if (card.statModifiers) {
                 const balancedModifiers = applyStatModifiers(this.state, {...card.statModifiers});
                 Object.entries(balancedModifiers).forEach(([stat, value]) => {
@@ -881,151 +1004,35 @@ class Game {
                     const currentValue = this.state.playerStats[statKey] || 0;
                     this.state.playerStats[statKey] = Math.max(0, currentValue + Number(value));
                 });
-            }
 
-            // Pin the upgrade card to the upgrades section
-            if (this.pinUpgradeCard(cardName, card)) {
-                // Apply permanent stats after successful pinning
-                if (card.permanentStats) {
-                    this.applyUpgradeStats(card.permanentStats);
+                // Update display after stat changes
+                this.updateDisplay();
+
+                // Apply card effect first
+                if (card.effect) {
+                    const message = card.effect(this.state);
+                    this.showEffectMessage(message);
                 }
-                // Store the upgrade in state
-                this.state.playerStats.factoryUpgrades[cardName] = card;
+
+                // Check for achievements AFTER both stat changes and card effect
+                this.checkAchievements();
             }
 
-            // Update display after all changes
-            this.updateDisplay();
-            
-            // Increment turn counter
-            this.turn++;
-            
-            // Process turn effects
+            // Process turn effects and check game state
             this.processTurnEffects();
-            
-            // Draw new cards after a delay
+
+            // Check for game over conditions
+            if (this.checkGameOver()) {
+                return;
+            }
+
+            // Schedule cleanup and new cards after animations complete
             if (!this.isGameOver) {
                 setTimeout(() => {
                     document.querySelectorAll('.card').forEach(card => card.remove());
                     this.drawNewCards();
                 }, 800);
             }
-            return;
-        }
-
-        // Rest of the existing playCard code for non-upgrade cards...
-        // Play card sound immediately
-        gameSounds.playCardSound();
-
-        if (clickedCard) {
-            // Get card position for effects
-            const rect = clickedCard.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-
-            // Create various effects based on card type or modifiers
-            if (card.statModifiers) {
-                // Money effect for prestige gains
-                if (card.statModifiers.prestige > 0) {
-                    createMoneyEffect(centerX, centerY);
-                }
-
-                // Noodle explosion for chaos changes
-                if (Math.abs(card.statModifiers.chaos) > 5) {
-                    createNoodleExplosion(centerX, centerY);
-                }
-
-                // Smoke for worker changes
-                if (card.statModifiers.workers) {
-                    for (let i = 0; i < 5; i++) {
-                        setTimeout(() => {
-                            createSmokeParticle(
-                                centerX + (Math.random() - 0.5) * 50,
-                                centerY + (Math.random() - 0.5) * 50
-                            );
-                        }, i * 100);
-                    }
-                }
-
-                // Water splash for ingredient changes
-                if (card.statModifiers.ingredients) {
-                    createWaterSplash(centerX, centerY);
-                }
-            }
-
-            // Fire effect for "magical" or special cards
-            if (card.description.toLowerCase().includes('magic') || 
-                card.description.toLowerCase().includes('mystic') ||
-                card.description.toLowerCase().includes('spirit')) {
-                for (let i = 0; i < 8; i++) {
-                    setTimeout(() => {
-                        createFireParticle(
-                            centerX + (Math.random() - 0.5) * 40,
-                            centerY + (Math.random() - 0.5) * 40
-                        );
-                    }, i * 80);
-                }
-            }
-
-            // Existing card animation
-            clickedCard.classList.add('played');
-            clickedCard.setAttribute('data-selected', 'true');
-            clickedCard.style.zIndex = '100';
-        }
-
-        // Increment turn counter
-        this.turn++;
-
-        // Apply visual feedback for cards BEFORE stat changes
-        if (clickedCard) {
-            clickedCard.classList.add('played');
-            clickedCard.setAttribute('data-selected', 'true');
-            clickedCard.style.zIndex = '100';
-        }
-        if (otherCard) {
-            otherCard.classList.add('played');
-            otherCard.setAttribute('data-selected', 'false');
-        }
-
-        // Apply stat modifications with balance checks
-        if (card.statModifiers) {
-            const balancedModifiers = applyStatModifiers(this.state, {...card.statModifiers});
-            Object.entries(balancedModifiers).forEach(([stat, value]) => {
-                const statKey = stat === 'workers' ? 'workerCount' : 
-                              stat === 'prestige' ? 'pastaPrestige' : 
-                              stat === 'chaos' ? 'chaosLevel' : 
-                              stat;
-                
-                const currentValue = this.state.playerStats[statKey] || 0;
-                this.state.playerStats[statKey] = Math.max(0, currentValue + Number(value));
-            });
-
-            // Update display after stat changes
-            this.updateDisplay();
-
-            // Apply card effect first
-            if (card.effect) {
-                const message = card.effect(this.state);
-                this.showEffectMessage(message);
-            }
-
-            // Check for achievements AFTER both stat changes and card effect
-            this.checkAchievements();
-        }
-
-        // Process turn effects and check game state
-        this.processTurnEffects();
-
-        // Check for game over conditions
-        if (this.checkGameOver()) {
-            return;
-        }
-
-        // Schedule cleanup and new cards after animations complete
-        if (!this.isGameOver) {
-            setTimeout(() => {
-                document.querySelectorAll('.card').forEach(card => card.remove());
-                this.drawNewCards();
-            }, 800);
         }
     }
 
@@ -1679,37 +1686,91 @@ class Game {
     }
 
     processTurnEffects() {
+        // Check if we need to auto-buy ingredients
         if (this.state.playerStats.ingredients <= 0) {
-            this.showEffectMessage("Production halted - no ingredients!");
-            // Still process sales and expenses
-            this.processSalesAndExpenses();
-            return;
+            const costPerIngredient = 6 + Math.floor(Math.random() * 7); // Random 6-12 cost per ingredient
+            const desiredIngredients = Math.min(5, Math.floor(this.state.playerStats.money / costPerIngredient));
+            
+            if (desiredIngredients > 0) {
+                const totalCost = desiredIngredients * costPerIngredient;
+                // First deduct money and update display
+                this.state.playerStats.money -= totalCost;
+                this.updateDisplay();
+                
+                // Small delay before adding ingredients for visual feedback
+                setTimeout(() => {
+                    this.state.playerStats.ingredients += desiredIngredients;
+                    this.updateDisplay();
+                    this.showEffectMessage(`Emergency ingredients purchased: ${desiredIngredients} for $${totalCost}!`);
+                }, 300);
+
+                // Early return to wait for the ingredient update
+                return;
+            } else if (this.state.playerStats.noodles > 0) {
+                // Emergency noodle sale at a discount
+                const noodlesToSell = this.state.playerStats.noodles;
+                const emergencySalePrice = Math.floor(this.state.playerStats.noodleSalePrice * 0.8); // 20% discount
+                const income = noodlesToSell * emergencySalePrice;
+                
+                // First update noodles and money
+                this.state.playerStats.noodles = 0;
+                this.state.playerStats.money += income;
+                this.updateDisplay();
+
+                // Try to buy ingredients with the new money
+                const newDesiredIngredients = Math.min(5, Math.floor(income / costPerIngredient));
+                if (newDesiredIngredients > 0) {
+                    const newTotalCost = newDesiredIngredients * costPerIngredient;
+                    this.state.playerStats.money -= newTotalCost;
+                    
+                    // Delay ingredient addition for visual feedback
+                    setTimeout(() => {
+                        this.state.playerStats.ingredients += newDesiredIngredients;
+                        this.updateDisplay();
+                        this.showEffectMessage(`Emergency noodle sale: ${noodlesToSell} noodles sold for $${income}!\nEmergency ingredients purchased: ${newDesiredIngredients} for $${newTotalCost}!`);
+                    }, 300);
+                    
+                    return;
+                }
+            }
+
+            // If we still have no money and no ingredients, game over
+            if (this.state.playerStats.money <= 0 && this.state.playerStats.ingredients <= 0 && this.state.playerStats.noodles <= 0) {
+                this.isGameOver = true;
+                this.gameOverReason = "Factory bankruptcy! No money, ingredients, or noodles left to continue production.";
+                gameSounds.playGameOverSound();
+                this.endGame('ingredients');
+                return;
+            }
         }
 
-        // Process production
-        const workers = this.state.playerStats.workerCount;
-        const baseProduction = Math.min(
-            this.state.playerStats.ingredients,
-            Math.ceil(workers / 0.5)  // Each 5 workers can process 1 ingredient
-        );
+        // Continue with regular production if we have ingredients
+        if (this.state.playerStats.ingredients > 0) {
+            // Rest of production code remains the same...
+            const workers = this.state.playerStats.workerCount;
+            const baseProduction = Math.min(
+                this.state.playerStats.ingredients,
+                Math.ceil(workers / 0.5)  // Each 5 workers can process 1 ingredient
+            );
 
-        if (baseProduction > 0) {
-            const chaosLevel = this.state.playerStats.chaosLevel;
-            const chaosMultiplier = chaosLevel > 50 ? 
-                1 - ((chaosLevel - 50) / 100) : // Penalty above 50% chaos
-                1 + (chaosLevel / 100); // Bonus below 50% chaos
+            if (baseProduction > 0) {
+                const chaosLevel = this.state.playerStats.chaosLevel;
+                const chaosMultiplier = chaosLevel > 50 ? 
+                    1 - ((chaosLevel - 50) / 100) : // Penalty above 50% chaos
+                    1 + (chaosLevel / 100); // Bonus below 50% chaos
 
-            // Each ingredient produces 10-20 noodles
-            const noodlesPerIngredient = 10 + Math.floor(Math.random() * 11);
-            const production = Math.max(1, Math.floor(baseProduction * noodlesPerIngredient * chaosMultiplier * this.state.playerStats.noodleProductionRate));
+                // Each ingredient produces 10-20 noodles
+                const noodlesPerIngredient = 10 + Math.floor(Math.random() * 11);
+                const production = Math.max(1, Math.floor(baseProduction * noodlesPerIngredient * chaosMultiplier * this.state.playerStats.noodleProductionRate));
 
-            if (production > 0) {
-                // Consume ingredients first
-                this.state.playerStats.ingredients = Math.max(0, this.state.playerStats.ingredients - baseProduction);
-                // Then add produced noodles
-                this.state.playerStats.noodles += production;
+                if (production > 0) {
+                    // Consume ingredients first
+                    this.state.playerStats.ingredients = Math.max(0, this.state.playerStats.ingredients - baseProduction);
+                    // Then add produced noodles
+                    this.state.playerStats.noodles += production;
 
-                this.showEffectMessage(`Production: ${production} noodles produced from ${baseProduction} ingredients!`);
+                    this.showEffectMessage(`Production: ${production} noodles produced from ${baseProduction} ingredients!`);
+                }
             }
         }
 
