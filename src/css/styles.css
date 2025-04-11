@@ -2803,14 +2803,14 @@ h1 {
     justify-content: center;
     align-items: center;
     gap: 15px;
-    padding: 4px 0;
     position: absolute;
-    bottom: 0;
+    bottom: 2px;
     left: 0;
     right: 0;
     width: 100%;
     background: transparent;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: none;
+    height: 20px;
 }
 
 .resource-item {
@@ -2819,9 +2819,5 @@ h1 {
     gap: 4px;
     font-size: 0.85em;
     white-space: nowrap;
-}
-
-.resource-icon {
-    opacity: 0.8;
-    margin-right: 2px;
+    line-height: 1;
 }
