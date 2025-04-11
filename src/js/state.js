@@ -12,12 +12,13 @@ const gameState = {
         unitsSold: 0,
         workerCount: Math.floor(Math.random() * 4) + 8,
         workersInFactory: 5,
-        money: 100, // Starting money
-        noodles: 0, // Starting noodles
-        noodleProductionRate: 1, // Base production rate
-        noodleSalePrice: 5, // Base sale price per noodle
+        money: 1000,        // Starting with $1000
+        noodles: 0,
+        noodleProductionRate: 1,
+        noodleSalePrice: 5,
+        weeklyExpenses: 100, // New: Weekly operating expenses
         turnsAtMaxChaos: 0,
-        chaosControlTurns: 0,  // Add this to match the achievement check
+        chaosControlTurns: 0,
     },
     resourceMeters: {
         noodletude: 50,
@@ -135,7 +136,7 @@ export const resetGameState = () => {
             chaosLevel: 0,
             ingredients: Math.floor(Math.random() * 3) + 3,
             workerCount: Math.floor(Math.random() * 4) + 8,
-            money: 100, // Starting money
+            money: 1000, // Starting with $1000
             noodles: 0, // Starting noodles
             noodleProductionRate: 1, // Base production rate
             noodleSalePrice: 5, // Base sale price per noodle

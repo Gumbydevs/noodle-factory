@@ -103,7 +103,7 @@ class Game {
                 chaosLevel: 0,
                 ingredients: Math.floor(Math.random() * 3) + 3,
                 workerCount: Math.floor(Math.random() * 4) + 8,
-                money: 100, // Starting money
+                money: 1000, // Starting with $1000
                 noodles: 0, // Starting with no noodles
                 noodleProductionRate: 1, // Base production rate
                 noodleSalePrice: 5, // Base sale price
@@ -392,7 +392,7 @@ class Game {
             resourcesRow.innerHTML = `
                 <span class="resource-item">
                     <span class="resource-icon">💰</span>
-                    <span id="money-stat" class="resource-value money-color">$100</span>
+                    <span id="money-stat" class="resource-value money-color">$1000</span>
                 </span>
                 <span class="resource-item">
                     <span class="resource-icon">🍜</span>
@@ -1284,6 +1284,12 @@ class Game {
     }
 
     endGame(reason = '') {
+        // Show options button again
+        const optionsButton = document.getElementById('options-button');
+        if (optionsButton) {
+            optionsButton.style.display = 'block';
+        }
+
         // Convert reason to descriptive message
         const gameOverMessages = {
             'workers': 'Your workforce has abandoned the factory, leaving production at a standstill.',
@@ -1430,38 +1436,29 @@ class Game {
             continueButton.parentElement.removeChild(continueButton);
         }
 
-        // Hide start screen elements
+        // Hide start screen elements and options button
         const startButton = document.getElementById('start-game');
+        const optionsButton = document.getElementById('options-button');
         if (startButton) {
             startButton.classList.add('hidden');
         }
-
-        // Hide options button when game starts
-        const optionsButton = document.getElementById('options-button');
         if (optionsButton) {
             optionsButton.style.display = 'none';
         }
-        
-        // Initialize audio on game start (first user interaction)
-        soundManager.init();
 
-        // Start background music if enabled (before any other sounds)
-        musicLoops.startLoop();
-
-        // Now play the start game sound
-        gameSounds.playStartGameSound();
-
+        // Initialize with default state
         resetGameState();
         this.state = {
             playerStats: {
                 pastaPrestige: 0,
                 chaosLevel: 0,
-                ingredients: Math.floor(Math.random() * 3) + 3, // Reduced from 5-10 to 3-5 ingredients
-                workerCount: Math.floor(Math.random() * 4) + 8, // Reduced from 15-20 to 8-11 workers
-                money: 100, // Starting money
-                noodles: 0, // Starting with no noodles
-                noodleProductionRate: 1, // Base production rate
-                noodleSalePrice: 5, // Base sale price
+                ingredients: Math.floor(Math.random() * 3) + 3,
+                workerCount: Math.floor(Math.random() * 4) + 8,
+                money: 1000, // Fixed starting money at $1000
+                noodles: 0,
+                noodleProductionRate: 1,
+                noodleSalePrice: 5,
+                weeklyExpenses: 100,
                 lostWorkers: 0,
                 lostIngredients: 0,
                 chaosSteadyTurns: 0,
@@ -1637,68 +1634,63 @@ class Game {
         // Apply upgrade effects first
         applyUpgradeEffects(this.state);
 
-        // Process noodle production BEFORE other effects to show changes
-        if (this.state.playerStats.ingredients > 1 && this.state.playerStats.workerCount > 0) {
-            // Calculate production based on workers - each 3 workers can process 1 ingredient
-            const maxWorkerProduction = Math.ceil(this.state.playerStats.workerCount / 3);
-            
-            // Calculate safe ingredient use (never go below 1)
-            const availableIngredients = this.state.playerStats.ingredients - 1;
-            
-            // Use the smaller of the two values to ensure we don't over-produce
-            const baseProduction = Math.min(availableIngredients, maxWorkerProduction);
-            
-            // Apply chaos modifier
-            const chaosLevel = this.state.playerStats.chaosLevel;
-            const chaosMultiplier = chaosLevel > 50 ? 
-                1 - ((chaosLevel - 50) / 100) : // Penalty above 50% chaos
-                1 + (chaosLevel / 100); // Bonus below 50% chaos
+        // Business week production cycle (every 5 turns)
+        if (this.turn % 5 === 0) {
+            // Weekly expenses
+            const weeklyExpenses = this.state.playerStats.weeklyExpenses || 100;
+            this.state.playerStats.money = Math.max(0, this.state.playerStats.money - weeklyExpenses);
+            this.showEffectMessage(`Weekly expenses paid: -$${weeklyExpenses}`);
 
-            // Calculate final production with all modifiers
-            const production = Math.max(1, Math.floor(baseProduction * chaosMultiplier * this.state.playerStats.noodleProductionRate));
-            
-            // Add produced noodles
-            this.state.playerStats.noodles += production;
-            
-            // Consume ingredients
-            this.state.playerStats.ingredients -= baseProduction;
+            // Production phase
+            if (this.state.playerStats.ingredients > 1 && this.state.playerStats.workerCount > 0) {
+                // Each worker can process 0.5 ingredients per week
+                const maxWorkerProduction = Math.floor(this.state.playerStats.workerCount * 0.5);
+                const availableIngredients = this.state.playerStats.ingredients - 1;
+                const baseProduction = Math.min(availableIngredients, maxWorkerProduction);
 
-            // Process sales (automatic)
-            const sales = Math.floor(this.state.playerStats.noodles * 0.8); // Sell 80% of stock
-            if (sales > 0) {
-                const revenue = sales * this.state.playerStats.noodleSalePrice;
-                this.state.playerStats.noodles -= sales;
-                this.state.playerStats.money += revenue;
-                
-                // Show production feedback
-                this.showEffectMessage(`Produced ${production} noodles and sold ${sales} for $${revenue}!`);
+                // Calculate final production with all modifiers
+                const chaosLevel = this.state.playerStats.chaosLevel;
+                const chaosMultiplier = chaosLevel > 50 ? 
+                    1 - ((chaosLevel - 50) / 100) : // Penalty above 50% chaos
+                    1 + (chaosLevel / 100); // Bonus below 50% chaos
+
+                // Each ingredient produces 10-20 noodles
+                const noodlesPerIngredient = 10 + Math.floor(Math.random() * 11);
+                const production = Math.max(1, Math.floor(baseProduction * noodlesPerIngredient * chaosMultiplier * this.state.playerStats.noodleProductionRate));
+
+                // Add produced noodles and consume ingredients
+                this.state.playerStats.noodles += production;
+                this.state.playerStats.ingredients -= baseProduction;
+
+                this.showEffectMessage(`Weekly Production: ${production} noodles produced from ${baseProduction} ingredients!`);
             }
         }
 
-        // Cap prestige at 100
-        this.state.playerStats.pastaPrestige = Math.min(100, this.state.playerStats.pastaPrestige);
+        // Daily sales (every turn)
+        const dailySales = Math.min(
+            this.state.playerStats.noodles,
+            Math.floor(5 + (this.state.playerStats.workerCount * 0.5))
+        );
+        
+        if (dailySales > 0) {
+            const revenue = dailySales * this.state.playerStats.noodleSalePrice;
+            this.state.playerStats.noodles -= dailySales;
+            this.state.playerStats.money += revenue;
+            this.showEffectMessage(`Daily Sales: ${dailySales} noodles sold for $${revenue}!`);
+        }
 
-        // Natural progression effects - chaos increases every 3-5 turns
+        // Natural chaos progression
         if (this.turn % (3 + Math.floor(Math.random() * 3)) === 0) {
             const chaosBase = this.turn < 10 ? 0.3 : 0.8;
             const chaosRandom = Math.random() * 0.4;
-            
             const currentChaos = Number(this.state.playerStats.chaosLevel) || 0;
             const currentPrestige = Number(this.state.playerStats.pastaPrestige) || 0;
-            
-            // Modify chaos calculation based on prestige
-            const prestigeMultiplier = currentPrestige >= 100 ? 1.2 : // 50% more chaos at max prestige
+            const prestigeMultiplier = currentPrestige >= 100 ? 1.2 : 
                                      currentPrestige >= 66 ? 1.2 : 1;
             const chaosMultiplier = currentChaos > 75 ? 0.6 : currentChaos > 50 ? 0.8 : 1;
-            
-            // Apply the chaosGainRate from upgrades
             const chaosIncrease = Number((chaosBase + chaosRandom) * chaosMultiplier * prestigeMultiplier * this.state.playerStats.chaosGainRate);
-            
             this.state.playerStats.chaosLevel = Math.min(100, Number(currentChaos + chaosIncrease));
         }
-        
-        // Rest of the existing code...
-        // ...existing worker and prestige decay logic...
 
         // Process lighting effects
         const lights = document.querySelectorAll('.light-bulb');
