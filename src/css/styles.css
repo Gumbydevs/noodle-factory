@@ -186,10 +186,10 @@
 
 /* Enhance existing chaos effects and add new ones */
 @keyframes chaosWarp {
-    0% { background: #1a1a1a; }
-    33% { background: #1a1515; }
-    66% { background: #151a1a; }
-    100% { background: #1a1a1a; }
+    0% { background: linear-gradient(45deg, #1a1a1a, #1a1818); }
+    33% { background: linear-gradient(45deg, #1a1818, #181a1a); }
+    66% { background: linear-gradient(45deg, #181a1a, #1a1818); }
+    100% { background: linear-gradient(45deg, #1a1a1a, #1a1818); }
 }
 
 /* Enhance screen shake */
@@ -233,10 +233,10 @@
 
 /* First, add these new keyframes if not already present */
 @keyframes chaosBackgroundPulse {
-    0% { background-color: #000000; }
-    50% { background-color: #1f1d1d; }  /* Slightly warmer dark */
-    75% { background-color: #1d1f1f; }  /* Slightly cooler dark */
-    100% { background-color: #0a0a0a; }
+    0% { background-color: rgba(26, 26, 26, 1); }
+    50% { background-color: rgba(24, 22, 22, 1); }  /* Slightly warmer dark */
+    75% { background-color: rgba(22, 24, 24, 1); }  /* Slightly cooler dark */
+    100% { background-color: rgba(26, 26, 26, 1); }
 }
 
 @keyframes chaosColorShift {
@@ -551,12 +551,13 @@ body {
 body.chaos-level-1 {
     animation: chaosBackgroundPulse 15s ease-in-out infinite !important;
     filter: hue-rotate(5deg) !important;
+    background: linear-gradient(to right, #1a1a1a, #1a1818) !important;
 }
 
 body.chaos-level-2 {
     animation: chaosBackgroundPulse 10s ease-in-out infinite !important;
     filter: hue-rotate(15deg) saturate(1.2) !important;
-    background: linear-gradient(to right, #1a1515, #151a1a) !important;
+    background: linear-gradient(to right, #1a1818, #181a1a) !important;
 }
 
 body.chaos-level-3 {
@@ -565,7 +566,7 @@ body.chaos-level-3 {
         maxChaosWarp 6s ease-in-out infinite,
         chaosShake 10s ease-in-out infinite !important;
     filter: hue-rotate(25deg) saturate(1.4) brightness(1.1) !important;
-    background: linear-gradient(45deg, #1a1515, #151a1a) !important;
+    background: linear-gradient(45deg, #181616, #161818) !important;
     transform-style: preserve-3d;
     perspective: 1000px;
 }
@@ -707,11 +708,13 @@ body.chaos-noise::before {
 #stats {
     display: flex;
     justify-content: space-around;
-    margin: 20px;
+    margin: 15px auto; /* Reduced from 20px */
     padding: 10px;
     background: #333;
     border-radius: 5px;
-    width: calc(100% - 40px); /* Fix width accounting for margins */
+    width: 800px; /* Fixed width */
+    max-width: calc(100% - 40px); /* Prevent overflow on small screens */
+    box-sizing: border-box;
     min-height: 80px; /* Add fixed height */
     --float-speed: 6s;
     --float-distance: 0px;
@@ -720,6 +723,13 @@ body.chaos-noise::before {
         translateY(var(--float-distance))
         rotate(var(--rotation));
     animation: statsFloat var(--float-speed) ease-in-out infinite;
+    --stats-glow-primary: rgba(255, 244, 230, 0.12);
+    --stats-glow-secondary: rgba(255, 244, 230, 0.06);
+    --stats-glow-outer: rgba(255, 244, 230, 0.03);
+    box-shadow: 
+        0 0 calc(5px * var(--glow-intensity)) var(--stats-glow-primary),
+        0 0 calc(10px * var(--glow-intensity)) var(--stats-glow-secondary),
+        0 0 calc(15px * var(--glow-intensity)) var(--stats-glow-outer);
 }
 
 .chaos-level-1 #stats {
@@ -743,6 +753,89 @@ body.chaos-noise::before {
     --float-speed: 2s;
     --float-distance: -5px;
     --rotation: 2deg;
+}
+
+/* Resource State Effects */
+#stats.balanced-state {
+    animation: balanced-pulse 2s infinite;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+#stats.critical-state {
+    animation: critical-pulse 1.5s infinite;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+}
+
+#stats.harmony-state {
+    animation: harmony-pulse 3s infinite;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+}
+
+#stats.perfect-state {
+    animation: perfect-pulse 2s infinite;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+}
+
+@keyframes balanced-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+@keyframes critical-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
+
+@keyframes harmony-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.01); }
+    100% { transform: scale(1); }
+}
+
+@keyframes perfect-pulse {
+    0% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 255, 255, 0.4); }
+    50% { transform: scale(1.02); box-shadow: 0 0 30px rgba(255, 255, 255, 0.6); }
+    100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 255, 255, 0.4); }
+}
+
+/* Stat value highlight effects for special states */
+#stats.balanced-state .stat-value {
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+#stats.critical-state .stat-value {
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+}
+
+#stats.harmony-state .stat-value {
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+
+#stats.perfect-state .stat-value {
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+/* Progress bar effects for special states */
+#stats.balanced-state .stat-progress-fill {
+    transition: width 0.3s ease-in-out;
+    filter: brightness(1.2);
+}
+
+#stats.critical-state .stat-progress-fill {
+    transition: width 0.2s ease-in-out;
+    filter: brightness(1.3);
+}
+
+#stats.harmony-state .stat-progress-fill {
+    transition: width 0.4s ease-in-out;
+    filter: brightness(1.1);
+}
+
+#stats.perfect-state .stat-progress-fill {
+    transition: width 0.3s ease-in-out;
+    filter: brightness(1.4);
 }
 
 .stat {
@@ -969,6 +1062,24 @@ h1 {
     animation: 
         cardFloat calc(var(--base-duration, 3s) + (var(--animation-offset, 0s))) cubic-bezier(0.4, 0, 0.6, 1) infinite,
         cardTwitch calc(var(--twitch-duration, 8s) + (var(--animation-offset, 0s))) cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    --card-glow-primary: rgba(255, 244, 230, 0.12);
+    --card-glow-secondary: rgba(255, 244, 230, 0.06);
+    --card-glow-outer: rgba(255, 244, 230, 0.03);
+    box-shadow: 
+        0 0 calc(8px * var(--glow-intensity)) var(--card-glow-primary),
+        0 0 calc(16px * var(--glow-intensity)) var(--card-glow-secondary),
+        0 0 calc(24px * var(--glow-intensity)) var(--card-glow-outer);
+    transition: all 0.3s ease-out;
+}
+
+#cards-container .card:hover {
+    --card-glow-primary: rgba(255, 244, 230, 0.2);
+    --card-glow-secondary: rgba(255, 244, 230, 0.1);
+    --card-glow-outer: rgba(255, 244, 230, 0.05);
+    box-shadow: 
+        0 0 calc(12px * var(--glow-intensity)) var(--card-glow-primary),
+        0 0 calc(24px * var(--glow-intensity)) var(--card-glow-secondary),
+        0 0 calc(36px * var(--glow-intensity)) var(--card-glow-outer);
 }
 
 /* Chaos level variations with proper scaling */
@@ -1219,43 +1330,32 @@ h1 {
 }
 
 #game-messages {
-    margin: 20px auto;
+    margin: 15px auto; /* Changed from 10px to match others */
+    width: 720px; /* Fixed width */
+    max-width: calc(100% - 40px);
     padding: 5px;
     height: 40px;
     min-height: 40px;
     background: #333;
     border-radius: 5px;
-    width: calc(100% - 40px); /* Match stats container width */
-    max-width: 800px;
     display: flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box; /* Add this to include padding in width calculation */
     overflow: hidden; /* Prevent overflow */
-}
-
-.message-box {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 8px; /* Reduced from 12px */
-    background: #2c3e50;
-    background: linear-gradient(to right, #2c3e50, #3a506b);
-    border-radius: 6px;
-    color: #3498db; /* Default blue color */
-    font-family: 'Courier New', monospace;
-    font-size: 0.95em; /* Reduced from 1.1em */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    transition: opacity 0.5s ease-in-out;
     --wave-intensity: 0;
     --color-shift: 0deg;
     --brightness: 1;
     filter: 
         hue-rotate(calc(var(--color-shift) * var(--chaos-intensity)))
         brightness(calc(var(--brightness) + (0.05 * var(--chaos-intensity))));
+    --message-glow-primary: rgba(255, 244, 230, 0.15);
+    --message-glow-secondary: rgba(255, 244, 230, 0.08);
+    --message-glow-outer: rgba(255, 244, 230, 0.04);
+    box-shadow: 
+        0 0 calc(6px * var(--glow-intensity)) var(--message-glow-primary),
+        0 0 calc(12px * var(--glow-intensity)) var(--message-glow-secondary),
+        0 0 calc(18px * var(--glow-intensity)) var(--message-glow-outer);
 }
 
 .chaos-level-1 .message-box {
@@ -1609,6 +1709,16 @@ h1 {
     font-size: 0.9em; /* Base size reduction for all content */
 }
 
+/* Game over text styling */
+.game-over-header {
+    color: #ff0000;
+    font-size: 2.5em;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    font-weight: bold;
+}
+
 .game-over-content {
     text-align: center;
     position: relative;
@@ -1853,7 +1963,7 @@ h1 {
     }
 
     #game-messages {
-        margin: 10px auto; /* Match stats container margin */
+        margin: 15px auto; /* Match stats container margin */
         width: calc(100% - 20px); /* Adjust width calculation for mobile */
         max-width: calc(100vw - 20px);
         overflow-x: hidden;
@@ -2448,4 +2558,83 @@ h1 {
 
 @keyframes noodle-spin {
     to { transform: rotate(360deg); }
+}
+
+/* Factory lights styling */
+#factory-lights {
+    margin: 15px auto;
+    width: 760px;
+    max-width: calc(100% - 40px);
+    height: 20px;
+    background: #1a1a1a; /* Match page background */
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 15px;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.lights-container {
+    display: flex;
+    gap: 25px;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    justify-content: space-between;
+}
+
+/* Base light bulb style - all dim by default */
+.light-bulb {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #222;
+    box-shadow: none;
+    transition: all 0.5s ease;
+    position: relative;
+    opacity: 0.3; /* Very dim by default */
+}
+
+/* Normal state light */
+.light-bulb.on {
+    background: #ffd700;
+    opacity: 1;
+    box-shadow: 
+        0 0 4px rgba(255, 215, 0, 0.95),
+        0 0 8px rgba(255, 215, 0, 0.75);
+}
+
+/* Low resource warning state */
+.light-bulb.warning {
+    background: #ff8800;
+    opacity: 0.7;
+    box-shadow: 
+        0 0 4px rgba(255, 136, 0, 0.8),
+        0 0 8px rgba(255, 136, 0, 0.6);
+    animation: warningFlicker 2s ease-in-out infinite;
+}
+
+/* Critical resource state */
+.light-bulb.critical {
+    background: #ff4400;
+    opacity: 0.5;
+    box-shadow: 
+        0 0 4px rgba(255, 68, 0, 0.7),
+        0 0 8px rgba(255, 68, 0, 0.5);
+    animation: criticalFlicker 1s ease-in-out infinite;
+}
+
+/* Warning flicker animation */
+@keyframes warningFlicker {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 0.4; }
+}
+
+/* Critical flicker animation */
+@keyframes criticalFlicker {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.2; }
 }

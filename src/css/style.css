@@ -1,0 +1,28 @@
+.light-glow {
+    --glow-intensity: 1;
+    --glow-color: rgba(255, 244, 230, 0.15);
+    box-shadow: 0 0 calc(10px * var(--glow-intensity)) var(--glow-color),
+                0 0 calc(20px * var(--glow-intensity)) var(--glow-color);
+    transition: box-shadow 0.5s ease-out;
+}
+
+#cards-container .card {
+    --card-glow: rgba(255, 244, 230, 0.1);
+    box-shadow: 0 0 calc(15px * var(--glow-intensity)) var(--card-glow);
+    transition: all 0.3s ease-out;
+}
+
+#cards-container .card:hover {
+    --card-glow: rgba(255, 244, 230, 0.2);
+    box-shadow: 0 0 calc(20px * var(--glow-intensity)) var(--card-glow);
+}
+
+#game-messages {
+    --message-glow: rgba(255, 244, 230, 0.12);
+    box-shadow: 0 0 calc(12px * var(--glow-intensity)) var(--message-glow);
+}
+
+#stats {
+    --stats-glow: rgba(255, 244, 230, 0.1);
+    box-shadow: 0 0 calc(10px * var(--glow-intensity)) var(--stats-glow);
+}

@@ -128,6 +128,14 @@ class Game {
             tier3: false
         };
 
+        this.lightsStatus = new Array(11).fill('off'); // Initialize all lights as off
+        this.initializeLights();
+
+        // Add ambient glow classes
+        document.getElementById('cards-container')?.classList.add('light-glow');
+        document.getElementById('game-messages')?.classList.add('light-glow');
+        document.getElementById('stats')?.classList.add('light-glow');
+
         // Clear any existing chaos effects
         document.body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
 
@@ -185,6 +193,110 @@ class Game {
             messageBox.textContent = "Click below to start managing your Noodle Factory!";
             messageBox.classList.remove('feedback');
             messageBox.classList.add('situation');
+        }
+    }
+
+    initializeLights() {
+        const lightsContainer = document.querySelector('.lights-container');
+        if (!lightsContainer) return;
+
+        // Clear existing lights
+        lightsContainer.innerHTML = '';
+
+        // Create 11 light bulbs instead of 15
+        for (let i = 0; i < 11; i++) {
+            const light = document.createElement('div');
+            light.className = 'light-bulb off';
+            lightsContainer.appendChild(light);
+        }
+
+        this.updateLights();
+    }
+
+    updateLights() {
+        const lights = document.querySelectorAll('.light-bulb');
+        if (!lights.length) return;
+
+        const stats = this.state.playerStats;
+        const chaosLevel = stats.chaosLevel;
+        const ingredientLevel = stats.ingredients;
+        const prestigeLevel = stats.pastaPrestige;
+
+        // Calculate how many lights should be on based on resources
+        const totalLights = lights.length;
+        let onLights = Math.floor((ingredientLevel / 10) * totalLights); // Scale with ingredients
+        
+        // Add lights based on prestige
+        onLights += Math.floor((prestigeLevel / 50) * (totalLights / 2)); // Prestige adds up to half the lights
+
+        // Ensure minimum of 2 lights and maximum of total lights
+        onLights = Math.max(2, Math.min(totalLights, onLights));
+
+        // Randomly flicker lights based on chaos
+        const flickerChance = Math.min(chaosLevel / 200, 0.5); // Max 50% chance per light
+
+        // Update each light
+        lights.forEach((light, index) => {
+            light.className = 'light-bulb';
+            
+            if (index < onLights) {
+                // Light should be on, but may flicker based on chaos
+                if (Math.random() < flickerChance) {
+                    light.classList.add('flicker');
+                } else {
+                    light.classList.add('on');
+                }
+            } else if (index < onLights + 2 && onLights > 3) {
+                // Transition zone - dim lights, only if we have more than 3 lights on
+                light.classList.add('dim');
+            } else {
+                // Remaining lights off
+                light.classList.add('off');
+            }
+        });
+
+        // Update game effects based on lights
+        this.applyLightingEffects(this.countActiveLights(lights));
+    }
+
+    countActiveLights(lights) {
+        return Array.from(lights).filter(light => 
+            light.classList.contains('on') || light.classList.contains('flicker')
+        ).length;
+    }
+
+    applyLightingEffects(activeLights) {
+        const gameContainer = document.getElementById('game-container');
+        const totalLights = 11;
+        const lightRatio = activeLights / totalLights;
+
+        // Apply visual effects based on lighting level
+        if (lightRatio < 0.3) {
+            gameContainer.style.filter = 'brightness(0.7)';
+            // Increase glow intensity in low light
+            document.querySelectorAll('.light-glow').forEach(el => {
+                el.style.setProperty('--glow-intensity', '2');
+            });
+        } else if (lightRatio < 0.6) {
+            gameContainer.style.filter = 'brightness(0.85)';
+            // Medium glow in moderate light
+            document.querySelectorAll('.light-glow').forEach(el => {
+                el.style.setProperty('--glow-intensity', '1.5');
+            });
+        } else {
+            gameContainer.style.filter = 'brightness(1)';
+            // Subtle glow in good light
+            document.querySelectorAll('.light-glow').forEach(el => {
+                el.style.setProperty('--glow-intensity', '1');
+            });
+        }
+
+        // Apply gameplay effects
+        if (lightRatio < 0.5) {
+            this.state.playerStats.workerLossRate *= 1.2;
+        }
+        if (lightRatio < 0.3) {
+            this.state.playerStats.chaosGainRate *= 1.3;
         }
     }
 
@@ -303,8 +415,43 @@ class Game {
             }
         });
 
+        // Add resource state effects
+        const statsContainer = document.getElementById('stats');
+        
+        // Remove all special state classes
+        statsContainer.classList.remove(
+            'balanced-state',
+            'critical-state',
+            'harmony-state',
+            'perfect-state'
+        );
+
+        // Check for special resource states
+        if (stats.chaosLevel === 50 && stats.workerCount >= 20) {
+            statsContainer.classList.add('balanced-state');
+            this.showEffectMessage("The factory finds perfect balance!");
+        }
+
+        if (stats.chaosLevel >= 75 && stats.ingredients >= 15) {
+            statsContainer.classList.add('critical-state');
+            this.showEffectMessage("Danger and opportunity are intertwined!");
+        }
+
+        if (stats.pastaPrestige >= 50 && stats.chaosLevel <= 30) {
+            statsContainer.classList.add('harmony-state');
+            this.showEffectMessage("Your factory runs like a well-oiled machine!");
+        }
+
+        if (stats.workerCount >= 40 && stats.ingredients >= 15 && stats.pastaPrestige >= 40) {
+            statsContainer.classList.add('perfect-state');
+            this.showEffectMessage("Peak pasta production achieved!");
+        }
+
         this.checkChaosEvents();
         this.checkAchievements();
+
+        // Update lights
+        this.updateLights();
     }
 
     checkChaosEvents() {
@@ -1199,8 +1346,8 @@ class Game {
             playerStats: {
                 pastaPrestige: 0,
                 chaosLevel: 0,
-                ingredients: Math.floor(Math.random() * 6) + 5, // Random 5-10 ingredients
-                workerCount: Math.floor(Math.random() * 6) + 15,
+                ingredients: Math.floor(Math.random() * 3) + 3, // Reduced from 5-10 to 3-5 ingredients
+                workerCount: Math.floor(Math.random() * 4) + 8, // Reduced from 15-20 to 8-11 workers
                 lostWorkers: 0,
                 lostIngredients: 0,
                 chaosSteadyTurns: 0,
@@ -1218,6 +1365,15 @@ class Game {
                 workerLossRate: 1
             }
         };
+
+        // Initialize with just a few lights on
+        this.lightsStatus = new Array(11).fill('off');
+        for (let i = 0; i < 3; i++) { // Only turn on 3 lights initially
+            const randomIndex = Math.floor(Math.random() * 11);
+            this.lightsStatus[randomIndex] = 'on';
+        }
+        this.updateLights();
+
         this.isGameOver = false;
         this.turn = 1;
         this.achievements = new Set(getUnlockedAchievements()); // Reload achievements on new game
@@ -1384,6 +1540,11 @@ class Game {
         
         // Rest of the existing code...
         // ...existing worker and prestige decay logic...
+
+        // Process lighting effects
+        const lights = document.querySelectorAll('.light-bulb');
+        const activeLights = this.countActiveLights(lights);
+        this.applyLightingEffects(activeLights);
 
         // Auto-save at the end of every turn
         if (!this.isGameOver) {
@@ -1732,11 +1893,6 @@ class SoundManager {
             mainGain.connect(this.gainNode);
 
             // Play second note slightly later
-            const osc2 = this.ctx.createOscillator();
-            osc2.type = 'sine';
-            osc2.frequency.value = note2;
-            const gain2 = this.ctx.createGain();
-            gain2.gain.setValueAtTime(0, this.ctx.currentTime + 0.1);
             gain2.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 0.15);
             gain2.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.3);
             osc2.connect(gain2);
