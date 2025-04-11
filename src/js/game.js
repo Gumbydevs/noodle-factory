@@ -1401,9 +1401,9 @@ class Game {
 
         // Convert reason to descriptive message
         const gameOverMessages = {
-            'workers': `Your workforce has abandoned the factory, with only $${Math.round(this.state.playerStats.money)} in the bank, you can't afford resume production.`,
-            'chaos': `After 3 days of maximum chaos, the factory has been consumed. Forever lost to the noodle dimension.`,
-            'ingredients': `With no ingredients left and only $${Math.round(this.state.playerStats.money)} in the bank, you can't afford to purchase emergency supplies. ${this.state.playerStats.noodles > 0 ? `Even selling your remaining ${Math.round(this.state.playerStats.noodles)} noodles at a discount won't cover the costs.` : 'With no noodles left to sell for emergency funds, production must stop permanently.'}`
+            'workers': `Your workforce has abandoned the factory. With only $${Math.round(this.state.playerStats.money)} in the bank, you can't afford resume production.`,
+            'chaos': `After 3 days of complete chaos, the factory has been consumed. Forever lost to the noodle dimension.`,
+            'ingredients': `With no ingredients left and only $${Math.round(this.state.playerStats.money)} in the bank, you can't afford to resume production.`
         };
 
         // Use custom reason if provided, otherwise use template
