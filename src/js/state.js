@@ -4,6 +4,18 @@ function getRandomWorkerCount() {
     return Math.floor(Math.random() * 6) + 15; // 15-20 range for better starting balance
 }
 
+const EMERGENCY_COSTS = {
+    ingredients: () => 6 + Math.floor(Math.random() * 7), // Random cost between 6-12 per ingredient
+    workers: 25 + Math.floor(Math.random() * 8), // Random cost between 25-32 per worker
+    maxPurchase: 5    // Maximum number of emergency resources that can be purchased at once
+};
+
+const BASE_PRODUCTION = {
+    workersPerIngredient: 5,  // Number of workers needed to process 1 ingredient
+    noodlesPerIngredient: [10, 20], // Range of noodles produced per ingredient [min, max]
+    basePrice: 5 // Base price per noodle
+};
+
 const gameState = {
     playerStats: {
         pastaPrestige: 0,
@@ -16,9 +28,14 @@ const gameState = {
         noodles: 0,
         noodleProductionRate: 1,
         noodleSalePrice: 5,
-        weeklyExpenses: 100, // New: Weekly operating expenses
+        weeklyExpenses: 100, // Weekly operating expenses
         turnsAtMaxChaos: 0,
         chaosControlTurns: 0,
+        lostIngredients: 0,
+        lostWorkers: 0,
+        totalProduction: 0,
+        productionEfficiency: 1,
+        prestige: 0,
     },
     resourceMeters: {
         noodletude: 50,
@@ -80,61 +97,41 @@ export function clearSavedGame() {
     localStorage.removeItem(SAVE_GAME_KEY);
 }
 
-function updateResource(resource, amount) {
-    if (resource === 'money') {
-        gameState.playerStats.money = Math.max(0, gameState.playerStats.money + amount);
-    } else if (resource === 'noodles') {
-        gameState.playerStats.noodles = Math.max(0, gameState.playerStats.noodles + amount);
-    } else if (gameState.resourceMeters[resource] !== undefined) {
-        gameState.resourceMeters[resource] = Math.max(0, Math.min(100, gameState.resourceMeters[resource] + amount));
-    }
-    
-    // Apply caps and natural progression for player stats
-    if (resource === 'chaosLevel') {
-        // Fix chaos reduction by ensuring proper handling of negative values
-        const chaosReduction = amount < 0 ? Math.abs(amount) * 1.8 : amount; // Use absolute value for reduction
-        const adjustedAmount = amount < 0 ? -chaosReduction : chaosReduction; // Re-apply negative sign if needed
+export function updateResource(resourceType, amount) {
+    // Handle negative values as emergency purchases
+    if (amount < 0) {
+        const severityFactor = Math.abs(amount);
+        // Scale from 50-150 based on severity (matching game.js)
+        const totalCost = Math.min(150, Math.max(50, 50 + (severityFactor * 15)));
         
-        const currentChaos = gameState.playerStats.chaosLevel;
-        const finalAmount = currentChaos > 70 ? adjustedAmount * 0.8 : 
-                           currentChaos > 50 ? adjustedAmount * 0.9 : 
-                           adjustedAmount;
-        
-        gameState.playerStats.chaosLevel = Math.min(100, Math.max(5, currentChaos + finalAmount));
-        updateChaosEffects(gameState.playerStats.chaosLevel);
-    }
-    else if (resource === 'pastaPrestige') {
-        // Cap prestige at 100
-        gameState.playerStats.pastaPrestige = Math.min(100, Math.max(0, gameState.playerStats.pastaPrestige + amount));
-        // Prestige naturally decays
-        if (amount > 0) {
-            setTimeout(() => {
-                gameState.playerStats.pastaPrestige = Math.max(0, gameState.playerStats.pastaPrestige - 2);
-            }, 2000);
+        if (gameState.playerStats.money >= totalCost) {
+            gameState.playerStats.money -= totalCost;
+            // For ingredients, we don't subtract here - it's handled in game.js with emergency purchase
+            return true;
         }
+        return false; // Return false if can't afford
     }
-    else if (resource === 'workers' || resource === 'workerCount') {
-        // Cap workers at 50
-        gameState.playerStats.workerCount = Math.min(50, Math.max(1, gameState.playerStats.workerCount + amount));
-        // Workers naturally get tired and leave
-        if (amount > 0) {
-            setTimeout(() => {
-                gameState.playerStats.workerCount = Math.max(1, gameState.playerStats.workerCount - 1);
-            }, 3000);
-        }
+
+    // Normal resource updates
+    switch (resourceType) {
+        case 'ingredients':
+            gameState.playerStats.ingredients = Math.max(0, gameState.playerStats.ingredients + amount);
+            break;
+        case 'workers':
+            gameState.playerStats.workerCount = Math.max(0, gameState.playerStats.workerCount + amount);
+            break;
+        case 'chaos':
+            let newChaos = gameState.playerStats.chaosLevel + amount;
+            if (newChaos > 100) {
+                gameState.playerStats.hadMaxChaos = true;
+            }
+            gameState.playerStats.chaosLevel = Math.max(0, Math.min(100, newChaos));
+            break;
+        case 'prestige':
+            gameState.playerStats.prestige = Math.max(0, gameState.playerStats.prestige + amount);
+            break;
     }
-    else if (resource === 'ingredients') {
-        // Cap ingredients at 20, but allow emergency purchases to work
-        const currentIngredients = gameState.playerStats.ingredients;
-        const targetAmount = currentIngredients + amount;
-        
-        if (targetAmount < 0) {
-            // Emergency purchase scenario - handled by Game.playCard
-            gameState.playerStats.ingredients = 0;
-        } else {
-            gameState.playerStats.ingredients = Math.min(20, targetAmount);
-        }
-    }
+    return true;
 }
 
 export const resetGameState = () => {
@@ -190,4 +187,4 @@ export function updateChaosEffects(chaosLevel) {
     }
 }
 
-export { gameState, updateResource };
+export { gameState };

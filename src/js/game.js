@@ -804,16 +804,18 @@ class Game {
             // Check if we would run out of ingredients
             if (ingredientChange < 0 && (this.state.playerStats.ingredients + ingredientChange) < 0) {
                 const neededIngredients = Math.abs(this.state.playerStats.ingredients + ingredientChange);
-                const costPerIngredient = 6 + Math.floor(Math.random() * 7); // Random cost between 6-12
-                const totalCost = neededIngredients * costPerIngredient;
+                // Calculate cost based on magnitude of ingredient loss
+                const severityFactor = Math.abs(ingredientChange);
+                // Scale from 50-150 based on severity
+                const totalCost = Math.min(150, Math.max(50, 50 + (severityFactor * 15)));
                 
                 if (this.state.playerStats.money >= totalCost) {
                     this.state.playerStats.money -= totalCost;
                     this.state.playerStats.ingredients += neededIngredients;
-                    emergencyMessage = `Emergency ingredients purchased for $${totalCost} ($${costPerIngredient} each)!`;
+                    emergencyMessage = `Emergency ingredients purchased for $${totalCost}!`;
                 } else {
                     this.isGameOver = true;
-                    this.gameOverReason = `Ran out of ingredients! Not enough money ($${this.state.playerStats.money}) to buy ${neededIngredients} ingredients at $${costPerIngredient} each.`;
+                    this.gameOverReason = `Ran out of ingredients! Not enough money ($${this.state.playerStats.money}) to purchase emergency ingredients ($${totalCost}).`;
                     return;
                 }
             }
@@ -1091,7 +1093,7 @@ class Game {
         // Track turns at max chaos
         if (this.state.playerStats.chaosLevel >= 100) {
             this.state.playerStats.turnsAtMaxChaos = (this.state.playerStats.turnsAtMaxChaos || 0) + 1;
-            this.state.playerStats.chaosControlTurns = (this.state.playerStats.chaosControlTurns || 0) + 1; // Add this line
+            this.state.playerStats.chaosControlTurns = (this.state.playerStats.chaosControlTurns || 0) + 1;
             this.state.playerStats.hadMaxChaos = true;
             
             if (this.state.playerStats.turnsAtMaxChaos >= 3) {
@@ -1102,22 +1104,16 @@ class Game {
             }
         } else {
             this.state.playerStats.turnsAtMaxChaos = 0;
-            // Don't reset chaosControlTurns here as it's for the achievement
         }
 
-        // Rest of the existing checks remain unchanged
+        // Only check for worker game over
         if (this.state.playerStats.workerCount <= 0) {
             gameSounds.playGameOverSound();
             this.endGame('workers');
             this.isGameOver = true;
             return true;
         }
-        if (this.state.playerStats.ingredients <= 0) {
-            gameSounds.playGameOverSound();
-            this.endGame('ingredients');
-            this.isGameOver = true;
-            return true;
-        }
+
         return false;
     }
 
@@ -1341,17 +1337,23 @@ class Game {
         const gameOverMessages = {
             'workers': 'Your workforce has abandoned the factory, leaving production at a standstill.',
             'chaos': 'The factory has been consumed by chaos, lost to an interdimensional pasta incident.',
-            'ingredients': 'Production has ceased - the pantry is empty, and not a single noodle can be made.'
+            'ingredients': 'Not enough money to purchase emergency ingredients - production halts permanently.'
         };
 
-        const endMessage = gameOverMessages[reason] || '';
+        const endMessage = this.gameOverReason || gameOverMessages[reason] || '';
         
         this.isGameOver = true;
         this.checkHighScore();
         
-        // Reset all chaos effects
+        // Reset all chaos effects and filters
         const body = document.body;
         body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
+        
+        // Reset any game container filters
+        const gameContainer = document.getElementById('game-container');
+        if (gameContainer) {
+            gameContainer.style.filter = 'none';
+        }
         
         // Remove CRT effect
         document.querySelector('.crt-overlay').classList.remove('active');
@@ -1360,7 +1362,6 @@ class Game {
         musicLoops.stopLoop();
 
         // Create game over screen
-        const gameContainer = document.getElementById('game-container');
         const gameOverScreen = document.createElement('div');
         gameOverScreen.className = 'game-over-screen';
         
@@ -1678,75 +1679,61 @@ class Game {
     }
 
     processTurnEffects() {
-        // Apply upgrade effects first
-        applyUpgradeEffects(this.state);
+        if (this.state.playerStats.ingredients <= 0) {
+            this.showEffectMessage("Production halted - no ingredients!");
+            // Still process sales and expenses
+            this.processSalesAndExpenses();
+            return;
+        }
 
-        // Business week production cycle (every 5 turns)
-        if (this.turn % 5 === 0) {
-            // Weekly expenses
-            const weeklyExpenses = this.state.playerStats.weeklyExpenses || 100;
-            this.state.playerStats.money = Math.max(0, this.state.playerStats.money - weeklyExpenses);
-            this.showEffectMessage(`Weekly expenses paid: -$${weeklyExpenses}`);
+        // Process production
+        const workers = this.state.playerStats.workerCount;
+        const baseProduction = Math.min(
+            this.state.playerStats.ingredients,
+            Math.ceil(workers / 0.5)  // Each 5 workers can process 1 ingredient
+        );
 
-            // Production phase
-            if (this.state.playerStats.ingredients > 1 && this.state.playerStats.workerCount > 0) {
-                // Each worker can process 0.5 ingredients per week
-                const maxWorkerProduction = Math.floor(this.state.playerStats.workerCount * 0.5);
-                const availableIngredients = this.state.playerStats.ingredients - 1;
-                const baseProduction = Math.min(availableIngredients, maxWorkerProduction);
+        if (baseProduction > 0) {
+            const chaosLevel = this.state.playerStats.chaosLevel;
+            const chaosMultiplier = chaosLevel > 50 ? 
+                1 - ((chaosLevel - 50) / 100) : // Penalty above 50% chaos
+                1 + (chaosLevel / 100); // Bonus below 50% chaos
 
-                // Calculate final production with all modifiers
-                const chaosLevel = this.state.playerStats.chaosLevel;
-                const chaosMultiplier = chaosLevel > 50 ? 
-                    1 - ((chaosLevel - 50) / 100) : // Penalty above 50% chaos
-                    1 + (chaosLevel / 100); // Bonus below 50% chaos
+            // Each ingredient produces 10-20 noodles
+            const noodlesPerIngredient = 10 + Math.floor(Math.random() * 11);
+            const production = Math.max(1, Math.floor(baseProduction * noodlesPerIngredient * chaosMultiplier * this.state.playerStats.noodleProductionRate));
 
-                // Each ingredient produces 10-20 noodles
-                const noodlesPerIngredient = 10 + Math.floor(Math.random() * 11);
-                const production = Math.max(1, Math.floor(baseProduction * noodlesPerIngredient * chaosMultiplier * this.state.playerStats.noodleProductionRate));
-
-                // Add produced noodles and consume ingredients
+            if (production > 0) {
+                // Consume ingredients first
+                this.state.playerStats.ingredients = Math.max(0, this.state.playerStats.ingredients - baseProduction);
+                // Then add produced noodles
                 this.state.playerStats.noodles += production;
-                this.state.playerStats.ingredients -= baseProduction;
 
-                this.showEffectMessage(`Weekly Production: ${production} noodles produced from ${baseProduction} ingredients!`);
+                this.showEffectMessage(`Production: ${production} noodles produced from ${baseProduction} ingredients!`);
             }
         }
 
-        // Daily sales (every turn)
-        const dailySales = Math.min(
-            this.state.playerStats.noodles,
-            Math.floor(5 + (this.state.playerStats.workerCount * 0.5))
-        );
-        
+        this.processSalesAndExpenses();
+    }
+
+    processSalesAndExpenses() {
+        // Process sales (every turn)
+        const maxSales = Math.floor(20 + (this.state.playerStats.prestige * 0.5));
+        const availableNoodles = this.state.playerStats.noodles;
+        const dailySales = Math.min(maxSales, availableNoodles);
+
         if (dailySales > 0) {
-            const revenue = dailySales * this.state.playerStats.noodleSalePrice;
+            const income = dailySales * this.state.playerStats.noodleSalePrice;
             this.state.playerStats.noodles -= dailySales;
-            this.state.playerStats.money += revenue;
-            this.showEffectMessage(`Daily Sales: ${dailySales} noodles sold for $${revenue}!`);
+            this.state.playerStats.money += income;
+            this.showEffectMessage(`Sales: ${dailySales} noodles sold for $${income}!`);
         }
 
-        // Natural chaos progression
-        if (this.turn % (3 + Math.floor(Math.random() * 3)) === 0) {
-            const chaosBase = this.turn < 10 ? 0.3 : 0.8;
-            const chaosRandom = Math.random() * 0.4;
-            const currentChaos = Number(this.state.playerStats.chaosLevel) || 0;
-            const currentPrestige = Number(this.state.playerStats.pastaPrestige) || 0;
-            const prestigeMultiplier = currentPrestige >= 100 ? 1.2 : 
-                                     currentPrestige >= 66 ? 1.2 : 1;
-            const chaosMultiplier = currentChaos > 75 ? 0.6 : currentChaos > 50 ? 0.8 : 1;
-            const chaosIncrease = Number((chaosBase + chaosRandom) * chaosMultiplier * prestigeMultiplier * this.state.playerStats.chaosGainRate);
-            this.state.playerStats.chaosLevel = Math.min(100, Number(currentChaos + chaosIncrease));
-        }
-
-        // Process lighting effects
-        const lights = document.querySelectorAll('.light-bulb');
-        const activeLights = this.countActiveLights(lights);
-        this.applyLightingEffects(activeLights);
-
-        // Auto-save at the end of every turn
-        if (!this.isGameOver) {
-            this.autoSave();
+        // Process weekly expenses
+        if (this.turn % 7 === 0) {
+            const expenses = this.state.playerStats.weeklyExpenses;
+            this.state.playerStats.money = Math.max(0, this.state.playerStats.money - expenses);
+            this.showEffectMessage(`Weekly expenses: -$${expenses}`);
         }
     }
 

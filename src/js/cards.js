@@ -1329,12 +1329,15 @@ function checkCardAchievements() {
 }
 
 export function applyStatModifiers(state, modifiers) {
+    // Remove automatic ingredient checking since it's now handled at a higher level
     if (modifiers.chaos && modifiers.chaos < 0) {
         const minChaos = 5;
         if (state.playerStats.chaosLevel + modifiers.chaos < minChaos) {
             modifiers.chaos = minChaos - state.playerStats.chaosLevel;
         }
     }
+    
+    // Cap all stat changes to ±10 for balance
     Object.keys(modifiers).forEach(stat => {
         if (Math.abs(modifiers[stat]) > 10) {
             modifiers[stat] = Math.sign(modifiers[stat]) * 10;
