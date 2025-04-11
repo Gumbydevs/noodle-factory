@@ -1313,20 +1313,12 @@ h1 {
     transition: width 0.3s;
 }
 
-.noodletude {
-    background-color: #27ae60;
-}
-
-.spice-level {
-    background-color: #e67e22;
-}
-
-.corporate-compliance {
-    background-color: #2980b9;
-}
-
-.boil-pressure {
-    background-color: #c0392b;
+.light-glow {
+    --glow-intensity: 1;
+    --glow-color: rgba(255, 244, 230, 0.15);
+    box-shadow: 0 0 calc(10px * var(--glow-intensity)) var(--glow-color),
+                0 0 calc(20px * var(--glow-intensity)) var(--glow-color);
+    transition: box-shadow 0.5s ease-out;
 }
 
 #game-messages {
@@ -1946,6 +1938,7 @@ h1 {
         width: 95%; /* Give more width */
         max-width: 600px;
         overflow-x: visible; /* Allow cards to be fully visible */
+        
     }
 
     .card {
@@ -2143,7 +2136,7 @@ h1 {
     background: #444 !important;
     transform: none !important;
     transition: none !important;
-    border-top-color: #555 !important;
+    border-top-color: #444 !important;
 }
 
 .wiggle-selected {

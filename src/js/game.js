@@ -128,13 +128,14 @@ class Game {
             tier3: false
         };
 
-        this.lightsStatus = new Array(11).fill('off'); // Initialize all lights as off
-        this.initializeLights();
+        this.lightsStatus = new Array(11).fill('off'); // Keep the array but don't create lights yet
 
-        // Add ambient glow classes
-        document.getElementById('cards-container')?.classList.add('light-glow');
+        // Add ambient glow classes - only for game messages and stats
         document.getElementById('game-messages')?.classList.add('light-glow');
         document.getElementById('stats')?.classList.add('light-glow');
+
+        // Hide factory lights if they exist
+        document.querySelector('#factory-lights')?.classList.add('hidden');
 
         // Clear any existing chaos effects
         document.body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
@@ -1208,13 +1209,9 @@ class Game {
         const gameOverScreen = document.createElement('div');
         gameOverScreen.className = 'game-over-screen';
         
-        // Add game over screen
-        gameContainer.appendChild(gameOverScreen);
-
-        // Set the inner HTML after appending to DOM
         gameOverScreen.innerHTML = `
             <div class="game-over-content">
-                <h2>Game Over!</h2>
+                <div class="game-over-header">GAME OVER</div>
                 <p class="end-reason">${endMessage}</p>
                 
                 <div class="score-display">
@@ -1253,7 +1250,7 @@ class Game {
                 </div>
 
                 <button id="new-game" class="button primary">Start New Run</button>
-                
+
                 <div class="achievements-section">
                     <h3>Achievements Earned</h3>
                     <div class="achievements-grid">
@@ -1273,6 +1270,9 @@ class Game {
                 </div>
             </div>
         `;
+
+        // Add to container after setting innerHTML
+        gameContainer.appendChild(gameOverScreen);
 
         // Hide cards and old message box
         this.hideCards();
@@ -1366,9 +1366,16 @@ class Game {
             }
         };
 
+        // Show and initialize factory lights
+        const factoryLights = document.querySelector('#factory-lights');
+        if (factoryLights) {
+            factoryLights.classList.remove('hidden');
+            this.initializeLights();
+        }
+
         // Initialize with just a few lights on
         this.lightsStatus = new Array(11).fill('off');
-        for (let i = 0; i < 3; i++) { // Only turn on 3 lights initially
+        for (let i = 0; i < 3; i++) {
             const randomIndex = Math.floor(Math.random() * 11);
             this.lightsStatus[randomIndex] = 'on';
         }
@@ -1641,6 +1648,13 @@ class Game {
         this.state = savedState;
         this.turn = savedState.turn;
         this.isGameOver = false;
+
+        // Show and update factory lights
+        const factoryLights = document.querySelector('#factory-lights');
+        if (factoryLights) {
+            factoryLights.classList.remove('hidden');
+            this.initializeLights();
+        }
 
         // Clear and reset UI
         document.body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');

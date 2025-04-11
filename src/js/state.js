@@ -125,10 +125,10 @@ export const resetGameState = () => {
         playerStats: {
             pastaPrestige: 0,
             chaosLevel: 0,
-            ingredients: 0,  // Changed from array to number
+            ingredients: 0,  
             workerCount: Math.floor(Math.random() * 6) + 15,
             turnsAtMaxChaos: 0,
-            chaosControlTurns: 0,  // Add here too
+            chaosControlTurns: 0,  
         }
     };
 };
