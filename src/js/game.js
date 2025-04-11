@@ -67,7 +67,7 @@ const TOOLTIPS = [
     "A plus sign (+) generally means a positive effect for your factory.",
     "A plus sign (+) usually means more of something.",
     "A minus sign (-) means less of something.",
-    "The number of plus (+) or minus (<span class=\"negative\">-</span>) signs indicates the strength of the effect.",
+    "The number of plus (+) or minus signs indicates the strength of the effect.",
     "The minus sign (-) usually indicates a reduction.",
     "Mysterious formulas on the wall hint at optimal worker-to-chaos ratios.",
     "The suggestion box contains notes about 'chaos-prestige synergy'.",
@@ -199,17 +199,6 @@ class Game {
             messageBox.classList.remove('feedback');
             messageBox.classList.add('situation');
         }
-
-        this.messageQueue = [];
-        this.isProcessingMessage = false;
-        this.messageTypes = {
-            production: { color: '#2ecc71', duration: 2500 },  // Green for production
-            sale: { color: '#f1c40f', duration: 2500 },       // Yellow for sales
-            chaos: { color: '#e74c3c', duration: 3000 },      // Red for chaos
-            situation: { color: '#3498db', duration: 4000 },   // Blue for situations
-            tooltip: { color: '#9b59b6', duration: 4000 },     // Purple for tooltips
-            feedback: { color: '#f39c12', duration: 3000 }     // Orange for general feedback
-        };
     }
 
     initializeLights() {
@@ -1678,11 +1667,46 @@ class Game {
     }
 
     triggerChaosEvent(message) {
-        this.showEffectMessage(message, 'chaos');
+        const messageBox = document.getElementById('game-messages');
+        if (!messageBox) return;
+
+        // Add randomization for sounds
         if (Math.random() > 0.85) {
             gameSounds.playChaosSound();
             gameSounds.createGrumbleSound(this.state.playerStats.chaosLevel / 50);
         }
+
+        // Split chaos message into words
+        const words = message.split(' ');
+        const wrappedWords = words.map((word, index) => 
+            `<span style="--word-index: ${index}">${word}</span>`
+        ).join(' ');
+        
+        // Create text container
+        const textSpan = document.createElement('span');
+        textSpan.className = 'message-text';
+        textSpan.innerHTML = wrappedWords;
+        
+        // Clear and update message box
+        messageBox.innerHTML = '';
+        messageBox.appendChild(textSpan);
+
+        // Update classes in the correct order
+        messageBox.className = 'message-box chaos-warning active';
+        
+        // Store the type of message for restoration
+        messageBox.setAttribute('data-previous-type', 'chaos');
+        
+        // Return to previous message state after delay
+        setTimeout(() => {
+            messageBox.className = 'message-box situation';
+            const situationMessage = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
+            const situationWords = situationMessage.split(' ');
+            const wrappedSituation = situationWords.map((word, index) => 
+                `<span style="--word-index: ${index}">${word}</span>`
+            ).join(' ');
+            textSpan.innerHTML = wrappedSituation;
+        }, 2000);
     }
 
     checkHighScore() {
@@ -1725,55 +1749,38 @@ class Game {
     }
 
     processTurnEffects() {
-        // Check if we need to auto-buy ingredients
+        // Check for emergency ingredient purchase
         if (this.state.playerStats.ingredients <= 0) {
-            const costPerIngredient = 6 + Math.floor(Math.random() * 7); // Random 6-12 cost per ingredient
+            const costPerIngredient = 6 + Math.floor(Math.random() * 7);
             const desiredIngredients = Math.min(5, Math.floor(this.state.playerStats.money / costPerIngredient));
             
             if (desiredIngredients > 0) {
                 const totalCost = desiredIngredients * costPerIngredient;
-                // First deduct money and update display
                 this.state.playerStats.money -= totalCost;
+                this.state.playerStats.ingredients += desiredIngredients;
                 this.updateDisplay();
-                
-                // Small delay before adding ingredients for visual feedback
-                setTimeout(() => {
-                    this.state.playerStats.ingredients += desiredIngredients;
-                    this.updateDisplay();
-                    this.showEffectMessage(`Emergency ingredients purchased: ${desiredIngredients} for $${totalCost}!`);
-                }, 300);
-
-                // Early return to wait for the ingredient update
+                this.showEffectMessage(`Emergency supplies: ${desiredIngredients} ingredients for $${totalCost}!`);
                 return;
             } else if (this.state.playerStats.noodles > 0) {
                 // Emergency noodle sale at a discount
                 const noodlesToSell = this.state.playerStats.noodles;
-                const emergencySalePrice = Math.floor(this.state.playerStats.noodleSalePrice * 0.8); // 20% discount
+                const emergencySalePrice = Math.floor(this.state.playerStats.noodleSalePrice * 0.8);
                 const income = noodlesToSell * emergencySalePrice;
                 
-                // First update noodles and money
                 this.state.playerStats.noodles = 0;
                 this.state.playerStats.money += income;
-                this.updateDisplay();
-
-                // Try to buy ingredients with the new money
+                
                 const newDesiredIngredients = Math.min(5, Math.floor(income / costPerIngredient));
                 if (newDesiredIngredients > 0) {
                     const newTotalCost = newDesiredIngredients * costPerIngredient;
                     this.state.playerStats.money -= newTotalCost;
-                    
-                    // Delay ingredient addition for visual feedback
-                    setTimeout(() => {
-                        this.state.playerStats.ingredients += newDesiredIngredients;
-                        this.updateDisplay();
-                        this.showEffectMessage(`Emergency noodle sale: ${noodlesToSell} noodles sold for $${income}!\nEmergency ingredients purchased: ${newDesiredIngredients} for $${newTotalCost}!`);
-                    }, 300);
-                    
+                    this.state.playerStats.ingredients += newDesiredIngredients;
+                    this.updateDisplay();
+                    this.showEffectMessage(`Emergency noodle sale: ${noodlesToSell} noodles sold for $${income}!\nEmergency ingredients purchased: ${newDesiredIngredients} for $${newTotalCost}!`);
                     return;
                 }
             }
 
-            // If we still have no money and no ingredients, game over
             if (this.state.playerStats.money <= 0 && this.state.playerStats.ingredients <= 0 && this.state.playerStats.noodles <= 0) {
                 this.isGameOver = true;
                 this.gameOverReason = "Factory bankruptcy! No money, ingredients, or noodles left to continue production.";
@@ -1783,7 +1790,7 @@ class Game {
             }
         }
 
-        // Continue with regular production if we have ingredients
+        // Continue with production if we have ingredients
         if (this.state.playerStats.ingredients > 0) {
             const workers = this.state.playerStats.workerCount;
             const baseProduction = Math.min(
@@ -1797,25 +1804,20 @@ class Game {
                     1 - ((chaosLevel - 50) / 100) : // Penalty above 50% chaos
                     1 + (chaosLevel / 100); // Bonus below 50% chaos
 
-                // Each ingredient produces 10-20 noodles
+                // Calculate production
                 const noodlesPerIngredient = 10 + Math.floor(Math.random() * 11);
                 const production = Math.round(baseProduction * noodlesPerIngredient * chaosMultiplier * this.state.playerStats.noodleProductionRate);
 
                 if (production > 0) {
-                    // First update display with current values
-                    this.updateDisplay();
-                    
-                    // Then consume ingredients
+                    // Update state
                     this.state.playerStats.ingredients = Math.max(0, this.state.playerStats.ingredients - baseProduction);
-                    
-                    // Add produced noodles
-                    const previousNoodles = this.state.playerStats.noodles;
                     this.state.playerStats.noodles += production;
                     
-                    // Update display again after changes
+                    // Update UI
                     this.updateDisplay();
-
-                    this.showEffectMessage(`Production: ${production} noodles produced from ${baseProduction} ingredients!`);
+                    
+                    // Show production message
+                    this.showEffectMessage(`Workers made ${production} noodles from ${baseProduction} ingredients!`, 'production');
                 }
             }
         }
@@ -1833,7 +1835,7 @@ class Game {
             const income = dailySales * this.state.playerStats.noodleSalePrice;
             this.state.playerStats.noodles -= dailySales;
             this.state.playerStats.money += income;
-            this.showSaleMessage(dailySales, income);
+            this.showEffectMessage(`Sales: ${dailySales} noodles sold for $${income}!`);
         }
 
         // Process weekly expenses
@@ -1857,53 +1859,54 @@ class Game {
         }
     }
 
-    async processMessageQueue() {
-        if (this.isProcessingMessage || this.messageQueue.length === 0) return;
-        
-        this.isProcessingMessage = true;
-        const { message, type } = this.messageQueue.shift();
-        const messageStyle = this.messageTypes[type];
-        
+    showEffectMessage(message) {
         const messageBox = document.getElementById('game-messages');
-        if (!messageBox) {
-            this.isProcessingMessage = false;
-            return;
+        if (messageBox) {
+            // Split the message into words and wrap each in a span
+            const words = message.split(' ');
+            const wrappedWords = words.map((word, index) => 
+                `<span style="--word-index: ${index}">${word}</span>`
+            ).join(' ');
+            
+            // Create text container
+            const textSpan = document.createElement('span');
+            textSpan.className = 'message-text';
+            textSpan.innerHTML = wrappedWords;
+            
+            // Clear and update message box
+            messageBox.innerHTML = '';
+            messageBox.appendChild(textSpan);
+
+            // Add proper classes in the correct order
+            messageBox.className = 'message-box feedback';
+            
+            // Schedule return to random situation or tooltip message
+            setTimeout(() => {
+                // Modify the ratio to show more tooltips
+                const shouldShowTooltip = Math.random() < 0.3; // 30% chance for tooltips
+                
+                let nextMessage;
+                if (shouldShowTooltip) {
+                    nextMessage = TOOLTIPS[Math.floor(Math.random() * TOOLTIPS.length)];
+                    messageBox.className = 'message-box tooltip'; // Add tooltip class
+                    textSpan.style.color = '#ffd700'; // Gold color for tooltips
+                    textSpan.style.fontStyle = 'italic'; // Italic for tooltips
+                } else {
+                    nextMessage = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
+                    messageBox.className = 'message-box situation';
+                    textSpan.style.color = ''; // Reset color
+                    textSpan.style.fontStyle = ''; // Reset style
+                }
+                
+                // Split message into words
+                const messageWords = nextMessage.split(' ');
+                const wrappedMessage = messageWords.map((word, index) => 
+                    `<span style="--word-index: ${index}">${word}</span>`
+                ).join(' ');
+                
+                textSpan.innerHTML = wrappedMessage;
+            }, 3000);
         }
-
-        // Split message into words and wrap each in a span
-        const words = message.split(' ');
-        const wrappedWords = words.map((word, index) => 
-            `<span style="--word-index: ${index}">${word}</span>`
-        ).join(' ');
-        
-        const textSpan = document.createElement('span');
-        textSpan.className = 'message-text';
-        textSpan.innerHTML = wrappedWords;
-        textSpan.style.color = messageStyle.color;
-        
-        messageBox.innerHTML = '';
-        messageBox.appendChild(textSpan);
-        messageBox.className = `message-box ${type}`;
-        
-        // Wait for the message duration
-        await new Promise(resolve => setTimeout(resolve, messageStyle.duration));
-        
-        this.isProcessingMessage = false;
-        // Process next message if any
-        this.processMessageQueue();
-    }
-
-    showEffectMessage(message, type = 'feedback') {
-        this.messageQueue.push({ message, type });
-        this.processMessageQueue();
-    }
-
-    showProductionMessage(noodlesProduced) {
-        this.showEffectMessage(`Produced ${Math.round(noodlesProduced)} noodles! 🍜`, 'production');
-    }
-
-    showSaleMessage(noodlesSold, profit) {
-        this.showEffectMessage(`Sold ${Math.round(noodlesSold)} noodles for $${Math.round(profit)}! 💰`, 'sale');
     }
 
     loadGame() {
