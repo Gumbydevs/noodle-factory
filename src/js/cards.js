@@ -1269,6 +1269,39 @@ export const CARDS = {
             state.playerStats.factoryUpgrades.quantumReplicator = true;
             return "Reality bends as ingredients multiply... concerning.";
         }
+    },
+    "Efficient Production Line": {
+        description: "Optimize the production line for maximum efficiency.",
+        type: "upgrade",
+        statModifiers: {
+            workers: -2,
+            ingredients: -1
+        },
+        productionBonus: 0.25, // 25% increase in production
+        requirements: {
+            prestige: 20
+        }
+    },
+    "Market Expansion": {
+        description: "Expand into new markets, increasing noodle prices.",
+        type: "upgrade",
+        statModifiers: {
+            chaos: 5
+        },
+        priceBonus: 0.3, // 30% increase in sale price
+        requirements: {
+            prestige: 25
+        }
+    },
+    "Quality Control": {
+        description: "Implement strict quality control measures.",
+        type: "upgrade",
+        statModifiers: {
+            prestige: 5,
+            chaos: -3
+        },
+        productionBonus: 0.15, // 15% increase in production
+        priceBonus: 0.15 // 15% increase in sale price
     }
 }; // End of CARDS object
 
@@ -1311,56 +1344,72 @@ export function applyStatModifiers(state, modifiers) {
 }
 
 export function applyUpgradeEffects(state) {
-    if (!state?.playerStats?.factoryUpgrades) return;
-    
-    const upgrades = state.playerStats.factoryUpgrades;
-    
-    if (upgrades.automation) {
+    if (!state.playerStats.factoryUpgrades) return;
+
+    // Apply production effects first
+    let productionMultiplier = 1;
+    let priceMultiplier = 1;
+
+    Object.values(state.playerStats.factoryUpgrades).forEach(upgrade => {
+        if (upgrade.productionBonus) {
+            productionMultiplier *= (1 + upgrade.productionBonus);
+        }
+        if (upgrade.priceBonus) {
+            priceMultiplier *= (1 + upgrade.priceBonus);
+        }
+    });
+
+    // Update production and sale rates
+    state.playerStats.noodleProductionRate = productionMultiplier;
+    state.playerStats.noodleSalePrice = Math.round(5 * priceMultiplier); // Base price of 5
+
+    // Apply other upgrade effects...
+    if (state.playerStats.factoryUpgrades.automation) {
         state.playerStats.workerLossRate *= 0.8;
         state.playerStats.chaosGainRate *= 1.2;
         state.playerStats.workerLossRate *= 1.15; // Workers quit more often
     }
-    
-    if (upgrades.goldenExtruder) {
+
+    if (state.playerStats.factoryUpgrades.goldenExtruder) {
         state.playerStats.prestigeGainRate *= 1.25;
         if (Math.random() < 0.15) {
             state.playerStats.ingredients = Math.max(0, state.playerStats.ingredients - 1);
         }
     }
-    
-    if (upgrades.quantumDrying) {
+
+    if (state.playerStats.factoryUpgrades.quantumDrying) {
         state.playerStats.chaosGainRate *= 0.85;
     }
-    
-    if (upgrades.qualityLab) {
+
+    if (state.playerStats.factoryUpgrades.qualityLab) {
         state.playerStats.prestigeGainRate *= 1.15;
         state.playerStats.chaosGainRate *= 0.9;
         if (Math.random() < 0.1) {
             state.playerStats.ingredients = Math.max(0, state.playerStats.ingredients - 1);
         }
     }
-    
-    if (upgrades.breakRoom) {
+
+    if (state.playerStats.factoryUpgrades.breakRoom) {
         state.playerStats.workerLossRate *= 0.75;
     }
-    
-    if (upgrades.industrialKitchen) {
+
+    if (state.playerStats.factoryUpgrades.industrialKitchen) {
         state.playerStats.prestigeGainRate *= 1.2;
         state.playerStats.chaosGainRate *= 1.1;
         state.playerStats.workerEfficiency *= 0.9;
     }
-    
-    if (upgrades.pastaArchives) {
+
+    if (state.playerStats.factoryUpgrades.pastaArchives) {
         state.playerStats.prestigeGainRate *= 1.15;
         state.playerStats.workerLossRate *= 0.85;
     }
 
     // Add ingredient gain chances from upgrades
-    if (upgrades.supplyBot && Math.random() < 0.25) {
+    if (state.playerStats.factoryUpgrades.supplyBot && Math.random() < 0.25) {
         state.playerStats.ingredients = Math.min(20, state.playerStats.ingredients + 1);
     }
-    
-    if (upgrades.quantumReplicator && Math.random() < 0.20) {
+
+    if (state.playerStats.factoryUpgrades.quantumReplicator && Math.random() < 0.20) {
         state.playerStats.ingredients = Math.min(20, state.playerStats.ingredients + 1);
     }
 }
@@ -1369,30 +1418,30 @@ function createSmokeEffect(element) {
     const rect = element.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    
+
     for (let i = 0; i < 20; i++) {
         const particle = document.createElement('div');
         particle.className = 'smoke-particle';
         const randomOffsetX = (Math.random() - 0.5) * rect.width * 0.8;
         const randomOffsetY = (Math.random() - 0.5) * rect.height * 0.8;
-        
+
         particle.style.left = `${centerX + randomOffsetX}px`;
         particle.style.top = `${centerY + randomOffsetY}px`;
-        
+
         const angle = Math.random() * Math.PI * 2;
         const distance = 50 + Math.random() * 100;
         const tx = Math.cos(angle) * distance;
         const ty = Math.sin(angle) * distance - 50;
-        
+
         particle.style.setProperty('--tx', `${tx}px`);
         particle.style.setProperty('--ty', `${ty}px`);
-        
+
         document.body.appendChild(particle);
-        
+
         requestAnimationFrame(() => {
             particle.style.animation = `smoke 0.8s ease-out forwards`;
         });
-        
+
         setTimeout(() => particle.remove(), 800);
     }
 }
@@ -1401,9 +1450,9 @@ export function getRandomCard() {
     const selectedCard = document.querySelector('.card[data-selected="true"]');
     if (selectedCard) {
         selectedCard.classList.add('disappearing');
-        
+
         createSmokeEffect(selectedCard);
-        
+
         requestAnimationFrame(() => {
             selectedCard.style.opacity = '0';
             selectedCard.style.transform = 'scale(0.5) translateY(-20px)';
@@ -1453,7 +1502,7 @@ export function getRandomCard() {
     if (gameState?.playerStats?.pastaPrestige >= 25) {
         const upgradeCards = cardNames.filter(name => CARDS[name].type === "upgrade");
         const regularCards = cardNames.filter(name => CARDS[name].type !== "upgrade");
-        
+
         // Increase upgrade chance based on prestige, starting at 25
         let upgradeChance;
         if (gameState.playerStats.pastaPrestige >= 50) {
@@ -1463,11 +1512,11 @@ export function getRandomCard() {
             // New scaled chance for 25-49 prestige
             upgradeChance = Math.min(0.35, (gameState.playerStats.pastaPrestige - 25) / 100);
         }
-        
+
         if (Math.random() < upgradeChance && upgradeCards.length > 0) {
             return upgradeCards[Math.floor(Math.random() * upgradeCards.length)];
         }
-        
+
         return regularCards[Math.floor(Math.random() * regularCards.length)];
     }
 
@@ -1477,7 +1526,7 @@ export function getRandomCard() {
 // Also update checkCardPlayable function to check for additional stat costs
 function checkCardPlayable(card) {
     if (!card.requirements) return true;
-    
+
     // All cards should be playable regardless of consequences
     return true;
 }

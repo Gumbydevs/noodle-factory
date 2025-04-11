@@ -8,10 +8,14 @@ const gameState = {
     playerStats: {
         pastaPrestige: 0,
         chaosLevel: 0,
-        ingredients: 0,  
+        ingredients: Math.floor(Math.random() * 3) + 3,
         unitsSold: 0,
-        workerCount: getRandomWorkerCount(),
+        workerCount: Math.floor(Math.random() * 4) + 8,
         workersInFactory: 5,
+        money: 100, // Starting money
+        noodles: 0, // Starting noodles
+        noodleProductionRate: 1, // Base production rate
+        noodleSalePrice: 5, // Base sale price per noodle
         turnsAtMaxChaos: 0,
         chaosControlTurns: 0,  // Add this to match the achievement check
     },
@@ -76,7 +80,11 @@ export function clearSavedGame() {
 }
 
 function updateResource(resource, amount) {
-    if (gameState.resourceMeters[resource] !== undefined) {
+    if (resource === 'money') {
+        gameState.playerStats.money = Math.max(0, gameState.playerStats.money + amount);
+    } else if (resource === 'noodles') {
+        gameState.playerStats.noodles = Math.max(0, gameState.playerStats.noodles + amount);
+    } else if (gameState.resourceMeters[resource] !== undefined) {
         gameState.resourceMeters[resource] = Math.max(0, Math.min(100, gameState.resourceMeters[resource] + amount));
     }
     
@@ -125,8 +133,12 @@ export const resetGameState = () => {
         playerStats: {
             pastaPrestige: 0,
             chaosLevel: 0,
-            ingredients: 0,  
-            workerCount: Math.floor(Math.random() * 6) + 15,
+            ingredients: Math.floor(Math.random() * 3) + 3,
+            workerCount: Math.floor(Math.random() * 4) + 8,
+            money: 100, // Starting money
+            noodles: 0, // Starting noodles
+            noodleProductionRate: 1, // Base production rate
+            noodleSalePrice: 5, // Base sale price per noodle
             turnsAtMaxChaos: 0,
             chaosControlTurns: 0,  
         }

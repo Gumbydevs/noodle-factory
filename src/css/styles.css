@@ -730,6 +730,7 @@ body.chaos-noise::before {
         0 0 calc(5px * var(--glow-intensity)) var(--stats-glow-primary),
         0 0 calc(10px * var(--glow-intensity)) var(--stats-glow-secondary),
         0 0 calc(15px * var(--glow-intensity)) var(--stats-glow-outer);
+    padding-bottom: 0;
 }
 
 .chaos-level-1 #stats {
@@ -849,6 +850,8 @@ body.chaos-noise::before {
     --jitter-amount: 0.2deg;
     transform: rotate(calc(var(--jitter-amount) * var(--chaos-intensity)));
     animation: statsJitter 2.5s ease-in-out infinite;
+    position: relative;
+    padding-bottom: 25px; /* Make room for resources row */
 }
 
 .stat-progress {
@@ -2630,4 +2633,75 @@ h1 {
 @keyframes criticalFlicker {
     0%, 100% { opacity: 0.5; }
     50% { opacity: 0.2; }
+}
+
+/* New resources display styles */
+#resources-display {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 4px 12px;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(5px);
+    z-index: 10;
+}
+
+.resource {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9em;
+}
+
+.resource-icon {
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+.resource-value {
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+.money-color {
+    color: #ffd000;
+    text-shadow: 0 0 8px rgba(133, 187, 101, 0.4);
+}
+
+.noodles-color {
+    color: #e5e74e;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+
+.resources-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 4px 0;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    background: transparent;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.resource-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85em;
+    white-space: nowrap;
+}
+
+.resource-icon {
+    opacity: 0.8;
+    margin-right: 2px;
 }

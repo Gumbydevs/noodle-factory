@@ -101,8 +101,12 @@ class Game {
             playerStats: {
                 pastaPrestige: 0,
                 chaosLevel: 0,
-                ingredients: Math.floor(Math.random() * 6) + 5,
-                workerCount: Math.floor(Math.random() * 6) + 15,
+                ingredients: Math.floor(Math.random() * 3) + 3,
+                workerCount: Math.floor(Math.random() * 4) + 8,
+                money: 100, // Starting money
+                noodles: 0, // Starting with no noodles
+                noodleProductionRate: 1, // Base production rate
+                noodleSalePrice: 5, // Base sale price
                 lostWorkers: 0,
                 lostIngredients: 0,
                 chaosSteadyTurns: 0,
@@ -214,6 +218,14 @@ class Game {
         this.updateLights();
     }
 
+    countActiveLights(lights) {
+        if (!lights || !lights.length) return 0;
+        return Array.from(lights).filter(light => 
+            light.classList.contains('on') || 
+            light.classList.contains('flicker')
+        ).length;
+    }
+
     updateLights() {
         const lights = document.querySelectorAll('.light-bulb');
         if (!lights.length) return;
@@ -222,6 +234,7 @@ class Game {
         const chaosLevel = stats.chaosLevel;
         const ingredientLevel = stats.ingredients;
         const prestigeLevel = stats.pastaPrestige;
+        const moneyLevel = stats.money;
 
         // Calculate how many lights should be on based on resources
         const totalLights = lights.length;
@@ -229,6 +242,17 @@ class Game {
         
         // Add lights based on prestige
         onLights += Math.floor((prestigeLevel / 50) * (totalLights / 2)); // Prestige adds up to half the lights
+
+        // Money affects lighting - if below 100, reduce lights
+        if (moneyLevel < 100) {
+            const moneyFactor = Math.max(0.2, moneyLevel / 100); // Never go below 20% of current lights
+            onLights = Math.floor(onLights * moneyFactor);
+        }
+
+        // Special case for first turn - ensure minimum lights but don't dim the screen
+        if (this.turn === 1) {
+            onLights = Math.max(3, onLights); // Minimum 3 lights on first turn
+        }
 
         // Ensure minimum of 2 lights and maximum of total lights
         onLights = Math.max(2, Math.min(totalLights, onLights));
@@ -260,43 +284,63 @@ class Game {
         this.applyLightingEffects(this.countActiveLights(lights));
     }
 
-    countActiveLights(lights) {
-        return Array.from(lights).filter(light => 
-            light.classList.contains('on') || light.classList.contains('flicker')
-        ).length;
-    }
-
     applyLightingEffects(activeLights) {
         const gameContainer = document.getElementById('game-container');
         const totalLights = 11;
         const lightRatio = activeLights / totalLights;
+        const stats = this.state.playerStats;
 
-        // Apply visual effects based on lighting level
-        if (lightRatio < 0.3) {
-            gameContainer.style.filter = 'brightness(0.7)';
-            // Increase glow intensity in low light
+        // Don't apply heavy dimming on first turn
+        if (this.turn === 1) {
+            gameContainer.style.filter = 'brightness(0.9)';
             document.querySelectorAll('.light-glow').forEach(el => {
-                el.style.setProperty('--glow-intensity', '2');
+                el.style.setProperty('--glow-intensity', '1.2');
             });
-        } else if (lightRatio < 0.6) {
-            gameContainer.style.filter = 'brightness(0.85)';
-            // Medium glow in moderate light
-            document.querySelectorAll('.light-glow').forEach(el => {
-                el.style.setProperty('--glow-intensity', '1.5');
-            });
-        } else {
-            gameContainer.style.filter = 'brightness(1)';
-            // Subtle glow in good light
-            document.querySelectorAll('.light-glow').forEach(el => {
-                el.style.setProperty('--glow-intensity', '1');
-            });
+            return;
         }
 
-        // Apply gameplay effects
-        if (lightRatio < 0.5) {
+        // Calculate screen darkness based only on lighting-related factors
+        let darknessLevel = 1;
+
+        // Money factor - significant darkness when below starting money
+        if (stats.money < 100) {
+            darknessLevel *= Math.max(0.7, stats.money / 100);
+        }
+
+        // Light ratio factor
+        if (lightRatio < 0.3) {
+            darknessLevel *= 0.8;
+        } else if (lightRatio < 0.6) {
+            darknessLevel *= 0.9;
+        }
+
+        // Generate random color tint based on chaos level
+        let colorTint = '';
+        if (stats.chaosLevel >= 25) {
+            // Generate random hue that changes smoothly - increased range from ±20 to ±45
+            const hueRotation = Math.sin(Date.now() / 5000) * 45; // Increased amplitude for more noticeable color shifts
+            // Increased saturation boost from 20% to 50% max
+            const saturationBoost = Math.min(1.5, 1 + (stats.chaosLevel / 100)); 
+            // Add a slight contrast boost for more punch
+            const contrastBoost = Math.min(1.2, 1 + (stats.chaosLevel / 200));
+            colorTint = `hue-rotate(${hueRotation}deg) saturate(${saturationBoost}) contrast(${contrastBoost})`;
+        }
+
+        // Combine brightness with color effects
+        const combinedFilter = `brightness(${Math.max(0.5, darknessLevel)}) ${colorTint}`;
+        gameContainer.style.filter = combinedFilter;
+
+        // Adjust glow intensity inversely to darkness
+        const glowIntensity = Math.min(12.5, (1 / darknessLevel) * 1.2);
+        document.querySelectorAll('.light-glow').forEach(el => {
+            el.style.setProperty('--glow-intensity', glowIntensity.toString());
+        });
+
+        // Apply gameplay effects based on lighting only
+        if (lightRatio < 0.5 && this.turn > 1) {
             this.state.playerStats.workerLossRate *= 1.2;
         }
-        if (lightRatio < 0.3) {
+        if (lightRatio < 0.3 && this.turn > 1) {
             this.state.playerStats.chaosGainRate *= 1.3;
         }
     }
@@ -340,6 +384,24 @@ class Game {
         document.getElementById('energy').textContent = '0';
         document.getElementById('turn').textContent = '0';
 
+        // Add resources row to ingredients section if it doesn't exist
+        const ingredientsStat = document.querySelector('.stat:nth-child(3)');
+        if (ingredientsStat && !ingredientsStat.querySelector('.resources-row')) {
+            const resourcesRow = document.createElement('div');
+            resourcesRow.className = 'resources-row';
+            resourcesRow.innerHTML = `
+                <span class="resource-item">
+                    <span class="resource-icon">💰</span>
+                    <span id="money-stat" class="resource-value money-color">$100</span>
+                </span>
+                <span class="resource-item">
+                    <span class="resource-icon">🍜</span>
+                    <span id="noodles-stat" class="resource-value noodles-color">0</span>
+                </span>
+            `;
+            ingredientsStat.appendChild(resourcesRow);
+        }
+
         // Set all progress bars to 0%
         document.getElementById('prestige-progress').style.width = '0%';
         document.getElementById('chaos-progress').style.width = '0%';
@@ -362,19 +424,23 @@ class Game {
             prestige: parseFloat(document.getElementById('prestige').textContent),
             chaos: parseFloat(document.getElementById('chaos').textContent),
             ingredients: parseFloat(document.getElementById('ingredients').textContent),
-            energy: parseFloat(document.getElementById('energy').textContent)
+            energy: parseFloat(document.getElementById('energy').textContent),
+            money: parseFloat(document.getElementById('money-stat').textContent.replace('$', '')),
+            noodles: parseFloat(document.getElementById('noodles-stat').textContent)
         };
         
         // Update all stat displays with formatted values
         const stats = {
-            prestige: Math.round(this.state.playerStats.pastaPrestige * 10) / 10, // Round to 1 decimal
-            chaos: Math.round(this.state.playerStats.chaosLevel),  // Keep chaos as whole number
+            prestige: Math.round(this.state.playerStats.pastaPrestige * 10) / 10,
+            chaos: Math.round(this.state.playerStats.chaosLevel),
             ingredients: this.state.playerStats.ingredients,
             energy: Math.round(this.state.playerStats.workerCount),
+            money: Math.round(this.state.playerStats.money),
+            noodles: Math.round(this.state.playerStats.noodles),
             turn: this.turn
         };
 
-        // Update values and add animations
+        // Update main stats
         Object.entries(stats).forEach(([stat, value]) => {
             const element = document.getElementById(stat);
             if (element) {
@@ -391,12 +457,48 @@ class Game {
                         element.classList.add('decrease');
                     }
                     
-                    // Remove animation classes after they complete
-                    setTimeout(() => {
-                        element.classList.remove('increase', 'decrease');
-                    }, 600);
+                    element.textContent = value;
                 }
-                element.textContent = value;
+            }
+        });
+
+        // Update both money displays
+        const moneyTop = document.getElementById('money-top');
+        const moneyStat = document.getElementById('money-stat');
+        const moneyValue = stats.money;
+        [moneyTop, moneyStat].forEach(element => {
+            if (element) {
+                const currentValue = parseFloat(element.textContent.replace('$', ''));
+                if (currentValue !== moneyValue) {
+                    element.classList.remove('increase', 'decrease');
+                    void element.offsetWidth;
+                    if (moneyValue > currentValue) {
+                        element.classList.add('increase');
+                    } else if (moneyValue < currentValue) {
+                        element.classList.add('decrease');
+                    }
+                    element.textContent = `$${moneyValue}`;
+                }
+            }
+        });
+
+        // Update both noodle displays
+        const noodlesTop = document.getElementById('noodles-top');
+        const noodlesStat = document.getElementById('noodles-stat');
+        const noodlesValue = stats.noodles;
+        [noodlesTop, noodlesStat].forEach(element => {
+            if (element) {
+                const currentValue = parseFloat(element.textContent);
+                if (currentValue !== noodlesValue) {
+                    element.classList.remove('increase', 'decrease');
+                    void element.offsetWidth;
+                    if (noodlesValue > currentValue) {
+                        element.classList.add('increase');
+                    } else if (noodlesValue < currentValue) {
+                        element.classList.add('decrease');
+                    }
+                    element.textContent = noodlesValue;
+                }
             }
         });
 
@@ -406,7 +508,7 @@ class Game {
             'chaos-progress': (this.state.playerStats.chaosLevel / 100) * 100,
             'ingredients-progress': (this.state.playerStats.ingredients / 20) * 100,
             'workers-progress': (this.state.playerStats.workerCount / 50) * 100,
-            'turn-progress': 100 // Always full but color changes with chaos
+            'turn-progress': 100
         };
 
         Object.entries(progressBars).forEach(([barId, percentage]) => {
@@ -1246,6 +1348,14 @@ class Game {
                             <span>Workers</span>
                             <span>${Math.round(this.state.playerStats.workerCount)}</span>
                         </div>
+                        <div class="final-stat money-color">
+                            <span>Money</span>
+                            <span>$${Math.round(this.state.playerStats.money)}</span>
+                        </div>
+                        <div class="final-stat noodles-color">
+                            <span>Noodles</span>
+                            <span>${Math.round(this.state.playerStats.noodles)}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -1348,6 +1458,10 @@ class Game {
                 chaosLevel: 0,
                 ingredients: Math.floor(Math.random() * 3) + 3, // Reduced from 5-10 to 3-5 ingredients
                 workerCount: Math.floor(Math.random() * 4) + 8, // Reduced from 15-20 to 8-11 workers
+                money: 100, // Starting money
+                noodles: 0, // Starting with no noodles
+                noodleProductionRate: 1, // Base production rate
+                noodleSalePrice: 5, // Base sale price
                 lostWorkers: 0,
                 lostIngredients: 0,
                 chaosSteadyTurns: 0,
@@ -1522,6 +1636,44 @@ class Game {
     processTurnEffects() {
         // Apply upgrade effects first
         applyUpgradeEffects(this.state);
+
+        // Process noodle production BEFORE other effects to show changes
+        if (this.state.playerStats.ingredients > 1 && this.state.playerStats.workerCount > 0) {
+            // Calculate production based on workers - each 3 workers can process 1 ingredient
+            const maxWorkerProduction = Math.ceil(this.state.playerStats.workerCount / 3);
+            
+            // Calculate safe ingredient use (never go below 1)
+            const availableIngredients = this.state.playerStats.ingredients - 1;
+            
+            // Use the smaller of the two values to ensure we don't over-produce
+            const baseProduction = Math.min(availableIngredients, maxWorkerProduction);
+            
+            // Apply chaos modifier
+            const chaosLevel = this.state.playerStats.chaosLevel;
+            const chaosMultiplier = chaosLevel > 50 ? 
+                1 - ((chaosLevel - 50) / 100) : // Penalty above 50% chaos
+                1 + (chaosLevel / 100); // Bonus below 50% chaos
+
+            // Calculate final production with all modifiers
+            const production = Math.max(1, Math.floor(baseProduction * chaosMultiplier * this.state.playerStats.noodleProductionRate));
+            
+            // Add produced noodles
+            this.state.playerStats.noodles += production;
+            
+            // Consume ingredients
+            this.state.playerStats.ingredients -= baseProduction;
+
+            // Process sales (automatic)
+            const sales = Math.floor(this.state.playerStats.noodles * 0.8); // Sell 80% of stock
+            if (sales > 0) {
+                const revenue = sales * this.state.playerStats.noodleSalePrice;
+                this.state.playerStats.noodles -= sales;
+                this.state.playerStats.money += revenue;
+                
+                // Show production feedback
+                this.showEffectMessage(`Produced ${production} noodles and sold ${sales} for $${revenue}!`);
+            }
+        }
 
         // Cap prestige at 100
         this.state.playerStats.pastaPrestige = Math.min(100, this.state.playerStats.pastaPrestige);
