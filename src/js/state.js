@@ -124,8 +124,16 @@ function updateResource(resource, amount) {
         }
     }
     else if (resource === 'ingredients') {
-        // Cap ingredients at 20
-        gameState.playerStats.ingredients = Math.min(20, Math.max(0, gameState.playerStats.ingredients + amount));
+        // Cap ingredients at 20, but allow emergency purchases to work
+        const currentIngredients = gameState.playerStats.ingredients;
+        const targetAmount = currentIngredients + amount;
+        
+        if (targetAmount < 0) {
+            // Emergency purchase scenario - handled by Game.playCard
+            gameState.playerStats.ingredients = 0;
+        } else {
+            gameState.playerStats.ingredients = Math.min(20, targetAmount);
+        }
     }
 }
 

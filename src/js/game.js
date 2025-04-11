@@ -795,7 +795,54 @@ class Game {
         const card = CARDS[cardName];
         if (!card) return;
 
-        // Get the clicked card element more reliably
+        // Handle emergency resource purchases
+        let emergencyMessage = '';
+        if (card.statModifiers) {
+            const ingredientChange = card.statModifiers.ingredients || 0;
+            const workerChange = card.statModifiers.workers || 0;
+            
+            // Check if we would run out of ingredients
+            if (ingredientChange < 0 && (this.state.playerStats.ingredients + ingredientChange) < 0) {
+                const neededIngredients = Math.abs(this.state.playerStats.ingredients + ingredientChange);
+                const costPerIngredient = 6 + Math.floor(Math.random() * 7); // Random cost between 6-12
+                const totalCost = neededIngredients * costPerIngredient;
+                
+                if (this.state.playerStats.money >= totalCost) {
+                    this.state.playerStats.money -= totalCost;
+                    this.state.playerStats.ingredients += neededIngredients;
+                    emergencyMessage = `Emergency ingredients purchased for $${totalCost} ($${costPerIngredient} each)!`;
+                } else {
+                    this.isGameOver = true;
+                    this.gameOverReason = `Ran out of ingredients! Not enough money ($${this.state.playerStats.money}) to buy ${neededIngredients} ingredients at $${costPerIngredient} each.`;
+                    return;
+                }
+            }
+            
+            // Check if we would run out of workers
+            if (workerChange < 0 && (this.state.playerStats.workerCount + workerChange) < 1) {
+                const neededWorkers = Math.abs(this.state.playerStats.workerCount + workerChange - 1);
+                const costPerWorker = 25 + Math.floor(Math.random() * 8); // Random cost between 25-32
+                const totalCost = neededWorkers * costPerWorker;
+                
+                if (this.state.playerStats.money >= totalCost) {
+                    this.state.playerStats.money -= totalCost;
+                    this.state.playerStats.workerCount += neededWorkers;
+                    emergencyMessage += emergencyMessage ? '\n' : '';
+                    emergencyMessage += `Hired ${neededWorkers} temporary workers for $${totalCost} ($${costPerWorker} each)!`;
+                } else {
+                    this.isGameOver = true;
+                    this.gameOverReason = `Not enough workers! Not enough money ($${this.state.playerStats.money}) to hire ${neededWorkers} workers at $${costPerWorker} each.`;
+                    return;
+                }
+            }
+        }
+
+        // Show emergency message if any resources were purchased
+        if (emergencyMessage) {
+            this.showEffectMessage(emergencyMessage);
+        }
+
+        // Existing card play logic
         const clickedCard = Array.from(document.querySelectorAll('.card')).find(
             card => card.querySelector('h3').textContent === cardName
         );
