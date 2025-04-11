@@ -1326,6 +1326,71 @@ h1 {
 }
 
 #game-messages {
+    margin: 15px auto;
+    width: 720px;
+    max-width: calc(100% - 40px);
+    padding: 5px;
+    height: 40px;
+    min-height: 40px;
+    background: #333;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+}
+
+.message-box {
+    width: 100%;
+    text-align: center;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.message-box.production .message-text {
+    color: #2ecc71; /* Green for production */
+    text-shadow: 0 0 8px rgba(46, 204, 113, 0.4);
+}
+
+.message-box.sale .message-text {
+    color: #f1c40f; /* Yellow for sales */
+    text-shadow: 0 0 8px rgba(241, 196, 15, 0.4);
+}
+
+.message-box.chaos .message-text {
+    color: #e74c3c; /* Red for chaos */
+    text-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+    font-weight: bold;
+}
+
+.message-box.situation .message-text {
+    color: #3498db; /* Blue for situations */
+    text-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
+}
+
+.message-box.tooltip .message-text {
+    color: #9b59b6; /* Purple for tooltips */
+    text-shadow: 0 0 8px rgba(155, 89, 182, 0.4);
+    font-style: italic;
+}
+
+.message-box.feedback .message-text {
+    color: #f39c12; /* Orange for feedback */
+    text-shadow: 0 0 8px rgba(243, 156, 18, 0.4);
+}
+
+.message-text {
+    display: inline-block;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.message-text.fading {
+    opacity: 0;
+}
+
+#game-messages {
     margin: 15px auto; /* Changed from 10px to match others */
     width: 720px; /* Fixed width */
     max-width: calc(100% - 40px);

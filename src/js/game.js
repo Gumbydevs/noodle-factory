@@ -199,6 +199,17 @@ class Game {
             messageBox.classList.remove('feedback');
             messageBox.classList.add('situation');
         }
+
+        this.messageQueue = [];
+        this.isProcessingMessage = false;
+        this.messageTypes = {
+            production: { color: '#2ecc71', duration: 2500 },  // Green for production
+            sale: { color: '#f1c40f', duration: 2500 },       // Yellow for sales
+            chaos: { color: '#e74c3c', duration: 3000 },      // Red for chaos
+            situation: { color: '#3498db', duration: 4000 },   // Blue for situations
+            tooltip: { color: '#9b59b6', duration: 4000 },     // Purple for tooltips
+            feedback: { color: '#f39c12', duration: 3000 }     // Orange for general feedback
+        };
     }
 
     initializeLights() {
@@ -1667,46 +1678,11 @@ class Game {
     }
 
     triggerChaosEvent(message) {
-        const messageBox = document.getElementById('game-messages');
-        if (!messageBox) return;
-
-        // Add randomization for sounds
+        this.showEffectMessage(message, 'chaos');
         if (Math.random() > 0.85) {
             gameSounds.playChaosSound();
             gameSounds.createGrumbleSound(this.state.playerStats.chaosLevel / 50);
         }
-
-        // Split chaos message into words
-        const words = message.split(' ');
-        const wrappedWords = words.map((word, index) => 
-            `<span style="--word-index: ${index}">${word}</span>`
-        ).join(' ');
-        
-        // Create text container
-        const textSpan = document.createElement('span');
-        textSpan.className = 'message-text';
-        textSpan.innerHTML = wrappedWords;
-        
-        // Clear and update message box
-        messageBox.innerHTML = '';
-        messageBox.appendChild(textSpan);
-
-        // Update classes in the correct order
-        messageBox.className = 'message-box chaos-warning active';
-        
-        // Store the type of message for restoration
-        messageBox.setAttribute('data-previous-type', 'chaos');
-        
-        // Return to previous message state after delay
-        setTimeout(() => {
-            messageBox.className = 'message-box situation';
-            const situationMessage = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
-            const situationWords = situationMessage.split(' ');
-            const wrappedSituation = situationWords.map((word, index) => 
-                `<span style="--word-index: ${index}">${word}</span>`
-            ).join(' ');
-            textSpan.innerHTML = wrappedSituation;
-        }, 2000);
     }
 
     checkHighScore() {
@@ -1809,11 +1785,10 @@ class Game {
 
         // Continue with regular production if we have ingredients
         if (this.state.playerStats.ingredients > 0) {
-            // Rest of production code remains the same...
             const workers = this.state.playerStats.workerCount;
             const baseProduction = Math.min(
                 this.state.playerStats.ingredients,
-                Math.ceil(workers / 0.5)  // Each 5 workers can process 1 ingredient
+                Math.ceil(workers / 5)  // Each 5 workers can process 1 ingredient
             );
 
             if (baseProduction > 0) {
@@ -1824,13 +1799,21 @@ class Game {
 
                 // Each ingredient produces 10-20 noodles
                 const noodlesPerIngredient = 10 + Math.floor(Math.random() * 11);
-                const production = Math.max(1, Math.floor(baseProduction * noodlesPerIngredient * chaosMultiplier * this.state.playerStats.noodleProductionRate));
+                const production = Math.round(baseProduction * noodlesPerIngredient * chaosMultiplier * this.state.playerStats.noodleProductionRate);
 
                 if (production > 0) {
-                    // Consume ingredients first
+                    // First update display with current values
+                    this.updateDisplay();
+                    
+                    // Then consume ingredients
                     this.state.playerStats.ingredients = Math.max(0, this.state.playerStats.ingredients - baseProduction);
-                    // Then add produced noodles
+                    
+                    // Add produced noodles
+                    const previousNoodles = this.state.playerStats.noodles;
                     this.state.playerStats.noodles += production;
+                    
+                    // Update display again after changes
+                    this.updateDisplay();
 
                     this.showEffectMessage(`Production: ${production} noodles produced from ${baseProduction} ingredients!`);
                 }
@@ -1850,7 +1833,7 @@ class Game {
             const income = dailySales * this.state.playerStats.noodleSalePrice;
             this.state.playerStats.noodles -= dailySales;
             this.state.playerStats.money += income;
-            this.showEffectMessage(`Sales: ${dailySales} noodles sold for $${income}!`);
+            this.showSaleMessage(dailySales, income);
         }
 
         // Process weekly expenses
@@ -1874,54 +1857,53 @@ class Game {
         }
     }
 
-    showEffectMessage(message) {
+    async processMessageQueue() {
+        if (this.isProcessingMessage || this.messageQueue.length === 0) return;
+        
+        this.isProcessingMessage = true;
+        const { message, type } = this.messageQueue.shift();
+        const messageStyle = this.messageTypes[type];
+        
         const messageBox = document.getElementById('game-messages');
-        if (messageBox) {
-            // Split the message into words and wrap each in a span
-            const words = message.split(' ');
-            const wrappedWords = words.map((word, index) => 
-                `<span style="--word-index: ${index}">${word}</span>`
-            ).join(' ');
-            
-            // Create text container
-            const textSpan = document.createElement('span');
-            textSpan.className = 'message-text';
-            textSpan.innerHTML = wrappedWords;
-            
-            // Clear and update message box
-            messageBox.innerHTML = '';
-            messageBox.appendChild(textSpan);
-
-            // Add proper classes in the correct order
-            messageBox.className = 'message-box feedback';
-            
-            // Schedule return to random situation or tooltip message
-            setTimeout(() => {
-                // Modify the ratio to show more tooltips
-                const shouldShowTooltip = Math.random() < 0.3; // 30% chance for tooltips
-                
-                let nextMessage;
-                if (shouldShowTooltip) {
-                    nextMessage = TOOLTIPS[Math.floor(Math.random() * TOOLTIPS.length)];
-                    messageBox.className = 'message-box tooltip'; // Add tooltip class
-                    textSpan.style.color = '#ffd700'; // Gold color for tooltips
-                    textSpan.style.fontStyle = 'italic'; // Italic for tooltips
-                } else {
-                    nextMessage = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
-                    messageBox.className = 'message-box situation';
-                    textSpan.style.color = ''; // Reset color
-                    textSpan.style.fontStyle = ''; // Reset style
-                }
-                
-                // Split message into words
-                const messageWords = nextMessage.split(' ');
-                const wrappedMessage = messageWords.map((word, index) => 
-                    `<span style="--word-index: ${index}">${word}</span>`
-                ).join(' ');
-                
-                textSpan.innerHTML = wrappedMessage;
-            }, 3000);
+        if (!messageBox) {
+            this.isProcessingMessage = false;
+            return;
         }
+
+        // Split message into words and wrap each in a span
+        const words = message.split(' ');
+        const wrappedWords = words.map((word, index) => 
+            `<span style="--word-index: ${index}">${word}</span>`
+        ).join(' ');
+        
+        const textSpan = document.createElement('span');
+        textSpan.className = 'message-text';
+        textSpan.innerHTML = wrappedWords;
+        textSpan.style.color = messageStyle.color;
+        
+        messageBox.innerHTML = '';
+        messageBox.appendChild(textSpan);
+        messageBox.className = `message-box ${type}`;
+        
+        // Wait for the message duration
+        await new Promise(resolve => setTimeout(resolve, messageStyle.duration));
+        
+        this.isProcessingMessage = false;
+        // Process next message if any
+        this.processMessageQueue();
+    }
+
+    showEffectMessage(message, type = 'feedback') {
+        this.messageQueue.push({ message, type });
+        this.processMessageQueue();
+    }
+
+    showProductionMessage(noodlesProduced) {
+        this.showEffectMessage(`Produced ${Math.round(noodlesProduced)} noodles! 🍜`, 'production');
+    }
+
+    showSaleMessage(noodlesSold, profit) {
+        this.showEffectMessage(`Sold ${Math.round(noodlesSold)} noodles for $${Math.round(profit)}! 💰`, 'sale');
     }
 
     loadGame() {
