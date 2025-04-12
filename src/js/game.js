@@ -366,7 +366,7 @@ class Game {
                 continueButton = document.createElement('button');
                 continueButton.id = 'continue-game';
                 continueButton.className = 'button primary';
-                continueButton.textContent = 'Continue Run';
+                continueButton.textContent = 'Continue';
                 startButton.parentNode.insertBefore(continueButton, startButton.nextSibling);
                 
                 // Add continue button handler
