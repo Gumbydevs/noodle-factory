@@ -980,6 +980,9 @@ class Game {
                 
                 // Process turn effects
                 this.processTurnEffects();
+
+                // Auto-save game state after processing turn effects
+                this.autoSave();
                 
                 // Draw new cards after a delay
                 if (!this.isGameOver) {
@@ -1093,6 +1096,9 @@ class Game {
 
             // Process turn effects and check game state
             this.processTurnEffects();
+
+            // Auto-save game state after processing turn effects
+            this.autoSave();
 
             // Check for game over conditions
             if (this.checkGameOver()) {
