@@ -1102,7 +1102,7 @@ export const CARDS = {
         }
     },
     "Automated Pasta Line": {
-        description: "An automated production line that increases efficiency.",
+        description: "Efficiency so high, even the ravioli are impressed.",
         type: "upgrade",
         requirements: { prestige: 25 },
         permanentStats: {
@@ -1154,24 +1154,23 @@ export const CARDS = {
             return "The quantum-stabilized pasta brings order to chaos!";
         }
     },
-    "Pasta Quality Lab": {
-        description: "Install a strict quality testing facility that slows production.",
-        type: "upgrade",
-        requirements: { prestige: 20 },
-        permanentStats: {
-            prestigeGain: 0.15,        // 15% more prestige gain
-            chaosReduction: 0.1,       // 10% less chaos gain
-            ingredientGain: -0.1       // 10% chance to lose extra ingredient (strict quality control)
-        },
-        statModifiers: {
-            prestige: 8,
-            chaos: -5
-        },
-        effect: (state) => {
-            savePlayedCard("Pasta Quality Lab");
-            state.playerStats.factoryUpgrades.qualityLab = true;
-            return "The new lab ensures consistently perfect pasta!";
-        }
+    "Spaghetti Surgeons": {
+    description: "Elite pasta medics fix flawed noodles with tweezers and drama.",
+    type: "upgrade",
+    requirements: { prestige: 20 },
+    permanentStats: {
+        prestigeGain: 0.25,       // 25% more prestige gain
+        chaosReduction: -0.05,    // Slightly more chaos from delays
+        ingredientGain: -0.15     // More ingredient loss from rejected pasta
+    },
+    statModifiers: {
+        chaos: 3
+    },
+    effect: (state) => {
+        savePlayedCard("Spaghetti Surgeons");
+        state.playerStats.factoryUpgrades.qualityLab = true;
+        return "No noodle too broken. No drama too small.";
+    }
     },
     "Break Room": {
         description: "Build a luxurious pasta-themed break room.",
@@ -1255,7 +1254,6 @@ export const CARDS = {
             workerEfficiency: -0.15  // Workers are 15% less efficient (scared of the robot)
         },
         statModifiers: {
-            ingredients: 3,
             workers: -2,
             chaos: 8
         },
@@ -1266,18 +1264,15 @@ export const CARDS = {
         }
     },
     "Ingredient Replicator": {
-        description: "A device that duplicates ingredients by pulling from parallel universes.",
+        description: "Because who needs to play by the rules?",
         type: "upgrade",
         requirements: { prestige: 30 },
         permanentStats: {
-            ingredientGain: 0.2,     // 20% chance for extra ingredients
-            chaosReduction: -0.25,   // 25% more chaos gain (unstable parallel universes)
-            prestigeGain: -0.1      // 10% less prestige (customers suspicious of duplicated ingredients)
+            ingredientGain: 0.5,     // 50% chance for extra ingredients
+            chaosReduction: -0.35,   // 35% more chaos gain (unstable parallel universes)
+            prestigeGain: -0.2      // 20% less prestige (customers suspicious of duplicated ingredients)
         },
         statModifiers: {
-            ingredients: 4,
-            chaos: 12,
-            prestige: -3
         },
         effect: (state) => {
             savePlayedCard("Ingredient Replicator");
@@ -1286,10 +1281,11 @@ export const CARDS = {
         }
     },
     "Efficient Production Line": {
-        description: "Optimize the production line for maximum efficiency.",
+        description: "The noodles never stop. Not even to scream.",
         type: "upgrade",
         requirements: { prestige: 20 },
         permanentStats: {
+            ingredientGain: 0.35,     // 20% chance for extra ingredients
             workerEfficiency: 0.2,     // 20% more worker efficiency
             prestigeGain: 0.15        // 15% more prestige gain
         },
@@ -1313,12 +1309,11 @@ export const CARDS = {
         priceBonus: 0.3 // 30% increase in sale price
     },
     "Quality Control": {
-        description: "Implement strict quality control measures.",
+        description: "Clipboards out. Noodles, beware.",
         type: "upgrade",
         requirements: { prestige: 18 },
         permanentStats: {
             prestigeGain: 0.15,       // 15% more prestige gain
-            chaosReduction: 0.1,      // 10% less chaos gain
             workerEfficiency: -0.05   // 5% less worker efficiency
         },
         statModifiers: {
@@ -1374,72 +1369,87 @@ export function applyStatModifiers(state, modifiers) {
 export function applyUpgradeEffects(state) {
     if (!state.playerStats.factoryUpgrades) return;
 
-    // Apply production effects first
-    let productionMultiplier = 1;
-    let priceMultiplier = 1;
+    // Reset rates to base values first
+    state.playerStats.prestigeGainRate = 1;
+    state.playerStats.chaosGainRate = 1;
+    state.playerStats.workerLossRate = 1;
+    state.playerStats.noodleProductionRate = 1;
+    state.playerStats.noodleSalePrice = 5; // Base price
 
-    Object.values(state.playerStats.factoryUpgrades).forEach(upgrade => {
+    // Apply all permanent effects from all upgrades
+    Object.entries(state.playerStats.factoryUpgrades).forEach(([name, upgrade]) => {
+        if (upgrade.permanentStats) {
+            // Apply permanent stat modifiers
+            if (upgrade.permanentStats.prestigeGain) {
+                state.playerStats.prestigeGainRate *= (1 + upgrade.permanentStats.prestigeGain);
+                triggerUpgradeGlow(name, "prestigeGain");
+            }
+            if (upgrade.permanentStats.chaosReduction) {
+                state.playerStats.chaosGainRate *= (1 - upgrade.permanentStats.chaosReduction);
+                triggerUpgradeGlow(name, "chaosReduction");
+            }
+            if (upgrade.permanentStats.workerEfficiency) {
+                state.playerStats.workerLossRate *= (1 - upgrade.permanentStats.workerEfficiency);
+                triggerUpgradeGlow(name, "workerEfficiency");
+            }
+
+            // Handle ingredient gain/loss chances
+            if (upgrade.permanentStats.ingredientGain) {
+                const chance = Math.abs(upgrade.permanentStats.ingredientGain);
+                if (Math.random() < chance) {
+                    if (upgrade.permanentStats.ingredientGain > 0) {
+                        // Add ingredient with message
+                        if (state.playerStats.ingredients < 20) {
+                            state.playerStats.ingredients++;
+                            triggerUpgradeGlow(name, "ingredientGain");
+                            if (window.gameInstance) {
+                                window.gameInstance.showEffectMessage(`${name} generated a bonus ingredient!`);
+                            }
+                        }
+                    } else {
+                        // Remove ingredient with message
+                        if (state.playerStats.ingredients > 0) {
+                            state.playerStats.ingredients--;
+                            triggerUpgradeGlow(name, "ingredientGain");
+                            if (window.gameInstance) {
+                                window.gameInstance.showEffectMessage(`${name} consumed an ingredient!`);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Apply production and price bonuses
         if (upgrade.productionBonus) {
-            productionMultiplier *= (1 + upgrade.productionBonus);
+            state.playerStats.noodleProductionRate *= (1 + upgrade.productionBonus);
         }
         if (upgrade.priceBonus) {
-            priceMultiplier *= (1 + upgrade.priceBonus);
+            state.playerStats.noodleSalePrice = Math.round(state.playerStats.noodleSalePrice * (1 + upgrade.priceBonus));
         }
     });
+}
 
-    // Update production and sale rates
-    state.playerStats.noodleProductionRate = productionMultiplier;
-    state.playerStats.noodleSalePrice = Math.round(5 * priceMultiplier); // Base price of 5
+function triggerUpgradeGlow(upgradeName, effectType) {
+    // Find the upgrade element
+    const upgradeElement = document.querySelector(`.upgrade-card[data-name="${upgradeName}"]`);
+    if (!upgradeElement) return;
 
-    // Apply other upgrade effects...
-    if (state.playerStats.factoryUpgrades.automation) {
-        state.playerStats.workerLossRate *= 0.8;
-        state.playerStats.chaosGainRate *= 1.2;
-        state.playerStats.workerLossRate *= 1.15; // Workers quit more often
-    }
-
-    if (state.playerStats.factoryUpgrades.goldenExtruder) {
-        state.playerStats.prestigeGainRate *= 1.25;
-        if (Math.random() < 0.15) {
-            state.playerStats.ingredients = Math.max(0, state.playerStats.ingredients - 1);
-        }
-    }
-
-    if (state.playerStats.factoryUpgrades.quantumDrying) {
-        state.playerStats.chaosGainRate *= 0.85;
-    }
-
-    if (state.playerStats.factoryUpgrades.qualityLab) {
-        state.playerStats.prestigeGainRate *= 1.15;
-        state.playerStats.chaosGainRate *= 0.9;
-        if (Math.random() < 0.1) {
-            state.playerStats.ingredients = Math.max(0, state.playerStats.ingredients - 1);
-        }
-    }
-
-    if (state.playerStats.factoryUpgrades.breakRoom) {
-        state.playerStats.workerLossRate *= 0.75;
-    }
-
-    if (state.playerStats.factoryUpgrades.industrialKitchen) {
-        state.playerStats.prestigeGainRate *= 1.2;
-        state.playerStats.chaosGainRate *= 1.1;
-        state.playerStats.workerEfficiency *= 0.9;
-    }
-
-    if (state.playerStats.factoryUpgrades.pastaArchives) {
-        state.playerStats.prestigeGainRate *= 1.15;
-        state.playerStats.workerLossRate *= 0.85;
-    }
-
-    // Add ingredient gain chances from upgrades
-    if (state.playerStats.factoryUpgrades.supplyBot && Math.random() < 0.25) {
-        state.playerStats.ingredients = Math.min(20, state.playerStats.ingredients + 1);
-    }
-
-    if (state.playerStats.factoryUpgrades.quantumReplicator && Math.random() < 0.20) {
-        state.playerStats.ingredients = Math.min(20, state.playerStats.ingredients + 1);
-    }
+    // Remove any existing activation classes
+    upgradeElement.classList.remove('activated');
+    // Set the effect type
+    upgradeElement.setAttribute('data-effect', effectType);
+    
+    // Force a reflow
+    void upgradeElement.offsetWidth;
+    
+    // Add the activation class to trigger the animation
+    upgradeElement.classList.add('activated');
+    
+    // Remove the activation class after animation completes
+    setTimeout(() => {
+        upgradeElement.classList.remove('activated');
+    }, 800); // Match the animation duration
 }
 
 function createSmokeEffect(element) {

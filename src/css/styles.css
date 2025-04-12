@@ -504,6 +504,48 @@
     100% { color: #e74c3c; text-shadow: 0 0 5px #e74c3c33; }   /* Red */
 }
 
+/* Add glow animation styles for upgrade activation */
+@keyframes upgradeActivated {
+    0% { 
+        filter: brightness(1);
+        box-shadow: 0 0 5px var(--glow-color, rgba(255, 244, 230, 0.3)),
+                   0 0 10px var(--glow-color, rgba(255, 244, 230, 0.2));
+    }
+    50% { 
+        filter: brightness(1.5);
+        box-shadow: 0 0 15px var(--glow-color, rgba(255, 244, 230, 0.5)),
+                   0 0 30px var(--glow-color, rgba(255, 244, 230, 0.3));
+    }
+    100% { 
+        filter: brightness(1);
+        box-shadow: 0 0 5px var(--glow-color, rgba(255, 244, 230, 0.3)),
+                   0 0 10px var(--glow-color, rgba(255, 244, 230, 0.2));
+    }
+}
+
+.upgrade-card.activated {
+    animation: upgradeActivated 0.8s ease-in-out;
+    transform: none !important; /* Prevent any movement */
+    --glow-color: rgba(255, 215, 0, 0.5); /* Golden glow for activated upgrades */
+}
+
+/* Color-specific activated states */
+.upgrade-card.activated[data-effect="prestigeGain"] {
+    --glow-color: rgba(241, 196, 15, 0.5); /* Golden */
+}
+
+.upgrade-card.activated[data-effect="chaosReduction"] {
+    --glow-color: rgba(231, 76, 60, 0.5); /* Red */
+}
+
+.upgrade-card.activated[data-effect="workerEfficiency"] {
+    --glow-color: rgba(52, 152, 219, 0.5); /* Blue */
+}
+
+.upgrade-card.activated[data-effect="ingredientGain"] {
+    --glow-color: rgba(46, 204, 113, 0.5); /* Green */
+}
+
 /* Add these style rules to handle the message text effects */
 .chaos-level-1 .message-text span {
     animation: colorCycleWord 4s infinite;
@@ -1014,46 +1056,29 @@ h1 {
 
 /* Update margin for cards container */
 #cards-container {
+    width: 500px; /* Increased from 400px to accommodate wider cards with proper spacing */
+    height: 320px;
+    margin: 30px auto 20px;
     display: flex;
     justify-content: center;
-    gap: 20px;
-    margin: 30px auto 20px; /* Increase top margin */
-    min-height: 320px;
-    perspective: 1000px;
+    gap: 40px; /* Fixed gap between cards */
+    align-items: center;
     position: relative;
-    transition: opacity 0.3s ease-out;
-}
-
-#cards-container.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
-
-.card-container {
-    display: flex;
-    justify-content: space-around;
-    padding: 20px;
     perspective: 1000px;
+    transition: opacity 0.3s ease-out;
+    box-sizing: border-box;
+    overflow: visible;
 }
 
-/* Base floating animation with circular motion */
-@keyframes cardFloat {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    25% { transform: translate(var(--float-x1, 5px), var(--float-y1, -8px)) rotate(calc(var(--rot1, 1deg) * 2)); }
-    50% { transform: translate(var(--float-x2, -4px), var(--float-y2, -12px)) rotate(calc(var(--rot2, -1deg) * 2)); }
-    75% { transform: translate(var(--float-x3, -6px), var(--float-y3, -6px)) rotate(calc(var(--rot3, 0.5deg) * 2)); }
-    100% { transform: translate(0, 0) rotate(0deg); }
-}
-
-/* Base card styles with new animations */
+/* Base card styles */
 .card {
-    width: 180px;  /* Restore wider card width */
-    height: 280px; /* Restore taller card height */
+    width: 200px;  /* Wider card width for better proportions */
+    height: 280px;
     background: #333;
     border: 1px solid #555;
     border-radius: 10px;
     padding: 15px;
-    margin: 10px;
+    margin: 0;
     display: flex;
     flex-direction: column;
     position: relative;
@@ -1063,17 +1088,23 @@ h1 {
     transform-style: preserve-3d;
     will-change: transform;
     perspective: 1000px;
-    animation: 
-        cardFloat calc(var(--base-duration, 3s) + (var(--animation-offset, 0s))) cubic-bezier(0.4, 0, 0.6, 1) infinite,
-        cardTwitch calc(var(--twitch-duration, 8s) + (var(--animation-offset, 0s))) cubic-bezier(0.22, 1, 0.36, 1) infinite;
-    --card-glow-primary: rgba(255, 244, 230, 0.12);
-    --card-glow-secondary: rgba(255, 244, 230, 0.06);
-    --card-glow-outer: rgba(255, 244, 230, 0.03);
-    box-shadow: 
-        0 0 calc(8px * var(--glow-intensity)) var(--card-glow-primary),
-        0 0 calc(16px * var(--glow-intensity)) var(--card-glow-secondary),
-        0 0 calc(24px * var(--glow-intensity)) var(--card-glow-outer);
-    transition: all 0.3s ease-out;
+    --glow-intensity: 1;
+    animation: cardFloat calc(var(--base-duration, 3s) + (var(--animation-offset, 0s))) cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Fix card selection animations */
+.card[data-selected="true"] {
+    position: absolute;
+    z-index: 2;
+    animation: selectedCardVanish 0.8s ease-out forwards !important;
+    transform-origin: center center;
+}
+
+.card[data-selected="false"] {
+    position: absolute;
+    z-index: 1;
+    animation: unselectedCardVanish 0.6s ease-out forwards !important;
+    transform-origin: center center;
 }
 
 .card h3 {

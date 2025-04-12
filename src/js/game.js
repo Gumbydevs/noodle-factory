@@ -703,13 +703,13 @@ class Game {
             .join('');
     }
 
-    formatPermanentEffects(permanentStats) {
+    formatPermanentEffects(permanentStats, card) {
         if (!permanentStats) return '';
         
         const entries = Object.entries(permanentStats);
-        // Add priceBonus if it exists on the card
-        if (this.card && this.card.priceBonus) {
-            entries.push(['priceBonus', this.card.priceBonus]);
+        // Add priceBonus directly from the upgrade card
+        if (card?.priceBonus) {
+            entries.push(['priceBonus', card.priceBonus]);
         }
         
         return entries
@@ -814,10 +814,10 @@ class Game {
                     `<div class="upgrade-label">Prestigious Upgrade</div>
                     <h3>${leftCard}</h3>
                     <div class="card-description">${CARDS[leftCard].description}</div>
-                    ${CARDS[leftCard].permanentStats ? 
+                    ${CARDS[leftCard].permanentStats || CARDS[leftCard].priceBonus ? 
                         `<div class="card-effects permanent-effects">
                             <div class="effects-label">Passive Effects:</div>
-                            ${this.formatPermanentEffects(CARDS[leftCard].permanentStats)}
+                            ${this.formatPermanentEffects(CARDS[leftCard].permanentStats, CARDS[leftCard])}
                         </div>` : ''
                     }
                     ${CARDS[leftCard].statModifiers ? 
@@ -839,10 +839,10 @@ class Game {
                     `<div class="upgrade-label">Prestigious Upgrade</div>
                     <h3>${rightCard}</h3>
                     <div class="card-description">${CARDS[rightCard].description}</div>
-                    ${CARDS[rightCard].permanentStats ? 
+                    ${CARDS[rightCard].permanentStats || CARDS[rightCard].priceBonus ? 
                         `<div class="card-effects permanent-effects">
                             <div class="effects-label">Passive Effects:</div>
-                            ${this.formatPermanentEffects(CARDS[rightCard].permanentStats)}
+                            ${this.formatPermanentEffects(CARDS[rightCard].permanentStats, CARDS[rightCard])}
                         </div>` : ''
                     }
                     ${CARDS[rightCard].statModifiers ? 
@@ -1336,19 +1336,18 @@ class Game {
         const origRect = originalCard.getBoundingClientRect();
         const gridRect = upgradesGrid.getBoundingClientRect();
         
-        // Calculate the target position - the position of the next empty slot
-        const slotWidth = 120; // Width of upgrade card
-        const slotGap = 10; // Gap between cards
-        const slot = existingUpgrades.length; // Which slot to use (0 or 1)
+        const slotWidth = 120;
+        const slotGap = 10;
+        const slot = existingUpgrades.length;
         
-        // Center the upgrades within the grid
-        const totalWidth = (slotWidth * 2) + slotGap; // Width of both slots + gap
-        const startX = gridRect.left + (gridRect.width - totalWidth) / 2; // Start position to center cards
+        const totalWidth = (slotWidth * 2) + slotGap;
+        const startX = gridRect.left + (gridRect.width - totalWidth) / 2;
         const targetX = startX + (slot * (slotWidth + slotGap));
         const targetY = gridRect.top;
         
         const upgradeElement = document.createElement('div');
         upgradeElement.className = 'upgrade-card pinning';
+        upgradeElement.setAttribute('data-name', cardName); // Add this line to set the data-name attribute
         upgradeElement.style.position = 'fixed';
         upgradeElement.style.left = `${origRect.left}px`;
         upgradeElement.style.top = `${origRect.top}px`;
@@ -1357,9 +1356,9 @@ class Game {
         upgradeElement.innerHTML = `
             <h4>${cardName}</h4>
             <div class="upgrade-effects">
-                ${card.permanentStats ? 
+                ${card.permanentStats || card.priceBonus ? 
                     `<div class="effects-label">Passive Effects:</div>
-                    ${this.formatPermanentEffects(card.permanentStats)}` : ''
+                    ${this.formatPermanentEffects(card.permanentStats, card)}` : ''
                 }
             </div>
         `;
@@ -1408,6 +1407,9 @@ class Game {
                 case 'workerEfficiency':
                     this.state.playerStats.workerLossRate *= (1 - value);
                     break;
+                case 'ingredientGain':
+                    this.state.playerStats.ingredientGainRate = (this.state.playerStats.ingredientGainRate || 0) + value;
+                    break;
             }
         });
     }
@@ -1425,6 +1427,9 @@ class Game {
                     break;
                 case 'workerEfficiency':
                     this.state.playerStats.workerLossRate /= (1 - value);
+                    break;
+                case 'ingredientGain':
+                    this.state.playerStats.ingredientGainRate = (this.state.playerStats.ingredientGainRate || 0) - value;
                     break;
             }
         });
@@ -1663,7 +1668,7 @@ class Game {
                 chaosLevel: 0,
                 ingredients: Math.floor(Math.random() * 3) + 3,
                 workerCount: Math.floor(Math.random() * 4) + 8,
-                money: 1000, // Fixed starting money at $1000
+                money: 1000,
                 noodles: 0,
                 noodleProductionRate: 1,
                 noodleSalePrice: 5,
@@ -1682,7 +1687,8 @@ class Game {
                 factoryUpgrades: {},
                 prestigeGainRate: 1,
                 chaosGainRate: 1,
-                workerLossRate: 1
+                workerLossRate: 1,
+                ingredientGainRate: 0 // Add this line to initialize ingredientGainRate
             }
         };
 
@@ -1843,6 +1849,9 @@ class Game {
     }
 
     processTurnEffects() {
+        // Apply upgrade effects first
+        applyUpgradeEffects(this.state);
+
         // Check if we need to auto-buy ingredients
         if (this.state.playerStats.ingredients <= 0) {
             const costPerIngredient = 6 + Math.floor(Math.random() * 7); // Random 6-12 cost per ingredient
@@ -1926,7 +1935,7 @@ class Game {
                     // Then add produced noodles
                     this.state.playerStats.noodles += production;
 
-                    this.showEffectMessage(`Production: ${production} noodles produced from ${baseProduction} ingredients!`);
+                    this.showEffectMessage(`Today's Production: ${production} noodles produced!`);
                 }
             }
         }
