@@ -187,4 +187,35 @@ export function updateChaosEffects(chaosLevel) {
     }
 }
 
+export class GameState {
+    constructor() {
+        // Initialize game state properties
+    }
+
+    async initAudio() {
+        const assetLoader = new AssetLoader();
+        await assetLoader.init();
+
+        // Store the selected track type for persistence
+        localStorage.setItem('selectedMusicTrack', assetLoader.selectedTrack);
+
+        if (assetLoader.selectedTrack === 'lounge') {
+            const { loungeMusic } = await import('../audio/music/bgm2.js');
+            this.bgm = loungeMusic;
+            await this.bgm.preload();
+        } else {
+            const { musicLoops } = await import('../audio/music/bgm.js');
+            this.bgm = musicLoops;
+            await this.bgm.preload();
+        }
+
+        if (this.bgm) {
+            await this.bgm.initAudio();
+            if (this.bgm.enabled) {
+                await this.bgm.startLoop();
+            }
+        }
+    }
+}
+
 export { gameState };

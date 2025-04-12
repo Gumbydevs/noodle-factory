@@ -2,6 +2,11 @@ export class AssetLoader {
     constructor() {
         this.totalAssets = 0;
         this.loadedAssets = 0;
+        
+        // Check if we have a persisted track selection, otherwise do 50/50 random selection
+        const persistedTrack = localStorage.getItem('selectedMusicTrack');
+        this.selectedTrack = persistedTrack || (Math.random() < 0.5 ? 'lounge' : 'default');
+        
         this.progressBar = document.querySelector('.progress-bar');
         this.gameContainer = document.getElementById('game-container');
         this.preloader = document.getElementById('preloader');
@@ -16,8 +21,21 @@ export class AssetLoader {
         audioFiles[0].gainNode = audioFiles[0].ctx.createGain();
         audioFiles[0].gainNode.connect(audioFiles[0].ctx.destination);
 
+        // Preload the selected track and attach to window
+        if (this.selectedTrack === 'lounge') {
+            const { loungeMusic } = await import('../audio/music/bgm2.js');
+            window.loungeMusic = loungeMusic; // Attach to window
+            await loungeMusic.preload();
+        } else {
+            const { musicLoops } = await import('../audio/music/bgm.js');
+            window.musicLoops = musicLoops; // Attach to window
+            await musicLoops.preload();
+        }
+
+        // Save the track selection
+        localStorage.setItem('selectedMusicTrack', this.selectedTrack);
+
         return new Promise(resolve => {
-            // We'll consider audio context creation as one asset
             this.updateProgress();
             resolve();
         });

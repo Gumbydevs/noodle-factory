@@ -19,6 +19,7 @@
     align-items: center;
     margin: 15px 0;
     padding: 0.5rem;
+    justify-content: space-between;
 }
 
 h2 {
@@ -111,4 +112,24 @@ input:disabled + .slider:before {
 .volume-value {
     min-width: 45px;
     text-align: right;
+}
+
+.music-select {
+    background: #333;
+    color: #fff;
+    border: 1px solid #555;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    min-width: 150px;
+}
+
+.music-select:hover {
+    background: #444;
+}
+
+.music-select:focus {
+    outline: none;
+    border-color: #FFA500;
 }

@@ -562,8 +562,13 @@ class Game {
         const body = document.body;
         const messageBox = document.getElementById('game-messages');
         
-        // Update music based on chaos level
-        musicLoops.updateChaosLevel(chaos);
+        // Update music based on chaos level - check for both music systems
+        if (window.musicLoops && window.musicLoops.updateChaosLevel) {
+            window.musicLoops.updateChaosLevel(chaos);
+        }
+        if (window.loungeMusic && window.loungeMusic.updateChaosLevel) {
+            window.loungeMusic.updateChaosLevel(chaos);
+        }
         
         // Remove all chaos classes first
         body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
@@ -1749,38 +1754,55 @@ class Game {
     }
 
     processTurnEffects() {
-        // Check for emergency ingredient purchase
+        // Check if we need to auto-buy ingredients
         if (this.state.playerStats.ingredients <= 0) {
-            const costPerIngredient = 6 + Math.floor(Math.random() * 7);
+            const costPerIngredient = 6 + Math.floor(Math.random() * 7); // Random 6-12 cost per ingredient
             const desiredIngredients = Math.min(5, Math.floor(this.state.playerStats.money / costPerIngredient));
             
             if (desiredIngredients > 0) {
                 const totalCost = desiredIngredients * costPerIngredient;
+                // First deduct money and update display
                 this.state.playerStats.money -= totalCost;
-                this.state.playerStats.ingredients += desiredIngredients;
                 this.updateDisplay();
-                this.showEffectMessage(`Emergency supplies: ${desiredIngredients} ingredients for $${totalCost}!`);
+                
+                // Small delay before adding ingredients for visual feedback
+                setTimeout(() => {
+                    this.state.playerStats.ingredients += desiredIngredients;
+                    this.updateDisplay();
+                    this.showEffectMessage(`Emergency ingredients purchased: ${desiredIngredients} for $${totalCost}!`);
+                }, 300);
+
+                // Early return to wait for the ingredient update
                 return;
             } else if (this.state.playerStats.noodles > 0) {
                 // Emergency noodle sale at a discount
                 const noodlesToSell = this.state.playerStats.noodles;
-                const emergencySalePrice = Math.floor(this.state.playerStats.noodleSalePrice * 0.8);
+                const emergencySalePrice = Math.floor(this.state.playerStats.noodleSalePrice * 0.8); // 20% discount
                 const income = noodlesToSell * emergencySalePrice;
                 
+                // First update noodles and money
                 this.state.playerStats.noodles = 0;
                 this.state.playerStats.money += income;
-                
+                this.updateDisplay();
+
+                // Try to buy ingredients with the new money
                 const newDesiredIngredients = Math.min(5, Math.floor(income / costPerIngredient));
                 if (newDesiredIngredients > 0) {
                     const newTotalCost = newDesiredIngredients * costPerIngredient;
                     this.state.playerStats.money -= newTotalCost;
-                    this.state.playerStats.ingredients += newDesiredIngredients;
-                    this.updateDisplay();
-                    this.showEffectMessage(`Emergency noodle sale: ${noodlesToSell} noodles sold for $${income}!\nEmergency ingredients purchased: ${newDesiredIngredients} for $${newTotalCost}!`);
+                    
+                    // Delay ingredient addition for visual feedback
+                    setTimeout(() => {
+                        this.state.playerStats.ingredients += newDesiredIngredients;
+                        this.updateDisplay();
+                        this.showEffectMessage(`Emergency noodle sale: ${noodlesToSell} noodles sold for $${income}!\nEmergency ingredients purchased: ${newDesiredIngredients} for $${newTotalCost}!`);
+                    }, 300);
+                    
                     return;
                 }
             }
 
+            // If we still have no money and no ingredients, game over
             if (this.state.playerStats.money <= 0 && this.state.playerStats.ingredients <= 0 && this.state.playerStats.noodles <= 0) {
                 this.isGameOver = true;
                 this.gameOverReason = "Factory bankruptcy! No money, ingredients, or noodles left to continue production.";
@@ -1790,12 +1812,13 @@ class Game {
             }
         }
 
-        // Continue with production if we have ingredients
+        // Continue with regular production if we have ingredients
         if (this.state.playerStats.ingredients > 0) {
+            // Rest of production code remains the same...
             const workers = this.state.playerStats.workerCount;
             const baseProduction = Math.min(
                 this.state.playerStats.ingredients,
-                Math.ceil(workers / 5)  // Each 5 workers can process 1 ingredient
+                Math.ceil(workers / 0.5)  // Each 5 workers can process 1 ingredient
             );
 
             if (baseProduction > 0) {
@@ -1804,20 +1827,17 @@ class Game {
                     1 - ((chaosLevel - 50) / 100) : // Penalty above 50% chaos
                     1 + (chaosLevel / 100); // Bonus below 50% chaos
 
-                // Calculate production
+                // Each ingredient produces 10-20 noodles
                 const noodlesPerIngredient = 10 + Math.floor(Math.random() * 11);
-                const production = Math.round(baseProduction * noodlesPerIngredient * chaosMultiplier * this.state.playerStats.noodleProductionRate);
+                const production = Math.max(1, Math.floor(baseProduction * noodlesPerIngredient * chaosMultiplier * this.state.playerStats.noodleProductionRate));
 
                 if (production > 0) {
-                    // Update state
+                    // Consume ingredients first
                     this.state.playerStats.ingredients = Math.max(0, this.state.playerStats.ingredients - baseProduction);
+                    // Then add produced noodles
                     this.state.playerStats.noodles += production;
-                    
-                    // Update UI
-                    this.updateDisplay();
-                    
-                    // Show production message
-                    this.showEffectMessage(`Workers made ${production} noodles from ${baseProduction} ingredients!`, 'production');
+
+                    this.showEffectMessage(`Production: ${production} noodles produced from ${baseProduction} ingredients!`);
                 }
             }
         }
@@ -2109,8 +2129,19 @@ class SoundManager {
         
         try {
             // Initialize music system first
-            if (musicLoops.enabled) {
-                await musicLoops.startLoop();
+            const musicTrack = localStorage.getItem('selectedMusicTrack');
+            if (musicTrack === 'lounge') {
+                const { loungeMusic } = await import('../audio/music/bgm2.js');
+                window.loungeMusic = loungeMusic;  // Attach to window
+                if (window.loungeMusic.enabled) {
+                    await window.loungeMusic.startLoop();
+                }
+            } else {
+                const { musicLoops } = await import('../audio/music/bgm.js');
+                window.musicLoops = musicLoops;  // Attach to window
+                if (window.musicLoops.enabled) {
+                    await window.musicLoops.startLoop();
+                }
             }
             
             this.enabled = true;
