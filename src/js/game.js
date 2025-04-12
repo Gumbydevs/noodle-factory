@@ -101,6 +101,11 @@ class Game {
         this.lastCardPlayTime = 0;
         this.clickCooldown = 300; // Reduced cooldown to 300ms for more responsive feel
 
+        // Add message queue system
+        this.messageQueue = [];
+        this.messageDisplayTime = 3000; // 3 seconds per message
+        this.isDisplayingMessage = false;
+
         this.state = {
             playerStats: {
                 pastaPrestige: 0,
@@ -1741,9 +1746,7 @@ class Game {
 
         this.updateDisplay();
         this.drawNewCards();
-        messageBox.textContent = "Welcome to your first day as Noodle Factory Manager! What's your first move?";
-        messageBox.classList.remove('feedback');
-        messageBox.classList.add('situation');
+        this.showSituationMessage("Welcome to your first day as Noodle Factory Manager! What's your first move?");
 
         // Clear any existing saved game when starting new game
         clearSavedGame();
@@ -1776,37 +1779,7 @@ class Game {
             gameSounds.createGrumbleSound(this.state.playerStats.chaosLevel / 50);
         }
 
-        // Split chaos message into words
-        const words = message.split(' ');
-        const wrappedWords = words.map((word, index) => 
-            `<span style="--word-index: ${index}">${word}</span>`
-        ).join(' ');
-        
-        // Create text container
-        const textSpan = document.createElement('span');
-        textSpan.className = 'message-text';
-        textSpan.innerHTML = wrappedWords;
-        
-        // Clear and update message box
-        messageBox.innerHTML = '';
-        messageBox.appendChild(textSpan);
-
-        // Update classes in the correct order
-        messageBox.className = 'message-box chaos-warning active';
-        
-        // Store the type of message for restoration
-        messageBox.setAttribute('data-previous-type', 'chaos');
-        
-        // Return to previous message state after delay
-        setTimeout(() => {
-            messageBox.className = 'message-box situation';
-            const situationMessage = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
-            const situationWords = situationMessage.split(' ');
-            const wrappedSituation = situationWords.map((word, index) => 
-                `<span style="--word-index: ${index}">${word}</span>`
-            ).join(' ');
-            textSpan.innerHTML = wrappedSituation;
-        }, 2000);
+        this.showChaosMessage(message);
     }
 
     checkHighScore() {
@@ -1882,11 +1855,16 @@ class Game {
                     this.state.playerStats.noodles += production;
                     // Only consume whole number of ingredients
                     this.state.playerStats.ingredients = Math.floor(Math.max(0, this.state.playerStats.ingredients - (baseProduction * 0.5)));
+                    
+                    this.showEffectMessage(`Daily production: Created ${production} noodles!`);
                 }
             }
         }
 
         this.processSalesAndExpenses();
+        
+        const situationMessage = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
+        this.showSituationMessage(situationMessage);
     }
 
     processSalesAndExpenses() {
@@ -1924,52 +1902,78 @@ class Game {
     }
 
     showEffectMessage(message) {
+        this.messageQueue.push({
+            message: message,
+            type: 'feedback'
+        });
+        
+        if (!this.isDisplayingMessage) {
+            this.processMessageQueue();
+        }
+    }
+
+    showSituationMessage(message) {
+        this.messageQueue.push({
+            message: message,
+            type: 'situation'
+        });
+        
+        if (!this.isDisplayingMessage) {
+            this.processMessageQueue();
+        }
+    }
+
+    showChaosMessage(message) {
+        this.messageQueue.push({
+            message: message,
+            type: 'chaos-warning'
+        });
+        
+        if (!this.isDisplayingMessage) {
+            this.processMessageQueue();
+        }
+    }
+
+    showTooltipMessage(message) {
+        this.messageQueue.push({
+            message: message,
+            type: 'tooltip'
+        });
+        
+        if (!this.isDisplayingMessage) {
+            this.processMessageQueue();
+        }
+    }
+
+    processMessageQueue() {
+        if (this.messageQueue.length === 0 || this.isDisplayingMessage) {
+            return;
+        }
+        
+        this.isDisplayingMessage = true;
+        
+        const messageData = this.messageQueue.shift();
+        
         const messageBox = document.getElementById('game-messages');
         if (messageBox) {
-            // Split the message into words and wrap each in a span
-            const words = message.split(' ');
+            const words = messageData.message.split(' ');
             const wrappedWords = words.map((word, index) => 
                 `<span style="--word-index: ${index}">${word}</span>`
             ).join(' ');
             
-            // Create text container
             const textSpan = document.createElement('span');
             textSpan.className = 'message-text';
             textSpan.innerHTML = wrappedWords;
             
-            // Clear and update message box
             messageBox.innerHTML = '';
             messageBox.appendChild(textSpan);
 
-            // Add proper classes in the correct order
-            messageBox.className = 'message-box feedback';
+            messageBox.className = `message-box ${messageData.type}`;
             
-            // Schedule return to random situation or tooltip message
             setTimeout(() => {
-                // Modify the ratio to show more tooltips
-                const shouldShowTooltip = Math.random() < 0.3; // 30% chance for tooltips
-                
-                let nextMessage;
-                if (shouldShowTooltip) {
-                    nextMessage = TOOLTIPS[Math.floor(Math.random() * TOOLTIPS.length)];
-                    messageBox.className = 'message-box tooltip'; // Add tooltip class
-                    textSpan.style.color = '#ffd700'; // Gold color for tooltips
-                    textSpan.style.fontStyle = 'italic'; // Italic for tooltips
-                } else {
-                    nextMessage = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
-                    messageBox.className = 'message-box situation';
-                    textSpan.style.color = ''; // Reset color
-                    textSpan.style.fontStyle = ''; // Reset style
-                }
-                
-                // Split message into words
-                const messageWords = nextMessage.split(' ');
-                const wrappedMessage = messageWords.map((word, index) => 
-                    `<span style="--word-index: ${index}">${word}</span>`
-                ).join(' ');
-                
-                textSpan.innerHTML = wrappedMessage;
-            }, 3000);
+                this.isDisplayingMessage = false;
+                this.processMessageQueue();
+            }, this.messageDisplayTime);
         }
     }
 
@@ -1979,52 +1983,42 @@ class Game {
             return;
         }
 
-        // Set game started flag first
         this.isGameStarted = true;
 
-        // Hide start screen elements, continue button, and options button
         document.getElementById('start-game').classList.add('hidden');
         const continueButton = document.getElementById('continue-game');
         if (continueButton) {
             continueButton.remove();
         }
         
-        // Hide options button when loading game
         const optionsButton = document.getElementById('options-button');
         if (optionsButton) {
             optionsButton.style.display = 'none';
         }
 
-        // Reset current game state
         this.state = savedState;
         this.turn = savedState.turn;
         this.isGameOver = false;
 
-        // Show and update factory lights
         const factoryLights = document.querySelector('#factory-lights');
         if (factoryLights) {
             factoryLights.classList.remove('hidden');
             this.initializeLights();
         }
 
-        // Clear and reset UI
         document.body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
         document.getElementById('game-messages').style.display = 'block';
 
-        // Show cards container (it might be hidden)
         this.showCards();
 
-        // Update display and draw cards
         this.updateDisplay();
         this.drawNewCards();
 
-        // Play sound and show message
         gameSounds.playStartGameSound();
         this.showEffectMessage("Game loaded successfully!");
     }
 
     shareGameResults() {
-        // Create canvas from game over screen
         const gameOverContent = document.querySelector('.game-over-content');
         if (!gameOverContent) return;
 
@@ -2062,7 +2056,6 @@ function createSmokeParticle(x, y) {
     particle.style.left = `${x}px`;
     particle.style.top = `${y}px`;
     
-    // Random movement
     const angle = Math.random() * Math.PI * 2;
     const distance = 50 + Math.random() * 100;
     const tx = Math.cos(angle) * distance;
@@ -2073,10 +2066,8 @@ function createSmokeParticle(x, y) {
     
     document.body.appendChild(particle);
     
-    // Add animation
     particle.style.animation = 'smoke 1s ease-out forwards';
     
-    // Remove after animation
     setTimeout(() => particle.remove(), 1000);
 }
 
@@ -2172,7 +2163,6 @@ class SoundManager {
         if (this.initialized) return;
         
         try {
-            // Initialize music system first
             const musicTrack = localStorage.getItem('selectedMusicTrack');
             if (musicTrack === 'lounge') {
                 const { loungeMusic } = await import('../audio/music/bgm2.js');
@@ -2203,32 +2193,16 @@ class SoundManager {
             const beepGain = this.ctx.createGain();
             const noiseGain = this.ctx.createGain();
             
-            // Use the pentatonic scale from musicLoops for in-key notes
             const pentatonicNotes = {
                 'C3': 130.81, 'Eb3': 155.56, 'F3': 174.61, 
                 'G3': 196.00, 'Bb3': 233.08, 'C4': 261.63
             };
 
-            // Get random notes from the pentatonic scale
             const notes = Object.values(pentatonicNotes);
             const note1 = notes[Math.floor(Math.random() * notes.length)];
             const note2 = notes[Math.floor(Math.random() * notes.length)];
             
             mainGain.gain.value = 1.2 * volumeMultiplier;
-            
-            // Keep existing noise generation code
-            // ...existing code...
-
-            // Setup beep oscillators with pentatonic notes
-            const osc1 = this.ctx.createOscillator();
-            const osc2 = this.ctx.createOscillator();
-            osc1.type = 'triangle';
-            osc2.type = 'sine';
-            osc1.frequency.value = note1;
-            osc2.frequency.value = note2;
-
-            // Keep rest of the existing code
-            // ...existing code...
         } catch (e) {
             console.warn('Error playing card sound:', e);
         }
@@ -2241,7 +2215,6 @@ class SoundManager {
             const mainGain = this.ctx.createGain();
             mainGain.gain.value = 0.03; // Keep volume low
             
-            // Use notes from C minor pentatonic scale to match background music
             const musicalNotes = {
                 'C4': 261.63,
                 'Eb4': 311.13,
@@ -2250,13 +2223,11 @@ class SoundManager {
                 'Bb4': 466.16
             };
 
-            // Create musical interval by selecting two adjacent notes
             const notesList = Object.values(musicalNotes);
             const startIndex = Math.floor(Math.random() * (notesList.length - 1));
             const note1 = notesList[startIndex];
             const note2 = notesList[startIndex + 1];
 
-            // Play first note
             const osc1 = this.ctx.createOscillator();
             osc1.type = 'sine';
             osc1.frequency.value = note1;
@@ -2268,7 +2239,11 @@ class SoundManager {
             gain1.connect(mainGain);
             mainGain.connect(this.gainNode);
 
-            // Play second note slightly later
+            const gain2 = this.ctx.createGain();
+            const osc2 = this.ctx.createOscillator();
+            osc2.type = 'sine';
+            osc2.frequency.value = note2;
+            gain2.gain.setValueAtTime(0, this.ctx.currentTime);
             gain2.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 0.15);
             gain2.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.3);
             osc2.connect(gain2);
@@ -2278,9 +2253,6 @@ class SoundManager {
             osc2.start(this.ctx.currentTime + 0.1);
             osc1.stop(this.ctx.currentTime + 0.2);
             osc2.stop(this.ctx.currentTime + 0.3);
-
-            // Keep the swoosh effect code
-            // ...existing code...
 
             setTimeout(() => {
                 mainGain.disconnect();
@@ -2325,11 +2297,9 @@ function setupInitialAudio() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // Initialize asset loader first
     const assetLoader = new AssetLoader();
     await assetLoader.init();
 
-    // After assets are loaded, initialize game components
     setupNoodleWiggle();
     setupInitialAudio();
 });
