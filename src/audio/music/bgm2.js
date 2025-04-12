@@ -16,7 +16,8 @@ export class LoungeMusic {
         this.currentTime = 0;
         this.nextScheduleTime = 0;
         this.scheduleAheadTime = 0.2;
-        this.baseBpm = 88; // Slower for more relaxed lounge feel
+        this.originalBpm = 88;
+        this.baseBpm = 84; // Slightly slower initial tempo
         this.sequencerSteps = 16;
         this.currentStep = 0;
         this.enabled = localStorage.getItem('musicEnabled') !== 'false';
@@ -127,7 +128,7 @@ export class LoungeMusic {
         // Effects parameters
         this.effectsParams = {
             reverbTime: 2.5,
-            reverbWet: 0.3,
+            reverbWet: 0.1,
             reverbDry: 0.7,
             chorusRate: 2.5,
             chorusDepth: 0.02,
@@ -454,6 +455,16 @@ export class LoungeMusic {
             
             if (this.audioContext && this.isPlaying) {
                 const now = this.audioContext.currentTime;
+                
+                // Control hip-hop drums - only play when chaos is above 20
+                if (level >= 20) {
+                    this.drumLevels.hipHop = 5.0; // Full volume
+                } else {
+                    this.drumLevels.hipHop = 0; // Silent
+                }
+
+                // Adjust tempo based on chaos - gradually speed up
+                this.baseBpm = this.originalBpm + (level * 0.002);
                 
                 // Adjust effects based on chaos level
                 if (this.nodes) {
@@ -788,7 +799,7 @@ export class LoungeMusic {
         if (this.chaosLevel > 30 && step % 4 === 2 && Math.random() < this.chaosLevel / 200) {
             const scale = this.latinScale;
             const note = scale[Math.floor(Math.random() * scale.length)];
-            this.playPianoNote(note, time, 0.2, 0.2); // Reduced from 0.3
+            this.playPianoNote(note, time, 0.1, 0.1); // Reduced from 0.3
         }
     }
 
