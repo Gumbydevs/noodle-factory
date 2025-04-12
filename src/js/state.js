@@ -101,15 +101,13 @@ export function updateResource(resourceType, amount, fromUpgrade = false) {
     // Handle negative values as emergency purchases
     if (amount < 0) {
         const severityFactor = Math.abs(amount);
-        // Scale from 50-150 based on severity (matching game.js)
         const totalCost = Math.min(150, Math.max(50, 50 + (severityFactor * 15)));
         
         if (gameState.playerStats.money >= totalCost) {
             gameState.playerStats.money -= totalCost;
-            // For ingredients, we don't subtract here - it's handled in game.js with emergency purchase
             return true;
         }
-        return false; // Return false if can't afford
+        return false;
     }
 
     // Normal resource updates
@@ -121,21 +119,19 @@ export function updateResource(resourceType, amount, fromUpgrade = false) {
                     if (upgrade.permanentStats?.ingredientGain > 0) {
                         // 40% chance to gain ingredients based on the upgrade's power
                         if (Math.random() < 0.4) {
-                            // Scale bonus ingredients with the upgrade's power
-                            // ingredientGain is typically 0.1 for + and scales up for more plusses
                             const scaledBonus = Math.floor(upgrade.permanentStats.ingredientGain * 20);
                             const minBonus = Math.max(1, scaledBonus);
                             const maxBonus = Math.max(2, scaledBonus + 1);
                             const bonusIngredients = Math.floor(Math.random() * (maxBonus - minBonus + 1)) + minBonus;
-                            gameState.playerStats.ingredients = Math.max(0, gameState.playerStats.ingredients + bonusIngredients);
+                            gameState.playerStats.ingredients = Math.max(0, Math.min(20, gameState.playerStats.ingredients + bonusIngredients));
                         }
                     }
                 });
             }
-            gameState.playerStats.ingredients = Math.max(0, gameState.playerStats.ingredients + amount);
+            gameState.playerStats.ingredients = Math.max(0, Math.min(20, gameState.playerStats.ingredients + amount));
             break;
         case 'workers':
-            gameState.playerStats.workerCount = Math.max(0, gameState.playerStats.workerCount + amount);
+            gameState.playerStats.workerCount = Math.max(0, Math.min(50, gameState.playerStats.workerCount + amount));
             break;
         case 'chaos':
             let newChaos = gameState.playerStats.chaosLevel + amount;
@@ -145,7 +141,7 @@ export function updateResource(resourceType, amount, fromUpgrade = false) {
             gameState.playerStats.chaosLevel = Math.max(0, Math.min(100, newChaos));
             break;
         case 'prestige':
-            gameState.playerStats.prestige = Math.max(0, gameState.playerStats.prestige + amount);
+            gameState.playerStats.pastaPrestige = Math.max(0, Math.min(100, gameState.playerStats.pastaPrestige + amount));
             break;
     }
     return true;
