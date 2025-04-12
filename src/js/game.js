@@ -97,6 +97,10 @@ class Game {
         // Initialize isGameStarted as false - we'll set it properly when actually starting/loading a game
         this.isGameStarted = false;
 
+        // Add click cooldown tracking
+        this.lastCardPlayTime = 0;
+        this.clickCooldown = 300; // Reduced cooldown to 300ms for more responsive feel
+
         this.state = {
             playerStats: {
                 pastaPrestige: 0,
@@ -813,6 +817,15 @@ class Game {
     }
 
     playCard(cardName) {
+        // Make spam click check more sensitive
+        const now = Date.now();
+        if (now - this.lastCardPlayTime < this.clickCooldown) {
+            gameSounds.playBadCardSound();
+            this.showEffectMessage("Too fast! The noodles are dizzy! 🌀");
+            return;
+        }
+        this.lastCardPlayTime = now;
+
         const card = CARDS[cardName];
         if (!card) return;
 
