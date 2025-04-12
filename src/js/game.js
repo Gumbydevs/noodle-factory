@@ -1314,19 +1314,40 @@ class Game {
         // Collect messages to return instead of showing immediately
         const messages = [];
         
-        // Process sales (every turn)
-        const maxSales = Math.floor(20 + (this.state.playerStats.prestige * 0.5));
-        const availableNoodles = this.state.playerStats.noodles;
-        const dailySales = Math.min(maxSales, availableNoodles);
+        console.log("processSalesAndExpenses called on turn:", this.turn);
+        
+        // For 5-day cycle, use (turn % 5 === 0) for turns 5, 10, 15, etc.
+        // If turn is not properly aligned, use modulus on 5-day intervals
+        const shouldSellNoodles = (this.turn > 0 && this.turn % 5 === 0);
+        
+        console.log("Should sell noodles?", shouldSellNoodles, "Turn:", this.turn);
+        
+        // Process sales every 5 days (production cycle)
+        if (shouldSellNoodles) {
+            console.log("Sales should happen now (turn % 5 === 0)");
+            const maxSales = Math.floor(20 + (this.state.playerStats.pastaPrestige * 0.5));
+            const availableNoodles = this.state.playerStats.noodles;
+            const dailySales = Math.min(maxSales, availableNoodles);
+            
+            console.log("Available noodles:", availableNoodles, "Max sales:", maxSales, "Actual sales:", dailySales);
 
-        if (dailySales > 0) {
-            const income = dailySales * this.state.playerStats.noodleSalePrice;
-            this.state.playerStats.noodles -= dailySales;
-            this.state.playerStats.money += income;
-            messages.push({
-                message: `Sales: ${dailySales} noodles sold for $${income}!`,
-                type: 'feedback'
-            });
+            if (dailySales > 0) {
+                const income = dailySales * this.state.playerStats.noodleSalePrice;
+                this.state.playerStats.noodles -= dailySales;
+                this.state.playerStats.money += income;
+                console.log("Sales completed:", dailySales, "noodles for $", income);
+                messages.push({
+                    message: `Sales: ${dailySales} noodles sold for $${income}!`,
+                    type: 'feedback'
+                });
+            } else {
+                console.log("No noodles available to sell");
+                // Add a message even when no noodles are sold
+                messages.push({
+                    message: `Sales day: No noodles available to sell!`,
+                    type: 'feedback'
+                });
+            }
         }
 
         // Process weekly expenses
@@ -2062,7 +2083,7 @@ class Game {
             const textSpan = document.createElement('span');
             textSpan.className = 'message-text';
             textSpan.innerHTML = wrappedWords;
-            
+
             messageBox.innerHTML = '';
             messageBox.appendChild(textSpan);
 
