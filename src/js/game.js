@@ -710,7 +710,7 @@ class Game {
         const cardsContainer = document.getElementById('cards-container');
         cardsContainer.classList.remove('hidden');
 
-        // Get two random cards
+        // Get available cards
         const availableCards = Object.keys(CARDS).filter(cardName => {
             if (cardName === "Return of Reggie") {
                 return this.state.playerStats.reggieEscaped === true;
@@ -722,8 +722,24 @@ class Game {
             return true;
         });
 
-        // Select cards based on game state
-        let [leftCard, rightCard] = [...availableCards].sort(() => Math.random() - 0.5).slice(0, 2);
+        // Separate upgrade and regular cards
+        const upgradeCards = availableCards.filter(cardName => CARDS[cardName].type === "upgrade");
+        const regularCards = availableCards.filter(cardName => CARDS[cardName].type !== "upgrade");
+
+        // Select cards based on game state - ensure we don't get 2 upgrade cards
+        let leftCard, rightCard;
+        if (upgradeCards.length > 0 && regularCards.length > 0 && Math.random() < 0.3) {
+            // 30% chance to get one upgrade card if available
+            leftCard = upgradeCards[Math.floor(Math.random() * upgradeCards.length)];
+            rightCard = regularCards[Math.floor(Math.random() * regularCards.length)];
+            if (Math.random() < 0.5) {
+                // 50% chance to swap positions
+                [leftCard, rightCard] = [rightCard, leftCard];
+            }
+        } else {
+            // Otherwise get two regular cards
+            [leftCard, rightCard] = [...regularCards].sort(() => Math.random() - 0.5).slice(0, 2);
+        }
 
         cardsContainer.innerHTML = `
             <div class="card" id="card-left">
