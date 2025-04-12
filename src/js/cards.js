@@ -1102,18 +1102,16 @@ export const CARDS = {
         }
     },
     "Automated Pasta Line": {
-        description: "Install an automated production line that kills worker morale but increases efficiency.",
+        description: "An automated production line that increases efficiency.",
         type: "upgrade",
         requirements: { prestige: 25 },
         permanentStats: {
             workerEfficiency: 0.2,     // 20% less worker loss
-            chaosReduction: -0.2,      // 20% more chaos gain
-            workerLossRate: -0.15      // 15% more worker loss rate (they feel replaceable)
+            ingredientGain: 0.25,    // 25% chance for extra ingredients
+            chaosReduction: -0.3,      // 20% more chaos gain
         },
         statModifiers: {
-            workers: -3,
             prestige: 5,
-            chaos: 8
         },
         effect: (state) => {
             savePlayedCard("Automated Pasta Line");
@@ -1175,7 +1173,7 @@ export const CARDS = {
             return "The new lab ensures consistently perfect pasta!";
         }
     },
-    "Worker Break Room": {
+    "Break Room": {
         description: "Build a luxurious pasta-themed break room.",
         type: "upgrade",
         requirements: { prestige: 15 },
@@ -1188,24 +1186,41 @@ export const CARDS = {
             chaos: -4
         },
         effect: (state) => {
-            savePlayedCard("Worker Break Room");
+            savePlayedCard("Break Room");
             state.playerStats.factoryUpgrades.breakRoom = true;
             return "Happy workers make better pasta!";
         }
     },
+    "Pasta Nursery": {
+        description: "Even noodles deserve a break.",
+        type: "upgrade",
+        requirements: { prestige: 15 },
+        permanentStats: {
+            ingredientGain: 0.35,    // 25% chance for extra ingredients
+        },
+        statModifiers: {
+            ingredients: -3,
+            prestige: 4,
+            chaos: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Nursery");
+            state.playerStats.factoryUpgrades.pastaNursery = true;
+            return "Happy pasta make better workers!";
+        }
+    },
     "Industrial Kitchen": {
-        description: "Upgrade your kitchen with complex professional equipment.",
+        description: "Kitchen, But Pro.",
         type: "upgrade",
         requirements: { prestige: 22 },
         permanentStats: {
             prestigeGain: 0.2,         // 20% more prestige gain
-            chaosReduction: -0.1,      // 10% more chaos gain
+            ingredientGain: 0.25,    // 25% chance for extra ingredients
             workerEfficiency: -0.1     // 10% less worker efficiency (equipment is complicated)
         },
         statModifiers: {
             prestige: 10,
             chaos: 6,
-            workers: 3
         },
         effect: (state) => {
             savePlayedCard("Industrial Kitchen");
@@ -1250,7 +1265,7 @@ export const CARDS = {
             return "The robot seems friendly... mostly.";
         }
     },
-    "Quantum Ingredient Replicator": {
+    "Ingredient Replicator": {
         description: "A device that duplicates ingredients by pulling from parallel universes.",
         type: "upgrade",
         requirements: { prestige: 30 },
@@ -1265,37 +1280,47 @@ export const CARDS = {
             prestige: -3
         },
         effect: (state) => {
-            savePlayedCard("Quantum Ingredient Replicator");
-            state.playerStats.factoryUpgrades.quantumReplicator = true;
+            savePlayedCard("Ingredient Replicator");
+            state.playerStats.factoryUpgrades.Replicator = true;
             return "Reality bends as ingredients multiply... concerning.";
         }
     },
     "Efficient Production Line": {
         description: "Optimize the production line for maximum efficiency.",
         type: "upgrade",
+        requirements: { prestige: 20 },
+        permanentStats: {
+            workerEfficiency: 0.2,     // 20% more worker efficiency
+            prestigeGain: 0.15        // 15% more prestige gain
+        },
         statModifiers: {
             workers: -2,
             ingredients: -1
         },
-        productionBonus: 0.25, // 25% increase in production
-        requirements: {
-            prestige: 20
-        }
+        productionBonus: 0.25 // 25% increase in production
     },
     "Market Expansion": {
         description: "Expand into new markets, increasing noodle prices.",
         type: "upgrade",
+        requirements: { prestige: 25 },
+        permanentStats: {
+            prestigeGain: 0.2,        // 20% more prestige gain
+            chaosReduction: -0.1      // 10% more chaos gain
+        },
         statModifiers: {
             chaos: 5
         },
-        priceBonus: 0.3, // 30% increase in sale price
-        requirements: {
-            prestige: 25
-        }
+        priceBonus: 0.3 // 30% increase in sale price
     },
     "Quality Control": {
         description: "Implement strict quality control measures.",
         type: "upgrade",
+        requirements: { prestige: 18 },
+        permanentStats: {
+            prestigeGain: 0.15,       // 15% more prestige gain
+            chaosReduction: 0.1,      // 10% less chaos gain
+            workerEfficiency: -0.05   // 5% less worker efficiency
+        },
         statModifiers: {
             prestige: 5,
             chaos: -3

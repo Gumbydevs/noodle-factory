@@ -703,6 +703,69 @@ class Game {
             .join('');
     }
 
+    formatPermanentEffects(permanentStats) {
+        if (!permanentStats) return '';
+        
+        const entries = Object.entries(permanentStats);
+        // Add priceBonus if it exists on the card
+        if (this.card && this.card.priceBonus) {
+            entries.push(['priceBonus', this.card.priceBonus]);
+        }
+        
+        return entries
+            .map(([stat, value]) => {
+                // Convert value to appropriate number of signs
+                const absValue = Math.abs(stat === 'priceBonus' ? value * 100 : value * 100);
+                
+                // For chaos reduction, we want to invert the sign display
+                // because a positive reduction means less chaos (negative sign)
+                let displayValue = value;
+                if (stat === 'chaosReduction') {
+                    displayValue = -value; // Invert the value for display purposes
+                }
+                
+                let signs;
+                if (absValue <= 15) {
+                    signs = (displayValue > 0 ? '+' : '-').repeat(1);
+                } else if (absValue <= 25) {
+                    signs = (displayValue > 0 ? '+' : '-').repeat(2);
+                } else if (absValue <= 35) {
+                    signs = (displayValue > 0 ? '+' : '-').repeat(3);
+                } else {
+                    signs = (displayValue > 0 ? '+' : '-').repeat(4);
+                }
+                
+                // Map stats to display names
+                const statDisplay = {
+                    'prestigeGain': 'Prestige',
+                    'chaosReduction': 'Chaos',
+                    'workerEfficiency': 'Workers',
+                    'workerLossRate': 'Workers',
+                    'ingredientGain': 'Ingredients',
+                    'priceBonus': 'Sale Price'
+                }[stat] || stat;
+
+                // Get color class
+                const colorClass = {
+                    'prestigeGain': 'prestige-color',
+                    'chaosReduction': 'chaos-color',
+                    'workerEfficiency': 'energy-color',
+                    'workerLossRate': 'energy-color',
+                    'ingredientGain': 'ingredients-color',
+                    'priceBonus': 'money-color'
+                }[stat] || '';
+                
+                // Use displayValue for determining positive/negative class
+                const signClass = displayValue > 0 ? 'positive' : 'negative';
+                
+                return `<div class="permanent-effect">
+                    <span class="${colorClass}">${statDisplay}:</span>
+                    <span class="${signClass}">${signs}</span>
+                </div>`;
+            })
+            .join('');
+    }
+
     drawNewCards() {
         // Remove any existing cards
         document.querySelectorAll('.card').forEach(card => {
@@ -747,20 +810,54 @@ class Game {
 
         cardsContainer.innerHTML = `
             <div class="card" id="card-left">
-                ${CARDS[leftCard].type === "upgrade" ? `<div class="upgrade-label">Upgrade</div>` : ''}
-                <h3>${leftCard}</h3>
-                <div class="card-description">${CARDS[leftCard].description}</div>
-                <div class="card-effects">
-                    ${this.formatCardEffects(CARDS[leftCard].statModifiers)}
-                </div>
+                ${CARDS[leftCard].type === "upgrade" ? 
+                    `<div class="upgrade-label">Prestigious Upgrade</div>
+                    <h3>${leftCard}</h3>
+                    <div class="card-description">${CARDS[leftCard].description}</div>
+                    ${CARDS[leftCard].permanentStats ? 
+                        `<div class="card-effects permanent-effects">
+                            <div class="effects-label">Passive Effects:</div>
+                            ${this.formatPermanentEffects(CARDS[leftCard].permanentStats)}
+                        </div>` : ''
+                    }
+                    ${CARDS[leftCard].statModifiers ? 
+                        `<div class="card-effects instant-effects">
+                            <div class="effects-label">Instant Effects:</div>
+                            ${this.formatCardEffects(CARDS[leftCard].statModifiers)}
+                        </div>` : ''
+                    }`
+                    : 
+                    `<h3>${leftCard}</h3>
+                    <div class="card-description">${CARDS[leftCard].description}</div>
+                    <div class="card-effects">
+                        ${this.formatCardEffects(CARDS[leftCard].statModifiers)}
+                    </div>`
+                }
             </div>
             <div class="card" id="card-right">
-                ${CARDS[rightCard].type === "upgrade" ? `<div class="upgrade-label">Upgrade</div>` : ''}
-                <h3>${rightCard}</h3>
-                <div class="card-description">${CARDS[rightCard].description}</div>
-                <div class="card-effects">
-                    ${this.formatCardEffects(CARDS[rightCard].statModifiers)}
-                </div>
+                ${CARDS[rightCard].type === "upgrade" ? 
+                    `<div class="upgrade-label">Prestigious Upgrade</div>
+                    <h3>${rightCard}</h3>
+                    <div class="card-description">${CARDS[rightCard].description}</div>
+                    ${CARDS[rightCard].permanentStats ? 
+                        `<div class="card-effects permanent-effects">
+                            <div class="effects-label">Passive Effects:</div>
+                            ${this.formatPermanentEffects(CARDS[rightCard].permanentStats)}
+                        </div>` : ''
+                    }
+                    ${CARDS[rightCard].statModifiers ? 
+                        `<div class="card-effects instant-effects">
+                            <div class="effects-label">Instant Effects:</div>
+                            ${this.formatCardEffects(CARDS[rightCard].statModifiers)}
+                        </div>` : ''
+                    }`
+                    : 
+                    `<h3>${rightCard}</h3>
+                    <div class="card-description">${CARDS[rightCard].description}</div>
+                    <div class="card-effects">
+                        ${this.formatCardEffects(CARDS[rightCard].statModifiers)}
+                    </div>`
+                }
             </div>
         `;
 
@@ -1260,7 +1357,10 @@ class Game {
         upgradeElement.innerHTML = `
             <h4>${cardName}</h4>
             <div class="upgrade-effects">
-                ${this.formatPermanentEffects(card.permanentStats)}
+                ${card.permanentStats ? 
+                    `<div class="effects-label">Passive Effects:</div>
+                    ${this.formatPermanentEffects(card.permanentStats)}` : ''
+                }
             </div>
         `;
         
@@ -1292,52 +1392,6 @@ class Game {
         });
         
         return true;
-    }
-
-    formatPermanentEffects(permanentStats) {
-        if (!permanentStats) return '';
-        
-        return Object.entries(permanentStats)
-            .map(([stat, value]) => {
-                // Convert value to appropriate number of signs
-                const absValue = Math.abs(value * 100);
-                let signs;
-                if (absValue <= 15) {
-                    signs = (value > 0 ? '+' : '-').repeat(1);
-                } else if (absValue <= 25) {
-                    signs = (value > 0 ? '+' : '-').repeat(2);
-                } else if (absValue <= 35) {
-                    signs = (value > 0 ? '+' : '-').repeat(3);
-                } else {
-                    signs = (value > 0 ? '+' : '-').repeat(4);
-                }
-                
-                // Map stats to display names
-                const statDisplay = {
-                    'prestigeGain': 'Prestige',
-                    'chaosReduction': 'Chaos',
-                    'workerEfficiency': 'Workers',
-                    'workerLossRate': 'Workers',
-                    'ingredientGain': 'Ingredients'
-                }[stat] || stat;
-
-                // Get color class
-                const colorClass = {
-                    'prestigeGain': 'prestige-color',
-                    'chaosReduction': 'chaos-color',
-                    'workerEfficiency': 'energy-color',
-                    'workerLossRate': 'energy-color',
-                    'ingredientGain': 'ingredients-color'
-                }[stat] || '';
-                
-                const signClass = value > 0 ? 'positive' : 'negative';
-                
-                return `<div class="permanent-effect">
-                    <span class="${colorClass}">${statDisplay}:</span>
-                    <span class="${signClass}">${signs}</span>
-                </div>`;
-            })
-            .join('');
     }
 
     applyUpgradeStats(permanentStats) {

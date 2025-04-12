@@ -1076,6 +1076,28 @@ h1 {
     transition: all 0.3s ease-out;
 }
 
+.card h3 {
+    font-size: 1.2em;
+    margin-top: 0; /* Add this to remove any top margin */
+    margin-bottom: 10px;
+    color: #f39c12;
+}
+
+.card .effects-label {
+    font-size: 0.7em;
+    color: #888;
+    margin-bottom: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card .permanent-effects,
+.card .instant-effects {
+    border-top: 1px solid #444;
+    margin-top: 6px;
+    padding-top: 6px;
+}
+
 #cards-container .card:hover {
     --card-glow-primary: rgba(255, 244, 230, 0.2);
     --card-glow-secondary: rgba(255, 244, 230, 0.1);
@@ -1167,12 +1189,6 @@ h1 {
         transform: scale(0.8) translateY(-20px) !important;
         opacity: 0 !important;
     }
-}
-
-.card h3 {
-    font-size: 1.2em;
-    margin-bottom: 10px;
-    color: #f39c12;
 }
 
 .card-description {
@@ -2216,6 +2232,20 @@ h1 {
     will-change: transform, opacity;
 }
 
+.upgrade-card .permanent-effects,
+.upgrade-card .instant-effects {
+    font-size: 0.8em;
+    margin-top: 4px;
+}
+
+.upgrade-card .effects-label {
+    color: #888;
+    font-size: 0.7em;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 /* Override any interfering animations when card is being moved to upgrades */
 .card[data-selected="true"] {
     z-index: 1000;
@@ -2495,6 +2525,14 @@ h1 {
 .upgrade-card .chaosReduction-color { color: #e74c3c; }
 .upgrade-card .workerEfficiency-color { color: #3498db; }
 
+.upgrade-label {
+    font-size: 0.7em;
+    margin-bottom: 2px; /* Reduced from 4px to 2px */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    animation: rainbowText 3s linear infinite;
+}
+
 /* Save/Load functionality styles */
 .save-load-container {
     position: fixed;
@@ -2688,6 +2726,8 @@ h1 {
     display: flex;
     gap: 20px;
     background: rgba(0, 0, 0, 0.6);
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
     padding: 4px 12px;
     border-radius: 15px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
