@@ -934,6 +934,15 @@ class Game {
         // Handle emergency resource purchases
         let emergencyMessage = '';
         if (card.statModifiers) {
+            // Clear the message queue when playing a card to ensure card action message displays first
+            this.messageQueue = [];
+            
+            // Before playing a card, store the current queue state for later restoration
+            const oldQueue = [...this.messageQueue]; 
+            
+            // Clear any pending chaos messages to prioritize card action messages
+            this.messageQueue = this.messageQueue.filter(msg => msg.type !== 'chaos-warning');
+
             const ingredientChange = card.statModifiers.ingredients || 0;
             const workerChange = card.statModifiers.workers || 0;
             
@@ -1228,6 +1237,109 @@ class Game {
                 }, 800);
             }
         }
+    }
+
+    processTurnEffects() {
+        // Apply upgrade effects first
+        applyUpgradeEffects(this.state);
+
+        // Add passive ingredient gain each turn
+        const baseIngredientGain = 0.2 + this.state.playerStats.ingredientGainRate;
+        const prestigeBonus = this.state.playerStats.pastaPrestige * 0.01;
+        const totalIngredientGain = Math.random() < 0.7 ? Math.floor(baseIngredientGain + prestigeBonus) : 0;
+        
+        if (totalIngredientGain > 0) {
+            this.state.playerStats.ingredients = Math.min(20, Math.floor(this.state.playerStats.ingredients + totalIngredientGain));
+        }
+
+        // Store production messages to queue them after card action messages
+        let productionMessages = [];
+
+        // Continue with regular production if we have ingredients
+        if (this.state.playerStats.ingredients > 0) {
+            const workers = this.state.playerStats.workerCount;
+            // Make ingredients last longer by reducing consumption rate
+            const baseProduction = Math.min(
+                Math.floor(this.state.playerStats.ingredients * 0.5), // Round down ingredient usage
+                Math.ceil(workers / 0.5)  // Each 5 workers can process 1 ingredient
+            );
+
+            if (baseProduction > 0) {
+                const chaosLevel = this.state.playerStats.chaosLevel;
+                const chaosMultiplier = chaosLevel > 50 ? 
+                    1 - ((chaosLevel - 50) / 100) :
+                    1 + (chaosLevel / 100);
+                const noodlesPerIngredient = 15 + Math.floor(Math.random() * 16);
+                const production = Math.max(1, Math.floor(baseProduction * noodlesPerIngredient * chaosMultiplier * this.state.playerStats.noodleProductionRate));
+
+                if (production > 0) {
+                    this.state.playerStats.noodles += production;
+                    // Only consume whole number of ingredients
+                    this.state.playerStats.ingredients = Math.floor(Math.max(0, this.state.playerStats.ingredients - (baseProduction * 0.5)));
+                    
+                    // Store production message instead of showing it immediately
+                    productionMessages.push({
+                        message: `Daily production: Created ${production} noodles!`,
+                        type: 'feedback'
+                    });
+                }
+            }
+        }
+
+        // Process sales and expenses but collect messages instead of showing them
+        const salesMessages = this.processSalesAndExpenses();
+        
+        // Now add all collected messages to the queue in correct order
+        // Add production messages
+        productionMessages.forEach(msg => {
+            this.messageQueue.push(msg);
+        });
+        
+        // Add sales messages
+        salesMessages.forEach(msg => {
+            this.messageQueue.push(msg);
+        });
+        
+        // Finally add a situation message
+        const situationMessage = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
+        this.showSituationMessage(situationMessage);
+        
+        // Start processing message queue if not already doing so
+        if (!this.isDisplayingMessage) {
+            this.processMessageQueue();
+        }
+    }
+
+    processSalesAndExpenses() {
+        // Collect messages to return instead of showing immediately
+        const messages = [];
+        
+        // Process sales (every turn)
+        const maxSales = Math.floor(20 + (this.state.playerStats.prestige * 0.5));
+        const availableNoodles = this.state.playerStats.noodles;
+        const dailySales = Math.min(maxSales, availableNoodles);
+
+        if (dailySales > 0) {
+            const income = dailySales * this.state.playerStats.noodleSalePrice;
+            this.state.playerStats.noodles -= dailySales;
+            this.state.playerStats.money += income;
+            messages.push({
+                message: `Sales: ${dailySales} noodles sold for $${income}!`,
+                type: 'feedback'
+            });
+        }
+
+        // Process weekly expenses
+        if (this.turn % 7 === 0) {
+            const expenses = this.state.playerStats.weeklyExpenses;
+            this.state.playerStats.money = Math.max(0, this.state.playerStats.money - expenses);
+            messages.push({
+                message: `Weekly expenses: -$${expenses}`,
+                type: 'feedback'
+            });
+        }
+        
+        return messages;
     }
 
     addUpgradeClickHandler(upgradeElement, card) {
@@ -1779,6 +1891,9 @@ class Game {
             gameSounds.createGrumbleSound(this.state.playerStats.chaosLevel / 50);
         }
 
+        // Add message to queue with lower priority if a card was just played
+        const wasProbablyCardAction = Date.now() - this.lastCardPlayTime < 1000;
+        
         this.showChaosMessage(message);
     }
 
@@ -1821,73 +1936,6 @@ class Game {
         }
     }
 
-    processTurnEffects() {
-        // Apply upgrade effects first
-        applyUpgradeEffects(this.state);
-
-        // Add passive ingredient gain each turn
-        const baseIngredientGain = 0.2 + this.state.playerStats.ingredientGainRate;
-        const prestigeBonus = this.state.playerStats.pastaPrestige * 0.01;
-        const totalIngredientGain = Math.random() < 0.7 ? Math.floor(baseIngredientGain + prestigeBonus) : 0;
-        
-        if (totalIngredientGain > 0) {
-            this.state.playerStats.ingredients = Math.min(20, Math.floor(this.state.playerStats.ingredients + totalIngredientGain));
-        }
-
-        // Continue with regular production if we have ingredients
-        if (this.state.playerStats.ingredients > 0) {
-            const workers = this.state.playerStats.workerCount;
-            // Make ingredients last longer by reducing consumption rate
-            const baseProduction = Math.min(
-                Math.floor(this.state.playerStats.ingredients * 0.5), // Round down ingredient usage
-                Math.ceil(workers / 0.5)  // Each 5 workers can process 1 ingredient
-            );
-
-            if (baseProduction > 0) {
-                const chaosLevel = this.state.playerStats.chaosLevel;
-                const chaosMultiplier = chaosLevel > 50 ? 
-                    1 - ((chaosLevel - 50) / 100) :
-                    1 + (chaosLevel / 100);
-                const noodlesPerIngredient = 15 + Math.floor(Math.random() * 16);
-                const production = Math.max(1, Math.floor(baseProduction * noodlesPerIngredient * chaosMultiplier * this.state.playerStats.noodleProductionRate));
-
-                if (production > 0) {
-                    this.state.playerStats.noodles += production;
-                    // Only consume whole number of ingredients
-                    this.state.playerStats.ingredients = Math.floor(Math.max(0, this.state.playerStats.ingredients - (baseProduction * 0.5)));
-                    
-                    this.showEffectMessage(`Daily production: Created ${production} noodles!`);
-                }
-            }
-        }
-
-        this.processSalesAndExpenses();
-        
-        const situationMessage = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
-        this.showSituationMessage(situationMessage);
-    }
-
-    processSalesAndExpenses() {
-        // Process sales (every turn)
-        const maxSales = Math.floor(20 + (this.state.playerStats.prestige * 0.5));
-        const availableNoodles = this.state.playerStats.noodles;
-        const dailySales = Math.min(maxSales, availableNoodles);
-
-        if (dailySales > 0) {
-            const income = dailySales * this.state.playerStats.noodleSalePrice;
-            this.state.playerStats.noodles -= dailySales;
-            this.state.playerStats.money += income;
-            this.showEffectMessage(`Sales: ${dailySales} noodles sold for $${income}!`);
-        }
-
-        // Process weekly expenses
-        if (this.turn % 7 === 0) {
-            const expenses = this.state.playerStats.weeklyExpenses;
-            this.state.playerStats.money = Math.max(0, this.state.playerStats.money - expenses);
-            this.showEffectMessage(`Weekly expenses: -$${expenses}`);
-        }
-    }
-
     autoSave() {
         if (this.isGameOver) return;
         
@@ -1902,13 +1950,56 @@ class Game {
     }
 
     showEffectMessage(message) {
-        this.messageQueue.push({
+        // When a card is clicked, we want to:
+        // 1. Stop any current message display
+        // 2. Show the action message immediately
+        // 3. Add it to the queue with proper timing
+        
+        if (this.isDisplayingMessage) {
+            // If we're already showing a message, clear its timeout
+            if (this._messageTimeout) {
+                clearTimeout(this._messageTimeout);
+                this._messageTimeout = null;
+            }
+        }
+        
+        // Add action message to the front of the queue
+        this.messageQueue.unshift({
             message: message,
             type: 'feedback'
         });
         
-        if (!this.isDisplayingMessage) {
-            this.processMessageQueue();
+        // Set flag that we're displaying a message
+        this.isDisplayingMessage = true;
+        
+        // Show the message right away
+        const messageBox = document.getElementById('game-messages');
+        if (messageBox) {
+            // Split the message into words and wrap each in a span
+            const words = message.split(' ');
+            const wrappedWords = words.map((word, index) => 
+                `<span style="--word-index: ${index}">${word}</span>`
+            ).join(' ');
+            
+            // Create text container
+            const textSpan = document.createElement('span');
+            textSpan.className = 'message-text';
+            textSpan.innerHTML = wrappedWords;
+            
+            // Clear and update message box
+            messageBox.innerHTML = '';
+            messageBox.appendChild(textSpan);
+            messageBox.className = 'message-box feedback';
+            
+            // Schedule the next message after the standard display time
+            this._messageTimeout = setTimeout(() => {
+                this.isDisplayingMessage = false;
+                // Remove this message from the queue since we've shown it
+                if (this.messageQueue.length > 0 && this.messageQueue[0].type === 'feedback') {
+                    this.messageQueue.shift();
+                }
+                this.processMessageQueue();
+            }, this.messageDisplayTime);
         }
     }
 
@@ -1924,28 +2015,35 @@ class Game {
     }
 
     showChaosMessage(message) {
+        // Only add chaos message if there are no card action messages already in the queue
+        // This ensures card messages always take priority
+        const hasPendingActionMessages = this.messageQueue.some(msg => msg.type === 'feedback');
+        
+        // Add chaos message to queue with lower priority
         this.messageQueue.push({
             message: message,
-            type: 'chaos-warning'
+            type: 'chaos-warning',
+            priority: hasPendingActionMessages ? 'low' : 'normal'
         });
         
-        if (!this.isDisplayingMessage) {
-            this.processMessageQueue();
-        }
-    }
-
-    showTooltipMessage(message) {
-        this.messageQueue.push({
-            message: message,
-            type: 'tooltip'
+        // Sort the queue to place low priority messages at the end
+        this.messageQueue.sort((a, b) => {
+            // If a has low priority and b doesn't, place a after b
+            if (a.priority === 'low' && b.priority !== 'low') return 1;
+            // If b has low priority and a doesn't, place a before b
+            if (b.priority === 'low' && a.priority !== 'low') return -1;
+            // Otherwise keep their relative order
+            return 0;
         });
         
+        // Start processing the queue if not already doing so
         if (!this.isDisplayingMessage) {
             this.processMessageQueue();
         }
     }
 
     processMessageQueue() {
+        // If no messages or already displaying, exit
         if (this.messageQueue.length === 0 || this.isDisplayingMessage) {
             return;
         }
@@ -1970,7 +2068,8 @@ class Game {
 
             messageBox.className = `message-box ${messageData.type}`;
             
-            setTimeout(() => {
+            // Store the timeout so it can be cleared if needed
+            this._messageTimeout = setTimeout(() => {
                 this.isDisplayingMessage = false;
                 this.processMessageQueue();
             }, this.messageDisplayTime);
