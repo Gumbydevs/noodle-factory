@@ -427,7 +427,7 @@ class Game {
         const prevStats = {
             prestige: parseFloat(document.getElementById('prestige').textContent),
             chaos: parseFloat(document.getElementById('chaos').textContent),
-            ingredients: parseFloat(document.getElementById('ingredients').textContent),
+            ingredients: Math.floor(parseFloat(document.getElementById('ingredients').textContent)),
             energy: parseFloat(document.getElementById('energy').textContent),
             money: parseFloat(document.getElementById('money-stat').textContent.replace('$', '')),
             noodles: parseFloat(document.getElementById('noodles-stat').textContent)
@@ -437,7 +437,7 @@ class Game {
         const stats = {
             prestige: Math.round(this.state.playerStats.pastaPrestige * 10) / 10,
             chaos: Math.round(this.state.playerStats.chaosLevel),
-            ingredients: this.state.playerStats.ingredients,
+            ingredients: Math.floor(this.state.playerStats.ingredients),
             energy: Math.round(this.state.playerStats.workerCount),
             money: Math.round(this.state.playerStats.money),
             noodles: Math.round(this.state.playerStats.noodles),
@@ -1666,7 +1666,7 @@ class Game {
             playerStats: {
                 pastaPrestige: 0,
                 chaosLevel: 0,
-                ingredients: Math.floor(Math.random() * 3) + 3,
+                ingredients: Math.floor(Math.random() * 5) + 7, // Increased from 3+3 to 5+7
                 workerCount: Math.floor(Math.random() * 4) + 8,
                 money: 1000,
                 noodles: 0,
@@ -1688,7 +1688,7 @@ class Game {
                 prestigeGainRate: 1,
                 chaosGainRate: 1,
                 workerLossRate: 1,
-                ingredientGainRate: 0 // Add this line to initialize ingredientGainRate
+                ingredientGainRate: 0.2 // Add base ingredient gain rate
             }
         };
 
@@ -1852,90 +1852,36 @@ class Game {
         // Apply upgrade effects first
         applyUpgradeEffects(this.state);
 
-        // Check if we need to auto-buy ingredients
-        if (this.state.playerStats.ingredients <= 0) {
-            const costPerIngredient = 6 + Math.floor(Math.random() * 7); // Random 6-12 cost per ingredient
-            const desiredIngredients = Math.min(5, Math.floor(this.state.playerStats.money / costPerIngredient));
-            
-            if (desiredIngredients > 0) {
-                const totalCost = desiredIngredients * costPerIngredient;
-                // First deduct money and update display
-                this.state.playerStats.money -= totalCost;
-                this.updateDisplay();
-                
-                // Small delay before adding ingredients for visual feedback
-                setTimeout(() => {
-                    this.state.playerStats.ingredients += desiredIngredients;
-                    this.updateDisplay();
-                    this.showEffectMessage(`Emergency ingredients purchased: ${desiredIngredients} for $${totalCost}!`);
-                }, 300);
-
-                // Early return to wait for the ingredient update
-                return;
-            } else if (this.state.playerStats.noodles > 0) {
-                // Emergency noodle sale at a discount
-                const noodlesToSell = this.state.playerStats.noodles;
-                const emergencySalePrice = Math.floor(this.state.playerStats.noodleSalePrice * 0.8); // 20% discount
-                const income = noodlesToSell * emergencySalePrice;
-                
-                // First update noodles and money
-                this.state.playerStats.noodles = 0;
-                this.state.playerStats.money += income;
-                this.updateDisplay();
-
-                // Try to buy ingredients with the new money
-                const newDesiredIngredients = Math.min(5, Math.floor(income / costPerIngredient));
-                if (newDesiredIngredients > 0) {
-                    const newTotalCost = newDesiredIngredients * costPerIngredient;
-                    this.state.playerStats.money -= newTotalCost;
-                    
-                    // Delay ingredient addition for visual feedback
-                    setTimeout(() => {
-                        this.state.playerStats.ingredients += newDesiredIngredients;
-                        this.updateDisplay();
-                        this.showEffectMessage(`Emergency noodle sale: ${noodlesToSell} noodles sold for $${income}!\nEmergency ingredients purchased: ${newDesiredIngredients} for $${newTotalCost}!`);
-                    }, 300);
-                    
-                    return;
-                }
-            }
-
-            // If we still have no money and no ingredients, game over
-            if (this.state.playerStats.money <= 0 && this.state.playerStats.ingredients <= 0 && this.state.playerStats.noodles <= 0) {
-                this.isGameOver = true;
-                this.gameOverReason = "Factory bankruptcy! No money, ingredients, or noodles left to continue production.";
-                gameSounds.playGameOverSound();
-                this.endGame('ingredients');
-                return;
-            }
+        // Add passive ingredient gain each turn
+        const baseIngredientGain = 0.2 + this.state.playerStats.ingredientGainRate;
+        const prestigeBonus = this.state.playerStats.pastaPrestige * 0.01;
+        const totalIngredientGain = Math.random() < 0.7 ? Math.floor(baseIngredientGain + prestigeBonus) : 0;
+        
+        if (totalIngredientGain > 0) {
+            this.state.playerStats.ingredients = Math.min(20, Math.floor(this.state.playerStats.ingredients + totalIngredientGain));
         }
 
         // Continue with regular production if we have ingredients
         if (this.state.playerStats.ingredients > 0) {
-            // Rest of production code remains the same...
             const workers = this.state.playerStats.workerCount;
+            // Make ingredients last longer by reducing consumption rate
             const baseProduction = Math.min(
-                this.state.playerStats.ingredients,
+                Math.floor(this.state.playerStats.ingredients * 0.5), // Round down ingredient usage
                 Math.ceil(workers / 0.5)  // Each 5 workers can process 1 ingredient
             );
 
             if (baseProduction > 0) {
                 const chaosLevel = this.state.playerStats.chaosLevel;
                 const chaosMultiplier = chaosLevel > 50 ? 
-                    1 - ((chaosLevel - 50) / 100) : // Penalty above 50% chaos
-                    1 + (chaosLevel / 100); // Bonus below 50% chaos
-
-                // Each ingredient produces 10-20 noodles
-                const noodlesPerIngredient = 10 + Math.floor(Math.random() * 11);
+                    1 - ((chaosLevel - 50) / 100) :
+                    1 + (chaosLevel / 100);
+                const noodlesPerIngredient = 15 + Math.floor(Math.random() * 16);
                 const production = Math.max(1, Math.floor(baseProduction * noodlesPerIngredient * chaosMultiplier * this.state.playerStats.noodleProductionRate));
 
                 if (production > 0) {
-                    // Consume ingredients first
-                    this.state.playerStats.ingredients = Math.max(0, this.state.playerStats.ingredients - baseProduction);
-                    // Then add produced noodles
                     this.state.playerStats.noodles += production;
-
-                    this.showEffectMessage(`Today's Production: ${production} noodles produced!`);
+                    // Only consume whole number of ingredients
+                    this.state.playerStats.ingredients = Math.floor(Math.max(0, this.state.playerStats.ingredients - (baseProduction * 0.5)));
                 }
             }
         }
