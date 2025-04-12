@@ -97,7 +97,7 @@ export function clearSavedGame() {
     localStorage.removeItem(SAVE_GAME_KEY);
 }
 
-export function updateResource(resourceType, amount) {
+export function updateResource(resourceType, amount, fromUpgrade = false) {
     // Handle negative values as emergency purchases
     if (amount < 0) {
         const severityFactor = Math.abs(amount);
@@ -115,6 +115,23 @@ export function updateResource(resourceType, amount) {
     // Normal resource updates
     switch (resourceType) {
         case 'ingredients':
+            // Add random chance for ingredient gain from upgrades
+            if (!fromUpgrade && gameState.playerStats.factoryUpgrades) {
+                Object.values(gameState.playerStats.factoryUpgrades).forEach(upgrade => {
+                    if (upgrade.permanentStats?.ingredientGain > 0) {
+                        // 40% chance to gain ingredients based on the upgrade's power
+                        if (Math.random() < 0.4) {
+                            // Scale bonus ingredients with the upgrade's power
+                            // ingredientGain is typically 0.1 for + and scales up for more plusses
+                            const scaledBonus = Math.floor(upgrade.permanentStats.ingredientGain * 20);
+                            const minBonus = Math.max(1, scaledBonus);
+                            const maxBonus = Math.max(2, scaledBonus + 1);
+                            const bonusIngredients = Math.floor(Math.random() * (maxBonus - minBonus + 1)) + minBonus;
+                            gameState.playerStats.ingredients = Math.max(0, gameState.playerStats.ingredients + bonusIngredients);
+                        }
+                    }
+                });
+            }
             gameState.playerStats.ingredients = Math.max(0, gameState.playerStats.ingredients + amount);
             break;
         case 'workers':
