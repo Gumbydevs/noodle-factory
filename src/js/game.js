@@ -1397,7 +1397,7 @@ class Game {
                 
                 // Show feedback message
                 this.showEffectMessage(
-                    `<span style="color: #4CAF50">Recycled upgrade: -${Math.round(chaosReduction)} chaos, +${ingredientGain} ingredients</span>`
+                    `Sold upgrade: +${ingredientGain} ingredients, -${Math.round(chaosReduction)} chaos!`
                 );
                 
                 // Remove permanent stats
@@ -2072,6 +2072,15 @@ class Game {
         this.isDisplayingMessage = true;
         
         const messageData = this.messageQueue.shift();
+        
+        // Before displaying sales or production messages, ensure UI is updated
+        if (messageData.type === 'feedback' && 
+            (messageData.message.includes('Sales:') || 
+             messageData.message.includes('production:') ||
+             messageData.message.includes('expenses:'))) {
+            // Update display to ensure values are current before showing the message
+            this.updateDisplay();
+        }
         
         const messageBox = document.getElementById('game-messages');
         if (messageBox) {
