@@ -1378,6 +1378,9 @@ export function applyUpgradeEffects(state) {
 
     // Apply all permanent effects from all upgrades
     Object.entries(state.playerStats.factoryUpgrades).forEach(([name, upgrade]) => {
+        // Skip upgrades that are being sold (marked with _beingSold flag)
+        if (upgrade._beingSold) return;
+        
         if (upgrade.permanentStats) {
             // Apply permanent stat modifiers
             if (upgrade.permanentStats.prestigeGain) {
@@ -1403,7 +1406,11 @@ export function applyUpgradeEffects(state) {
                             state.playerStats.ingredients++;
                             triggerUpgradeGlow(name, "ingredientGain");
                             if (window.gameInstance) {
-                                window.gameInstance.showEffectMessage(`${name} generated a bonus ingredient!`);
+                                // Add bonus message to the end of the queue instead of showing immediately
+                                window.gameInstance.messageQueue.push({
+                                    message: `${name} generated a bonus ingredient!`,
+                                    type: 'feedback'
+                                });
                             }
                         }
                     } else {
@@ -1412,7 +1419,11 @@ export function applyUpgradeEffects(state) {
                             state.playerStats.ingredients--;
                             triggerUpgradeGlow(name, "ingredientGain");
                             if (window.gameInstance) {
-                                window.gameInstance.showEffectMessage(`${name} consumed an ingredient!`);
+                                // Add bonus message to the end of the queue instead of showing immediately
+                                window.gameInstance.messageQueue.push({
+                                    message: `${name} consumed an ingredient!`,
+                                    type: 'feedback'
+                                });
                             }
                         }
                     }

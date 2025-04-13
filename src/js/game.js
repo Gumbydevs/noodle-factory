@@ -1385,6 +1385,13 @@ class Game {
                 // Play sell sound first
                 gameSounds.playUpgradeSellSound();
                 
+                const cardName = upgradeElement.getAttribute('data-name');
+                
+                // Mark the upgrade as being sold to prevent further effects
+                if (this.state.playerStats.factoryUpgrades[cardName]) {
+                    this.state.playerStats.factoryUpgrades[cardName]._beingSold = true;
+                }
+                
                 // Add benefits from selling
                 const chaosReduction = 3 + Math.random() * 4; // Random 3-7 reduction
                 const ingredientGain = 2 + Math.floor(Math.random() * 3); // Random 2-4 ingredients
@@ -1405,8 +1412,8 @@ class Game {
                     this.removeUpgradeStats(card.permanentStats);
                 }
                 
-                // Remove from state
-                delete this.state.playerStats.factoryUpgrades[card.name];
+                // Remove from state - ensure we completely remove it
+                delete this.state.playerStats.factoryUpgrades[cardName];
                 
                 // Animate removal
                 upgradeElement.classList.add('disappearing');
