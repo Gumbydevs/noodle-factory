@@ -2089,11 +2089,31 @@ class Game {
             this.updateDisplay();
         }
         
+        // Determine message type color
+        let messageColor = '#ffd700'; // Default yellow for feedback messages
+        if (messageData.type === 'situation') {
+            messageColor = '#3498db'; // Blue for situation messages
+        } else if (messageData.type === 'chaos-warning') {
+            messageColor = '#e74c3c'; // Red for chaos warnings
+        } else if (messageData.type === 'feedback') {
+            // Special case handling for different feedback message types
+            if (messageData.message.includes('Sales:')) {
+                messageColor = '#2ecc71'; // Green for sales messages
+            } else if (messageData.message.includes('production:')) {
+                messageColor = '#f39c12'; // Orange for production messages
+            } else if (messageData.message.includes('expenses:')) {
+                messageColor = '#e67e22'; // Darker orange for expenses messages
+            } else if (messageData.message.includes('generated a bonus') || 
+                      messageData.message.includes('bonus ingredient')) {
+                messageColor = '#9b59b6'; // Purple for bonus messages
+            }
+        }
+        
         const messageBox = document.getElementById('game-messages');
         if (messageBox) {
             const words = messageData.message.split(' ');
             const wrappedWords = words.map((word, index) => 
-                `<span style="--word-index: ${index}">${word}</span>`
+                `<span style="--word-index: ${index}; color: ${messageColor};">${word}</span>`
             ).join(' ');
             
             const textSpan = document.createElement('span');
