@@ -91,7 +91,7 @@ export const CARDS = {
         description: "Add questionable ingredients to your noodles.",
         requirements: null,
         statModifiers: {
-            ingredients: 1,
+            ingredients: 5,
             chaos: 8
         },
         effect: (state) => {
@@ -255,7 +255,7 @@ export const CARDS = {
         description: "The sauce has achieved quantum superposition!",
         requirements: { ingredients: 1 },
         statModifiers: {
-            ingredients: 3,
+            ingredients: 8,
             chaos: 6,
             prestige: 8
         },
