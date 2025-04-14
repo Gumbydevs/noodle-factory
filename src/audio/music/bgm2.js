@@ -9,7 +9,7 @@ export class LoungeMusic {
         this.buffers = {};
         this.audioContext = null;
         this.isPlaying = false;
-        this.baseVolume = 0.15; // Reduced overall volume further
+        this.baseVolume = 0.13; // Reduced overall volume further
         this.volume = parseFloat(localStorage.getItem('musicVolume')) || 1.0;
         this.chaosLevel = 0;
         this.loopTimeout = null;
@@ -445,6 +445,19 @@ export class LoungeMusic {
             this.gainNode.gain.linearRampToValueAtTime(
                 value * this.baseVolume,
                 this.audioContext.currentTime + 0.1
+            );
+        }
+    }
+
+    setBaseVolume(value) {
+        this.baseVolume = value;
+        
+        // If audio context exists and we have a gain node, update the volume immediately
+        if (this.gainNode) {
+            const currentVolume = this.enabled ? this.volume * value : 0;
+            this.gainNode.gain.linearRampToValueAtTime(
+                currentVolume,
+                this.audioContext ? this.audioContext.currentTime + 0.1 : 0
             );
         }
     }

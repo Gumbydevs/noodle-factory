@@ -3,13 +3,28 @@ export class AssetLoader {
         this.totalAssets = 0;
         this.loadedAssets = 0;
         
-        // Check if we have a persisted track selection, otherwise do 50/50 random selection
+        // Available music tracks for random selection
+        this.availableTracks = ['default', 'lounge', 'dnb'];
+        
+        // Check if we have a persisted track selection
         const persistedTrack = localStorage.getItem('selectedMusicTrack');
-        this.selectedTrack = persistedTrack || (Math.random() < 0.5 ? 'lounge' : 'default');
+        
+        // If track is set to random, pick a random one. Otherwise use the persisted track or default
+        if (persistedTrack === 'random') {
+            this.selectedTrack = this.getRandomMusicTrack();
+            console.log(`Random music selected: ${this.selectedTrack}`);
+        } else {
+            this.selectedTrack = persistedTrack || 'default';
+        }
         
         this.progressBar = document.querySelector('.progress-bar');
         this.gameContainer = document.getElementById('game-container');
         this.preloader = document.getElementById('preloader');
+    }
+
+    // Helper function to get a random music track
+    getRandomMusicTrack() {
+        return this.availableTracks[Math.floor(Math.random() * this.availableTracks.length)];
     }
 
     async preloadAudio() {
@@ -26,14 +41,24 @@ export class AssetLoader {
             const { loungeMusic } = await import('../audio/music/bgm2.js');
             window.loungeMusic = loungeMusic; // Attach to window
             await loungeMusic.preload();
+        } else if (this.selectedTrack === 'dnb') {
+            const { dnbMusic } = await import('../audio/music/bgm3.js');
+            window.dnbMusic = dnbMusic; // Attach to window
+            await dnbMusic.preload();
         } else {
             const { musicLoops } = await import('../audio/music/bgm.js');
             window.musicLoops = musicLoops; // Attach to window
             await musicLoops.preload();
         }
 
-        // Save the track selection
-        localStorage.setItem('selectedMusicTrack', this.selectedTrack);
+        // If the original selection was random, save that rather than the specific track we chose
+        // This ensures the next time the game loads it will choose a new random track
+        const originalSelection = localStorage.getItem('selectedMusicTrack');
+        if (originalSelection === 'random') {
+            localStorage.setItem('selectedMusicTrack', 'random');
+        } else {
+            localStorage.setItem('selectedMusicTrack', this.selectedTrack);
+        }
 
         return new Promise(resolve => {
             this.updateProgress();

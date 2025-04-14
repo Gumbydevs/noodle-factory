@@ -1,7 +1,12 @@
 import { resetAchievements } from './achievements.js';
+import { setMusicEnabled, setMusicVolume } from '../audio.js';
 import { gameSounds } from '../audio.js';
 import { musicLoops } from '../audio/music/bgm.js';
 import { loungeMusic } from '../audio/music/bgm2.js';
+import { dnbMusic } from '../audio/music/bgm3.js';
+
+// Available music tracks for random selection
+const AVAILABLE_MUSIC_TRACKS = ['default', 'lounge', 'dnb'];
 
 document.addEventListener('DOMContentLoaded', () => {
     const sfxToggle = document.getElementById('sfx-toggle');
@@ -38,49 +43,103 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update initial SFX volume
     gameSounds.setVolume(savedSfxVolume);
 
+    // Make sure all music engines are initialized
+    const initializeAllMusicEngines = async () => {
+        // Ensure all music engines are preloaded
+        await Promise.all([
+            musicLoops.preload(),
+            loungeMusic.preload(),
+            dnbMusic.preload()
+        ]);
+        console.log("All music engines initialized");
+    };
+    
+    // Initialize all music engines at startup
+    initializeAllMusicEngines();
+
     // Update music toggle
     musicToggle.disabled = false;
     musicToggle.checked = localStorage.getItem('musicEnabled') === 'true';
 
-    // Handle music toggle - now updates both music systems
+    // Function to get a random music track
+    const getRandomMusicTrack = () => {
+        return AVAILABLE_MUSIC_TRACKS[Math.floor(Math.random() * AVAILABLE_MUSIC_TRACKS.length)];
+    };
+
+    // Function to get the actual track to use based on selection
+    const getEffectiveTrack = (selectedTrack) => {
+        if (selectedTrack === 'random') {
+            return getRandomMusicTrack();
+        }
+        return selectedTrack;
+    };
+
+    // Handle music toggle - now updates all music systems
     musicToggle.addEventListener('change', (e) => {
         const enabled = e.target.checked;
-        const currentTrack = localStorage.getItem('selectedMusicTrack') || 'default';
+        const selectedTrack = localStorage.getItem('selectedMusicTrack') || 'default';
+        const effectiveTrack = getEffectiveTrack(selectedTrack);
         
-        if (currentTrack === 'lounge') {
-            loungeMusic.setEnabled(enabled);
-            if (musicLoops.enabled) musicLoops.setEnabled(false);
-        } else {
-            musicLoops.setEnabled(enabled);
-            if (loungeMusic.enabled) loungeMusic.setEnabled(false);
+        console.log(`Music toggle: ${enabled}, selected track: ${selectedTrack}, using: ${effectiveTrack}`);
+        
+        // Ensure all music tracks are stopped first
+        musicLoops.setEnabled(false);
+        loungeMusic.setEnabled(false);
+        dnbMusic.setEnabled(false);
+        
+        // Enable only the selected track
+        if (enabled) {
+            if (effectiveTrack === 'lounge') {
+                console.log("Starting lounge music");
+                loungeMusic.setEnabled(true);
+            } else if (effectiveTrack === 'dnb') {
+                console.log("Starting drum and bass music");
+                dnbMusic.setEnabled(true);
+            } else {
+                console.log("Starting default music");
+                musicLoops.setEnabled(true);
+            }
         }
+        
+        localStorage.setItem('musicEnabled', enabled);
     });
 
     // Handle music track selection
     if (musicSelect) {
         const savedTrack = localStorage.getItem('selectedMusicTrack') || 'default';
         musicSelect.value = savedTrack;
+        console.log(`Initial music track: ${savedTrack}`);
 
         musicSelect.addEventListener('change', (e) => {
             const newTrack = e.target.value;
+            console.log(`Changing music track to: ${newTrack}`);
             localStorage.setItem('selectedMusicTrack', newTrack);
             
-            // Stop current track
+            // Stop all music tracks first
             musicLoops.setEnabled(false);
             loungeMusic.setEnabled(false);
+            dnbMusic.setEnabled(false);
             
             // Start new track if music is enabled
             if (musicToggle.checked) {
-                if (newTrack === 'lounge') {
+                const effectiveTrack = getEffectiveTrack(newTrack);
+                console.log(`Selected ${newTrack}, using: ${effectiveTrack}`);
+                
+                if (effectiveTrack === 'lounge') {
+                    console.log("Starting lounge music");
                     loungeMusic.setEnabled(true);
+                } else if (effectiveTrack === 'dnb') {
+                    console.log("Starting drum and bass music");
+                    dnbMusic.setEnabled(true);
                 } else {
+                    console.log("Starting default music");
                     musicLoops.setEnabled(true);
                 }
             }
         });
     }
 
-    // Handle music volume - now updates both music systems
+    // Handle music volume - now updates all music systems
     const musicVolume = document.getElementById('music-volume');
     const volumeValue = document.querySelector('.volume-value');
     
@@ -93,6 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
         volumeValue.textContent = `${e.target.value}%`;
         musicLoops.setVolume(value);
         loungeMusic.setVolume(value);
+        dnbMusic.setVolume(value);
+        localStorage.setItem('musicVolume', value);
     });
 
     // Reset progress

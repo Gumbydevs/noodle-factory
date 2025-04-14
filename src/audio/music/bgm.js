@@ -16,7 +16,7 @@ export class MusicLoops {
         this.audioContext = null;
         this.currentLoop = null;
         this.isPlaying = false;
-        this.baseVolume = 0.115; // MUSIC GLOBAL VOLUME - restored to original value
+        this.baseVolume = 0.135; // MUSIC GLOBAL VOLUME - restored to original value
         this.volume = parseFloat(localStorage.getItem('musicVolume')) || 1.0;
         this.chaosLevel = 0;
         this.loopTimeout = null;
@@ -1060,6 +1060,20 @@ export class MusicLoops {
             filter.disconnect();
             gainNode.disconnect();
         }, (duration + 0.1) * 1000);
+    }
+
+    // Method to set the base volume
+    setBaseVolume(value) {
+        this.baseVolume = value;
+        
+        // If audio context exists and we have a gain node, update the volume immediately
+        if (this.gainNode) {
+            const currentVolume = this.enabled ? this.volume * value : 0;
+            this.gainNode.gain.linearRampToValueAtTime(
+                currentVolume,
+                this.audioContext ? this.audioContext.currentTime + 0.1 : 0
+            );
+        }
     }
 
     stopLoop() {

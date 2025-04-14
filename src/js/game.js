@@ -5,8 +5,9 @@ import { ACHIEVEMENTS, checkAchievements, getUnlockedAchievements, resetAchievem
 import { updateHighScore, getHighScore } from './highscore.js';
 import { triggerNoodleRoll, handleCardClick, resetCardState, addCardHoverEffects } from './animation.js';
 import { gameSounds } from '../audio.js'; // Note the .js extension
-import { musicLoops } from '../audio/music/bgm.js';
 import { AssetLoader } from './assetLoader.js';
+
+// Remove the direct import of musicLoops - we'll load dynamically based on selection
 
 const SITUATIONS = [
     "The factory floor hums with the sound of pasta machines.",
@@ -571,12 +572,15 @@ class Game {
         const body = document.body;
         const messageBox = document.getElementById('game-messages');
         
-        // Update music based on chaos level - check for both music systems
+        // Update music based on chaos level - check for all music systems
         if (window.musicLoops && window.musicLoops.updateChaosLevel) {
             window.musicLoops.updateChaosLevel(chaos);
         }
         if (window.loungeMusic && window.loungeMusic.updateChaosLevel) {
             window.loungeMusic.updateChaosLevel(chaos);
+        }
+        if (window.dnbMusic && window.dnbMusic.updateChaosLevel) {
+            window.dnbMusic.updateChaosLevel(chaos);
         }
         
         // Remove all chaos classes first
@@ -1092,6 +1096,10 @@ class Game {
                     if (card.permanentStats) {
                         this.applyUpgradeStats(card.permanentStats);
                     }
+                    
+                    // Add message feedback for upgrade cards
+                    this.showEffectMessage(`Upgrade installed: ${cardName}`);
+                    
                     // Store the upgrade in state
                     this.state.playerStats.factoryUpgrades[cardName] = card;
                 }
@@ -1667,10 +1675,15 @@ class Game {
         }
         
         // Remove CRT effect
-        document.querySelector('.crt-overlay').classList.remove('active');
+        const crtOverlay = document.querySelector('.crt-overlay');
+        if (crtOverlay) {
+            crtOverlay.classList.remove('active');
+        }
 
         // Stop background music
-        musicLoops.stopLoop();
+        if (window.musicLoops && window.musicLoops.stopLoop) {
+            window.musicLoops.stopLoop();
+        }
 
         // Create game over screen
         const gameOverScreen = document.createElement('div');
@@ -1746,12 +1759,21 @@ class Game {
             </div>
         `;
 
+        // Make sure the gameContainer exists before attempting to append
+        if (!gameContainer) {
+            console.error('Game container not found, cannot append game over screen');
+            return;
+        }
+        
         // Add to container after setting innerHTML
         gameContainer.appendChild(gameOverScreen);
 
         // Hide cards and old message box
         this.hideCards();
-        document.getElementById('game-messages').style.display = 'none';
+        const messageBox = document.getElementById('game-messages');
+        if (messageBox) {
+            messageBox.style.display = 'none';
+        }
         
         // Add event listeners AFTER the screen is in the DOM
         const homeButton = document.getElementById('home-button');
@@ -1767,7 +1789,9 @@ class Game {
         if (newGameButton) {
             newGameButton.onclick = () => {
                 gameOverScreen.remove();
-                document.getElementById('game-messages').style.display = 'block';
+                if (messageBox) {
+                    messageBox.style.display = 'block';
+                }
                 this.start();
             };
         }
@@ -2320,17 +2344,56 @@ class SoundManager {
         
         try {
             const musicTrack = localStorage.getItem('selectedMusicTrack');
-            if (musicTrack === 'lounge') {
+            console.log("Initializing music with track:", musicTrack);
+            
+            // If random is selected, pick a new random track each time
+            if (musicTrack === 'random') {
+                const availableTracks = ['default', 'lounge', 'dnb'];
+                const randomTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
+                console.log("Random music selection chose:", randomTrack);
+                
+                if (randomTrack === 'lounge') {
+                    const { loungeMusic } = await import('../audio/music/bgm2.js');
+                    window.loungeMusic = loungeMusic;  // Attach to window
+                    if (window.loungeMusic.enabled) {
+                        await window.loungeMusic.startLoop();
+                        console.log("Lounge music started from random selection");
+                    }
+                } else if (randomTrack === 'dnb') {
+                    const { dnbMusic } = await import('../audio/music/bgm3.js');
+                    window.dnbMusic = dnbMusic;  // Attach to window
+                    if (window.dnbMusic.enabled) {
+                        await window.dnbMusic.startLoop();
+                        console.log("Drum and bass music started from random selection");
+                    }
+                } else {
+                    const { musicLoops } = await import('../audio/music/bgm.js');
+                    window.musicLoops = musicLoops;  // Attach to window
+                    if (window.musicLoops.enabled) {
+                        await window.musicLoops.startLoop();
+                        console.log("Default music started from random selection");
+                    }
+                }
+            } else if (musicTrack === 'lounge') {
                 const { loungeMusic } = await import('../audio/music/bgm2.js');
                 window.loungeMusic = loungeMusic;  // Attach to window
                 if (window.loungeMusic.enabled) {
                     await window.loungeMusic.startLoop();
+                    console.log("Lounge music started");
+                }
+            } else if (musicTrack === 'dnb') {
+                const { dnbMusic } = await import('../audio/music/bgm3.js');
+                window.dnbMusic = dnbMusic;  // Attach to window
+                if (window.dnbMusic.enabled) {
+                    await window.dnbMusic.startLoop();
+                    console.log("Drum and bass music started");
                 }
             } else {
                 const { musicLoops } = await import('../audio/music/bgm.js');
                 window.musicLoops = musicLoops;  // Attach to window
                 if (window.musicLoops.enabled) {
                     await window.musicLoops.startLoop();
+                    console.log("Default music started");
                 }
             }
             

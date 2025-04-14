@@ -1,3 +1,112 @@
+import { musicLoops } from './audio/music/bgm.js';
+import { loungeMusic } from './audio/music/bgm2.js';
+import { dnbMusic } from './audio/music/bgm3.js';
+
+// Constants for music types
+export const MUSIC_TYPES = {
+    LOOPS: 'loops',
+    LOUNGE: 'lounge', 
+    DNB: 'dnb'
+};
+
+// Current active music type
+let currentMusicType = MUSIC_TYPES.LOOPS;
+
+// Function to initialize the audio
+export function initAudio() {
+    // Initialize all music systems
+    musicLoops.preload();
+    loungeMusic.preload();
+    dnbMusic.preload();
+
+    // Start with musicLoops as default
+    setMusicType(MUSIC_TYPES.LOOPS);
+}
+
+// Function to set music type
+export function setMusicType(type) {
+    // Stop all music first
+    musicLoops.stopLoop();
+    loungeMusic.stopLoop();
+    dnbMusic.stopLoop();
+    
+    // Set currentMusicType
+    currentMusicType = type;
+    
+    // Start the selected music type
+    switch(type) {
+        case MUSIC_TYPES.LOOPS:
+            musicLoops.startLoop();
+            break;
+        case MUSIC_TYPES.LOUNGE:
+            loungeMusic.startLoop();
+            break;
+        case MUSIC_TYPES.DNB:
+            dnbMusic.startLoop();
+            break;
+        default:
+            console.warn('Unknown music type:', type);
+    }
+}
+
+// Get current music object based on type
+export function getCurrentMusic() {
+    switch(currentMusicType) {
+        case MUSIC_TYPES.LOOPS:
+            return musicLoops;
+        case MUSIC_TYPES.LOUNGE:
+            return loungeMusic;
+        case MUSIC_TYPES.DNB:
+            return dnbMusic;
+        default:
+            return musicLoops; // Default
+    }
+}
+
+// Function to update chaos level across all music systems
+export function updateChaosLevel(level) {
+    musicLoops.updateChaosLevel(level);
+    loungeMusic.updateChaosLevel(level);
+    dnbMusic.updateChaosLevel(level);
+}
+
+// Function to enable/disable music
+export function setMusicEnabled(enabled) {
+    musicLoops.setEnabled(enabled);
+    loungeMusic.setEnabled(enabled);
+    dnbMusic.setEnabled(enabled);
+}
+
+// Function to set music volume
+export function setMusicVolume(volume) {
+    musicLoops.setVolume(volume);
+    loungeMusic.setVolume(volume);
+    dnbMusic.setVolume(volume);
+}
+
+/**
+ * Set the base volume level for all music tracks
+ * @param {Object} volumes - Object containing volume levels for each track type
+ * @param {number} volumes.loops - Base volume for the main music loops (default: 0.115)
+ * @param {number} volumes.lounge - Base volume for the lounge music (default: 0.15)
+ * @param {number} volumes.dnb - Base volume for the drum and bass music (default: 0.115)
+ */
+export function setMusicBaseVolumes(volumes = {}) {
+    const { loops, lounge, dnb } = volumes;
+    
+    if (loops !== undefined) {
+        musicLoops.setBaseVolume(loops);
+    }
+    
+    if (lounge !== undefined) {
+        loungeMusic.setBaseVolume(lounge);
+    }
+    
+    if (dnb !== undefined) {
+        dnbMusic.setBaseVolume(dnb);
+    }
+}
+
 export class GameSounds {
     constructor() {
         this.ctx = null;
