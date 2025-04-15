@@ -106,6 +106,10 @@ class Game {
         this.messageQueue = [];
         this.messageDisplayTime = 3000; // 3 seconds per message
         this.isDisplayingMessage = false;
+        
+        // Add message history storage
+        this.messageHistory = [];
+        this.maxMessageHistory = 50; // Store the 50 most recent messages
 
         this.state = {
             playerStats: {
@@ -209,6 +213,9 @@ class Game {
             messageBox.classList.remove('feedback');
             messageBox.classList.add('situation');
         }
+
+        // Setup message history handlers
+        this.setupMessageHistoryHandlers();
     }
 
     initializeLights() {
@@ -2021,6 +2028,9 @@ class Game {
             type: 'feedback'
         });
         
+        // Add message to history
+        this.addMessageToHistory(message, 'feedback');
+        
         // Set flag that we're displaying a message
         this.isDisplayingMessage = true;
         
@@ -2061,6 +2071,9 @@ class Game {
             type: 'situation'
         });
         
+        // Add message to history
+        this.addMessageToHistory(message, 'situation');
+        
         if (!this.isDisplayingMessage) {
             this.processMessageQueue();
         }
@@ -2077,6 +2090,9 @@ class Game {
             type: 'chaos-warning',
             priority: hasPendingActionMessages ? 'low' : 'normal'
         });
+        
+        // Add message to history
+        this.addMessageToHistory(message, 'chaos-warning');
         
         // Sort the queue to place low priority messages at the end
         this.messageQueue.sort((a, b) => {
@@ -2226,6 +2242,107 @@ class Game {
                     console.log('Sharing failed:', err);
                 }
             });
+        });
+    }
+
+    // Add a message to the history
+    addMessageToHistory(message, type) {
+        // Create a new history entry with timestamp
+        const historyEntry = {
+            message: message,
+            type: type,
+            timestamp: new Date().toLocaleTimeString()
+        };
+        
+        // Add to the beginning for newest-first order
+        this.messageHistory.unshift(historyEntry);
+        
+        // Trim history if it exceeds the maximum
+        if (this.messageHistory.length > this.maxMessageHistory) {
+            this.messageHistory.pop();
+        }
+    }
+
+    // Show the message history modal
+    showMessageHistory() {
+        const modal = document.querySelector('.message-history-modal');
+        const overlay = document.querySelector('.modal-overlay');
+        const content = document.querySelector('.message-history-content');
+        
+        if (!modal || !overlay || !content) {
+            console.error('Message history modal elements not found');
+            return;
+        }
+        
+        // Clear existing content
+        content.innerHTML = '';
+        
+        // If there are no messages, show a placeholder
+        if (this.messageHistory.length === 0) {
+            content.innerHTML = '<div class="message-history-empty">No messages yet.</div>';
+        } else {
+            // Add each message to the content
+            this.messageHistory.forEach(entry => {
+                const messageItem = document.createElement('div');
+                messageItem.className = `message-history-item ${entry.type}`;
+                
+                const timeElement = document.createElement('div');
+                timeElement.className = 'message-history-time';
+                timeElement.textContent = entry.timestamp;
+                
+                const textElement = document.createElement('div');
+                textElement.className = 'message-history-text';
+                textElement.innerHTML = entry.message;
+                
+                messageItem.appendChild(timeElement);
+                messageItem.appendChild(textElement);
+                content.appendChild(messageItem);
+            });
+        }
+        
+        // Show the modal and overlay
+        modal.classList.add('active');
+        overlay.classList.add('active');
+    }
+
+    // Hide the message history modal
+    hideMessageHistory() {
+        const modal = document.querySelector('.message-history-modal');
+        const overlay = document.querySelector('.modal-overlay');
+        
+        if (modal) modal.classList.remove('active');
+        if (overlay) overlay.classList.remove('active');
+    }
+
+    // Setup message history click handlers
+    setupMessageHistoryHandlers() {
+        // Add click handler to the messages box
+        const messagesBox = document.getElementById('game-messages');
+        if (messagesBox) {
+            messagesBox.addEventListener('click', () => this.showMessageHistory());
+        }
+        
+        // Add click handlers to close the modal
+        const closeButton = document.querySelector('.message-history-close');
+        const overlay = document.querySelector('.modal-overlay');
+        
+        if (closeButton) {
+            closeButton.addEventListener('click', () => this.hideMessageHistory());
+        }
+        
+        if (overlay) {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    this.hideMessageHistory();
+                }
+            });
+        }
+        
+        // Add escape key handler
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.hideMessageHistory();
+            }
         });
     }
 }

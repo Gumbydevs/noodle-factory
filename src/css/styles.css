@@ -1399,6 +1399,23 @@ h1 {
         0 0 calc(6px * var(--glow-intensity)) var(--message-glow-primary),
         0 0 calc(12px * var(--glow-intensity)) var(--message-glow-secondary),
         0 0 calc(18px * var(--glow-intensity)) var(--message-glow-outer);
+    cursor: pointer;
+    position: relative;
+}
+
+#game-messages::after {
+    content: "📜";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.9em;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+#game-messages:hover::after {
+    opacity: 1;
 }
 
 .chaos-level-1 .message-box {
@@ -1477,6 +1494,133 @@ h1 {
 
 .message-text.fading {
     opacity: 0;
+}
+
+/* Message history modal styles */
+.message-history-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(30, 30, 30, 0.95);
+    border: 2px solid #3498db;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 600px;
+    max-height: 80vh;
+    z-index: 2000;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 20px rgba(52, 152, 219, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.message-history-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.message-history-header {
+    background: #2c3e50;
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #3498db;
+}
+
+.message-history-title {
+    color: #3498db;
+    font-size: 1.2em;
+    margin: 0;
+    font-weight: bold;
+}
+
+.message-history-close {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    font-size: 1.5em;
+    cursor: pointer;
+    line-height: 0.8;
+    padding: 5px;
+}
+
+.message-history-content {
+    padding: 15px;
+    overflow-y: auto;
+    flex-grow: 1;
+    max-height: calc(80vh - 60px);
+}
+
+.message-history-item {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    animation: none !important;
+}
+
+.message-history-item:last-child {
+    margin-bottom: 0;
+}
+
+.message-history-item.feedback {
+    background: rgba(255, 215, 0, 0.1);
+    border-left: 3px solid #ffd700;
+}
+
+.message-history-item.situation {
+    background: rgba(52, 152, 219, 0.1);
+    border-left: 3px solid #3498db;
+}
+
+.message-history-item.chaos-warning {
+    background: rgba(231, 76, 60, 0.1);
+    border-left: 3px solid #e74c3c;
+}
+
+.message-history-time {
+    font-size: 0.8em;
+    color: #7f8c8d;
+    margin-bottom: 5px;
+}
+
+.message-history-text {
+    color: inherit;
+}
+
+.message-history-item.feedback .message-history-text {
+    color: #ffd700;
+}
+
+.message-history-item.situation .message-history-text {
+    color: #3498db;
+}
+
+.message-history-item.chaos-warning .message-history-text {
+    color: #e74c3c;
+}
+
+/* Overlay styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
 }
 
 .achievement-popups-container {
@@ -1581,6 +1725,20 @@ h1 {
 
     .achievement-popup .achievement-reward {
         font-size: 0.8em;
+    }
+
+    .message-history-modal {
+        width: 95%;
+        max-height: 90vh;
+    }
+    
+    .message-history-content {
+        max-height: calc(90vh - 60px);
+    }
+    
+    #game-messages::after {
+        font-size: 0.8em;
+        right: 5px;
     }
 }
 
