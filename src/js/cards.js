@@ -2271,6 +2271,25 @@ export const CARDS = {
             }
             return "Customers delight in finding fortune-cookie-style wisdom in their pasta!";
         }
+    },
+
+    "Fusilli Jerry": {
+        description: "A worker creates a pasta sculpture of you that generates unexpected consequences.",
+        requirements: { ingredients: 1 },
+        statModifiers: {
+            chaos: 8,
+            prestige: 9,
+            ingredients: -1,
+            workers: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Fusilli Jerry");
+            if (state.playerStats.chaosLevel > 50) {
+                state.playerStats.lostWorkers += 2;
+                return "A freak pasta accident sends two workers to the proctologist!";
+            }
+            return "The pasta art generates unexpected publicity - 'It's fusilli because you're silly!'";
+        }
     }
 }; // End of CARDS object
 
