@@ -1,5 +1,5 @@
 // Electron main process file
-const { app, BrowserWindow, Menu } = require('electron');
+const { app, BrowserWindow, Menu, globalShortcut } = require('electron');
 const path = require('path');
 
 // Keep a global reference of the window object to prevent garbage collection
@@ -9,8 +9,9 @@ function createWindow() {
   // Create the browser window
   mainWindow = new BrowserWindow({
     width: 1200,
-    height: 800,  
+    height: 1000,  
     minWidth: 900,
+    minHeight: 900,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -22,6 +23,13 @@ function createWindow() {
 
   // Remove the menu bar completely
   Menu.setApplicationMenu(null);
+
+  // Register the keyboard shortcut for DevTools
+  globalShortcut.register('CommandOrControl+Shift+I', () => {
+    if (mainWindow) {
+      mainWindow.webContents.toggleDevTools();
+    }
+  });
 
   // Set proper Content-Security-Policy for ES modules
   mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
@@ -59,4 +67,9 @@ app.on('activate', () => {
   if (mainWindow === null) {
     createWindow();
   }
+});
+
+// Clean up shortcuts when app is about to quit
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll();
 });
