@@ -1,4 +1,4 @@
-import { CARDS, getPlayedCards } from './cards.js';
+import { CARDS } from './cards.js';
 import { gameState } from './state.js';
 
 export const ACHIEVEMENTS = {
@@ -172,7 +172,7 @@ export const ACHIEVEMENTS = {
     },
     "Ravioli Revolution": {
         description: "Lose 15 workers in a single turn.",
-        check: (stats) => stats.lostWorkersInOneTurn >= 15,
+        check: (stats) => stats.lostWorkersInOneTurn >= 5,
         reward: "The workers have spoken!"
     },
     "Chaos Whisperer": {
@@ -422,17 +422,21 @@ export const checkAchievements = (stats, turn) => {
     return newAchievements;
 };
 
+//  where the storage key is defined
+export function getPlayedCards() {
+    const played = localStorage.getItem('noodleFactoryPlayedCards') || '{}';
+    return JSON.parse(played);
+}
+
 // checkCardAchievements to trigger achievement checks
 export function checkCardAchievements() {
     const played = getPlayedCards();
-    if (Object.keys(played).length === 0) return;
-    
     const totalCards = Object.keys(CARDS).length;
     const playedCount = Object.keys(played).length;
     const percentage = (playedCount / totalCards) * 100;
-    
-    console.log(`Cards played: ${playedCount}/${totalCards} (${percentage.toFixed(1)}%)`);
-    
-    // Trigger achievement checks for card collection milestones
+
+    console.log(`Cards played: ${playedCount}/${totalCards} (${percentage.toFixed(1)}%)`); // Debug log
+
+    // These will now trigger achievement checks through the normal achievement system
     checkAchievements(gameState.playerStats);
 }
