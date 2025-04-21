@@ -4,9 +4,10 @@ import { gameSounds } from '../audio.js';
 import { musicLoops } from '../audio/music/bgm.js';
 import { loungeMusic } from '../audio/music/bgm2.js';
 import { dnbMusic } from '../audio/music/bgm3.js';
+import { loungeMusic2 } from '../audio/music/bgm4.js';
 
 // Available music tracks for random selection
-const AVAILABLE_MUSIC_TRACKS = ['default', 'lounge', 'dnb'];
+const AVAILABLE_MUSIC_TRACKS = ['default', 'lounge', 'dnb', 'lounge2'];
 
 document.addEventListener('DOMContentLoaded', () => {
     const sfxToggle = document.getElementById('sfx-toggle');
@@ -49,7 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
         await Promise.all([
             musicLoops.preload(),
             loungeMusic.preload(),
-            dnbMusic.preload()
+            dnbMusic.preload(),
+            loungeMusic2.preload()
         ]);
         console.log("All music engines initialized");
     };
@@ -86,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         musicLoops.setEnabled(false);
         loungeMusic.setEnabled(false);
         dnbMusic.setEnabled(false);
+        loungeMusic2.setEnabled(false);
         
         // Enable only the selected track
         if (enabled) {
@@ -95,6 +98,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (effectiveTrack === 'dnb') {
                 console.log("Starting drum and bass music");
                 dnbMusic.setEnabled(true);
+            } else if (effectiveTrack === 'lounge2') {
+                console.log("Starting lounge music 2");
+                loungeMusic2.setEnabled(true);
             } else {
                 console.log("Starting default music");
                 musicLoops.setEnabled(true);
@@ -119,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
             musicLoops.setEnabled(false);
             loungeMusic.setEnabled(false);
             dnbMusic.setEnabled(false);
+            loungeMusic2.setEnabled(false);
             
             // Start new track if music is enabled
             if (musicToggle.checked) {
@@ -131,6 +138,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (effectiveTrack === 'dnb') {
                     console.log("Starting drum and bass music");
                     dnbMusic.setEnabled(true);
+                } else if (effectiveTrack === 'lounge2') {
+                    console.log("Starting lounge music 2");
+                    loungeMusic2.setEnabled(true);
                 } else {
                     console.log("Starting default music");
                     musicLoops.setEnabled(true);
@@ -153,6 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
         musicLoops.setVolume(value);
         loungeMusic.setVolume(value);
         dnbMusic.setVolume(value);
+        loungeMusic2.setVolume(value);
         localStorage.setItem('musicVolume', value);
     });
 

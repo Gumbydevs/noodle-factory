@@ -1403,19 +1403,13 @@ h1 {
     position: relative;
 }
 
+/* Remove the message icon from the game-messages element */
 #game-messages::after {
-    content: "📜";
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 0.9em;
-    opacity: 0.6;
-    transition: opacity 0.3s ease;
+    display: none;
 }
 
 #game-messages:hover::after {
-    opacity: 1;
+    display: none;
 }
 
 .chaos-level-1 .message-box {

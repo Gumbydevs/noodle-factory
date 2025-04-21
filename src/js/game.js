@@ -1355,6 +1355,9 @@ class Game {
                     message: `Sales: ${dailySales} noodles sold for $${income}!`,
                     type: 'feedback'
                 });
+                
+                // Add to message history
+                this.addMessageToHistory(`Sales: ${dailySales} noodles sold for $${income}!`, 'feedback');
             } else {
                 console.log("No noodles available to sell");
                 // Add a message even when no noodles are sold
@@ -1362,6 +1365,9 @@ class Game {
                     message: `Sales day: No noodles available to sell!`,
                     type: 'feedback'
                 });
+                
+                // Add to message history
+                this.addMessageToHistory(`Sales day: No noodles available to sell!`, 'feedback');
             }
         }
 
@@ -1373,6 +1379,9 @@ class Game {
                 message: `Weekly expenses: -$${expenses}`,
                 type: 'feedback'
             });
+            
+            // Add to message history
+            this.addMessageToHistory(`Weekly expenses: -$${expenses}`, 'feedback');
         }
         
         return messages;
@@ -2120,6 +2129,9 @@ class Game {
         
         const messageData = this.messageQueue.shift();
         
+        // Add message to history - THIS IS THE KEY FIX - store ALL messages in history
+        this.addMessageToHistory(messageData.message, messageData.type);
+        
         // Before displaying sales or production messages, ensure UI is updated
         if (messageData.type === 'feedback' && 
             (messageData.message.includes('Sales:') || 
@@ -2465,7 +2477,7 @@ class SoundManager {
             
             // If random is selected, pick a new random track each time
             if (musicTrack === 'random') {
-                const availableTracks = ['default', 'lounge', 'dnb'];
+                const availableTracks = ['default', 'lounge', 'dnb', 'lounge2'];
                 const randomTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
                 console.log("Random music selection chose:", randomTrack);
                 
@@ -2482,6 +2494,13 @@ class SoundManager {
                     if (window.dnbMusic.enabled) {
                         await window.dnbMusic.startLoop();
                         console.log("Drum and bass music started from random selection");
+                    }
+                } else if (randomTrack === 'lounge2') {
+                    const { loungeMusic2 } = await import('../audio/music/bgm4.js');
+                    window.loungeMusic2 = loungeMusic2;  // Attach to window
+                    if (window.loungeMusic2.enabled) {
+                        await window.loungeMusic2.startLoop();
+                        console.log("Lounge music 2 started from random selection");
                     }
                 } else {
                     const { musicLoops } = await import('../audio/music/bgm.js');
@@ -2504,6 +2523,13 @@ class SoundManager {
                 if (window.dnbMusic.enabled) {
                     await window.dnbMusic.startLoop();
                     console.log("Drum and bass music started");
+                }
+            } else if (musicTrack === 'lounge2') {
+                const { loungeMusic2 } = await import('../audio/music/bgm4.js');
+                window.loungeMusic2 = loungeMusic2;  // Attach to window
+                if (window.loungeMusic2.enabled) {
+                    await window.loungeMusic2.startLoop();
+                    console.log("Lounge music 2 started");
                 }
             } else {
                 const { musicLoops } = await import('../audio/music/bgm.js');
@@ -2569,9 +2595,6 @@ class SoundManager {
             osc1.frequency.value = note1;
             const gain1 = this.ctx.createGain();
             gain1.gain.setValueAtTime(0, this.ctx.currentTime);
-            gain1.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 0.05);
-            gain1.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.2);
-            osc1.connect(gain1);
             gain1.connect(mainGain);
             mainGain.connect(this.gainNode);
 

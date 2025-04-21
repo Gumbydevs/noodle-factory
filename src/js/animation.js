@@ -1,4 +1,218 @@
 let noodleRollEnabled = true;
+let echoesEnabled = true;
+
+// Echo system for consistent round visual elements with eyes and arms
+function createEcho(x, y, options = {}) {
+    if (!echoesEnabled) return null;
+    
+    // Default options with slight variations
+    const defaults = {
+        size: 30 + Math.random() * 20, // Base size 30-50px
+        color: `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`, // Random color
+        duration: 2 + Math.random() * 3, // 2-5 seconds duration
+        hasInnerCircle: Math.random() > 0.5, // 50% chance of inner circle
+        innerCircleSizeRatio: 0.6 + Math.random() * 0.2, // 60-80% of main circle
+        innerCircleOffset: {
+            x: -5 + Math.random() * 10,
+            y: -5 + Math.random() * 10
+        }
+    };
+    
+    // Merge provided options with defaults
+    const settings = {...defaults, ...options};
+    
+    // Create the echo element
+    const echo = document.createElement('div');
+    echo.className = 'game-echo';
+    echo.style.position = 'absolute';
+    echo.style.left = `${x}px`;
+    echo.style.top = `${y}px`;
+    echo.style.width = `${settings.size}px`;
+    echo.style.height = `${settings.size}px`;
+    echo.style.borderRadius = '50%';
+    echo.style.backgroundColor = settings.color;
+    echo.style.zIndex = '1000';
+    echo.style.transition = `transform ${settings.duration * 0.5}s ease-out, opacity ${settings.duration}s ease-out`;
+    echo.style.opacity = '0.9';
+    
+    // Create the inner structure
+    let innerHtml = '';
+    
+    // Add inner circle if needed (for variation)
+    if (settings.hasInnerCircle) {
+        const innerSize = settings.size * settings.innerCircleSizeRatio;
+        innerHtml += `
+            <div style="
+                position: absolute;
+                width: ${innerSize}px;
+                height: ${innerSize}px;
+                background-color: ${settings.color};
+                filter: brightness(1.2);
+                border-radius: 50%;
+                left: ${settings.innerCircleOffset.x}px;
+                top: ${settings.innerCircleOffset.y}px;
+                z-index: 2;
+            "></div>
+        `;
+    }
+    
+    // Add eyes (always present)
+    const eyeSize = settings.size * 0.15;
+    const eyeDistance = settings.size * 0.25;
+    innerHtml += `
+        <div class="echo-eyes" style="
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+        ">
+            <div class="echo-eye" style="
+                position: absolute;
+                width: ${eyeSize}px;
+                height: ${eyeSize}px;
+                background-color: white;
+                border-radius: 50%;
+                left: calc(50% - ${eyeDistance}px - ${eyeSize/2}px);
+                top: calc(40% - ${eyeSize/2}px);
+            ">
+                <div style="
+                    position: absolute;
+                    width: ${eyeSize * 0.6}px;
+                    height: ${eyeSize * 0.6}px;
+                    background-color: black;
+                    border-radius: 50%;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                "></div>
+            </div>
+            <div class="echo-eye" style="
+                position: absolute;
+                width: ${eyeSize}px;
+                height: ${eyeSize}px;
+                background-color: white;
+                border-radius: 50%;
+                left: calc(50% + ${eyeDistance}px - ${eyeSize/2}px);
+                top: calc(40% - ${eyeSize/2}px);
+            ">
+                <div style="
+                    position: absolute;
+                    width: ${eyeSize * 0.6}px;
+                    height: ${eyeSize * 0.6}px;
+                    background-color: black;
+                    border-radius: 50%;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                "></div>
+            </div>
+        </div>
+    `;
+    
+    // Add arms (always present)
+    const armLength = settings.size * 0.6;
+    const armWidth = settings.size * 0.1;
+    innerHtml += `
+        <div class="echo-arm left-arm" style="
+            position: absolute;
+            width: ${armWidth}px;
+            height: ${armLength}px;
+            background-color: ${settings.color};
+            filter: brightness(0.8);
+            left: 0;
+            top: 50%;
+            transform-origin: right center;
+            transform: translateY(-50%) translateX(-100%) rotate(20deg);
+            border-radius: ${armWidth/2}px;
+            z-index: 3;
+        "></div>
+        <div class="echo-arm right-arm" style="
+            position: absolute;
+            width: ${armWidth}px;
+            height: ${armLength}px;
+            background-color: ${settings.color};
+            filter: brightness(0.8);
+            right: 0;
+            top: 50%;
+            transform-origin: left center;
+            transform: translateY(-50%) translateX(100%) rotate(-20deg);
+            border-radius: ${armWidth/2}px;
+            z-index: 3;
+        "></div>
+    `;
+    
+    echo.innerHTML = innerHtml;
+    document.body.appendChild(echo);
+    
+    // Force reflow
+    void echo.offsetWidth;
+    
+    // Randomize initial arm positions
+    const leftArm = echo.querySelector('.left-arm');
+    const rightArm = echo.querySelector('.right-arm');
+    
+    if (leftArm && rightArm) {
+        leftArm.style.transform = `translateY(-50%) translateX(-100%) rotate(${-30 + Math.random() * 60}deg)`;
+        rightArm.style.transform = `translateY(-50%) translateX(100%) rotate(${-30 + Math.random() * 60}deg)`;
+    }
+    
+    // Animate arms periodically
+    const animateArms = () => {
+        if (!echo.isConnected) return; // Stop if echo was removed
+        
+        if (leftArm && rightArm) {
+            // Smooth transition for arm movement
+            leftArm.style.transition = `transform ${0.5 + Math.random() * 0.5}s ease-in-out`;
+            rightArm.style.transition = `transform ${0.5 + Math.random() * 0.5}s ease-in-out`;
+            
+            // Random arm positions
+            leftArm.style.transform = `translateY(-50%) translateX(-100%) rotate(${-45 + Math.random() * 90}deg)`;
+            rightArm.style.transform = `translateY(-50%) translateX(100%) rotate(${-45 + Math.random() * 90}deg)`;
+        }
+        
+        // Schedule next animation if still in document
+        if (echo.isConnected) {
+            setTimeout(animateArms, 1000 + Math.random() * 1500);
+        }
+    };
+    
+    // Start arm animation
+    setTimeout(animateArms, 500);
+    
+    // Start floating animation
+    requestAnimationFrame(() => {
+        echo.style.transform = `translate(${-50 + Math.random() * 100}px, ${-50 - Math.random() * 100}px) scale(0.9)`;
+        echo.style.opacity = '0';
+    });
+    
+    // Remove the echo after animation completes
+    setTimeout(() => {
+        echo.remove();
+    }, settings.duration * 1000);
+    
+    return echo;
+}
+
+// Create multiple echoes at once
+function createEchoGroup(x, y, count = 5) {
+    for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+            const offsetX = x + (-30 + Math.random() * 60);
+            const offsetY = y + (-30 + Math.random() * 60);
+            createEcho(offsetX, offsetY);
+        }, i * 150);
+    }
+}
+
+// Public function to trigger echoes from game events
+function triggerEchoEffect(x, y, options = {}) {
+    const count = options.count || Math.floor(3 + Math.random() * 5);
+    createEchoGroup(x, y, count);
+}
+
+function setEchoesEnabled(enabled) {
+    echoesEnabled = enabled;
+}
 
 function triggerNoodleRoll() {
     if (!noodleRollEnabled) return;
@@ -364,5 +578,10 @@ export {
     handleUnselectedCards,
     resetCardState,
     setNoodleRollEnabled,
-    setupGameTransitions
+    setupGameTransitions,
+    // Export the new echo functions
+    createEcho,
+    createEchoGroup,
+    triggerEchoEffect,
+    setEchoesEnabled
 };
