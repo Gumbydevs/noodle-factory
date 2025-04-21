@@ -1290,7 +1290,7 @@ export const CARDS = {
             return "Reality bends as ingredients multiply... concerning.";
         }
     },
-    "Efficient Production Line": {
+    "Production Efficiency": {
         description: "The noodles never stop. Not even to scream.",
         type: "upgrade",
         requirements: { prestige: 20 },

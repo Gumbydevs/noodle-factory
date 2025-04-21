@@ -1292,107 +1292,82 @@ class Game {
             this.state.playerStats.ingredients = Math.min(20, Math.floor(this.state.playerStats.ingredients + totalIngredientGain));
         }
 
-        // Store production messages to queue them after card action messages
-        let productionMessages = [];
+        // Process production
+        let productionMessage = this.processProduction();
 
-        // Continue with regular production if we have ingredients
-        if (this.state.playerStats.ingredients > 0) {
-            const workers = this.state.playerStats.workerCount;
-            // Make ingredients last longer by reducing consumption rate
-            const baseProduction = Math.min(
-                Math.floor(this.state.playerStats.ingredients * 0.5), // Round down ingredient usage
-                Math.ceil(workers / 0.5)  // Each 5 workers can process 1 ingredient
-            );
-
-            if (baseProduction > 0) {
-                const chaosLevel = this.state.playerStats.chaosLevel;
-                const chaosMultiplier = chaosLevel > 50 ? 
-                    1 - ((chaosLevel - 50) / 100) :
-                    1 + (chaosLevel / 100);
-                const noodlesPerIngredient = 15 + Math.floor(Math.random() * 16);
-                const production = Math.max(1, Math.floor(baseProduction * noodlesPerIngredient * chaosMultiplier * this.state.playerStats.noodleProductionRate));
-
-                if (production > 0) {
-                    this.state.playerStats.noodles += production;
-                    // Only consume whole number of ingredients
-                    this.state.playerStats.ingredients = Math.floor(Math.max(0, this.state.playerStats.ingredients - (baseProduction * 0.5)));
-                    
-                    // Store production message instead of showing it immediately
-                    productionMessages.push({
-                        message: `Daily production: Created ${production} noodles!`,
-                        type: 'feedback'
-                    });
-                }
-            }
+        // Process sales and expenses
+        let salesMessage = this.processSalesAndExpenses();
+        
+        // Display important messages directly instead of using queue
+        if (productionMessage) {
+            // Important: Add to history first before showing
+            this.addMessageToHistory(productionMessage, 'production');
+        }
+        if (salesMessage) {
+            // Important: Add to history first before showing
+            this.addMessageToHistory(salesMessage, 'sales');
         }
 
-        // Process sales and expenses but collect messages instead of showing them
-        const salesMessages = this.processSalesAndExpenses();
-        
-        // Now add all collected messages to the queue in correct order
-        // Add production messages
-        productionMessages.forEach(msg => {
-            this.messageQueue.push(msg);
-        });
-        
-        // Add sales messages
-        salesMessages.forEach(msg => {
-            this.messageQueue.push(msg);
-        });
+        // Update visuals
+        this.updateDisplay();
         
         // Finally add a situation message
         const situationMessage = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
         this.showSituationMessage(situationMessage);
+    }
+
+    processProduction() {
+        // Don't produce anything without ingredients
+        if (this.state.playerStats.ingredients <= 0) return null;
         
-        // Start processing message queue if not already doing so
-        if (!this.isDisplayingMessage) {
-            this.processMessageQueue();
+        const workers = this.state.playerStats.workerCount;
+        
+        // Make ingredients last longer by reducing consumption rate
+        const baseProduction = Math.min(
+            Math.floor(this.state.playerStats.ingredients * 0.5), // Round down ingredient usage
+            Math.ceil(workers / 0.5)  // Each 5 workers can process 1 ingredient
+        );
+
+        if (baseProduction <= 0) return null;
+        
+        const chaosLevel = this.state.playerStats.chaosLevel;
+        const chaosMultiplier = chaosLevel > 50 ? 
+            1 - ((chaosLevel - 50) / 100) :
+            1 + (chaosLevel / 100);
+        const noodlesPerIngredient = 15 + Math.floor(Math.random() * 16);
+        const production = Math.max(1, Math.floor(baseProduction * noodlesPerIngredient * chaosMultiplier * this.state.playerStats.noodleProductionRate));
+
+        if (production > 0) {
+            this.state.playerStats.noodles += production;
+            // Only consume whole number of ingredients
+            this.state.playerStats.ingredients = Math.floor(Math.max(0, this.state.playerStats.ingredients - (baseProduction * 0.5)));
+            
+            // Return the production message
+            return `Daily production: Created ${production} noodles!`;
         }
+        
+        return null;
     }
 
     processSalesAndExpenses() {
-        // Collect messages to return instead of showing immediately
-        const messages = [];
-        
-        console.log("processSalesAndExpenses called on turn:", this.turn);
+        let message = '';
         
         // For 5-day cycle, use (turn % 5 === 0) for turns 5, 10, 15, etc.
-        // If turn is not properly aligned, use modulus on 5-day intervals
         const shouldSellNoodles = (this.turn > 0 && this.turn % 5 === 0);
-        
-        console.log("Should sell noodles?", shouldSellNoodles, "Turn:", this.turn);
         
         // Process sales every 5 days (production cycle)
         if (shouldSellNoodles) {
-            console.log("Sales should happen now (turn % 5 === 0)");
             const maxSales = Math.floor(20 + (this.state.playerStats.pastaPrestige * 0.5));
             const availableNoodles = this.state.playerStats.noodles;
             const dailySales = Math.min(maxSales, availableNoodles);
-            
-            console.log("Available noodles:", availableNoodles, "Max sales:", maxSales, "Actual sales:", dailySales);
 
             if (dailySales > 0) {
                 const income = dailySales * this.state.playerStats.noodleSalePrice;
                 this.state.playerStats.noodles -= dailySales;
                 this.state.playerStats.money += income;
-                console.log("Sales completed:", dailySales, "noodles for $", income);
-                messages.push({
-                    message: `Sales: ${dailySales} noodles sold for $${income}!`,
-                    type: 'feedback'
-                });
-                
-                // Add to message history
-                this.addMessageToHistory(`Sales: ${dailySales} noodles sold for $${income}!`, 'feedback');
+                message = `Sales: ${dailySales} noodles sold for $${income}!`;
             } else {
-                console.log("No noodles available to sell");
-                // Add a message even when no noodles are sold
-                messages.push({
-                    message: `Sales day: No noodles available to sell!`,
-                    type: 'feedback'
-                });
-                
-                // Add to message history
-                this.addMessageToHistory(`Sales day: No noodles available to sell!`, 'feedback');
+                message = `Sales day: No noodles available to sell!`;
             }
         }
 
@@ -1400,16 +1375,15 @@ class Game {
         if (this.turn % 7 === 0) {
             const expenses = this.state.playerStats.weeklyExpenses;
             this.state.playerStats.money = Math.max(0, this.state.playerStats.money - expenses);
-            messages.push({
-                message: `Weekly expenses: -$${expenses}`,
-                type: 'feedback'
-            });
             
-            // Add to message history
-            this.addMessageToHistory(`Weekly expenses: -$${expenses}`, 'feedback');
+            if (message) {
+                message += ` Weekly expenses: -$${expenses}`;
+            } else {
+                message = `Weekly expenses: -$${expenses}`;
+            }
         }
         
-        return messages;
+        return message || null;
     }
 
     addUpgradeClickHandler(upgradeElement, card) {
@@ -2125,9 +2099,6 @@ class Game {
             gameSounds.createGrumbleSound(this.state.playerStats.chaosLevel / 50);
         }
 
-        // Add message to queue with lower priority if a card was just played
-        const wasProbablyCardAction = Date.now() - this.lastCardPlayTime < 1000;
-        
         this.showChaosMessage(message);
     }
 
@@ -2183,171 +2154,139 @@ class Game {
         }
     }
 
-    showEffectMessage(message) {
-        // When a card is clicked, we want to:
-        // 1. Stop any current message display
-        // 2. Show the action message immediately
-        // 3. Add it to the queue with proper timing
+    showMessage(message, type) {
+        if (!message) return; // Skip empty messages
         
-        if (this.isDisplayingMessage) {
-            // If we're already showing a message, clear its timeout
-            if (this._messageTimeout) {
-                clearTimeout(this._messageTimeout);
-                this._messageTimeout = null;
-            }
-        }
+        // Add message to history first
+        this.addMessageToHistory(message, type);
         
-        // Add action message to the front of the queue
-        this.messageQueue.unshift({
-            message: message,
-            type: 'feedback'
-        });
-        
-        // Add message to history
-        this.addMessageToHistory(message, 'feedback');
-        
-        // Set flag that we're displaying a message
-        this.isDisplayingMessage = true;
-        
-        // Show the message right away
+        // Get the message box element
         const messageBox = document.getElementById('game-messages');
-        if (messageBox) {
-            // Split the message into words and wrap each in a span
-            const words = message.split(' ');
-            const wrappedWords = words.map((word, index) => 
-                `<span style="--word-index: ${index}">${word}</span>`
-            ).join(' ');
+        if (!messageBox) return;
+        
+        // Clear existing content
+        messageBox.innerHTML = '';
+        
+        // Get the 3 most recent messages from history to display
+        const recentMessages = this.messageHistory.slice(0, 3);
+        
+        // Create container elements for each message
+        recentMessages.forEach((entry, index) => {
+            const messageContainer = document.createElement('div');
+            messageContainer.className = `message-container ${entry.type}`;
             
-            // Create text container
-            const textSpan = document.createElement('span');
-            textSpan.className = 'message-text';
-            textSpan.innerHTML = wrappedWords;
+            // Add visual separator between messages
+            if (index > 0) {
+                messageContainer.classList.add('previous-message');
+                
+                // Add small visual divider between messages
+                const divider = document.createElement('div');
+                divider.className = 'message-divider';
+                messageBox.appendChild(divider);
+            }
             
-            // Clear and update message box
-            messageBox.innerHTML = '';
-            messageBox.appendChild(textSpan);
-            messageBox.className = 'message-box feedback';
+            // Determine message type color and icon
+            let messageColor, messageIcon;
             
-            // Schedule the next message after the standard display time
-            this._messageTimeout = setTimeout(() => {
-                this.isDisplayingMessage = false;
-                // Remove this message from the queue since we've shown it
-                if (this.messageQueue.length > 0 && this.messageQueue[0].type === 'feedback') {
-                    this.messageQueue.shift();
+            if (entry.type === 'situation') {
+                messageColor = '#3498db'; // Blue for situations
+                messageIcon = '🏭';
+            } else if (entry.type === 'chaos-warning') {
+                messageColor = '#e74c3c'; // Red for chaos warnings
+                messageIcon = '⚠️';
+            } else if (entry.type === 'production') {
+                messageColor = '#f39c12'; // Orange for production
+                messageIcon = '🍜';
+            } else if (entry.type === 'sales') {
+                messageColor = '#2ecc71'; // Green for sales
+                messageIcon = '💰';
+            } else {
+                // Default feedback message style
+                messageColor = '#ffd700'; // Yellow for general feedback
+                messageIcon = '📝';
+                
+                // Special cases for feedback messages
+                if (entry.message.includes('expenses')) {
+                    messageColor = '#e67e22'; // Darker orange for expenses
+                    messageIcon = '💸';
+                } else if (entry.message.includes('generated a bonus') || entry.message.includes('bonus ingredient')) {
+                    messageColor = '#9b59b6'; // Purple for bonus messages
+                    messageIcon = '✨';
                 }
-                this.processMessageQueue();
-            }, this.messageDisplayTime);
-        }
-    }
-
-    showSituationMessage(message) {
-        this.messageQueue.push({
-            message: message,
-            type: 'situation'
-        });
-        
-        // Add message to history
-        this.addMessageToHistory(message, 'situation');
-        
-        if (!this.isDisplayingMessage) {
-            this.processMessageQueue();
-        }
-    }
-
-    showChaosMessage(message) {
-        // Only add chaos message if there are no card action messages already in the queue
-        // This ensures card messages always take priority
-        const hasPendingActionMessages = this.messageQueue.some(msg => msg.type === 'feedback');
-        
-        // Add chaos message to queue with lower priority
-        this.messageQueue.push({
-            message: message,
-            type: 'chaos-warning',
-            priority: hasPendingActionMessages ? 'low' : 'normal'
-        });
-        
-        // Add message to history
-        this.addMessageToHistory(message, 'chaos-warning');
-        
-        // Sort the queue to place low priority messages at the end
-        this.messageQueue.sort((a, b) => {
-            // If a has low priority and b doesn't, place a after b
-            if (a.priority === 'low' && b.priority !== 'low') return 1;
-            // If b has low priority and a doesn't, place a before b
-            if (b.priority === 'low' && a.priority !== 'low') return -1;
-            // Otherwise keep their relative order
-            return 0;
-        });
-        
-        // Start processing the queue if not already doing so
-        if (!this.isDisplayingMessage) {
-            this.processMessageQueue();
-        }
-    }
-
-    processMessageQueue() {
-        // If no messages or already displaying, exit
-        if (this.messageQueue.length === 0 || this.isDisplayingMessage) {
-            return;
-        }
-        
-        this.isDisplayingMessage = true;
-        
-        const messageData = this.messageQueue.shift();
-        
-        // Add message to history - THIS IS THE KEY FIX - store ALL messages in history
-        this.addMessageToHistory(messageData.message, messageData.type);
-        
-        // Before displaying sales or production messages, ensure UI is updated
-        if (messageData.type === 'feedback' && 
-            (messageData.message.includes('Sales:') || 
-             messageData.message.includes('production:') ||
-             messageData.message.includes('expenses:'))) {
-            // Update display to ensure values are current before showing the message
-            this.updateDisplay();
-        }
-        
-        // Determine message type color
-        let messageColor = '#ffd700'; // Default yellow for feedback messages
-        if (messageData.type === 'situation') {
-            messageColor = '#3498db'; // Blue for situation messages
-        } else if (messageData.type === 'chaos-warning') {
-            messageColor = '#e74c3c'; // Red for chaos warnings
-        } else if (messageData.type === 'feedback') {
-            // Special case handling for different feedback message types
-            if (messageData.message.includes('Sales:')) {
-                messageColor = '#2ecc71'; // Green for sales messages
-            } else if (messageData.message.includes('production:')) {
-                messageColor = '#f39c12'; // Orange for production messages
-            } else if (messageData.message.includes('expenses:')) {
-                messageColor = '#e67e22'; // Darker orange for expenses messages
-            } else if (messageData.message.includes('generated a bonus') || 
-                      messageData.message.includes('bonus ingredient')) {
-                messageColor = '#9b59b6'; // Purple for bonus messages
             }
-        }
-        
-        const messageBox = document.getElementById('game-messages');
-        if (messageBox) {
-            const words = messageData.message.split(' ');
-            const wrappedWords = words.map((word, index) => 
-                `<span style="--word-index: ${index}; color: ${messageColor};">${word}</span>`
-            ).join(' ');
             
+            // Create icon element if we have one
+            if (messageIcon) {
+                const iconSpan = document.createElement('span');
+                iconSpan.className = 'message-icon';
+                iconSpan.textContent = messageIcon;
+                messageContainer.appendChild(iconSpan);
+            }
+            
+            // Create text container with appropriate color
             const textSpan = document.createElement('span');
             textSpan.className = 'message-text';
-            textSpan.innerHTML = wrappedWords;
-
-            messageBox.innerHTML = '';
-            messageBox.appendChild(textSpan);
-
-            messageBox.className = `message-box ${messageData.type}`;
+            textSpan.innerHTML = entry.message;
+            textSpan.style.color = messageColor;
             
-            // Store the timeout so it can be cleared if needed
-            this._messageTimeout = setTimeout(() => {
-                this.isDisplayingMessage = false;
-                this.processMessageQueue();
-            }, this.messageDisplayTime);
+            messageContainer.appendChild(textSpan);
+            
+            // Do NOT add turn/day number to the main message box
+            // Only keep it for the history popup
+            
+            messageBox.appendChild(messageContainer);
+        });
+        
+        // Add global class for message box type - use most recent message type
+        if (recentMessages.length > 0) {
+            messageBox.className = `message-box ${recentMessages[0].type}`;
+        }
+    }
+
+    showEffectMessage(message) {
+        if (!message) return;
+        this.showMessage(message, 'feedback');
+    }
+    
+    showSituationMessage(message) {
+        if (!message) return;
+        this.showMessage(message, 'situation');
+    }
+    
+    showChaosMessage(message) {
+        if (!message) return;
+        this.showMessage(message, 'chaos-warning');
+    }
+    
+    showProductionMessage(message) {
+        if (!message) return;
+        this.showMessage(message, 'production');
+    }
+    
+    showSalesMessage(message) {
+        if (!message) return;
+        this.showMessage(message, 'sales');
+    }
+    
+    // This is now a no-op since we handle messages directly
+    processMessageQueue() {}
+
+    // Add a message to the history
+    addMessageToHistory(message, type) {
+        // Create a new history entry with timestamp and turn number
+        const historyEntry = {
+            message: message,
+            type: type,
+            timestamp: new Date().toLocaleTimeString(),
+            turn: this.turn // Add the current turn number
+        };
+        
+        // Add to the beginning for newest-first order
+        this.messageHistory.unshift(historyEntry);
+        
+        // Trim history if it exceeds the maximum
+        if (this.messageHistory.length > this.maxMessageHistory) {
+            this.messageHistory.pop();
         }
     }
 
@@ -2423,24 +2362,6 @@ class Game {
         });
     }
 
-    // Add a message to the history
-    addMessageToHistory(message, type) {
-        // Create a new history entry with timestamp
-        const historyEntry = {
-            message: message,
-            type: type,
-            timestamp: new Date().toLocaleTimeString()
-        };
-        
-        // Add to the beginning for newest-first order
-        this.messageHistory.unshift(historyEntry);
-        
-        // Trim history if it exceeds the maximum
-        if (this.messageHistory.length > this.maxMessageHistory) {
-            this.messageHistory.pop();
-        }
-    }
-
     // Show the message history modal
     showMessageHistory() {
         const modal = document.querySelector('.message-history-modal');
@@ -2472,8 +2393,13 @@ class Game {
                 textElement.className = 'message-history-text';
                 textElement.innerHTML = entry.message;
                 
+                const turnElement = document.createElement('div');
+                turnElement.className = 'message-history-turn';
+                turnElement.textContent = `Day ${entry.turn}`;
+                
                 messageItem.appendChild(timeElement);
                 messageItem.appendChild(textElement);
+                messageItem.appendChild(turnElement);
                 content.appendChild(messageItem);
             });
         }
