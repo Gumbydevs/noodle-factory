@@ -833,6 +833,12 @@ class Game {
                     `<div class="upgrade-label">Prestigious Upgrade</div>
                     <h3>${leftCard}</h3>
                     <div class="card-description">${CARDS[leftCard].description}</div>
+                    ${CARDS[leftCard].cost ? 
+                        `<div class="cost-display ${this.state.playerStats.money < CARDS[leftCard].cost ? 'cannot-afford' : ''}">
+                            <span class="cost-icon">$</span>
+                            <span>${CARDS[leftCard].cost}</span>
+                         </div>` : ''
+                    }
                     ${CARDS[leftCard].permanentStats || CARDS[leftCard].priceBonus ? 
                         `<div class="card-effects permanent-effects">
                             <div class="effects-label">Passive Effects:</div>
@@ -858,6 +864,12 @@ class Game {
                     `<div class="upgrade-label">Prestigious Upgrade</div>
                     <h3>${rightCard}</h3>
                     <div class="card-description">${CARDS[rightCard].description}</div>
+                    ${CARDS[rightCard].cost ? 
+                        `<div class="cost-display ${this.state.playerStats.money < CARDS[rightCard].cost ? 'cannot-afford' : ''}">
+                            <span class="cost-icon">$</span>
+                            <span>${CARDS[rightCard].cost}</span>
+                         </div>` : ''
+                    }
                     ${CARDS[rightCard].permanentStats || CARDS[rightCard].priceBonus ? 
                         `<div class="card-effects permanent-effects">
                             <div class="effects-label">Passive Effects:</div>
@@ -1536,7 +1548,13 @@ class Game {
         `;
         
         document.body.appendChild(upgradeElement);
-
+        
+        // Apply cost to player's money
+        if (card.cost) {
+            this.state.playerStats.money -= card.cost;
+            this.updateDisplay();
+        }
+        
         // Force a reflow
         void upgradeElement.offsetHeight;
         
