@@ -3313,6 +3313,454 @@ export const CARDS = {
             savePlayedCard("Pasta Prophecy Expansion");
             return "The expanded prophecy inspires a global pasta movement!";
         }
+    },
+
+    "Farfalle Festival": {
+        description: "Celebrate the versatility of bow-tie pasta with a factory-wide event.",
+        requirements: null,
+        statModifiers: {
+            prestige: 10,
+            chaos: 5,
+            workers: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Farfalle Festival");
+            return "The festival attracts pasta enthusiasts and boosts morale!";
+        }
+    },
+
+    "Pasta Poetry Contest": {
+        description: "Workers compete to write the best pasta-themed poetry.",
+        requirements: null,
+        statModifiers: {
+            prestige: 6,
+            chaos: -4,
+            workers: 2
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Poetry Contest");
+            return "The winning poem becomes a viral sensation, boosting your reputation!";
+        }
+    },
+
+    "Ravioli Research Lab": {
+        description: "Open a lab dedicated to innovating new ravioli fillings.",
+        requirements: { ingredients: 2 },
+        statModifiers: {
+            prestige: 12,
+            chaos: 6,
+            ingredients: -2
+        },
+        effect: (state) => {
+            savePlayedCard("Ravioli Research Lab");
+            return "The lab produces groundbreaking ravioli recipes that attract food critics!";
+        }
+    },
+
+    "Spaghetti Sculpture Contest": {
+        description: "Host a competition to create sculptures using spaghetti.",
+        requirements: null,
+        statModifiers: {
+            prestige: 8,
+            chaos: 4,
+            workers: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Spaghetti Sculpture Contest");
+            return "The sculptures draw crowds and media attention to your factory!";
+        }
+    },
+
+    "Pasta Time Warp": {
+        description: "A mysterious event causes time to flow differently in the factory.",
+        requirements: null,
+        statModifiers: {
+            chaos: 12,
+            prestige: 10,
+            workers: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Time Warp");
+            return "Time anomalies create chaos, but also inspire innovative pasta designs!";
+        }
+    },
+
+    "Noodle Olympics": {
+        description: "Organize a series of pasta-themed athletic events.",
+        requirements: null,
+        statModifiers: {
+            prestige: 15,
+            chaos: 8,
+            workers: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Noodle Olympics");
+            return "The events boost morale and attract international attention!";
+        }
+    },
+
+    "Pasta Art Museum": {
+        description: "Convert part of the factory into a museum showcasing pasta art.",
+        requirements: { prestige: 20 },
+        statModifiers: {
+            prestige: 18,
+            chaos: -5,
+            workers: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Art Museum");
+            return "The museum becomes a cultural landmark, boosting your reputation!";
+        }
+    },
+
+    "Linguine Lightning": {
+        description: "A freak lightning storm electrifies the factory's linguine supply.",
+        requirements: null,
+        statModifiers: {
+            chaos: 14,
+            prestige: 10,
+            workers: -2
+        },
+        effect: (state) => {
+            savePlayedCard("Linguine Lightning");
+            return "The electrified linguine becomes a viral sensation, boosting sales!";
+        }
+    },
+
+    "Pasta Parade Float": {
+        description: "Design a giant pasta-themed float for the city parade.",
+        requirements: { ingredients: 1 },
+        statModifiers: {
+            prestige: 12,
+            chaos: 6,
+            ingredients: -1
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Parade Float");
+            return "The float wins first prize, attracting new customers to your factory!";
+        }
+    },
+
+    "Macaroni Maze": {
+        description: "Build a maze out of macaroni boxes to entertain visitors.",
+        requirements: null,
+        statModifiers: {
+            prestige: 10,
+            chaos: 5,
+            workers: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Macaroni Maze");
+            return "The maze becomes a popular attraction, boosting your factory's reputation!";
+        }
+    },
+
+    "Pasta Propaganda Machine": {
+        description: "Install a machine that broadcasts pasta-themed advertisements.",
+        requirements: { prestige: 15 },
+        statModifiers: {
+            prestige: 20,
+            chaos: 8,
+            workers: 2
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Propaganda Machine");
+            return "The advertisements attract a wave of new customers!";
+        }
+    },
+
+    "Noodle Nostalgia Night": {
+        description: "Host a nostalgic event featuring classic pasta dishes.",
+        requirements: null,
+        statModifiers: {
+            prestige: 12,
+            chaos: -6,
+            workers: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Noodle Nostalgia Night");
+            return "The event rekindles fond memories and boosts your factory's reputation!";
+        }
+    },
+
+    "Pasta Puzzle Championship": {
+        description: "Organize a competition to solve pasta-themed puzzles.",
+        requirements: null,
+        statModifiers: {
+            prestige: 8,
+            chaos: -4,
+            workers: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Puzzle Championship");
+            return "The championship attracts puzzle enthusiasts and boosts morale!";
+        }
+    },
+
+    "Spaghetti Supercomputer": {
+        description: "Build a supercomputer powered by spaghetti logic.",
+        requirements: { ingredients: 2 },
+        statModifiers: {
+            prestige: 15,
+            chaos: 10,
+            ingredients: -2
+        },
+        effect: (state) => {
+            savePlayedCard("Spaghetti Supercomputer");
+            return "The supercomputer solves complex problems and attracts media attention!";
+        }
+    },
+
+    "Ravioli Rescue Mission": {
+        description: "Save a shipment of ravioli from a sinking delivery truck.",
+        requirements: null,
+        statModifiers: {
+            chaos: 8,
+            prestige: 10,
+            workers: 2
+        },
+        effect: (state) => {
+            savePlayedCard("Ravioli Rescue Mission");
+            return "The heroic rescue becomes a viral story, boosting your reputation!";
+        }
+    },
+
+    "Pasta Planet Discovery": {
+        description: "Astronomers discover a planet made entirely of pasta.",
+        requirements: null,
+        statModifiers: {
+            prestige: 20,
+            chaos: 10,
+            workers: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Planet Discovery");
+            return "The discovery sparks global interest in your factory!";
+        }
+    },
+
+    "Noodle Nebula Telescope": {
+        description: "Build a telescope to study the noodle-shaped nebula.",
+        requirements: { ingredients: 3 },
+        statModifiers: {
+            prestige: 18,
+            chaos: 8,
+            ingredients: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Noodle Nebula Telescope");
+            return "The telescope attracts scientists and boosts your factory's reputation!";
+        }
+    },
+
+    "Pasta Preservation Vault": {
+        description: "Create a vault to preserve rare pasta shapes for future generations.",
+        requirements: { prestige: 25 },
+        statModifiers: {
+            prestige: 20,
+            chaos: -8,
+            workers: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Preservation Vault");
+            return "The vault becomes a symbol of your factory's commitment to pasta culture!";
+        }
+    },
+
+    "Spaghetti Space Program": {
+        description: "Launch a rocket powered by spaghetti fuel.",
+        requirements: { ingredients: 5 },
+        statModifiers: {
+            prestige: 25,
+            chaos: 15,
+            ingredients: -5
+        },
+        effect: (state) => {
+            savePlayedCard("Spaghetti Space Program");
+            return "The rocket's success puts your factory on the global stage!";
+        }
+    },
+
+    "Ravioli Renaissance Fair": {
+        description: "Host a medieval-themed fair celebrating ravioli.",
+        requirements: null,
+        statModifiers: {
+            prestige: 15,
+            chaos: 8,
+            workers: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Ravioli Renaissance Fair");
+            return "The fair attracts crowds and boosts your factory's reputation!";
+        }
+    },
+
+    "Pasta AI Singularity": {
+        description: "The factory's AI achieves singularity and starts creating pasta art.",
+        requirements: null,
+        statModifiers: {
+            chaos: 18,
+            prestige: 15,
+            workers: -4
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta AI Singularity");
+            return "The AI's pasta art becomes a global sensation, boosting your reputation!";
+        }
+    },
+
+    "Noodle Nostradamus Prophecy": {
+        description: "A prophecy predicts your factory's rise to global dominance.",
+        requirements: null,
+        statModifiers: {
+            chaos: 12,
+            prestige: 20,
+            workers: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Noodle Nostradamus Prophecy");
+            return "The prophecy inspires awe and attracts new customers!";
+        }
+    },
+
+    "Pasta Pilgrimage Expansion": {
+        description: "Expand the pilgrimage to include new pasta landmarks.",
+        requirements: { prestige: 40 },
+        statModifiers: {
+            prestige: 20,
+            chaos: -8,
+            workers: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Pilgrimage Expansion");
+            return "The expanded pilgrimage attracts visitors from around the world!";
+        }
+    },
+
+    "Cosmic Pasta Alignment": {
+        description: "The planets align, forming a pasta-shaped constellation.",
+        requirements: null,
+        statModifiers: {
+            prestige: 20,
+            chaos: 10,
+            workers: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Cosmic Pasta Alignment");
+            return "The cosmic event attracts tourists and boosts your reputation!";
+        }
+    },
+
+    "Infinite Spaghetti Loop": {
+        description: "A glitch in the production line creates an infinite loop of spaghetti.",
+        requirements: null,
+        statModifiers: {
+            chaos: 15,
+            prestige: 10,
+            workers: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Infinite Spaghetti Loop");
+            return "The infinite loop becomes a tourist attraction, boosting your prestige!";
+        }
+    },
+
+    "Pasta Utopia": {
+        description: "Transform your factory into a worker-friendly pasta utopia.",
+        requirements: { prestige: 50 },
+        statModifiers: {
+            workers: 10,
+            prestige: 25,
+            chaos: -15
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Utopia");
+            return "The factory becomes a model of pasta perfection and worker happiness!";
+        }
+    },
+
+    "Pasta Preservation Initiative": {
+        description: "Launch an initiative to preserve pasta culture worldwide.",
+        requirements: { prestige: 35 },
+        statModifiers: {
+            prestige: 15,
+            chaos: -8,
+            workers: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Preservation Initiative");
+            return "The initiative ensures pasta's legacy for future generations!";
+        }
+    },
+
+    "Spaghetti Supernova": {
+        description: "A cosmic event creates a glowing spaghetti nebula.",
+        requirements: null,
+        statModifiers: {
+            prestige: 15,
+            chaos: 8,
+            workers: 2
+        },
+        effect: (state) => {
+            savePlayedCard("Spaghetti Supernova");
+            return "The glowing nebula attracts tourists and boosts your reputation!";
+        }
+    },
+
+    "Pasta Planet Discovery": {
+        description: "Astronomers discover a planet made entirely of pasta.",
+        requirements: null,
+        statModifiers: {
+            prestige: 20,
+            chaos: 10,
+            workers: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Planet Discovery");
+            return "The discovery sparks global interest in your factory!";
+        }
+    },
+
+    "Ravioli Rescue Mission": {
+        description: "Save a shipment of ravioli from a sinking delivery truck.",
+        requirements: null,
+        statModifiers: {
+            chaos: 8,
+            prestige: 10,
+            workers: 2
+        },
+        effect: (state) => {
+            savePlayedCard("Ravioli Rescue Mission");
+            return "The heroic rescue becomes a viral story, boosting your reputation!";
+        }
+    },
+
+    "Pasta AI Singularity": {
+        description: "The factory's AI achieves singularity and starts creating pasta art.",
+        requirements: null,
+        statModifiers: {
+            chaos: 18,
+            prestige: 15,
+            workers: -4
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta AI Singularity");
+            return "The AI's pasta art becomes a global sensation, boosting your reputation!";
+        }
+    },
+
+    "Noodle Nostradamus Prophecy": {
+        description: "A prophecy predicts your factory's rise to global dominance.",
+        requirements: null,
+        statModifiers: {
+            chaos: 12,
+            prestige: 20,
+            workers: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Noodle Nostradamus Prophecy");
+            return "The prophecy inspires awe and attracts new customers!";
+        }
     }
 }; // End of CARDS object
 
