@@ -36,9 +36,6 @@ function createWindow() {
   // Load the index.html file
   mainWindow.loadFile('src/index.html');
 
-  // Open DevTools in development mode
-  mainWindow.webContents.openDevTools();
-
   // Emitted when the window is closed
   mainWindow.on('closed', () => {
     // Dereference the window object
