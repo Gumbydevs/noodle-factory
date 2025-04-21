@@ -1457,11 +1457,13 @@ class Game {
                 .sell-confirm.compact-confirm {
                     position: absolute;
                     width: 140px;
+                    height: auto;
+                    max-height: 120px;
                     font-size: 12px;
                     background: rgba(20, 20, 20, 0.95);
                     border: 1px solid #444;
                     border-radius: 4px;
-                    padding: 8px;
+                    padding: 6px 8px;
                     z-index: 1000;
                     top: 50%;
                     left: 50%;
@@ -1471,7 +1473,7 @@ class Game {
                 
                 .sell-header {
                     font-weight: bold;
-                    margin-bottom: 6px;
+                    margin-bottom: 4px;
                     font-size: 13px;
                     text-align: center;
                 }
@@ -1479,33 +1481,35 @@ class Game {
                 .sell-benefits {
                     display: flex;
                     flex-direction: column;
-                    gap: 4px;
-                    margin-bottom: 8px;
+                    gap: 3px;
+                    margin-bottom: 6px;
                 }
                 
                 .sell-benefit {
                     display: flex;
                     align-items: center;
                     gap: 5px;
+                    line-height: 1.2;
                 }
                 
                 .benefit-icon {
-                    font-size: 12px;
+                    font-size: 11px;
                     width: 12px;
                 }
                 
                 .sell-buttons {
                     display: flex;
                     justify-content: space-between;
+                    margin-top: 2px;
                 }
                 
                 .sell-yes, .sell-no {
-                    padding: 3px 8px;
+                    padding: 2px 8px;
                     border-radius: 3px;
                     border: 1px solid #444;
                     background: #333;
                     cursor: pointer;
-                    font-size: 12px;
+                    font-size: 11px;
                     transition: all 0.2s;
                 }
                 
