@@ -1121,7 +1121,7 @@ export const CARDS = {
         }
     },
     "Golden Pasta Extruder": {
-        description: "Install a premium pasta-making machine that's high maintenance.",
+        description: "A premium machine that's high maintenance.",
         type: "upgrade",
         cost: 1500,
         requirements: { prestige: 30 },

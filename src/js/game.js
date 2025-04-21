@@ -915,7 +915,7 @@ class Game {
     checkCardPlayable(card, isClick = false) {  // Add isClick parameter
         if (!card) return true;
         
-        // For upgrades, check prestige requirement and slot availability
+        // For upgrades, check prestige requirement, slot availability, and money
         if (card.type === "upgrade") {
             // First check prestige requirement
             if (card.requirements?.prestige && 
@@ -924,6 +924,16 @@ class Game {
                 if (isClick) {
                     gameSounds.playUpgradeBlockedSound();
                     this.showEffectMessage(`<span style="color: #ff6347;">Not enough prestige! Requires ${card.requirements.prestige} prestige.</span>`);
+                }
+                return false;
+            }
+            
+            // Check if player has enough money to purchase the upgrade
+            if (card.cost && this.state.playerStats.money < card.cost) {
+                // Only show message and play sound if actually clicked
+                if (isClick) {
+                    gameSounds.playUpgradeBlockedSound();
+                    this.showEffectMessage(`<span style="color: #ff6347;">Not enough money! Costs $${card.cost} but you only have $${Math.floor(this.state.playerStats.money)}.</span>`);
                 }
                 return false;
             }
