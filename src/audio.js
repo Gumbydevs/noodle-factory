@@ -1,12 +1,14 @@
 import { musicLoops } from './audio/music/bgm.js';
 import { loungeMusic } from './audio/music/bgm2.js';
 import { dnbMusic } from './audio/music/bgm3.js';
+import { loungeMusic2 } from './audio/music/bgm4.js';
 
 // Constants for music types
 export const MUSIC_TYPES = {
     LOOPS: 'loops',
     LOUNGE: 'lounge', 
-    DNB: 'dnb'
+    DNB: 'dnb',
+    LOUNGE2: 'lounge2'
 };
 
 // Current active music type
@@ -18,6 +20,7 @@ export function initAudio() {
     musicLoops.preload();
     loungeMusic.preload();
     dnbMusic.preload();
+    loungeMusic2.preload();
 
     // Start with musicLoops as default
     setMusicType(MUSIC_TYPES.LOOPS);
@@ -29,6 +32,7 @@ export function setMusicType(type) {
     musicLoops.stopLoop();
     loungeMusic.stopLoop();
     dnbMusic.stopLoop();
+    loungeMusic2.stopLoop();
     
     // Set currentMusicType
     currentMusicType = type;
@@ -44,6 +48,9 @@ export function setMusicType(type) {
         case MUSIC_TYPES.DNB:
             dnbMusic.startLoop();
             break;
+        case MUSIC_TYPES.LOUNGE2:
+            loungeMusic2.startLoop();
+            break;
         default:
             console.warn('Unknown music type:', type);
     }
@@ -58,6 +65,8 @@ export function getCurrentMusic() {
             return loungeMusic;
         case MUSIC_TYPES.DNB:
             return dnbMusic;
+        case MUSIC_TYPES.LOUNGE2:
+            return loungeMusic2;
         default:
             return musicLoops; // Default
     }
@@ -68,6 +77,7 @@ export function updateChaosLevel(level) {
     musicLoops.updateChaosLevel(level);
     loungeMusic.updateChaosLevel(level);
     dnbMusic.updateChaosLevel(level);
+    loungeMusic2.updateChaosLevel(level);
 }
 
 // Function to enable/disable music
@@ -75,6 +85,7 @@ export function setMusicEnabled(enabled) {
     musicLoops.setEnabled(enabled);
     loungeMusic.setEnabled(enabled);
     dnbMusic.setEnabled(enabled);
+    loungeMusic2.setEnabled(enabled);
 }
 
 // Function to set music volume
@@ -82,6 +93,7 @@ export function setMusicVolume(volume) {
     musicLoops.setVolume(volume);
     loungeMusic.setVolume(volume);
     dnbMusic.setVolume(volume);
+    loungeMusic2.setVolume(volume);
 }
 
 /**
@@ -90,9 +102,10 @@ export function setMusicVolume(volume) {
  * @param {number} volumes.loops - Base volume for the main music loops (default: 0.115)
  * @param {number} volumes.lounge - Base volume for the lounge music (default: 0.15)
  * @param {number} volumes.dnb - Base volume for the drum and bass music (default: 0.115)
+ * @param {number} volumes.lounge2 - Base volume for the second lounge music (default: 0.25)
  */
 export function setMusicBaseVolumes(volumes = {}) {
-    const { loops, lounge, dnb } = volumes;
+    const { loops, lounge, dnb, lounge2 } = volumes;
     
     if (loops !== undefined) {
         musicLoops.setBaseVolume(loops);
@@ -104,6 +117,10 @@ export function setMusicBaseVolumes(volumes = {}) {
     
     if (dnb !== undefined) {
         dnbMusic.setBaseVolume(dnb);
+    }
+    
+    if (lounge2 !== undefined) {
+        loungeMusic2.setBaseVolume(lounge2);
     }
 }
 

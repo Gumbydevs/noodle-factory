@@ -246,9 +246,9 @@ export class LoungeMusic2 {
 
                 // Initialize the hip-hop gain node
                 this.hipHopGain = this.audioContext.createGain();
-                // Set hip-hop gain to maximum level immediately 
-                this.hipHopGain.gain.value = 50.0; // EXTREMELY loud
-                // Connect hip-hop directly to output for maximum impact
+                // Set hip-hop gain to a much lower level
+                this.hipHopGain.gain.value = 0.15; // Reduced from 0.7 to 0.15
+                // Connect hip-hop directly to output for impact
                 this.hipHopGain.connect(this.audioContext.destination);
                 
                 console.log("🔊 Hip-hop gain initialized at:", this.hipHopGain.gain.value);
@@ -309,10 +309,10 @@ export class LoungeMusic2 {
 
             // Create dedicated hip-hop gain node that bypasses other processing
             this.hipHopGain = this.audioContext.createGain();
-            // IMPORTANT: Initialize hip-hop gain at EXTREME value when enabled
-            this.hipHopGain.gain.value = this.enabled ? 50.0 : 0; // 50x normal volume!
+            // IMPORTANT: Initialize hip-hop gain at reasonable level when enabled
+            this.hipHopGain.gain.value = this.enabled ? 0.15 : 0; // Reduced from 0.7 to 0.15
             
-            // Connect hip-hop directly to output with NO processing for maximum impact
+            // Connect hip-hop directly to output with NO processing for impact
             this.hipHopGain.connect(this.audioContext.destination);
             
             console.log("🔊 Hip-hop gain node initialized at:", this.hipHopGain.gain.value);
@@ -761,15 +761,12 @@ export class LoungeMusic2 {
     }
 
     playHipHopKick(time, velocity = 1.0) {
-        console.log("🔊 MEGA LOUD HIP-HOP KICK at time:", time, "with velocity:", velocity * 100);
+        console.log("🔊 Playing hip-hop kick at time:", time, "with velocity:", velocity);
         
         if (!this.hipHopGain) {
             console.error("Hip-hop gain node not initialized!");
             return;
         }
-        
-        // Force maximum gain for guaranteed loudness
-        this.hipHopGain.gain.setValueAtTime(200.0, this.audioContext.currentTime);
         
         // Create oscillator for the fundamental frequency
         const osc = this.audioContext.createOscillator();
@@ -791,7 +788,7 @@ export class LoungeMusic2 {
         compressor.attack.setValueAtTime(0, time);
         compressor.release.setValueAtTime(0.25, time);
         
-        // Create gain nodes
+        // Create gain nodes with reasonable values
         const gain = this.audioContext.createGain();
         const gain2 = this.audioContext.createGain();
         const subGain = this.audioContext.createGain();
@@ -820,14 +817,14 @@ export class LoungeMusic2 {
         subOsc.frequency.setValueAtTime(60, time);
         subOsc.frequency.linearRampToValueAtTime(30, time + 0.3);
         
-        // Set volume envelopes with extreme values
-        gain.gain.setValueAtTime(velocity * 150.0, time);
+        // Set volume envelopes with reasonable values
+        gain.gain.setValueAtTime(velocity * 1.5, time);
         gain.gain.exponentialRampToValueAtTime(0.001, time + 0.5);
         
-        gain2.gain.setValueAtTime(velocity * 100.0, time);
+        gain2.gain.setValueAtTime(velocity * 1.0, time);
         gain2.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
         
-        subGain.gain.setValueAtTime(velocity * 200.0, time);
+        subGain.gain.setValueAtTime(velocity * 2.0, time);
         subGain.gain.exponentialRampToValueAtTime(0.001, time + 0.8);
         
         // Connect oscillators to their respective gain nodes
@@ -843,9 +840,8 @@ export class LoungeMusic2 {
         // Connect to distortion for added presence
         compressor.connect(distortion);
         
-        // Connect both to hip-hop gain AND directly to output for maximum volume
+        // Connect only to hip-hop gain, not directly to output
         distortion.connect(this.hipHopGain);
-        distortion.connect(this.audioContext.destination); // Direct to main output for maximum volume
         
         // Start and stop
         osc.start(time);
@@ -868,21 +864,17 @@ export class LoungeMusic2 {
             distortion.disconnect();
         }, 1000);
         
-        // Visual confirmation
-        console.log(`%c 💥 HIP-HOP KICK PLAYED AT EXTREME VOLUME (${this.chaosLevel})`, 
-                    'background: #FF0000; color: white; font-size: 24px; padding: 5px;');
+        // Visual confirmation with normal styling
+        console.log(`Hip-hop kick played (chaos level: ${this.chaosLevel})`);
     }
 
     playHipHopSnare(time, velocity = 1.0) {
-        console.log("🔊 MEGA LOUD HIP-HOP SNARE at time:", time, "with velocity:", velocity * 100);
+        console.log("🔊 Playing hip-hop snare at time:", time, "with velocity:", velocity);
         
         if (!this.hipHopGain) {
             console.error("Hip-hop gain node not initialized!");
             return;
         }
-        
-        // Force maximum gain for guaranteed loudness
-        this.hipHopGain.gain.setValueAtTime(200.0, this.audioContext.currentTime);
         
         // Create noise for the snare body
         const noiseBuffer = this.createNoiseBuffer();
@@ -910,12 +902,12 @@ export class LoungeMusic2 {
         highpass.type = 'highpass';
         highpass.frequency.setValueAtTime(800, time);
         
-        // Create gain nodes with extreme values
+        // Create gain nodes with reasonable values
         const noiseGain = this.audioContext.createGain();
         const toneGain = this.audioContext.createGain();
         const tone2Gain = this.audioContext.createGain();
         
-        // Create compressor for maximum loudness
+        // Create compressor for better punch
         const compressor = this.audioContext.createDynamicsCompressor();
         compressor.threshold.setValueAtTime(-50, time);
         compressor.knee.setValueAtTime(0, time);
@@ -923,7 +915,7 @@ export class LoungeMusic2 {
         compressor.attack.setValueAtTime(0, time);
         compressor.release.setValueAtTime(0.1, time);
         
-        // Create distortion for extra presence
+        // Create distortion for added presence
         const distortion = this.audioContext.createWaveShaper();
         function makeDistortionCurve(amount) {
             const k = amount;
@@ -937,17 +929,17 @@ export class LoungeMusic2 {
         }
         distortion.curve = makeDistortionCurve(150);
         
-        // Set volume envelopes with extreme values for maximum impact
+        // Set volume envelopes with reasonable values
         noiseGain.gain.setValueAtTime(0, time);
-        noiseGain.gain.linearRampToValueAtTime(velocity * 150.0, time + 0.001);
+        noiseGain.gain.linearRampToValueAtTime(velocity * 1.5, time + 0.001);
         noiseGain.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
         
         toneGain.gain.setValueAtTime(0, time);
-        toneGain.gain.linearRampToValueAtTime(velocity * 130.0, time + 0.001);
+        toneGain.gain.linearRampToValueAtTime(velocity * 1.3, time + 0.001);
         toneGain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
         
         tone2Gain.gain.setValueAtTime(0, time);
-        tone2Gain.gain.linearRampToValueAtTime(velocity * 100.0, time + 0.001);
+        tone2Gain.gain.linearRampToValueAtTime(velocity * 1.0, time + 0.001);
         tone2Gain.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
         
         // Connect oscillators and noise to their respective filters and gain nodes
@@ -958,7 +950,7 @@ export class LoungeMusic2 {
         tone.connect(toneGain);
         tone2.connect(tone2Gain);
         
-        // Connect gain nodes to compressor for maximum power
+        // Connect gain nodes to compressor for better sound
         noiseGain.connect(compressor);
         toneGain.connect(compressor);
         tone2Gain.connect(compressor);
@@ -966,9 +958,8 @@ export class LoungeMusic2 {
         // Connect to distortion for added presence
         compressor.connect(distortion);
         
-        // Connect both to hip-hop gain AND directly to output for maximum volume
+        // Connect only to hip-hop gain, not directly to output
         distortion.connect(this.hipHopGain);
-        distortion.connect(this.audioContext.destination); // Direct to main output for maximum volume
         
         // Start and stop
         noise.start(time);
@@ -993,9 +984,8 @@ export class LoungeMusic2 {
             distortion.disconnect();
         }, 300);
         
-        // Visual confirmation
-        console.log(`%c 💥 HIP-HOP SNARE PLAYED AT EXTREME VOLUME (${this.chaosLevel})`, 
-                    'background: #FF0000; color: white; font-size: 24px; padding: 5px;');
+        // Visual confirmation with normal styling
+        console.log(`Hip-hop snare played (chaos level: ${this.chaosLevel})`);
     }
     
     createNoiseBuffer() {
@@ -1010,6 +1000,71 @@ export class LoungeMusic2 {
         }
         
         return buffer;
+    }
+
+    playHipHopHiHat(time, velocity = 1.0) {
+        console.log("🔊 Playing hip-hop hi-hat at time:", time, "with velocity:", velocity);
+        
+        if (!this.hipHopGain) {
+            console.error("Hip-hop gain node not initialized!");
+            return;
+        }
+        
+        // Create noise for the hi-hat
+        const noiseBuffer = this.createNoiseBuffer();
+        const noise = this.audioContext.createBufferSource();
+        noise.buffer = noiseBuffer;
+        
+        // Create highpass filter for hi-hat character
+        const highpass = this.audioContext.createBiquadFilter();
+        highpass.type = 'highpass';
+        highpass.frequency.setValueAtTime(6000, time);
+        highpass.Q.setValueAtTime(8, time);
+        
+        // Create bandpass filter for hi-hat character
+        const bandpass = this.audioContext.createBiquadFilter();
+        bandpass.type = 'bandpass';
+        bandpass.frequency.setValueAtTime(8000, time);
+        bandpass.Q.setValueAtTime(4, time);
+        
+        // Create gain node with reasonable value
+        const noiseGain = this.audioContext.createGain();
+        
+        // Create compressor for better sound
+        const compressor = this.audioContext.createDynamicsCompressor();
+        compressor.threshold.setValueAtTime(-50, time);
+        compressor.knee.setValueAtTime(0, time);
+        compressor.ratio.setValueAtTime(20, time);
+        compressor.attack.setValueAtTime(0, time);
+        compressor.release.setValueAtTime(0.05, time);
+        
+        // Set volume envelope with reasonable values
+        noiseGain.gain.setValueAtTime(0, time);
+        noiseGain.gain.linearRampToValueAtTime(velocity * 1.2, time + 0.001);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+        
+        // Connect everything
+        noise.connect(highpass);
+        highpass.connect(bandpass);
+        bandpass.connect(noiseGain);
+        noiseGain.connect(compressor);
+        compressor.connect(this.hipHopGain);
+        
+        // Start and stop
+        noise.start(time);
+        noise.stop(time + 0.1);
+        
+        // Clean up
+        setTimeout(() => {
+            noise.disconnect();
+            highpass.disconnect();
+            bandpass.disconnect();
+            noiseGain.disconnect();
+            compressor.disconnect();
+        }, 200);
+        
+        // Visual confirmation with normal styling
+        console.log(`Hip-hop hi-hat played (chaos level: ${this.chaosLevel})`);
     }
 
     async startLoop() {
@@ -1075,9 +1130,9 @@ export class LoungeMusic2 {
         // NEW HIP-HOP DRUMS APPROACH: Play hip-hop beats directly using samples when chaos level is high
         if (this.chaosLevel >= 15) {
             // Make sure hip-hop gain is at maximum
-            if (this.hipHopGain && this.hipHopGain.gain.value < 50.0) {
-                console.log("⚠️ FIXING HIP-HOP GAIN - Setting to maximum!", this.hipHopGain.gain.value);
-                this.hipHopGain.gain.setValueAtTime(50.0, this.audioContext.currentTime);
+            if (this.hipHopGain && this.hipHopGain.gain.value < 0.15) {
+                console.log("⚠️ FIXING HIP-HOP GAIN - Setting to reasonable level!", this.hipHopGain.gain.value);
+                this.hipHopGain.gain.setValueAtTime(0.15, this.audioContext.currentTime);
             }
             
             // Log to confirm drums are being scheduled
@@ -1157,12 +1212,12 @@ export class LoungeMusic2 {
         if (this.hipHopGain) {
             const now = this.audioContext ? this.audioContext.currentTime : 0;
             this.hipHopGain.gain.cancelScheduledValues(now);
-            // CRITICAL FIX: Set hip-hop gain to EXTREME level when enabled
+            // CRITICAL FIX: Set hip-hop gain to reasonable level when enabled
             this.hipHopGain.gain.linearRampToValueAtTime(
-                enabled ? 50.0 : 0, // Use maximum gain when enabled
+                enabled ? 0.15 : 0, // Reduced from 0.7 to 0.15
                 now + 0.1
             );
-            console.log("🔊 Hip-hop gain set to:", enabled ? "MAXIMUM (50.0)" : "OFF");
+            console.log("🔊 Hip-hop gain set to:", enabled ? "REASONABLE (0.15)" : "OFF");
         }
         
         if (enabled) {
@@ -1206,11 +1261,11 @@ export class LoungeMusic2 {
                 console.log("%c 💥 ACTIVATING HIP HOP DRUMS - Chaos level reached: " + level, 
                            "background: red; color: white; font-size: 24px; padding: 10px;");
                 
-                // Force hip-hop gain to maximum when crossing the threshold
+                // Force hip-hop gain to reasonable level when crossing the threshold
                 if (this.hipHopGain) {
-                    // Set extreme volume for hip-hop drums
-                    this.hipHopGain.gain.setValueAtTime(100.0, this.audioContext.currentTime); // EXTREME VOLUME
-                    console.log("HIP HOP GAIN SET TO MAXIMUM:", this.hipHopGain.gain.value);
+                    // Set reasonable volume for hip-hop drums
+                    this.hipHopGain.gain.setValueAtTime(0.15, this.audioContext.currentTime); // Reduced from 0.7 to 0.15
+                    console.log("HIP HOP GAIN SET TO REASONABLE LEVEL:", this.hipHopGain.gain.value);
                     
                     // Play a test pattern immediately to confirm drums are working
                     const now = this.audioContext.currentTime;
@@ -1225,9 +1280,9 @@ export class LoungeMusic2 {
                 
                 // Handle hip-hop drum volume based on chaos level
                 if (level >= 15) {
-                    // Set extreme volume for hip-hop - much higher than before
+                    // Set reasonable volume for hip-hop
                     if (this.hipHopGain) {
-                        this.hipHopGain.gain.setValueAtTime(100.0, now); // 100x normal volume
+                        this.hipHopGain.gain.setValueAtTime(0.15, now); // Reduced from 0.7 to 0.15
                         console.log(`Hip-hop gain at chaos ${level}: ${this.hipHopGain.gain.value}`);
                     }
                     

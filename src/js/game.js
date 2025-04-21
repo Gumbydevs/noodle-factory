@@ -589,6 +589,9 @@ class Game {
         if (window.dnbMusic && window.dnbMusic.updateChaosLevel) {
             window.dnbMusic.updateChaosLevel(chaos);
         }
+        if (window.loungeMusic2 && window.loungeMusic2.updateChaosLevel) {
+            window.loungeMusic2.updateChaosLevel(chaos);
+        }
         
         // Remove all chaos classes first
         body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
