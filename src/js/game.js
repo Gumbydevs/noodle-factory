@@ -1414,17 +1414,127 @@ class Game {
 
     addUpgradeClickHandler(upgradeElement, card) {
         upgradeElement.addEventListener('click', () => {
+            // Generate the benefits of selling before showing the dialog
+            const chaosReduction = 3 + Math.floor(Math.random() * 5); // Random 3-7 reduction
+            const ingredientGain = 2 + Math.floor(Math.random() * 3); // Random 2-4 ingredients
+            
+            // Calculate money refund (50% of original cost)
+            const refundAmount = card.cost ? Math.floor(card.cost * 0.5) : 0;
+            
+            // Remove any existing confirmation dialog first
+            upgradeElement.querySelectorAll('.sell-confirm').forEach(el => el.remove());
+            
             const confirmDialog = document.createElement('div');
-            confirmDialog.className = 'sell-confirm';
+            confirmDialog.className = 'sell-confirm compact-confirm';
             confirmDialog.innerHTML = `
-                <p class="sell-text">Sell this upgrade?</p>
+                <div class="sell-header">Sell ${card.type === "upgrade" ? "Upgrade" : "Card"}?</div>
+                <div class="sell-benefits">
+                    ${refundAmount > 0 ? 
+                      `<div class="sell-benefit money-color">
+                        <span class="benefit-icon">💰</span>
+                        <span class="benefit-text">+$${refundAmount}</span>
+                      </div>` : ''}
+                    <div class="sell-benefit ingredients-color">
+                        <span class="benefit-icon">🌾</span>
+                        <span class="benefit-text">+${ingredientGain} ingredients</span>
+                    </div>
+                    <div class="sell-benefit chaos-color">
+                        <span class="benefit-icon">🌀</span>
+                        <span class="benefit-text">-${Math.round(chaosReduction)} chaos</span>
+                    </div>
+                </div>
                 <div class="sell-buttons">
-                    <button class="sell-yes">Yes</button>
-                    <button class="sell-no">No</button>
+                    <button class="sell-yes">Sell</button>
+                    <button class="sell-no">Cancel</button>
                 </div>
             `;
             
             upgradeElement.appendChild(confirmDialog);
+            
+            // Add CSS to make it properly sized and styled
+            const style = document.createElement('style');
+            style.textContent = `
+                .sell-confirm.compact-confirm {
+                    position: absolute;
+                    width: 140px;
+                    font-size: 12px;
+                    background: rgba(20, 20, 20, 0.95);
+                    border: 1px solid #444;
+                    border-radius: 4px;
+                    padding: 8px;
+                    z-index: 1000;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%) scale(1.2);
+                    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), 0 0 5px rgba(255, 215, 0, 0.3);
+                }
+                
+                .sell-header {
+                    font-weight: bold;
+                    margin-bottom: 6px;
+                    font-size: 13px;
+                    text-align: center;
+                }
+                
+                .sell-benefits {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                    margin-bottom: 8px;
+                }
+                
+                .sell-benefit {
+                    display: flex;
+                    align-items: center;
+                    gap: 5px;
+                }
+                
+                .benefit-icon {
+                    font-size: 12px;
+                    width: 12px;
+                }
+                
+                .sell-buttons {
+                    display: flex;
+                    justify-content: space-between;
+                }
+                
+                .sell-yes, .sell-no {
+                    padding: 3px 8px;
+                    border-radius: 3px;
+                    border: 1px solid #444;
+                    background: #333;
+                    cursor: pointer;
+                    font-size: 12px;
+                    transition: all 0.2s;
+                }
+                
+                .sell-yes:hover {
+                    background: #3a6e3a;
+                }
+                
+                .sell-no:hover {
+                    background: #6e3a3a;
+                }
+                
+                /* Animation for the popup appearing */
+                .sell-confirm.compact-confirm {
+                    animation: popupAppear 0.25s ease-out forwards;
+                }
+                
+                @keyframes popupAppear {
+                    0% {
+                        opacity: 0;
+                        transform: translate(-50%, -50%) scale(0.8);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: translate(-50%, -50%) scale(1.2);
+                    }
+                }
+            `;
+            
+            document.head.appendChild(style);
             
             const yesButton = confirmDialog.querySelector('.sell-yes');
             const noButton = confirmDialog.querySelector('.sell-no');
@@ -1441,20 +1551,23 @@ class Game {
                     this.state.playerStats.factoryUpgrades[cardName]._beingSold = true;
                 }
                 
-                // Add benefits from selling
-                const chaosReduction = 3 + Math.random() * 4; // Random 3-7 reduction
-                const ingredientGain = 2 + Math.floor(Math.random() * 3); // Random 2-4 ingredients
-                
                 // Apply benefits
                 this.state.playerStats.chaosLevel = Math.max(0, 
                     this.state.playerStats.chaosLevel - chaosReduction);
                 this.state.playerStats.ingredients = Math.min(20, 
                     this.state.playerStats.ingredients + ingredientGain);
                 
+                // Add refund if applicable
+                if (refundAmount > 0) {
+                    this.state.playerStats.money += refundAmount;
+                }
+                
                 // Show feedback message
-                this.showEffectMessage(
-                    `Sold upgrade: +${ingredientGain} ingredients, -${Math.round(chaosReduction)} chaos!`
-                );
+                let feedbackMsg = `Sold upgrade: +${ingredientGain} ingredients, -${Math.round(chaosReduction)} chaos`;
+                if (refundAmount > 0) {
+                    feedbackMsg += `, +$${refundAmount} refund`;
+                }
+                this.showEffectMessage(feedbackMsg);
                 
                 // Remove permanent stats
                 if (card.permanentStats) {
@@ -1468,6 +1581,9 @@ class Game {
                 upgradeElement.classList.add('disappearing');
                 setTimeout(() => upgradeElement.remove(), 300);
                 
+                // Cleanup style
+                style.remove();
+                
                 // Update display
                 this.updateDisplay();
             };
@@ -1475,7 +1591,22 @@ class Game {
             noButton.onclick = (e) => {
                 e.stopPropagation();
                 confirmDialog.remove();
+                style.remove();
             };
+            
+            // Close dialog when clicking outside
+            const closeOnOutsideClick = (event) => {
+                if (!confirmDialog.contains(event.target) && !upgradeElement.contains(event.target)) {
+                    confirmDialog.remove();
+                    style.remove();
+                    document.removeEventListener('click', closeOnOutsideClick);
+                }
+            };
+            
+            // Add a slight delay before adding the event listener to prevent immediate closing
+            setTimeout(() => {
+                document.addEventListener('click', closeOnOutsideClick);
+            }, 10);
         });
     }
 
