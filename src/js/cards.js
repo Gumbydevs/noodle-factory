@@ -3766,25 +3766,26 @@ export const CARDS = {
 
 let lastDrawnCards = [];
 
-function getPlayedCards() {
+export function getPlayedCards() {
     const played = localStorage.getItem(LOCAL_STORAGE_KEY);
     return played ? JSON.parse(played) : {};
 }
 
 function savePlayedCard(cardName) {
-    const played = JSON.parse(localStorage.getItem('noodleFactoryPlayedCards') || '{}');
+    const played = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '{}');
     played[cardName] = true;
-    localStorage.setItem('noodleFactoryPlayedCards', JSON.stringify(played));
-    checkCardAchievements();
-}
-
-function checkCardAchievements() {
-    const played = getPlayedCards();
-    if (Object.keys(played).length === 0) return;
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(played));
+    
+    // Log card tracking information for debugging
     const totalCards = Object.keys(CARDS).length;
     const playedCount = Object.keys(played).length;
     const percentage = (playedCount / totalCards) * 100;
-    console.log(`Cards played: ${playedCount}/${totalCards} (${percentage.toFixed(1)}%)`);
+    console.log(`Card Collection Progress: ${playedCount}/${totalCards} (${percentage.toFixed(1)}%)`);
+    
+    // Properly trigger achievement check
+    if (typeof window !== 'undefined' && window.gameInstance) {
+        window.gameInstance.checkAchievements();
+    }
 }
 
 export function applyStatModifiers(state, modifiers) {

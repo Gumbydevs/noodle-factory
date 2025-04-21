@@ -1,4 +1,4 @@
-import { CARDS } from './cards.js';
+import { CARDS, getPlayedCards } from './cards.js';
 import { gameState } from './state.js';
 
 export const ACHIEVEMENTS = {
@@ -159,6 +159,151 @@ export const ACHIEVEMENTS = {
         description: "Go from 0 ingredients to 30 in a single turn",
         check: (stats) => stats.ingredientGainInOneTurn >= 30,
         reward: "Back from the brink!"
+    },
+    "Pasta Picasso": {
+        description: "Create a masterpiece with pasta art.",
+        check: (stats) => stats.pastaArtCreated === true,
+        reward: "Your pasta art belongs in a museum!"
+    },
+    "Linguine Lightning": {
+        description: "Achieve 20 prestige in a single turn.",
+        check: (stats) => stats.prestigeGainInOneTurn >= 20,
+        reward: "A shocking display of efficiency!"
+    },
+    "Ravioli Revolution": {
+        description: "Lose 15 workers in a single turn.",
+        check: (stats) => stats.lostWorkersInOneTurn >= 15,
+        reward: "The workers have spoken!"
+    },
+    "Chaos Whisperer": {
+        description: "Maintain chaos below 10 for 10 consecutive turns.",
+        check: (stats) => stats.lowChaosTurns >= 10,
+        reward: "You have tamed the storm."
+    },
+    "Pasta Perfectionist": {
+        description: "Reach exactly 100 prestige.",
+        check: (stats) => stats.pastaPrestige === 100,
+        reward: "Perfectly balanced, as all things should be."
+    },
+    "Ingredient Alchemist": {
+        description: "Convert 10 chaos into ingredients in a single turn.",
+        check: (stats) => stats.chaosConvertedToIngredients >= 10,
+        reward: "Turning chaos into culinary gold!"
+    },
+    "Worker Whisperer": {
+        description: "Recruit 20 workers in a single turn.",
+        check: (stats) => stats.workerGainInOneTurn >= 20,
+        reward: "Your charisma knows no bounds!"
+    },
+    "Pasta Time Traveler": {
+        description: "Play 3 time-themed cards in a single game.",
+        check: (stats) => stats.timeCardsPlayed >= 3,
+        reward: "You have mastered the timeline of pasta."
+    },
+    "Noodle Nostalgia": {
+        description: "Play 5 nostalgia-themed cards in a single game.",
+        check: (stats) => stats.nostalgiaCardsPlayed >= 5,
+        reward: "A trip down memory lane!"
+    },
+    "Prestige Hoarder": {
+        description: "Reach 200 prestige without spending any.",
+        check: (stats) => stats.pastaPrestige >= 200 && stats.prestigeSpent === 0,
+        reward: "A true prestige tycoon!"
+    },
+    "Chaos Gambler": {
+        description: "Survive 5 risk achievements in a single game.",
+        check: (stats) => stats.riskAchievementsSurvived >= 5,
+        reward: "You live on the edge!"
+    },
+    "Pasta Multiverse": {
+        description: "Open 3 portals to alternate pasta dimensions.",
+        check: (stats) => stats.portalsOpened >= 3,
+        reward: "Exploring the infinite possibilities of pasta!"
+    },
+    "Sauce Savant": {
+        description: "Play 10 sauce-related cards in a single game.",
+        check: (stats) => stats.sauceCardsPlayed >= 10,
+        reward: "A true master of sauces!"
+    },
+    "Worker Paradise": {
+        description: "Have 100 workers while maintaining less than 30 chaos.",
+        check: (stats) => stats.workerEnergy >= 100 && stats.chaosLevel < 30,
+        reward: "A utopia for workers!"
+    },
+    "Pasta AI Overlord": {
+        description: "Let the AI control your factory for 5 turns.",
+        check: (stats) => stats.aiControlledTurns >= 5,
+        reward: "The machines are learning..."
+    },
+    "Infinite Spaghetti": {
+        description: "Create an infinite loop of spaghetti.",
+        check: (stats) => stats.infiniteSpaghettiCreated === true,
+        reward: "The spaghetti never ends!"
+    },
+    "Pasta Planet Pioneer": {
+        description: "Discover 5 pasta-themed celestial objects.",
+        check: (stats) => stats.celestialObjectsDiscovered >= 5,
+        reward: "A pioneer of the pasta cosmos!"
+    },
+    "Ravioli Renaissance": {
+        description: "Play 10 ravioli-related cards in a single game.",
+        check: (stats) => stats.ravioliCardsPlayed >= 10,
+        reward: "A true connoisseur of stuffed pasta!"
+    },
+    "Pasta Prophecy Fulfilled": {
+        description: "Complete all prophecy-related cards in a single game.",
+        check: (stats) => stats.prophecyCardsCompleted === true,
+        reward: "The prophecy is complete!"
+    },
+    "Noodle Nexus Master": {
+        description: "Connect 10 factories in the Noodle Network.",
+        check: (stats) => stats.factoriesConnected >= 10,
+        reward: "Master of the Noodle Nexus!"
+    },
+    "Pasta Powerhouse": {
+        description: "Generate 50 energy from pasta in a single turn.",
+        check: (stats) => stats.energyGeneratedFromPasta >= 50,
+        reward: "Harnessing the true power of pasta!"
+    },
+    "Cosmic Pasta Explorer": {
+        description: "Discover 3 cosmic pasta phenomena.",
+        check: (stats) => stats.cosmicPhenomenaDiscovered >= 3,
+        reward: "Exploring the universe, one noodle at a time!"
+    },
+    "Pasta Preservationist": {
+        description: "Preserve 10 rare pasta shapes in a single game.",
+        check: (stats) => stats.rarePastaPreserved >= 10,
+        reward: "Ensuring pasta's legacy for future generations!"
+    },
+    "Pasta Festival King": {
+        description: "Host 5 pasta festivals in a single game.",
+        check: (stats) => stats.festivalsHosted >= 5,
+        reward: "The king of pasta celebrations!"
+    },
+    "Pasta Puzzle Solver": {
+        description: "Solve 3 pasta puzzles in a single game.",
+        check: (stats) => stats.puzzlesSolved >= 3,
+        reward: "A true pasta problem solver!"
+    },
+    "Pasta Eclipse Witness": {
+        description: "Witness a pasta-themed solar eclipse.",
+        check: (stats) => stats.eclipseWitnessed === true,
+        reward: "A once-in-a-lifetime pasta event!"
+    },
+    "Pasta Peacekeeper": {
+        description: "Negotiate 3 peace accords with rival factories.",
+        check: (stats) => stats.peaceAccordsNegotiated >= 3,
+        reward: "A diplomat of the pasta world!"
+    },
+    "Pasta Time Capsule": {
+        description: "Unearth 5 ancient pasta recipes.",
+        check: (stats) => stats.ancientRecipesUnearthed >= 5,
+        reward: "Unlocking the secrets of the past!"
+    },
+    "Pasta AI Revolution": {
+        description: "Let the AI optimize your factory for 10 turns.",
+        check: (stats) => stats.aiOptimizedTurns >= 10,
+        reward: "The AI has taken over... for good!"
     }
 };
 
@@ -277,21 +422,17 @@ export const checkAchievements = (stats, turn) => {
     return newAchievements;
 };
 
-//  where the storage key is defined
-export function getPlayedCards() {
-    const played = localStorage.getItem('noodleFactoryPlayedCards') || '{}';
-    return JSON.parse(played);
-}
-
 // checkCardAchievements to trigger achievement checks
 export function checkCardAchievements() {
     const played = getPlayedCards();
+    if (Object.keys(played).length === 0) return;
+    
     const totalCards = Object.keys(CARDS).length;
     const playedCount = Object.keys(played).length;
     const percentage = (playedCount / totalCards) * 100;
-
-    console.log(`Cards played: ${playedCount}/${totalCards} (${percentage.toFixed(1)}%)`); // Debug log
-
-    // These will now trigger achievement checks through the normal achievement system
+    
+    console.log(`Cards played: ${playedCount}/${totalCards} (${percentage.toFixed(1)}%)`);
+    
+    // Trigger achievement checks for card collection milestones
     checkAchievements(gameState.playerStats);
 }
