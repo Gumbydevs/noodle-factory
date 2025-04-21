@@ -1,5 +1,5 @@
 // Electron main process file
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
 
 // Keep a global reference of the window object to prevent garbage collection
@@ -9,7 +9,8 @@ function createWindow() {
   // Create the browser window
   mainWindow = new BrowserWindow({
     width: 1200,
-    height: 800,
+    height: 800,  
+    minWidth: 900,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -18,6 +19,9 @@ function createWindow() {
     },
     icon: path.join(__dirname, 'public/favicon.ico')
   });
+
+  // Remove the menu bar completely
+  Menu.setApplicationMenu(null);
 
   // Set proper Content-Security-Policy for ES modules
   mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
