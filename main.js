@@ -18,7 +18,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       webSecurity: true
     },
-    icon: path.join(__dirname, 'public/favicon.ico')
+    icon: path.join(__dirname, 'src/assets/images/NoodleFactoryLogo.png')
   });
 
   // Remove the menu bar completely
