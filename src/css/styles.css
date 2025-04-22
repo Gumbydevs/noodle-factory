@@ -1445,7 +1445,7 @@ h1 {
     margin: 15px auto;
     padding: 10px 15px;
     border-radius: 6px;
-    background-color: rgba(30, 30, 30, 0.75); /* Slightly lighter base background */
+    background-color: rgba(20, 20, 20, 0.8);
     color: #ffd700;
     font-size: 16px;
     text-align: center;
@@ -1462,6 +1462,11 @@ h1 {
     /* Hide scrollbar but keep scroll functionality */
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+#game-messages::-webkit-scrollbar {
+    display: none;
 }
 
 #game-messages:hover {
@@ -1515,35 +1520,6 @@ h1 {
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-/* Update chaos level-specific message box backgrounds */
-.chaos-level-1 #game-messages {
-    background-color: rgba(30, 30, 30, 0.75);
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5), 0 0 5px rgba(255, 0, 0, 0.1);
-}
-
-.chaos-level-2 #game-messages {
-    background-color: rgba(35, 30, 35, 0.8);
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5), 0 0 8px rgba(255, 0, 0, 0.2);
-}
-
-.chaos-level-3 #game-messages {
-    background-color: rgba(40, 35, 40, 0.85);
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.6), 0 0 12px rgba(255, 0, 0, 0.25);
-    border: 1px solid rgba(231, 76, 60, 0.3);
-}
-
-.chaos-level-max #game-messages {
-    background: linear-gradient(45deg, rgba(40, 30, 40, 0.85), rgba(50, 30, 30, 0.85));
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7), 0 0 15px rgba(255, 0, 0, 0.3);
-    border: 1px solid rgba(231, 76, 60, 0.4);
-    animation: subtle-pulse 3s infinite alternate;
-}
-
-@keyframes subtle-pulse {
-    from { background-position: 0% 0%; }
-    to { background-position: 100% 0%; }
 }
 
 /* Message history modal styles */
@@ -3295,4 +3271,28 @@ h1 {
 .resource-icon {
     opacity: 0.8;
     margin-right: 2px;
+}
+
+/* Noodle logo styles */
+.noodle-icon {
+    height: 60px;
+    width: auto;
+    vertical-align: middle;
+    margin-left: 8px;
+    margin-bottom: 0px;
+    display: inline-block;
+    object-fit: contain;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* Ensure the jiggly animation works well with the image */
+.jiggly.noodle-icon {
+    transform-origin: center center;
+    animation: gentle-float 3s ease-in-out infinite;
+}
+
+@keyframes gentle-float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-3px); }
 }
