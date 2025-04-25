@@ -1065,289 +1065,517 @@ export const CARDS = {
             return "The flour reacts violently with the chaotic factory environment!";
         }
     },
-    "Lasagna Layoff": {
-        description: "Budget cuts force you to reduce your lasagna department.",
+    "Lasagna Labyrinth": {
+        description: "The layered pasta has folded into an impossible maze.",
         requirements: null,
         statModifiers: {
-            workers: -5,
-            chaos: 10,
-            prestige: -4
+            chaos: 12,
+            prestige: 10,
+            workers: -2
         },
         effect: (state) => {
-            savePlayedCard("Lasagna Layoff");
-            if (state.playerStats.workerCount > 25) {
-                state.playerStats.chaos -= 6;
-                return "The remaining workforce absorbs the change seamlessly!";
+            savePlayedCard("Lasagna Labyrinth");
+            if (state.playerStats.chaosLevel > 45) {
+                state.playerStats.lostWorkers += 3;
+                return "Workers get lost in the twisting pasta corridors!";
             }
-            state.playerStats.lostWorkers += 2;
-            return "The layoffs trigger an exodus of additional workers!";
+            state.playerStats.pastaPrestige += 4;
+            return "Tourists pay to navigate the legendary pasta maze!";
         }
     },
-    "Spaghetti Sorcery": {
-        description: "A mystical event causes pasta to float through the air.",
+    "Orecchiette Oracle": {
+        description: "The ear-shaped pasta whispers secrets from beyond.",
+        requirements: null,
+        statModifiers: {
+            chaos: 9,
+            prestige: 7,
+            workers: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Orecchiette Oracle");
+            state.playerStats.usedMagicCards = true;
+            return "Workers take turns listening to the pasta's cryptic business advice!";
+        }
+    },
+    "Garganelli Gambit": {
+        description: "Take a risk with an experimental pasta rolling technique.",
+        requirements: { ingredients: 2 },
+        statModifiers: {
+            ingredients: -2,
+            chaos: 8,
+            prestige: 12
+        },
+        effect: (state) => {
+            savePlayedCard("Garganelli Gambit");
+            if (Math.random() > 0.5) {
+                state.playerStats.pastaPrestige += 6;
+                return "The gambit pays off! Your uniquely rolled pasta becomes a sensation!";
+            }
+            state.playerStats.chaos += 5;
+            return "The experimental technique backfires, creating mutant pasta rolls!";
+        }
+    },
+    "Campanelle Chorus": {
+        description: "The bell-shaped pasta rings in perfect harmony.",
+        requirements: null,
+        statModifiers: {
+            chaos: -6,
+            prestige: 9,
+            workers: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Campanelle Chorus");
+            return "The melodious pasta bells attract music lovers from around the city!";
+        }
+    },
+    "Strozzapreti Strangler": {
+        description: "The 'priest-strangler' pasta is living up to its name!",
         requirements: null,
         statModifiers: {
             chaos: 15,
-            prestige: 9,
-            workers: -3
+            workers: -4,
+            prestige: -2
         },
         effect: (state) => {
-            savePlayedCard("Spaghetti Sorcery");
-            if (state.playerStats.chaosLevel > 55) {
-                state.playerStats.lostWorkers += 2;
-                return "Flying pasta attacks terrify workers into fleeing!";
+            savePlayedCard("Strozzapreti Strangler");
+            if (state.playerStats.chaosLevel < 50) {
+                state.playerStats.prestige += 8;
+                return "The aggressive pasta is tamed into a viral marketing campaign!";
             }
-            state.playerStats.pastaPrestige += 5;
-            return "The floating pasta display wows visitors and food critics!";
+            state.playerStats.lostWorkers += 2;
+            return "Workers flee as animated pasta twists through the air, seeking necks!";
         }
     },
-    "Automated Pasta Line": {
-        description: "Efficiency so high, even the ravioli are impressed.",
-        type: "upgrade",
-        requirements: { prestige: 25 },
-        cost: 1000,
-        permanentStats: {
-            workerEfficiency: 0.2,
-            ingredientGain: 0.25,
-            chaosReduction: -0.3,
-        },
+    "Gemelli Twins": {
+        description: "Two identical workers appear out of nowhere, claiming they've always worked here.",
+        requirements: null,
         statModifiers: {
-            prestige: 5,
+            workers: 6,
+            chaos: 7,
+            prestige: 3
         },
         effect: (state) => {
-            savePlayedCard("Automated Pasta Line");
-            state.playerStats.factoryUpgrades.automation = true;
-            return "The automated line hums with mechanical efficiency!";
+            savePlayedCard("Gemelli Twins");
+            state.playerStats.usedMagicCards = true;
+            return "No one questions the twins' sudden appearance, they make excellent pasta!";
         }
     },
-    "Golden Pasta Extruder": {
-        description: "A premium machine that's high maintenance.",
-        type: "upgrade",
-        cost: 1500,
-        requirements: { prestige: 30 },
-        permanentStats: {
-            prestigeGain: 0.25,
-            ingredientGain: -0.15
-        },
+    "Ditalini Dimension": {
+        description: "The tiny tube pasta opens a portal to a microscopic realm.",
+        requirements: null,
         statModifiers: {
-            prestige: 12,
-            chaos: 5
-        },
-        effect: (state) => {
-            savePlayedCard("Golden Pasta Extruder");
-            state.playerStats.factoryUpgrades.goldenExtruder = true;
-            return "The golden extruder creates pasta of legendary quality!";
-        }
-    },
-    "Quantum Drying Room": {
-        description: "Install a high-tech drying facility that reduces chaos buildup.",
-        cost: 1800,
-        type: "upgrade",
-        requirements: { prestige: 35 },
-        permanentStats: {
-            chaosReduction: 0.15
-        },
-        statModifiers: {
-            chaos: -15,
+            chaos: 11,
+            ingredients: 4,
             prestige: 8
         },
         effect: (state) => {
-            savePlayedCard("Quantum Drying Room");
-            state.playerStats.factoryUpgrades.quantumDrying = true;
-            return "The quantum-stabilized pasta brings order to chaos!";
+            savePlayedCard("Ditalini Dimension");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel > 55) {
+                state.playerStats.chaos += 4;
+                return "Tiny beings emerge from the portal and cause miniature mayhem!";
+            }
+            return "Scientists pay top dollar to study the pasta-based dimensional gateway!";
         }
     },
-    "Spaghetti Surgeons": {
-        cost: 800,
-        description: "Elite pasta medics fix flawed noodles with tweezers and drama.",
-        type: "upgrade",
-        requirements: { prestige: 20 },
-        permanentStats: {
-            prestigeGain: 0.25,
-            chaosReduction: -0.05,
-            ingredientGain: -0.15
-        },
+    "Capellini Catastrophe": {
+        description: "The angel hair pasta has become impossibly tangled.",
+        requirements: null,
         statModifiers: {
-            chaos: 3
+            chaos: 13,
+            workers: -3,
+            prestige: -4
         },
         effect: (state) => {
-            savePlayedCard("Spaghetti Surgeons");
-            state.playerStats.factoryUpgrades.qualityLab = true;
-            return "No noodle too broken. No drama too small.";
+            savePlayedCard("Capellini Catastrophe");
+            if (state.playerStats.workerCount > 20) {
+                state.playerStats.pastaPrestige += 5;
+                return "Creative workers turn the pasta tangle into an art installation!";
+            }
+            state.playerStats.lostWorkers += 1;
+            return "A worker becomes hopelessly entangled in the pasta web!";
         }
     },
-    "Break Room": {
-        description: "Build a luxurious pasta-themed break room.",
-        type: "upgrade",
-        cost: 500,
-        requirements: { prestige: 15 },
-        permanentStats: {
-            workerEfficiency: 0.25
-        },
-        statModifiers: {
-            workers: 5,
-            prestige: 3,
-            chaos: -4
-        },
-        effect: (state) => {
-            savePlayedCard("Break Room");
-            state.playerStats.factoryUpgrades.breakRoom = true;
-            return "Happy workers make better pasta!";
-        }
-    },
-    "Pasta Nursery": {
-        description: "Even noodles deserve a break.",
-        type: "upgrade",
-        requirements: { prestige: 15 },
-        cost: 600,
-        permanentStats: {
-            ingredientGain: 0.35,
-        },
-        statModifiers: {
-            ingredients: -3,
-            prestige: 4,
-            chaos: 4
-        },
-        effect: (state) => {
-            savePlayedCard("Pasta Nursery");
-            state.playerStats.factoryUpgrades.pastaNursery = true;
-            return "Happy pasta make better workers!";
-        }
-    },
-    "Industrial Kitchen": {
-        description: "Kitchen, But Pro.",
-        type: "upgrade",
-        requirements: { prestige: 22 },
-        cost: 1200,
-        permanentStats: {
-            prestigeGain: 0.2,
-            ingredientGain: 0.25,
-            workerEfficiency: -0.1
-        },
+    "Stelline Stargazing": {
+        description: "The tiny star-shaped pasta begins to twinkle in the dark.",
+        requirements: null,
         statModifiers: {
             prestige: 10,
-            chaos: 6,
+            chaos: 4,
+            ingredients: 2
         },
         effect: (state) => {
-            savePlayedCard("Industrial Kitchen");
-            state.playerStats.factoryUpgrades.industrialKitchen = true;
-            return "The new kitchen dramatically increases production capacity!";
+            savePlayedCard("Stelline Stargazing");
+            state.playerStats.usedMagicCards = true;
+            return "Astronomers visit to map the pasta constellations!";
         }
     },
-    "Pasta Archives": {
-        description: "Build a library of ancient pasta knowledge.",
-        type: "upgrade",
-        requirements: { prestige: 28 },
-        cost: 1400,
-        permanentStats: {
-            prestigeGain: 0.15,
-            workerEfficiency: 0.15
-        },
+    "Trofie Tempest": {
+        description: "The twisted pasta generates a localized storm in Aisle 3.",
+        requirements: null,
         statModifiers: {
+            chaos: 14,
+            workers: -2,
+            ingredients: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Trofie Tempest");
+            if (state.playerStats.chaosLevel < 40) {
+                state.playerStats.ingredients += 2;
+                return "The pasta storm mysteriously creates new ingredient combinations!";
+            }
+            state.playerStats.lostIngredients += 1;
+            return "Lightning bolts from the pasta storm zap the ingredient shelves!";
+        }
+    },
+    "Radiatori Revolution": {
+        description: "The radiator-shaped pasta is generating heat and discontent.",
+        requirements: null,
+        statModifiers: {
+            chaos: 10,
+            prestige: 5,
+            workers: -5
+        },
+        effect: (state) => {
+            savePlayedCard("Radiatori Revolution");
+            if (state.playerStats.workerCount > 25) {
+                state.playerStats.chaos -= 4;
+                return "Workers channel the pasta's revolutionary energy into productivity!";
+            }
+            state.playerStats.lostWorkers += 2;
+            return "Workers form a union and demand better pasta conditions!";
+        }
+    },
+    "Fregola Forecast": {
+        description: "The round Sardinian pasta predicts tomorrow's market trends.",
+        requirements: null,
+        statModifiers: {
+            prestige: 11,
+            chaos: -3,
+            ingredients: 2
+        },
+        effect: (state) => {
+            savePlayedCard("Fregola Forecast");
+            state.playerStats.usedMagicCards = true;
+            return "Investors flock to consult the prophetic pasta beads!";
+        }
+    },
+    "Casarecce Conspiracy": {
+        description: "The twisted pasta is plotting something in secret.",
+        requirements: null,
+        statModifiers: {
+            chaos: 8,
+            prestige: 4,
+            workers: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Casarecce Conspiracy");
+            if (state.playerStats.chaosLevel > 50) {
+                state.playerStats.chaos += 5;
+                return "The pasta conspiracy succeeds! Factory hierarchy is in disarray!";
+            }
+            return "Workers uncover and thwart the pasta's mysterious plans!";
+        }
+    },
+    "Pizzoccheri Poltergeist": {
+        description: "The buckwheat pasta strips are moving objects around the factory.",
+        requirements: null,
+        statModifiers: {
+            chaos: 12,
             prestige: 7,
+            workers: -4
+        },
+        effect: (state) => {
+            savePlayedCard("Pizzoccheri Poltergeist");
+            if (state.playerStats.chaosLevel < 45) {
+                state.playerStats.prestige += 5;
+                return "The helpful pasta ghost improves factory efficiency!";
+            }
+            state.playerStats.lostWorkers += 1;
+            return "The malevolent pasta spirit terrorizes workers with flying cutlery!";
+        }
+    },
+    "Bavette Blues": {
+        description: "The narrow pasta strips play melancholy music when boiled.",
+        requirements: { ingredients: 1 },
+        statModifiers: {
+            ingredients: -1,
+            prestige: 13,
+            chaos: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Bavette Blues");
+            state.playerStats.usedMagicCards = true;
+            return "Restaurants pay premium prices for the musical pasta experience!";
+        }
+    },
+    "Sedanini Supernova": {
+        description: "The smooth tube pasta is emitting intense energy waves!",
+        requirements: null,
+        statModifiers: {
+            chaos: 16,
+            prestige: 11,
+            workers: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Sedanini Supernova");
+            if (state.playerStats.chaosLevel > 55) {
+                state.playerStats.lostWorkers += 2;
+                return "Workers shield their eyes as pasta tubes emit blinding light!";
+            }
+            state.playerStats.pastaPrestige += 4;
+            return "The glowing pasta attracts curious scientists and tourists!";
+        }
+    },
+    "Anellini Anomaly": {
+        description: "The tiny pasta rings are defying gravity!",
+        requirements: null,
+        statModifiers: {
+            chaos: 9,
+            prestige: 8,
+            ingredients: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Anellini Anomaly");
+            state.playerStats.usedMagicCards = true;
+            return "Floating pasta rings form mesmerizing patterns in midair!";
+        }
+    },
+    "Bigoli Black Hole": {
+        description: "The thick spaghetti is creating a pasta-based gravitational singularity.",
+        requirements: null,
+        statModifiers: {
+            chaos: 18,
+            prestige: 6,
+            workers: -5,
+            ingredients: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Bigoli Black Hole");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel > 60) {
+                state.playerStats.lostWorkers += 3;
+                return "Workers are pulled into the swirling vortex of pasta gravity!";
+            }
+            return "The pasta singularity has become a tourist attraction!";
+        }
+    },
+    "Capunti Captain": {
+        description: "A leader emerges from the ranks of open-centered pasta shells.",
+        requirements: null,
+        statModifiers: {
+            workers: 8,
+            chaos: -6,
+            prestige: 7
+        },
+        effect: (state) => {
+            savePlayedCard("Capunti Captain");
+            return "The pasta commander organizes the workforce with military precision!";
+        }
+    },
+    "Cavatelli Conjurer": {
+        description: "A mysterious figure performs magic tricks with small pasta shells.",
+        requirements: null,
+        statModifiers: {
+            prestige: 12,
+            chaos: 7,
             workers: 4
         },
         effect: (state) => {
-            savePlayedCard("Pasta Archives");
-            state.playerStats.factoryUpgrades.pastaArchives = true;
-            return "Ancient pasta wisdom flows through your factory!";
+            savePlayedCard("Cavatelli Conjurer");
+            state.playerStats.usedMagicCards = true;
+            return "Pasta disappears and reappears in impossible locations!";
         }
     },
-    "Sentient Supply Bot": {
-        description: "Install an AI-powered supply robot that occasionally malfunctions.",
-        type: "upgrade",
-        requirements: { prestige: 25 },
-        cost: 2000,
-        permanentStats: {
-            ingredientGain: 0.25,
-            workerEfficiency: -0.15
-        },
+    "Cascatelli Crisis": {
+        description: "The newly invented pasta shape is causing dimensional instability.",
+        requirements: null,
         statModifiers: {
-            workers: -2,
-            chaos: 8
+            chaos: 14,
+            prestige: 13,
+            workers: -2
         },
         effect: (state) => {
-            savePlayedCard("Sentient Supply Bot");
-            state.playerStats.factoryUpgrades.supplyBot = true;
-            return "The robot seems friendly... mostly.";
+            savePlayedCard("Cascatelli Crisis");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel < 45) {
+                state.playerStats.pastaPrestige += 5;
+                return "The revolutionary pasta design breaks the internet and brings fame!";
+            }
+            state.playerStats.chaos += 5;
+            return "Reality warps around the impossible pasta geometry!";
         }
     },
-    "Ingredient Replicator": {
-        description: "Because who needs to play by the rules?",
-        type: "upgrade",
-        requirements: { prestige: 30 },
-        cost: 2500,
-        permanentStats: {
-            ingredientGain: 0.5,
-            chaosReduction: -0.35,
-            prestigeGain: -0.2
-        },
+    "Mafaldine Maelstrom": {
+        description: "The ribbon pasta with ruffled edges stirs up a pasta vortex.",
+        requirements: null,
         statModifiers: {
+            chaos: 12,
+            ingredients: 5,
+            workers: -3
         },
         effect: (state) => {
-            savePlayedCard("Ingredient Replicator");
-            state.playerStats.factoryUpgrades.Replicator = true;
-            return "Reality bends as ingredients multiply... concerning.";
+            savePlayedCard("Mafaldine Maelstrom");
+            if (state.playerStats.chaosLevel > 50) {
+                state.playerStats.lostWorkers += 1;
+                return "The pasta whirlpool grows stronger, pulling in nearby objects!";
+            }
+            state.playerStats.ingredients += 2;
+            return "The swirling pasta currents draw in exotic new ingredients!";
         }
     },
-    "Production Efficiency": {
-        description: "The noodles never stop. Not even to scream.",
-        type: "upgrade",
-        requirements: { prestige: 20 },
-        cost: 1500,
-        permanentStats: {
-            ingredientGain: 0.35,
-            workerEfficiency: 0.2,
-            prestigeGain: 0.15
-        },
+    "Paccheri Prophecy": {
+        description: "The large tube pasta reveals visions of the factory's future.",
+        requirements: null,
         statModifiers: {
-            workers: -2,
-            ingredients: -1
+            prestige: 9,
+            chaos: 6,
+            workers: 3
         },
-        productionBonus: 0.25,
         effect: (state) => {
-            savePlayedCard("Production Efficiency");
-            return "Factory efficiency has dramatically increased!";
+            savePlayedCard("Paccheri Prophecy");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel < 35) {
+                state.playerStats.prestige += 4;
+                return "The pasta tubes show visions of great prosperity and success!";
+            }
+            state.playerStats.chaos += 3;
+            return "The pasta prophecies show disturbing scenes of noodly doom!";
         }
     },
-    "Market Expansion": {
-        description: "Expand into new markets, increasing noodle prices.",
-        type: "upgrade",
-        requirements: { prestige: 25 },
-        cost: 900,
-        permanentStats: {
-            prestigeGain: 0.2,
-            chaosReduction: -0.1
-        },
+    "Pici Poltergeist": {
+        description: "The hand-rolled thick spaghetti has developed supernatural abilities.",
+        requirements: null,
         statModifiers: {
-            chaos: 5
+            chaos: 11,
+            prestige: 7,
+            workers: -4
         },
-        priceBonus: 0.3,
         effect: (state) => {
-            savePlayedCard("Market Expansion");
-            return "Your noodles now command premium prices in new markets!";
+            savePlayedCard("Pici Poltergeist");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel < 40) {
+                state.playerStats.workerCount += 2;
+                return "The helpful pasta spirit assists with mundane tasks!";
+            }
+            state.playerStats.lostWorkers += 2;
+            return "Workers flee as possessed pasta chases them through the factory!";
         }
     },
-    "Quality Control": {
-        description: "Clipboards out. Noodles, beware.",
-        type: "upgrade",
-        requirements: { prestige: 18 },
-        cost: 700,
-        permanentStats: {
-            prestigeGain: 0.15,
-            workerEfficiency: -0.05
-        },
+    "Garlic Bread Uprising": {
+        description: "The pasta side dish is staging a revolt!",
+        requirements: null,
         statModifiers: {
+            chaos: 15,
+            prestige: -4,
+            workers: -3,
+            ingredients: 2
+        },
+        effect: (state) => {
+            savePlayedCard("Garlic Bread Uprising");
+            if (state.playerStats.chaosLevel > 55) {
+                state.playerStats.lostWorkers += 1;
+                return "Garlic bread barricades block access to important equipment!";
+            }
+            state.playerStats.ingredients += 3;
+            return "The rebellious bread is subdued and repurposed into delicious ingredients!";
+        }
+    },
+    "Cannellini Conspiracy": {
+        description: "The white beans used in pasta dishes are communicating in code.",
+        requirements: null,
+        statModifiers: {
+            chaos: 8,
             prestige: 5,
-            chaos: -3
+            ingredients: 3
         },
-        productionBonus: 0.15,
-        priceBonus: 0.15,
         effect: (state) => {
-            savePlayedCard("Quality Control");
-            return "Quality checkers patrol the factory with their clipboards of doom!";
+            savePlayedCard("Cannellini Conspiracy");
+            state.playerStats.usedMagicCards = true;
+            return "Government agents arrive to study the bean-based encryption system!";
         }
-    }
+    },
+    "Vodka Sauce Volatility": {
+        description: "The creamy tomato sauce has developed unexpected properties.",
+        requirements: { ingredients: 1 },
+        statModifiers: {
+            ingredients: -1,
+            chaos: 10,
+            prestige: 9
+        },
+        effect: (state) => {
+            savePlayedCard("Vodka Sauce Volatility");
+            if (state.playerStats.chaosLevel > 45) {
+                state.playerStats.chaos += 4;
+                return "The sauce ignites, creating spectacular but dangerous flame shows!";
+            }
+            state.playerStats.pastaPrestige += 3;
+            return "The enhanced sauce creates an unforgettable culinary experience!";
+        }
+    },
+    "Mascarpone Miracle": {
+        description: "The cream cheese used in pasta desserts has healing properties.",
+        requirements: null,
+        statModifiers: {
+            workers: 7,
+            chaos: -5,
+            prestige: 6
+        },
+        effect: (state) => {
+            savePlayedCard("Mascarpone Miracle");
+            state.playerStats.usedMagicCards = true;
+            return "Workers recover from fatigue after tasting the miraculous cheese!";
+        }
+    },
+    "Truffle Trouble": {
+        description: "Expensive mushrooms cause unexpected reactions in the sauce vat.",
+        requirements: { ingredients: 2 },
+        statModifiers: {
+            ingredients: -2,
+            prestige: 14,
+            chaos: 9
+        },
+        effect: (state) => {
+            savePlayedCard("Truffle Trouble");
+            if (state.playerStats.chaosLevel < 40) {
+                state.playerStats.pastaPrestige += 7;
+                return "The unique fungal compounds create an unparalleled flavor experience!";
+            }
+            state.playerStats.chaos += 4;
+            return "Workers report hallucinating pasta shapes that shouldn't exist!";
+        }
+    },
+    "Carnevale di Pasta": {
+        description: "Workers organize a venetian-style pasta mask festival.",
+        requirements: null,
+        statModifiers: {
+            workers: 8,
+            prestige: 11,
+            chaos: 7
+        },
+        effect: (state) => {
+            savePlayedCard("Carnevale di Pasta");
+            return "The elaborate pasta masks win international design awards!";
+        }
+    },
+    "Olive Oil Incident": {
+        description: "A barrel of premium olive oil has spilled across the factory floor.",
+        requirements: null,
+        statModifiers: {
+            chaos: 13,
+            workers: -5,
+            ingredients: -2
+        },
+        effect: (state) => {
+            savePlayedCard("Olive Oil Incident");
+            if (state.playerStats.workerCount > 15) {
+                state.playerStats.chaos -= 4;
+                return "Quick-thinking workers contain the oil with pasta dams!";
+            }
+            state.playerStats.lostWorkers += 2;
+            return "Workers slip and slide across the factory in an olive oil slip-n-slide!";
+        }
+    },
 }; // End of CARDS object
 
 let lastDrawnCards = [];
