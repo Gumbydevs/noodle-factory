@@ -70,7 +70,7 @@ export const CARDS = {
             savePlayedCard("Celebrity Chef Visit");
             if (state.playerStats.chaosLevel > 60) {
                 state.playerStats.prestige -= 5;
-                return "The chef is horrified by your chaotic methods and leaves early!";
+                return "The chef is horrified by your methods and leaves early!";
             }
             return "Your pasta factory becomes the star of 'Extreme Noodle Makeover'!";
         }
@@ -100,7 +100,7 @@ export const CARDS = {
         }
     },
     "Overtime Whistle": {
-        description: "Push your workers harder for more prestige.",
+        description: "Push your workers for longer hours and longer noodles.",
         requirements: null,
         statModifiers: {
             prestige: 6,
@@ -176,6 +176,7 @@ export const CARDS = {
             savePlayedCard("Ziti Zodiac");
             if (state.playerStats.chaosLevel < 40) {
                 state.playerStats.pastaPrestige += 4;
+                state.playerStats.money += Math.random() * 500; // Random money bonus
                 return "The pasta patterns reveal profitable business opportunities!";
             }
             return "Workers waste hours trying to decode noodle arrangements!";
