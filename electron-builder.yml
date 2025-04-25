@@ -1,0 +1,34 @@
+appId: com.noodlefactory.game
+productName: The Noodle Factory
+directories:
+  output: dist
+  buildResources: build
+files:
+  - "**/*"
+  - "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}"
+  - "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}"
+  - "!**/node_modules/*.d.ts"
+  - "!**/node_modules/.bin"
+asar: true
+win:
+  icon: "./build/icon.ico"
+  target: 
+    - "nsis"
+  executableName: "The Noodle Factory"
+  signAndEditExecutable: false
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: "The Noodle Factory"
+  installerIcon: "./public/icons/NoodleFactoryLogo.ico"
+  uninstallerIcon: "./public/icons/NoodleFactoryLogo.ico"
+  installerHeaderIcon: "./public/icons/NoodleFactoryLogo.ico"
+mac:
+  target: dmg
+  icon: src/assets/images/NoodleFactoryLogo.png
+linux:
+  target: AppImage
+  icon: src/assets/images/NoodleFactoryLogo.png

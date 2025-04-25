@@ -1304,7 +1304,11 @@ export const CARDS = {
             workers: -2,
             ingredients: -1
         },
-        productionBonus: 0.25
+        productionBonus: 0.25,
+        effect: (state) => {
+            savePlayedCard("Production Efficiency");
+            return "Factory efficiency has dramatically increased!";
+        }
     },
     "Market Expansion": {
         description: "Expand into new markets, increasing noodle prices.",
@@ -1318,7 +1322,11 @@ export const CARDS = {
         statModifiers: {
             chaos: 5
         },
-        priceBonus: 0.3
+        priceBonus: 0.3,
+        effect: (state) => {
+            savePlayedCard("Market Expansion");
+            return "Your noodles now command premium prices in new markets!";
+        }
     },
     "Quality Control": {
         description: "Clipboards out. Noodles, beware.",
@@ -1334,7 +1342,11 @@ export const CARDS = {
             chaos: -3
         },
         productionBonus: 0.15,
-        priceBonus: 0.15
+        priceBonus: 0.15,
+        effect: (state) => {
+            savePlayedCard("Quality Control");
+            return "Quality checkers patrol the factory with their clipboards of doom!";
+        }
     }
 }; // End of CARDS object
 

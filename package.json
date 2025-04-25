@@ -43,7 +43,8 @@
     ],
     "win": {
       "target": "nsis",
-      "icon": "src/assets/images/NoodleFactoryLogo.png"
+      "icon": "public/icons/NoodleFactoryLogo.ico",
+      "artifactName": "${productName} Setup ${version}.${ext}"
     },
     "mac": {
       "target": "dmg",
@@ -59,9 +60,9 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "The Noodle Factory",
-      "installerIcon": "",
-      "uninstallerIcon": "",
-      "installerHeaderIcon": ""
+      "installerIcon": "public/icons/NoodleFactoryLogo.ico",
+      "uninstallerIcon": "public/icons/NoodleFactoryLogo.ico",
+      "installerHeaderIcon": "public/icons/NoodleFactoryLogo.ico"
     }
   },
   "devDependencies": {
