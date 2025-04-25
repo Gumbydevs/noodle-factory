@@ -1576,6 +1576,966 @@ export const CARDS = {
             return "Workers slip and slide across the factory in an olive oil slip-n-slide!";
         }
     },
+    "Tortelloni Tornado Warning": {
+        description: "Meteorologists detect a vortex of large stuffed pasta forming above the factory.",
+        requirements: null,
+        statModifiers: {
+            chaos: 10,
+            prestige: 8,
+            workers: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Tortelloni Tornado Warning");
+            if (state.playerStats.chaosLevel > 50) {
+                state.playerStats.lostWorkers += 2;
+                return "The pasta cyclone touches down, flinging workers across the factory floor!";
+            }
+            state.playerStats.pastaPrestige += 5;
+            return "The swirling pasta spectacle attracts curious weather reporters!";
+        }
+    },
+    "Fusilli Fractal": {
+        description: "The spiral pasta has begun forming impossible geometric patterns.",
+        requirements: null,
+        statModifiers: {
+            chaos: 7,
+            prestige: 11,
+            ingredients: 2
+        },
+        effect: (state) => {
+            savePlayedCard("Fusilli Fractal");
+            state.playerStats.usedMagicCards = true;
+            return "Mathematicians travel from around the world to study the self-replicating pasta spirals!";
+        }
+    },
+    "Tagliolini Time Slip": {
+        description: "Workers report experiencing time dilation near the ribbon pasta station.",
+        requirements: null,
+        statModifiers: {
+            chaos: 13,
+            workers: 5,
+            prestige: 7
+        },
+        effect: (state) => {
+            savePlayedCard("Tagliolini Time Slip");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel > 45) {
+                state.playerStats.chaos += 4;
+                return "Workers return from lunch breaks before they've left, causing scheduling chaos!";
+            }
+            return "The temporal anomaly allows workers to complete eight hours of work in just minutes!";
+        }
+    },
+    "Bucatini Brass Band": {
+        description: "The hollow pasta strands vibrate to create surprisingly harmonious music.",
+        requirements: null,
+        statModifiers: {
+            prestige: 9,
+            chaos: 5,
+            workers: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Bucatini Brass Band");
+            return "The pasta orchestra's performances become a popular lunchtime attraction!";
+        }
+    },
+    "Conchiglie Communication": {
+        description: "The shell-shaped pasta can somehow transmit sounds from across the factory.",
+        requirements: null,
+        statModifiers: {
+            chaos: 6,
+            prestige: 5,
+            workers: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Conchiglie Communication");
+            state.playerStats.usedMagicCards = true;
+            return "Workers create a pasta-based intercom system throughout the building!";
+        }
+    },
+    "Gorgonzola Galaxy": {
+        description: "The blue cheese used in pasta sauces forms cosmic patterns.",
+        requirements: { ingredients: 1 },
+        statModifiers: {
+            ingredients: -1,
+            prestige: 12,
+            chaos: 8
+        },
+        effect: (state) => {
+            savePlayedCard("Gorgonzola Galaxy");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel < 40) {
+                state.playerStats.pastaPrestige += 6;
+                return "The celestial cheese formations are featured in astronomy magazines!";
+            }
+            state.playerStats.chaos += 3;
+            return "Workers report seeing alien lifeforms in the swirling blue cheese vortex!";
+        }
+    },
+    "Farfalle Flight": {
+        description: "The bow-tie pasta has developed the ability to glide through the air.",
+        requirements: null,
+        statModifiers: {
+            chaos: 9,
+            prestige: 7,
+            ingredients: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Farfalle Flight");
+            state.playerStats.usedMagicCards = true;
+            return "The flying pasta delivers seasoning to hard-to-reach places in the factory!";
+        }
+    },
+    "Acini di Pepe Avalanche": {
+        description: "The tiny grain-shaped pasta has overflowed from its container!",
+        requirements: { ingredients: 2 },
+        statModifiers: {
+            ingredients: -2,
+            chaos: 14,
+            workers: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Acini di Pepe Avalanche");
+            if (state.playerStats.workerCount > 18) {
+                state.playerStats.chaos -= 5;
+                return "Quick-thinking workers redirect the pasta flood into emergency containers!";
+            }
+            state.playerStats.lostWorkers += 2;
+            return "Workers disappear beneath the tiny pasta tide, surfacing minutes later covered in starch!";
+        }
+    },
+    "Lasagna Levitation": {
+        description: "Sheets of pasta are floating above the preparation tables.",
+        requirements: null,
+        statModifiers: {
+            chaos: 11,
+            prestige: 9,
+            workers: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Lasagna Levitation");
+            state.playerStats.usedMagicCards = true;
+            return "The hovering pasta layers assemble themselves into perfect portions!";
+        }
+    },
+    "Agnolotti Astral Projection": {
+        description: "The folded pasta packets are disappearing and reappearing elsewhere.",
+        requirements: null,
+        statModifiers: {
+            chaos: 12,
+            prestige: 10,
+            ingredients: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Agnolotti Astral Projection");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel > 50) {
+                state.playerStats.chaos += 5;
+                return "The teleporting pasta causes confusion as lunch orders materialize in random locations!";
+            }
+            return "The self-delivering pasta revolutionizes your distribution system!";
+        }
+    },
+    "Saffron Symphony": {
+        description: "The expensive spice creates musical notes when sprinkled into pasta water.",
+        requirements: { ingredients: 2 },
+        statModifiers: {
+            ingredients: -2,
+            prestige: 15,
+            chaos: 7
+        },
+        effect: (state) => {
+            savePlayedCard("Saffron Symphony");
+            state.playerStats.usedMagicCards = true;
+            return "Gourmands pay premium prices for pasta that plays Mozart during dinner!";
+        }
+    },
+    "Ricotta Renaissance": {
+        description: "The soft cheese inspires workers to create pasta-based art.",
+        requirements: null,
+        statModifiers: {
+            workers: 5,
+            prestige: 9,
+            chaos: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Ricotta Renaissance");
+            return "The factory gallery opens to showcase cheese sculptures and pasta paintings!";
+        }
+    },
+    "Pappardelle Paranormal": {
+        description: "The wide ribbon pasta is moving on its own, forming strange symbols.",
+        requirements: null,
+        statModifiers: {
+            chaos: 13,
+            prestige: 8,
+            workers: -2
+        },
+        effect: (state) => {
+            savePlayedCard("Pappardelle Paranormal");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel > 55) {
+                state.playerStats.lostWorkers += 1;
+                return "Workers flee as pasta strips slither across the floor like serpents!";
+            }
+            state.playerStats.pastaPrestige += 4;
+            return "The self-arranging pasta creates perfect nests without human intervention!";
+        }
+    },
+    "Fettuccine Fever": {
+        description: "Workers develop an intense craving for ribbon pasta.",
+        requirements: null,
+        statModifiers: {
+            chaos: 8,
+            workers: -4,
+            ingredients: -1
+        },
+        effect: (state) => {
+            savePlayedCard("Fettuccine Fever");
+            if (state.playerStats.ingredients > 3) {
+                state.playerStats.ingredients -= 1;
+                return "Productivity plummets as workers can't stop eating the inventory!";
+            }
+            return "The pasta hunger leads to workplace innovation as workers devise new recipes!";
+        }
+    },
+    "Cannoli Crisis": {
+        description: "The dessert pasta tubes are exploding when filled too quickly!",
+        requirements: { ingredients: 1 },
+        statModifiers: {
+            ingredients: -1,
+            chaos: 10,
+            workers: -2
+        },
+        effect: (state) => {
+            savePlayedCard("Cannoli Crisis");
+            if (state.playerStats.chaosLevel < 45) {
+                state.playerStats.prestige += 6;
+                return "The ricotta fireworks become a popular demonstration for factory tours!";
+            }
+            state.playerStats.lostWorkers += 1;
+            return "Workers duck for cover as sweetened ricotta projectiles fly across the room!";
+        }
+    },
+    "Pasta Particle Accelerator": {
+        description: "A physicist has modified your extruder to launch pasta at near-light speed.",
+        requirements: null,
+        statModifiers: {
+            chaos: 16,
+            prestige: 14,
+            workers: -5
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Particle Accelerator");
+            if (state.playerStats.chaosLevel > 60) {
+                state.playerStats.lostWorkers += 3;
+                return "Spaghetti strands break the sound barrier, shattering windows and eardrums!";
+            }
+            state.playerStats.pastaPrestige += 7;
+            return "The high-velocity pasta cooks itself through air friction, revolutionizing production!";
+        }
+    },
+    "Rigatoni Rift": {
+        description: "The tube pasta is creating a tear in the fabric of space-time!",
+        requirements: null,
+        statModifiers: {
+            chaos: 15,
+            ingredients: 5,
+            prestige: 11
+        },
+        effect: (state) => {
+            savePlayedCard("Rigatoni Rift");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel > 55) {
+                state.playerStats.chaos += 6;
+                return "Alternative universe pasta creatures emerge from the rift!";
+            }
+            state.playerStats.ingredients += 3;
+            return "Exotic ingredients from parallel dimensions flow through the pasta portal!";
+        }
+    },
+    "Penne Pendulum": {
+        description: "The tube pasta swings in perfect synchronization, marking time.",
+        requirements: null,
+        statModifiers: {
+            chaos: -7,
+            workers: 5,
+            prestige: 6
+        },
+        effect: (state) => {
+            savePlayedCard("Penne Pendulum");
+            return "The rhythmic pasta hypnotizes workers into a state of perfect efficiency!";
+        }
+    },
+    "Orzo Observatory": {
+        description: "The rice-shaped pasta has arranged itself into a miniature planetarium.",
+        requirements: null,
+        statModifiers: {
+            prestige: 10,
+            chaos: 5,
+            workers: 2
+        },
+        effect: (state) => {
+            savePlayedCard("Orzo Observatory");
+            state.playerStats.usedMagicCards = true;
+            return "Scientists study the orzo's perfect astronomical model that predicts celestial events!";
+        }
+    },
+    "Corkscrew Catastrophe": {
+        description: "The factory's pasta winder has gone berserk!",
+        requirements: null,
+        statModifiers: {
+            chaos: 14,
+            workers: -3,
+            prestige: -4
+        },
+        effect: (state) => {
+            savePlayedCard("Corkscrew Catastrophe");
+            if (state.playerStats.workerCount > 15) {
+                state.playerStats.chaos -= 5;
+                return "Skilled workers tame the wild machine before major damage occurs!";
+            }
+            state.playerStats.lostWorkers += 2;
+            return "The machine spins out of control, wrapping workers in spiral pasta cocoons!";
+        }
+    },
+    "Pasta Poltergeist Party": {
+        description: "Multiple spectral pasta shapes have appeared throughout the factory.",
+        requirements: null,
+        statModifiers: {
+            chaos: 14,
+            prestige: 9,
+            workers: -2
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Poltergeist Party");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel < 50) {
+                state.playerStats.pastaPrestige += 5;
+                return "The transparent pasta entities entertain visitors with haunting performances!";
+            }
+            state.playerStats.chaos += 4;
+            return "The ghostly pasta forms chase workers through the corridors!";
+        }
+    },
+    "Gluten Gluttons": {
+        description: "Strange creatures made of pure gluten emerge from the flour silo.",
+        requirements: { ingredients: 1 },
+        statModifiers: {
+            ingredients: -1,
+            chaos: 13,
+            workers: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Gluten Gluttons");
+            state.playerStats.usedMagicCards = true;
+            return "The doughy beings turn out to be excellent pasta rollers!";
+        }
+    },
+    "Caramelized Conundrum": {
+        description: "The sugar added to pasta sauce has crystallized into mysterious formations.",
+        requirements: null,
+        statModifiers: {
+            prestige: 10,
+            chaos: 6,
+            ingredients: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Caramelized Conundrum");
+            if (state.playerStats.chaosLevel > 55) {
+                state.playerStats.chaos += 5;
+                return "The sugar crystals grow rapidly, encasing kitchen equipment in amber!";
+            }
+            return "Gourmets pay premium prices for the unique sweet-savory pasta experience!";
+        }
+    },
+    "Basil Bees": {
+        description: "A swarm of bees has taken up residence in the herb garden.",
+        requirements: null,
+        statModifiers: {
+            chaos: 11,
+            workers: -3,
+            ingredients: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Basil Bees");
+            if (state.playerStats.chaosLevel > 50) {
+                state.playerStats.lostWorkers += 2;
+                return "Workers flee in panic as the bees defend their herbal home!";
+            }
+            state.playerStats.prestige += 3;
+            return "The bees pollinate the herb garden, creating amazingly aromatic ingredients!";
+        }
+    },
+    "Pecorino Pendulum": {
+        description: "A massive wheel of cheese swings hypnotically above the production line.",
+        requirements: null,
+        statModifiers: {
+            chaos: -5,
+            workers: 7,
+            prestige: 8
+        },
+        effect: (state) => {
+            savePlayedCard("Pecorino Pendulum");
+            return "Workers enter a cheese-induced trance of perfect productivity!";
+        }
+    },
+    "Barilla Bermuda Triangle": {
+        description: "A spatial anomaly in the pasta storage room makes things disappear.",
+        requirements: null,
+        statModifiers: {
+            chaos: 15,
+            ingredients: -2,
+            workers: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Barilla Bermuda Triangle");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel < 45) {
+                state.playerStats.ingredients += 4;
+                return "Lost items from other dimensions materialize to replace what was lost!";
+            }
+            state.playerStats.lostWorkers += 1;
+            return "A worker vanishes while inventorying the rigatoni shelf!";
+        }
+    },
+    "Pesto Protocol Breach": {
+        description: "The green sauce has escaped its containment unit!",
+        requirements: null,
+        statModifiers: {
+            chaos: 16,
+            prestige: -4,
+            ingredients: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Pesto Protocol Breach");
+            if (state.playerStats.workerCount > 20) {
+                state.playerStats.chaos -= 7;
+                return "Alert workers contain the basil-based breach before it reaches the street!";
+            }
+            return "The entire east wing is covered in a film of olive oil and basil!";
+        }
+    },
+    "Black Pepper Blizzard": {
+        description: "Someone knocked over the industrial-sized pepper grinder.",
+        requirements: null,
+        statModifiers: {
+            chaos: 9,
+            workers: -4,
+            ingredients: 2
+        },
+        effect: (state) => {
+            savePlayedCard("Black Pepper Blizzard");
+            if (state.playerStats.chaosLevel < 35) {
+                state.playerStats.prestige += 4;
+                return "The peppery snowstorm creates a unique atmospheric dining experience!";
+            }
+            state.playerStats.lostWorkers += 2;
+            return "Workers flee the production floor, eyes watering and sneezes echoing!";
+        }
+    },
+    "Chili Flake Fiasco": {
+        description: "The red pepper flakes are multiplying at an alarming rate!",
+        requirements: null,
+        statModifiers: {
+            chaos: 12,
+            prestige: 6,
+            ingredients: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Chili Flake Fiasco");
+            if (state.playerStats.chaosLevel > 60) {
+                state.playerStats.chaos += 5;
+                return "The spicy situation escalates as flakes achieve critical mass!";
+            }
+            return "The unexpected spice surplus leads to a new line of 'Inferno Fettuccine'!";
+        }
+    },
+    "Nocturnal Noodles": {
+        description: "The pasta only moves when no one is looking at it.",
+        requirements: null,
+        statModifiers: {
+            chaos: 8,
+            prestige: 11,
+            workers: 2
+        },
+        effect: (state) => {
+            savePlayedCard("Nocturnal Noodles");
+            state.playerStats.usedMagicCards = true;
+            return "Workers set up cameras to catch the pasta's secret choreography!";
+        }
+    },
+    "Vanilla Bean Vision Quest": {
+        description: "The dessert pasta flavoring is causing vivid hallucinations.",
+        requirements: null,
+        statModifiers: {
+            chaos: 14,
+            prestige: 9,
+            workers: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Vanilla Bean Vision Quest");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel < 50) {
+                state.playerStats.pastaPrestige += 6;
+                return "Workers return from their spice-induced journeys with innovative pasta concepts!";
+            }
+            state.playerStats.lostWorkers += 1;
+            return "A worker believes they can fly and attempts to leap from the pasta drying rack!";
+        }
+    },
+    "Tomato Telepathy": {
+        description: "The sauce ingredients are broadcasting workers' thoughts!",
+        requirements: null,
+        statModifiers: {
+            chaos: 11,
+            workers: 4,
+            prestige: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Tomato Telepathy");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel > 55) {
+                state.playerStats.chaos += 4;
+                return "Workplace tensions erupt as secret thoughts are revealed by saucy psychics!";
+            }
+            return "The hivemind connection improves teamwork and coordination!";
+        }
+    },
+    "Pasta Puns Pandemic": {
+        description: "Workers can't stop making terrible pasta-related jokes.",
+        requirements: null,
+        statModifiers: {
+            chaos: 5,
+            workers: 6,
+            prestige: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Puns Pandemic");
+            return "'Cannelloni believe these jokes!' - The puns are spreading faster than we can stop them!";
+        }
+    },
+    "Garlic Guardian": {
+        description: "A giant bulb of garlic has become sentient and protective.",
+        requirements: null,
+        statModifiers: {
+            chaos: 9,
+            prestige: 7,
+            workers: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Garlic Guardian");
+            state.playerStats.usedMagicCards = true;
+            return "The aromatic sentinel watches over the factory, warding off vampires and thieves!";
+        }
+    },
+    "Prosciutto Prophecy": {
+        description: "The thin ham slices are arranging themselves into predictions of the future.",
+        requirements: null,
+        statModifiers: {
+            chaos: 7,
+            prestige: 12,
+            ingredients: 2
+        },
+        effect: (state) => {
+            savePlayedCard("Prosciutto Prophecy");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel < 40) {
+                state.playerStats.pastaPrestige += 5;
+                return "The meat-based divination reveals optimal pasta market strategies!";
+            }
+            state.playerStats.chaos += 3;
+            return "The ham foretells doom and gloom, worrying superstitious workers!";
+        }
+    },
+    "Olive Uprising": {
+        description: "The green and black olives are at war with each other!",
+        requirements: null,
+        statModifiers: {
+            chaos: 13,
+            workers: -2,
+            ingredients: -1
+        },
+        effect: (state) => {
+            savePlayedCard("Olive Uprising");
+            if (state.playerStats.chaosLevel > 50) {
+                state.playerStats.lostIngredients += 2;
+                return "The factory becomes a battlefield as olives hurl themselves across the room!";
+            }
+            state.playerStats.ingredients += 3;
+            return "Workers negotiate a peace treaty, resulting in a unique 'Unity Tapenade'!";
+        }
+    },
+    "Sage Seance": {
+        description: "Workers use the aromatic herb to contact the spirit of the original pasta maker.",
+        requirements: null,
+        statModifiers: {
+            chaos: 8,
+            prestige: 9,
+            workers: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Sage Seance");
+            state.playerStats.usedMagicCards = true;
+            return "The ghostly chef shares forgotten recipes from centuries past!";
+        }
+    },
+    "Anchovies Anonymous": {
+        description: "A support group forms for workers addicted to the salty fish.",
+        requirements: null,
+        statModifiers: {
+            workers: 7,
+            chaos: -4,
+            prestige: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Anchovies Anonymous");
+            return "The twelve-step program helps workers overcome their fishy dependence!";
+        }
+    },
+    "Clove Clairvoyance": {
+        description: "The aromatic spice is giving workers glimpses of the future.",
+        requirements: null,
+        statModifiers: {
+            chaos: 6,
+            prestige: 8,
+            workers: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Clove Clairvoyance");
+            state.playerStats.usedMagicCards = true;
+            return "Production efficiency improves as workers anticipate problems before they occur!";
+        }
+    },
+    "Mozzarella Moon": {
+        description: "A perfect sphere of cheese floats near the ceiling, emitting a soft glow.",
+        requirements: null,
+        statModifiers: {
+            chaos: 10,
+            prestige: 15,
+            workers: 2
+        },
+        effect: (state) => {
+            savePlayedCard("Mozzarella Moon");
+            state.playerStats.usedMagicCards = true;
+            return "The luminous dairy orb provides perfect lighting for pasta production!";
+        }
+    },
+    "Squid Ink Society": {
+        description: "A secret order of pasta makers uses black ink to write coded messages.",
+        requirements: null,
+        statModifiers: {
+            prestige: 13,
+            chaos: 7,
+            workers: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Squid Ink Society");
+            state.playerStats.usedMagicCards = true;
+            return "The cephalopod cultists share ancient pasta-making secrets!";
+        }
+    },
+    "Arugula Alignment": {
+        description: "The peppery leaves arrange themselves into strange constellations.",
+        requirements: null,
+        statModifiers: {
+            ingredients: 4,
+            prestige: 8,
+            chaos: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Arugula Alignment");
+            state.playerStats.usedMagicCards = true;
+            return "The cosmic greens reveal the perfect timing for pasta water boiling!";
+        }
+    },
+    "Sun-Dried Tomato Séance": {
+        description: "The dehydrated fruits attempt to contact the other side.",
+        requirements: { ingredients: 1 },
+        statModifiers: {
+            ingredients: -1,
+            prestige: 10,
+            chaos: 11
+        },
+        effect: (state) => {
+            savePlayedCard("Sun-Dried Tomato Séance");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel < 45) {
+                state.playerStats.pastaPrestige += 4;
+                return "The tomatoes channel ancient Mediterranean pasta masters!";
+            }
+            state.playerStats.chaos += 5;
+            return "Ominous messages about the pasta apocalypse echo through the kitchen!";
+        }
+    },
+    "Walnut Wisdom": {
+        description: "The nuts used in pasta sauce are dispensing philosophical advice.",
+        requirements: null,
+        statModifiers: {
+            chaos: 6,
+            workers: 6,
+            prestige: 7
+        },
+        effect: (state) => {
+            savePlayedCard("Walnut Wisdom");
+            state.playerStats.usedMagicCards = true;
+            return "Workers contemplate life's big questions while shelling the sage nuts!";
+        }
+    },
+    "Capers Capers": {
+        description: "The tiny pickled buds are performing acrobatic stunts.",
+        requirements: null,
+        statModifiers: {
+            prestige: 9,
+            chaos: 8,
+            ingredients: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Capers Capers");
+            return "Audiences gather to watch the daring trapeze acts of the flying capers!";
+        }
+    },
+    "Lemon Zest Zeitgeist": {
+        description: "Citrus peels capture the spirit of the pasta age.",
+        requirements: null,
+        statModifiers: {
+            prestige: 14,
+            chaos: -5,
+            workers: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Lemon Zest Zeitgeist");
+            return "The bright essence inspires a cultural pasta revolution!";
+        }
+    },
+    "Pine Nut Paranoia": {
+        description: "The expensive seeds are convinced someone is trying to steal them.",
+        requirements: null,
+        statModifiers: {
+            chaos: 9,
+            ingredients: 5,
+            workers: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Pine Nut Paranoia");
+            if (state.playerStats.chaosLevel > 50) {
+                state.playerStats.lostWorkers += 1;
+                return "The nuts organize a militant defense force, attacking innocent passersby!";
+            }
+            return "The paranoid nuts hide in the most efficient storage pattern ever seen!";
+        }
+    },
+    "Fennel Forecast": {
+        description: "The licorice-flavored herb predicts upcoming pasta trends.",
+        requirements: null,
+        statModifiers: {
+            prestige: 11,
+            chaos: 4,
+            ingredients: 2
+        },
+        effect: (state) => {
+            savePlayedCard("Fennel Forecast");
+            state.playerStats.usedMagicCards = true;
+            return "Next season's popular pasta shapes are revealed in the arrangement of fennel fronds!";
+        }
+    },
+    "Cardamom Conspiracy": {
+        description: "The aromatic spice is attempting to infiltrate traditionally Italian dishes.",
+        requirements: null,
+        statModifiers: {
+            chaos: 10,
+            prestige: 8,
+            ingredients: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Cardamom Conspiracy");
+            if (state.playerStats.chaosLevel < 40) {
+                state.playerStats.pastaPrestige += 6;
+                return "The fusion pasta becomes an innovative culinary sensation!";
+            }
+            state.playerStats.chaos += 4;
+            return "Traditionalist chefs protest the spice invasion with wooden spoons and rolling pins!";
+        }
+    },
+    "Tortellini Tornado Alley": {
+        description: "A corridor of spinning pasta vortices forms between storage units.",
+        requirements: { ingredients: 2 },
+        statModifiers: {
+            ingredients: -2,
+            chaos: 15,
+            prestige: 9
+        },
+        effect: (state) => {
+            savePlayedCard("Tortellini Tornado Alley");
+            if (state.playerStats.workerCount > 15) {
+                state.playerStats.pastaPrestige += 5;
+                return "Daring workers perform stunts while riding the stuffed pasta cyclones!";
+            }
+            state.playerStats.lostWorkers += 2;
+            return "Workers take shelter as pasta projectiles pummel the production line!";
+        }
+    },
+    "Manicotti Mirage": {
+        description: "The tubular pasta creates optical illusions in the factory.",
+        requirements: null,
+        statModifiers: {
+            chaos: 8,
+            prestige: 6,
+            workers: -2
+        },
+        effect: (state) => {
+            savePlayedCard("Manicotti Mirage");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel < 35) {
+                state.playerStats.prestige += 4;
+                return "The pasta hallucinations become a popular tourist attraction!";
+            }
+            state.playerStats.lostWorkers += 1;
+            return "Workers wander in circles, confused by false pasta pathways!";
+        }
+    },
+    "Linguine Linguistics": {
+        description: "The flat noodles have developed their own language.",
+        requirements: null,
+        statModifiers: {
+            prestige: 10,
+            chaos: 7,
+            workers: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Linguine Linguistics");
+            state.playerStats.usedMagicCards = true;
+            return "Linguists arrive to study the complex pasta dialect!";
+        }
+    },
+    "Cavatappi Quantum Computing": {
+        description: "The spiral pasta has formed an organic supercomputer.",
+        requirements: null,
+        statModifiers: {
+            chaos: 12,
+            prestige: 16,
+            workers: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Cavatappi Quantum Computing");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel < 50) {
+                state.playerStats.pastaPrestige += 8;
+                return "The pasta AI optimizes production logistics beyond human capability!";
+            }
+            state.playerStats.chaos += 6;
+            return "The sentient spirals attempt to connect to the internet and take over the world!";
+        }
+    },
+    "Pumpkin Spice Pandemonium": {
+        description: "Someone added seasonal flavoring to the pasta sauce.",
+        requirements: null,
+        statModifiers: {
+            prestige: 13,
+            chaos: 9,
+            ingredients: -1
+        },
+        effect: (state) => {
+            savePlayedCard("Pumpkin Spice Pandemonium");
+            if (state.playerStats.chaosLevel > 40) {
+                state.playerStats.chaos += 4;
+                return "The factory is overrun with social media influencers seeking the trendy pasta!";
+            }
+            return "The seasonal pasta blend sells out immediately, creating unprecedented demand!";
+        }
+    },
+    "Ravioli Radio": {
+        description: "The stuffed pasta is broadcasting on FM frequencies.",
+        requirements: null,
+        statModifiers: {
+            chaos: 11,
+            prestige: 7,
+            workers: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Ravioli Radio");
+            state.playerStats.usedMagicCards = true;
+            return "The pasta station plays the hottest Italian hits and traffic updates!";
+        }
+    },
+    "Lunar Pasta Eclipse": {
+        description: "The moon turns the color of perfect al dente pasta.",
+        requirements: null,
+        statModifiers: {
+            prestige: 15,
+            chaos: 6,
+            workers: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Lunar Pasta Eclipse");
+            state.playerStats.usedMagicCards = true;
+            return "The celestial sign draws visitors from around the world to your factory!";
+        }
+    },
+    "Pastafarian Pilgrimage": {
+        description: "Followers of the Flying Spaghetti Monster gather at your factory.",
+        requirements: null,
+        statModifiers: {
+            prestige: 12,
+            chaos: 10,
+            workers: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Pastafarian Pilgrimage");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel > 45) {
+                state.playerStats.chaos += 5;
+                return "The religious fervor reaches dangerous levels as noodle miracles occur!";
+            }
+            return "The devoted believers volunteer their services to the sacred pasta cause!";
+        }
+    },
+    "Spaghetti Space Program": {
+        description: "Engineers build a pasta-powered rocket in the parking lot.",
+        requirements: { ingredients: 3 },
+        statModifiers: {
+            ingredients: -3,
+            prestige: 18,
+            chaos: 14
+        },
+        effect: (state) => {
+            savePlayedCard("Spaghetti Space Program");
+            if (state.playerStats.chaosLevel < 55) {
+                state.playerStats.pastaPrestige += 10;
+                return "The carbohydrate spacecraft successfully reaches orbit, making international news!";
+            }
+            state.playerStats.chaos += 7;
+            return "The pasta rocket explodes on the launchpad in a spectacular shower of starch!";
+        }
+    },
+    "Penne for Your Thoughts": {
+        description: "The tube pasta enables telepathic communication among workers.",
+        requirements: null,
+        statModifiers: {
+            workers: 7,
+            chaos: 8,
+            prestige: 6
+        },
+        effect: (state) => {
+            savePlayedCard("Penne for Your Thoughts");
+            state.playerStats.usedMagicCards = true;
+            return "The pasta-based hivemind revolutionizes factory coordination!";
+        }
+    },
+    "Capellini Choir": {
+        description: "The fine angel hair pasta strands vibrate to create heavenly music.",
+        requirements: null,
+        statModifiers: {
+            prestige: 9,
+            chaos: 6,
+            workers: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Capellini Choir");
+            state.playerStats.usedMagicCards = true;
+            return "The angelic pasta melodies soothe even the most stressed workers!";
+        }
+    },
 }; // End of CARDS object
 
 let lastDrawnCards = [];
