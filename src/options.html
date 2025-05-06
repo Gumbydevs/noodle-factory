@@ -49,6 +49,19 @@
             </div>
         </div>
 
+        <div class="options-section">
+            <h2>Achievements</h2>
+            <div class="option-row">
+                <button id="view-achievements" class="button">View Achievements</button>
+                <div class="achievement-progress-container">
+                    <div class="achievement-progress-bar">
+                        <div id="achievement-progress" class="achievement-progress"></div>
+                    </div>
+                    <span id="achievement-progress-text">0/60 Achievements Unlocked</span>
+                </div>
+            </div>
+        </div>
+
         <div class="options-section danger-zone">
             <h2>Danger Zone</h2>
             <div class="option-row">
@@ -59,6 +72,30 @@
 
         <button id="back-button" class="button">Back to Game</button>
     </div>
+
+    <!-- Achievements Modal -->
+    <div id="achievements-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Achievements</h2>
+                <span class="close-button">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="achievements-summary">
+                    <div class="achievement-progress-container">
+                        <div class="achievement-progress-bar">
+                            <div id="modal-achievement-progress" class="achievement-progress"></div>
+                        </div>
+                        <span id="modal-achievement-progress-text">0/60 Achievements Unlocked</span>
+                    </div>
+                </div>
+                <div class="achievements-categories">
+                    <!-- Categories will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="js/options.js"></script>
 </body>
 </html>

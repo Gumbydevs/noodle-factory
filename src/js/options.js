@@ -1,4 +1,4 @@
-import { resetAchievements } from './achievements.js';
+import { resetAchievements, getUnlockedAchievements, getAchievementProgress, ACHIEVEMENTS, ACHIEVEMENT_CATEGORIES, getAchievementCountByCategory } from './achievements.js';
 import { setMusicEnabled, setMusicVolume } from '../audio.js';
 import { gameSounds } from '../audio.js';
 import { musicLoops } from '../audio/music/bgm.js';
@@ -15,11 +15,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetButton = document.getElementById('reset-progress');
     const backButton = document.getElementById('back-button');
     const musicSelect = document.getElementById('music-select');
+    const viewAchievementsButton = document.getElementById('view-achievements');
+    const achievementsModal = document.getElementById('achievements-modal');
+    const closeModalButton = document.querySelector('.close-button');
 
     // Load saved preferences
     const sfxEnabled = localStorage.getItem('sfxEnabled') !== 'false';
     sfxToggle.checked = sfxEnabled;
     gameSounds.setVolume(sfxEnabled ? 0.2 : 0);
+
+    // Update achievement progress display
+    updateAchievementProgress();
 
     // Handle SFX toggle and volume
     sfxToggle.addEventListener('change', (e) => {
@@ -167,6 +173,22 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('musicVolume', value);
     });
 
+    // Achievements Modal
+    viewAchievementsButton.addEventListener('click', () => {
+        openAchievementsModal();
+    });
+
+    closeModalButton.addEventListener('click', () => {
+        achievementsModal.classList.add('hidden');
+    });
+
+    // Close modal when clicking outside of it
+    achievementsModal.addEventListener('click', (e) => {
+        if (e.target === achievementsModal) {
+            achievementsModal.classList.add('hidden');
+        }
+    });
+
     // Reset progress
     resetButton.addEventListener('click', () => {
         if (confirm('Are you sure you want to reset all progress? This cannot be undone!')) {
@@ -174,6 +196,9 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.removeItem('noodleFactoryHighScore');
             localStorage.removeItem('noodleFactoryPlayedCards');
             alert('All progress has been reset!');
+            
+            // Update achievement progress display after reset
+            updateAchievementProgress();
         }
     });
 
@@ -182,3 +207,106 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'index.html';
     });
 });
+
+// Function to update achievement progress display
+function updateAchievementProgress() {
+    const progressBar = document.getElementById('achievement-progress');
+    const progressText = document.getElementById('achievement-progress-text');
+    const modalProgressBar = document.getElementById('modal-achievement-progress');
+    const modalProgressText = document.getElementById('modal-achievement-progress-text');
+    
+    const progress = getAchievementProgress();
+    const unlockedCount = getUnlockedAchievements().length;
+    const totalCount = Object.keys(ACHIEVEMENTS).length;
+    
+    // Update progress in options page
+    if (progressBar && progressText) {
+        progressBar.style.width = `${progress}%`;
+        progressText.textContent = `${unlockedCount}/${totalCount} Achievements Unlocked`;
+    }
+    
+    // Update progress in modal if it's open
+    if (modalProgressBar && modalProgressText) {
+        modalProgressBar.style.width = `${progress}%`;
+        modalProgressText.textContent = `${unlockedCount}/${totalCount} Achievements Unlocked`;
+    }
+}
+
+// Function to open achievements modal and populate it with data
+function openAchievementsModal() {
+    const modal = document.getElementById('achievements-modal');
+    const categoriesContainer = modal.querySelector('.achievements-categories');
+    
+    // Clear previous content
+    categoriesContainer.innerHTML = '';
+    
+    // Update progress bar
+    updateAchievementProgress();
+    
+    // Get achievement data by category
+    const categoryCounts = getAchievementCountByCategory();
+    const unlockedAchievements = getUnlockedAchievements();
+    
+    // Create a section for each category
+    Object.entries(ACHIEVEMENT_CATEGORIES).forEach(([categoryKey, categoryName]) => {
+        const categoryData = categoryCounts[categoryName] || { total: 0, unlocked: 0 };
+        if (categoryData.total === 0) return; // Skip empty categories
+        
+        const categoryEl = document.createElement('div');
+        categoryEl.className = 'achievement-category';
+        
+        // Create category header
+        const headerEl = document.createElement('div');
+        headerEl.className = 'category-header';
+        
+        const titleEl = document.createElement('h3');
+        titleEl.className = 'category-title';
+        titleEl.textContent = categoryName;
+        
+        const progressEl = document.createElement('div');
+        progressEl.className = 'category-progress';
+        progressEl.textContent = `${categoryData.unlocked}/${categoryData.total}`;
+        
+        headerEl.appendChild(titleEl);
+        headerEl.appendChild(progressEl);
+        categoryEl.appendChild(headerEl);
+        
+        // Create achievement list for this category
+        const achievementListEl = document.createElement('div');
+        achievementListEl.className = 'achievement-list';
+        
+        // Add each achievement in this category
+        Object.entries(ACHIEVEMENTS).forEach(([achievementId, achievement]) => {
+            if (achievement.category === categoryName) {
+                const isUnlocked = unlockedAchievements.includes(achievementId);
+                
+                const achievementEl = document.createElement('div');
+                achievementEl.className = `achievement-item${isUnlocked ? ' unlocked' : ''}`;
+                
+                const nameEl = document.createElement('div');
+                nameEl.className = 'achievement-name';
+                nameEl.textContent = achievementId;
+                
+                const descEl = document.createElement('div');
+                descEl.className = 'achievement-description';
+                descEl.textContent = achievement.description;
+                
+                const rewardEl = document.createElement('div');
+                rewardEl.className = 'achievement-reward';
+                rewardEl.textContent = isUnlocked ? `Reward: ${achievement.reward}` : 'Locked';
+                
+                achievementEl.appendChild(nameEl);
+                achievementEl.appendChild(descEl);
+                achievementEl.appendChild(rewardEl);
+                
+                achievementListEl.appendChild(achievementEl);
+            }
+        });
+        
+        categoryEl.appendChild(achievementListEl);
+        categoriesContainer.appendChild(categoryEl);
+    });
+    
+    // Show the modal
+    modal.classList.remove('hidden');
+}
