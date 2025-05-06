@@ -194,6 +194,9 @@ input:disabled + .slider:before {
     border-radius: 8px;
     overflow-y: auto;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    /* Scale down the modal to match the scaled options page */
+    transform: scale(0.7);
+    transform-origin: center;
 }
 
 .modal-header {
