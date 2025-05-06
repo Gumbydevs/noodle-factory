@@ -2523,6 +2523,475 @@ export const CARDS = {
             return "The pasta-based hivemind revolutionizes factory coordination!";
         }
     },
+    // Chaos-reducing cards
+    "Pasta Meditation Retreat": {
+        description: "Workers learn inner peace through pasta-focused mindfulness.",
+        requirements: null,
+        statModifiers: {
+            chaos: -14,
+            workers: 3,
+            prestige: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Meditation Retreat");
+            if (state.playerStats.chaosLevel > 60) {
+                state.playerStats.chaos -= 3;
+                return "Even in extreme chaos, the meditation techniques provide some respite!";
+            }
+            return "The calm atmosphere spreads throughout the factory!";
+        }
+    },
+
+    "Quality Assurance Audit": {
+        description: "Professional inspectors review your pasta production methods.",
+        requirements: { workers: 3 },
+        statModifiers: {
+            chaos: -15,
+            prestige: 4,
+            workers: -2
+        },
+        effect: (state) => {
+            savePlayedCard("Quality Assurance Audit");
+            if (state.playerStats.chaosLevel > 50) {
+                state.playerStats.chaos -= 6;
+                return "The auditors are impressed by how well you manage such chaos!";
+            }
+            return "Your operations receive certification for exceptional pasta quality!";
+        }
+    },
+
+    "Factory Organization Day": {
+        description: "Dedicate time to cleaning and organizing the entire facility.",
+        requirements: null,
+        statModifiers: {
+            chaos: -12,
+            ingredients: 2,
+            workers: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Factory Organization Day");
+            if (state.playerStats.workerCount > 15) {
+                state.playerStats.chaos -= 3;
+                return "With many hands, the factory is spotless in record time!";
+            }
+            state.playerStats.lostWorkers += 1;
+            return "The cleanup reveals forgotten ingredient stashes... and one worker who was napping!";
+        }
+    },
+
+    "Pasta Cooling System Upgrade": {
+        description: "Install state-of-the-art temperature control for perfect pasta consistency.",
+        requirements: null,
+        statModifiers: {
+            chaos: -18,
+            workers: -2,
+            prestige: 7
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Cooling System Upgrade");
+            return "The precise cooling creates pasta with perfect texture and reduces production errors!";
+        }
+    },
+
+    // Prestige-reducing events
+    "Social Media Scandal": {
+        description: "A viral video shows your workers mishandling spaghetti!",
+        requirements: null,
+        statModifiers: {
+            prestige: -14,
+            chaos: 8,
+            workers: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Social Media Scandal");
+            if (state.playerStats.prestige > 40) {
+                state.playerStats.prestige -= 5;
+                return "The high standing of your factory takes a serious hit!";
+            }
+            return "Public outrage at workers twirling spaghetti with their fingers!";
+        }
+    },
+
+    "Competitor's New Recipe": {
+        description: "A rival pasta maker releases an innovative new sauce that's stealing your customers.",
+        requirements: null,
+        statModifiers: {
+            prestige: -10,
+            ingredients: 3,
+            chaos: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Competitor's New Recipe");
+            if (state.playerStats.ingredients > 4) {
+                state.playerStats.ingredients += 2;
+                return "You reverse-engineer their recipe and improve upon it!";
+            }
+            return "Customers are abandoning your pasta for the competition!";
+        }
+    },
+
+    "Food Critic's Scathing Review": {
+        description: "An influential critic lambasts your signature pasta dish.",
+        requirements: null,
+        statModifiers: {
+            prestige: -16,
+            chaos: 7,
+            workers: -2
+        },
+        effect: (state) => {
+            savePlayedCard("Food Critic's Scathing Review");
+            if (state.playerStats.prestige > 50) {
+                state.playerStats.chaos -= 3;
+                return "Your reputation is strong enough to weather the criticism!";
+            }
+            state.playerStats.lostWorkers += 1;
+            return "The head chef quits in tears after reading the review!";
+        }
+    },
+
+    // Worker-cost cards with high rewards
+    "Mass Production Initiative": {
+        description: "Implement an aggressive production schedule to maximize output.",
+        requirements: { workers: 8 },
+        statModifiers: {
+            workers: -8,
+            ingredients: 10,
+            chaos: 6
+        },
+        effect: (state) => {
+            savePlayedCard("Mass Production Initiative");
+            if (state.playerStats.chaosLevel < 40) {
+                state.playerStats.ingredients += 2;
+                return "The streamlined process yields even more ingredients than expected!";
+            }
+            state.playerStats.lostWorkers += 2;
+            return "Workers collapse from exhaustion as machines run at maximum capacity!";
+        }
+    },
+
+    "Pasta Quality Summit": {
+        description: "Host an international gathering of pasta experts at your factory.",
+        requirements: { workers: 6 },
+        statModifiers: {
+            workers: -6,
+            prestige: 16,
+            chaos: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Quality Summit");
+            return "Your factory becomes the talk of the pasta world!";
+        }
+    },
+
+    "Factory Restructuring": {
+        description: "Implement a complete reorganization of the production lines.",
+        requirements: { workers: 7 },
+        statModifiers: {
+            workers: -7,
+            chaos: -16,
+            prestige: 9
+        },
+        effect: (state) => {
+            savePlayedCard("Factory Restructuring");
+            if (state.playerStats.workerCount > 15) {
+                state.playerStats.workers += 2;
+                return "The improved workflow brings workers back quickly!";
+            }
+            return "The new system runs like clockwork, but with a skeleton crew!";
+        }
+    },
+
+    // Ingredient-focused cards
+    "Ingredient Storage Expansion": {
+        description: "Build additional storage facilities for pasta ingredients.",
+        requirements: { ingredients: 3 },
+        statModifiers: {
+            ingredients: -3,
+            chaos: -5,
+            prestige: 7
+        },
+        effect: (state) => {
+            savePlayedCard("Ingredient Storage Expansion");
+            state.playerStats.maxIngredients = (state.playerStats.maxIngredients || 20) + 5;
+            return "Your ingredient capacity has increased! You can now store more supplies.";
+        }
+    },
+
+    "Farm-to-Factory Partnership": {
+        description: "Establish direct relationships with local farmers for fresh ingredients.",
+        requirements: null,
+        statModifiers: {
+            ingredients: 6,
+            prestige: 8,
+            chaos: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Farm-to-Factory Partnership");
+            // Set up a recurring ingredient delivery
+            if (state.playerStats.turnCount % 3 === 0 && !state.playerStats.farmPartnershipActive) {
+                state.playerStats.farmPartnershipActive = true;
+                state.playerStats.ingredients = Math.min((state.playerStats.maxIngredients || 20), 
+                                                        state.playerStats.ingredients + 1);
+                return "Regular ingredient deliveries have begun arriving from your partner farms!";
+            }
+            return "Fresh ingredients arrive directly from local farms!";
+        }
+    },
+
+    "Bulk Purchasing Plan": {
+        description: "Invest in a large shipment of premium pasta ingredients.",
+        requirements: null,
+        statModifiers: {
+            ingredients: 8,
+            chaos: 5,
+            workers: -2
+        },
+        effect: (state) => {
+            savePlayedCard("Bulk Purchasing Plan");
+            if (state.playerStats.chaosLevel > 50) {
+                state.playerStats.lostIngredients += 2;
+                return "Some ingredients spoil in the chaos before they can be used!";
+            }
+            return "The warehouse is filled with high-quality pasta ingredients!";
+        }
+    },
+
+    // Special mechanics cards
+    "Pasta Insurance Policy": {
+        description: "Purchase coverage against pasta-related disasters.",
+        requirements: null,
+        statModifiers: {
+            chaos: -7,
+            prestige: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Insurance Policy");
+            state.playerStats.insuranceActive = true;
+            state.playerStats.money -= 200; // Insurance cost
+            return "Your factory is now insured against pasta catastrophes!";
+        }
+    },
+
+    "Rotating Staff Schedule": {
+        description: "Implement a new shift system to manage worker fatigue.",
+        requirements: { workers: 5 },
+        statModifiers: {
+            workers: 6,
+            chaos: -9
+        },
+        effect: (state) => {
+            savePlayedCard("Rotating Staff Schedule");
+            // Convert chaos to worker energy
+            const chaosReduction = Math.min(state.playerStats.chaosLevel, 10);
+            state.playerStats.chaos -= chaosReduction;
+            state.playerStats.workerEnergy += chaosReduction * 0.5;
+            return "Workers are refreshed by the new schedule, and factory chaos is reduced!";
+        }
+    },
+
+    "Noodle Futures Market": {
+        description: "Speculate on pasta commodity prices for potential profit.",
+        requirements: null,
+        statModifiers: {
+            prestige: -5,
+            chaos: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Noodle Futures Market");
+            // Random chance of success
+            if (Math.random() > 0.5) {
+                const profit = Math.floor(Math.random() * 500) + 200;
+                state.playerStats.money += profit;
+                return `Your market speculation pays off with a ${profit} profit!`;
+            } else {
+                state.playerStats.prestige -= 3;
+                return "Your pasta futures investments fail to yield returns!";
+            }
+        }
+    },
+
+    "Factory Automation": {
+        description: "Install automated pasta-making systems to reduce labor needs.",
+        requirements: { workers: 8 },
+        statModifiers: {
+            workers: -8,
+            prestige: 10,
+            chaos: -6
+        },
+        effect: (state) => {
+            savePlayedCard("Factory Automation");
+            // Improve production efficiency
+            state.playerStats.productionEfficiency = (state.playerStats.productionEfficiency || 1) * 1.25;
+            return "The automated systems increase production while requiring fewer workers!";
+        }
+    },
+
+    // Additional balanced cards
+    "Pasta Safety Training": {
+        description: "Train workers in proper pasta handling procedures.",
+        requirements: null,
+        statModifiers: {
+            chaos: -11,
+            workers: 4,
+            prestige: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Safety Training");
+            return "Workers now follow proper safety protocols for boiling water and al dente testing!";
+        }
+    },
+
+    "Starch Containment Breach": {
+        description: "The pasta starch filtration system has failed catastrophically!",
+        requirements: null,
+        statModifiers: {
+            chaos: 16,
+            prestige: -8,
+            ingredients: -2
+        },
+        effect: (state) => {
+            savePlayedCard("Starch Containment Breach");
+            if (state.playerStats.chaosLevel < 40) {
+                state.playerStats.chaos -= 4;
+                return "Quick-thinking workers contain the starchy explosion!";
+            }
+            state.playerStats.lostWorkers += 2;
+            return "Workers are caught in a sticky situation as starch floods the factory floor!";
+        }
+    },
+
+    "Noodle Naming Contest": {
+        description: "Hold a public competition to name your new pasta shape.",
+        requirements: null,
+        statModifiers: {
+            prestige: 13,
+            chaos: 7,
+            workers: 2
+        },
+        effect: (state) => {
+            savePlayedCard("Noodle Naming Contest");
+            return "The winning entry 'Squigglini' becomes an overnight sensation!";
+        }
+    },
+
+    "Pasta Portion Control": {
+        description: "Implement precise measurement systems for perfect pasta servings.",
+        requirements: null,
+        statModifiers: {
+            chaos: -13,
+            ingredients: 4,
+            prestige: 6
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Portion Control");
+            // Improve ingredient efficiency
+            state.playerStats.ingredientEfficiency = (state.playerStats.ingredientEfficiency || 1) * 1.15;
+            return "Ingredients go further with standardized portions!";
+        }
+    },
+
+    "Spaghetti Sculpture Exhibition": {
+        description: "Artists create elaborate sculptures using your dried pasta.",
+        requirements: { ingredients: 2 },
+        statModifiers: {
+            ingredients: -2,
+            prestige: 14,
+            workers: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Spaghetti Sculpture Exhibition");
+            return "The pasta art exhibition attracts international attention!";
+        }
+    },
+
+    "Ravioli Research Initiative": {
+        description: "Fund scientific study of optimal stuffed pasta techniques.",
+        requirements: { ingredients: 3 },
+        statModifiers: {
+            ingredients: -3,
+            prestige: 12,
+            chaos: -8
+        },
+        effect: (state) => {
+            savePlayedCard("Ravioli Research Initiative");
+            if (state.playerStats.chaosLevel < 30) {
+                state.playerStats.pastaPrestige += 5;
+                return "Groundbreaking pasta research earns your factory academic recognition!";
+            }
+            return "Scientists develop revolutionary stuffing techniques!";
+        }
+    },
+
+    "Pasta Archaeological Dig": {
+        description: "Excavate ancient pasta-making artifacts beneath the factory.",
+        requirements: null,
+        statModifiers: {
+            chaos: 12,
+            prestige: 9,
+            workers: -4
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Archaeological Dig");
+            state.playerStats.usedMagicCards = true;
+            if (state.playerStats.chaosLevel > 50) {
+                state.playerStats.chaos += 4;
+                return "The dig unearths an ancient pasta curse!";
+            }
+            return "Archaeologists discover 2,000-year-old pasta molds!";
+        }
+    },
+
+    "Linguini Language Barrier": {
+        description: "A visiting pasta expert only speaks in an obscure pasta dialect.",
+        requirements: null,
+        statModifiers: {
+            chaos: 8,
+            prestige: -6,
+            workers: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Linguini Language Barrier");
+            if (state.playerStats.workerCount > 15) {
+                state.playerStats.prestige += 10;
+                return "A worker who studied abroad translates the expert's techniques!";
+            }
+            state.playerStats.lostWorkers += 1;
+            return "Communication breakdowns lead to pasta confusion!";
+        }
+    },
+
+    "Pasta Humidity Control": {
+        description: "Install systems to maintain perfect drying conditions.",
+        requirements: null,
+        statModifiers: {
+            chaos: -9,
+            prestige: 8,
+            ingredients: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Humidity Control");
+            return "The perfectly regulated humidity results in pasta with ideal texture!";
+        }
+    },
+
+    "Pasta Psychology Session": {
+        description: "A therapist helps workers process their pasta-related stress.",
+        requirements: null,
+        statModifiers: {
+            chaos: -17,
+            workers: 5,
+            prestige: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Psychology Session");
+            if (state.playerStats.chaosLevel > 60) {
+                state.playerStats.lostWorkers += 1;
+                return "The therapist flees in terror as workers describe the sentient linguine!";
+            }
+            return "Workers work through their feelings about that traumatic ravioli incident!";
+        }
+    },
+
     "Capellini Choir": {
         description: "The fine angel hair pasta strands vibrate to create heavenly music.",
         requirements: null,
@@ -2536,7 +3005,7 @@ export const CARDS = {
             state.playerStats.usedMagicCards = true;
             return "The angelic pasta melodies soothe even the most stressed workers!";
         }
-    },
+    }
 }; // End of CARDS object
 
 let lastDrawnCards = [];
