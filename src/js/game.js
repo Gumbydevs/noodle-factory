@@ -2170,8 +2170,11 @@ class Game {
         // Get the 3 most recent messages from history to display
         const recentMessages = this.messageHistory.slice(0, 3);
         
+        // Reverse the messages array to show oldest message at top
+        const displayMessages = [...recentMessages].reverse();
+        
         // Create container elements for each message
-        recentMessages.forEach((entry, index) => {
+        displayMessages.forEach((entry, index) => {
             const messageContainer = document.createElement('div');
             messageContainer.className = `message-container ${entry.type}`;
             
