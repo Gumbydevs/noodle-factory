@@ -5,6 +5,10 @@
     background: rgba(0, 0, 0, 0.8);
     border-radius: 8px;
     color: #fff;
+    transform: scale(0.7);
+    transform-origin: top center;
+    /* Adjust the margin to compensate for the scaling effect */
+    margin-bottom: -30%;
 }
 
 .options-section {
