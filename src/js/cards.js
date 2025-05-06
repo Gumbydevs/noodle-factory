@@ -2988,7 +2988,7 @@ export const CARDS = {
                 state.playerStats.lostWorkers += 1;
                 return "The therapist flees in terror as workers describe the sentient linguine!";
             }
-            return "Workers work through their feelings about that traumatic ravioli incident!";
+            return "Workers work through their feelings about the traumatic ravioli incident!";
         }
     },
 
