@@ -351,6 +351,51 @@ export const ACHIEVEMENTS = {
         check: (stats) => stats.scienceCardsPlayed >= 10,
         reward: "The science of pasta",
         category: ACHIEVEMENT_CATEGORIES.COLLECTION
+    },
+    "Grand Pasta Master": {
+        description: "Reach 500 prestige points in a single game",
+        check: (stats) => stats.pastaPrestige >= 500,
+        reward: "Your name is whispered in reverent tones throughout the culinary world",
+        category: ACHIEVEMENT_CATEGORIES.PRESTIGE
+    },
+    "Pasta Whisperer": {
+        description: "Have 150+ workers with zero worker losses for 20 consecutive turns",
+        check: (stats) => stats.workerCount >= 150 && stats.noWorkerLossTurns >= 20,
+        reward: "They would follow you into the fires of Mount Doom",
+        category: ACHIEVEMENT_CATEGORIES.WORKERS
+    },
+    "Edge of Tomorrow": {
+        description: "Survive 10 consecutive turns with chaos at exactly 99",
+        check: (stats) => stats.edgeOfTomorrowTurns >= 10,
+        reward: "Live. Die. Al dente.",
+        category: ACHIEVEMENT_CATEGORIES.CHALLENGE
+    },
+    "Pasta Billionaire": {
+        description: "Accumulate $1,000,000 in a single game",
+        check: (stats) => stats.money >= 1000000,
+        reward: "Rolling in dough, literally",
+        category: ACHIEVEMENT_CATEGORIES.RESOURCES
+    },
+    "The Pasta Godfather": {
+        description: "Play 50 cards in a single game without encountering any chaos events",
+        check: (stats) => stats.cardsPlayedWithoutChaos >= 50,
+        reward: "An offer they couldn't refuse",
+        category: ACHIEVEMENT_CATEGORIES.SPECIAL
+    },
+    "It's Over 9000!!!": {
+        description: "Produce 9001 noodles in a single game",
+        check: (stats) => stats.totalNoodlesProduced >= 9001,
+        reward: "His power level is impossible!",
+        category: ACHIEVEMENT_CATEGORIES.RESOURCES
+    },
+    "Hall of Legends": {
+        description: "Complete 50 achievements",
+        check: () => {
+            const unlockedCount = getUnlockedAchievements().length;
+            return unlockedCount >= 50;
+        },
+        reward: "True pasta legend status unlocked",
+        category: ACHIEVEMENT_CATEGORIES.SPECIAL
     }
 };
 
