@@ -2540,7 +2540,7 @@ class Game {
         const overlay = document.querySelector('.modal-overlay');
         
         if (modal) modal.classList.remove('active');
-        if (overlay) modal.classList.remove('active');
+        if (overlay) overlay.classList.remove('active');
     }
 
     // Setup message history click handlers

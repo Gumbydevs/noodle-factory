@@ -204,7 +204,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Back button
     backButton.addEventListener('click', () => {
-        window.location.href = 'index.html';
+        // Check if there was an active game by looking for saved game state
+        const hasSavedGame = localStorage.getItem('noodleFactoryGameState') !== null;
+        
+        // If we were referred from a game page and there's a saved game,
+        // preserve the game state by not clearing it and going back to index.html
+        if (hasSavedGame) {
+            window.location.href = 'index.html';
+        } else {
+            // No saved game, just go back to index
+            window.location.href = 'index.html';
+        }
     });
 });
 

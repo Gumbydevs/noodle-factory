@@ -1693,23 +1693,41 @@ h1 {
 .chaos-level-1 .message-box {
     --wave-intensity: 1;
     --color-shift: 5deg;
+    background: rgba(30, 30, 32, 0.8);
+    animation: subtlePulse 4s infinite;
 }
 
 .chaos-level-2 .message-box {
     --wave-intensity: 2;
     --color-shift: 10deg;
+    background: rgba(35, 30, 40, 0.85);
+    animation: subtlePulse 3s infinite;
 }
 
 .chaos-level-3 .message-box {
     --wave-intensity: 3;
     --color-shift: 15deg;
     --brightness: 1.1;
+    background: linear-gradient(45deg, #272d40, #402d3a);
+    animation: mediumPulse 2.5s infinite;
 }
 
 .chaos-level-max .message-box {
     --wave-intensity: 4;
     --color-shift: 20deg;
     --brightness: 1.2;
+    animation: heatwave 3s infinite;
+    background: linear-gradient(45deg, #2c3e50, #c0392b);
+}
+
+@keyframes subtlePulse {
+    0%, 100% { background-color: rgba(30, 30, 32, 0.8); }
+    50% { background-color: rgba(35, 32, 40, 0.85); }
+}
+
+@keyframes mediumPulse {
+    0%, 100% { background: linear-gradient(45deg, #272d40, #402d3a); }
+    50% { background: linear-gradient(45deg, #302e45, #453035); }
 }
 
 /* Update message type styles */
