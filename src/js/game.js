@@ -111,6 +111,9 @@ class Game {
         this.messageHistory = [];
         this.maxMessageHistory = 50; // Store the 50 most recent messages
 
+        // Add pause state tracking
+        this.isPaused = false;
+
         this.state = {
             playerStats: {
                 pastaPrestige: 0,
@@ -2313,8 +2316,103 @@ class Game {
         }
     }
 
+    updateSingleWorkerStreak() {
+        // Track turns with exactly one worker for achievement
+        if (this.state.playerStats.workerCount === 1) {
+            this.state.playerStats.singleWorkerTurns = (this.state.playerStats.singleWorkerTurns || 0) + 1;
+            this.state.playerStats.singleWorkerConsecutiveTurns = (this.state.playerStats.singleWorkerConsecutiveTurns || 0) + 1;
+        } else {
+            // Reset consecutive count if worker count is not 1
+            this.state.playerStats.singleWorkerConsecutiveTurns = 0;
+        }
+    }
+
+    checkBalancedStats() {
+        // Check for special balanced stats and achievements
+        const stats = this.state.playerStats;
+        
+        // Check for perfect balance (chaos exactly at 50%)
+        if (stats.chaosLevel === 50) {
+            stats.balancedChaosTurns = (stats.balancedChaosTurns || 0) + 1;
+            
+            // Potential special effects or achievements for maintaining balance
+            if (stats.balancedChaosTurns >= 3) {
+                // Add small ingredient bonus for maintaining balance
+                if (Math.random() < 0.3) {
+                    const bonusAmount = Math.floor(Math.random() * 2) + 1;
+                    stats.ingredients = Math.min(20, stats.ingredients + bonusAmount);
+                    this.showEffectMessage(`Balance bonus: +${bonusAmount} ingredients!`);
+                }
+                
+                // Chance for small prestige gain
+                if (stats.balancedChaosTurns >= 5 && Math.random() < 0.2) {
+                    const prestigeBonus = 0.5;
+                    stats.pastaPrestige += prestigeBonus;
+                    this.showEffectMessage(`Perfect balance generates a prestige bonus!`);
+                }
+            }
+        } else {
+            // Reset balance streak if chaos is not at 50%
+            stats.balancedChaosTurns = 0;
+        }
+        
+        // Check for high efficiency (high worker count + low chaos)
+        if (stats.workerCount >= 20 && stats.chaosLevel <= 25) {
+            stats.efficientFactoryTurns = (stats.efficientFactoryTurns || 0) + 1;
+            
+            // Possible production bonus for efficiency
+            if (stats.efficientFactoryTurns >= 2 && Math.random() < 0.4) {
+                stats.noodleProductionRate *= 1.05; // 5% production boost
+                this.showEffectMessage(`Efficient factory operation increases production rate!`);
+            }
+        } else {
+            // Reset efficiency streak
+            stats.efficientFactoryTurns = 0;
+        }
+    }
+
     updateChaosStreak() {
         // Existing method logic
+    }
+    
+    checkRiskAchievements() {
+        // Check for achievements related to high-risk gameplay
+        const stats = this.state.playerStats;
+        
+        // Check for playing risky with high chaos
+        if (stats.chaosLevel >= 90) {
+            stats.highChaosRiskTurns = (stats.highChaosRiskTurns || 0) + 1;
+        } else {
+            stats.highChaosRiskTurns = 0;
+        }
+        
+        // Check for playing with very low ingredients
+        if (stats.ingredients <= 2) {
+            stats.lowIngredientsRiskTurns = (stats.lowIngredientsRiskTurns || 0) + 1;
+        } else {
+            stats.lowIngredientsRiskTurns = 0;
+        }
+        
+        // Check for playing with very low worker count
+        if (stats.workerCount <= 3) {
+            stats.lowWorkerRiskTurns = (stats.lowWorkerRiskTurns || 0) + 1;
+        } else {
+            stats.lowWorkerRiskTurns = 0;
+        }
+        
+        // Check for playing with very low money
+        if (stats.money <= 100) {
+            stats.lowMoneyRiskTurns = (stats.lowMoneyRiskTurns || 0) + 1;
+        } else {
+            stats.lowMoneyRiskTurns = 0;
+        }
+        
+        // Check for combined risks (living dangerously!)
+        if ((stats.chaosLevel >= 75) && (stats.ingredients <= 3 || stats.workerCount <= 5 || stats.money <= 200)) {
+            stats.combinedRiskTurns = (stats.combinedRiskTurns || 0) + 1;
+        } else {
+            stats.combinedRiskTurns = 0;
+        }
     }
 
     loadGame() {
@@ -2442,7 +2540,7 @@ class Game {
         const overlay = document.querySelector('.modal-overlay');
         
         if (modal) modal.classList.remove('active');
-        if (overlay) overlay.classList.remove('active');
+        if (overlay) modal.classList.remove('active');
     }
 
     // Setup message history click handlers
@@ -2469,12 +2567,82 @@ class Game {
             });
         }
         
-        // Add escape key handler
+        // Add escape key handler for both message history and pause menu
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                this.hideMessageHistory();
+                // If message history is open, close it first
+                const messageHistoryModal = document.querySelector('.message-history-modal.active');
+                if (messageHistoryModal) {
+                    this.hideMessageHistory();
+                } else if (this.isGameStarted && !this.isGameOver) {
+                    // Otherwise toggle pause menu if game is active
+                    this.togglePauseMenu();
+                }
             }
         });
+    }
+
+    // Create a pause menu overlay
+    createPauseMenu() {
+        // Check if menu already exists
+        if (document.querySelector('.pause-menu-overlay')) {
+            return;
+        }
+
+        // Create the pause menu overlay
+        const pauseOverlay = document.createElement('div');
+        pauseOverlay.className = 'pause-menu-overlay';
+        
+        const pauseMenu = document.createElement('div');
+        pauseMenu.className = 'pause-menu';
+        
+        pauseMenu.innerHTML = `
+            <h2>Game Paused</h2>
+            <div class="pause-menu-buttons">
+                <button id="continue-run" class="button primary">Continue Run</button>
+                <button id="new-run" class="button primary">New Run</button>
+                <button id="options" class="button secondary">Options</button>
+            </div>
+        `;
+        
+        pauseOverlay.appendChild(pauseMenu);
+        document.body.appendChild(pauseOverlay);
+        
+        // Add event listeners
+        document.getElementById('continue-run').addEventListener('click', () => {
+            this.closePauseMenu();
+        });
+        
+        document.getElementById('new-run').addEventListener('click', () => {
+            this.closePauseMenu();
+            if (confirm('Start a new run? Current progress will be lost.')) {
+                this.start();
+            }
+        });
+        
+        document.getElementById('options').addEventListener('click', () => {
+            window.location.href = 'options.html';
+        });
+        
+        this.isPaused = true;
+    }
+    
+    // Close the pause menu
+    closePauseMenu() {
+        const pauseMenu = document.querySelector('.pause-menu-overlay');
+        if (pauseMenu) {
+            pauseMenu.remove();
+        }
+        this.isPaused = false;
+    }
+    
+    // Toggle pause menu
+    togglePauseMenu() {
+        if (this.isPaused) {
+            this.closePauseMenu();
+        } else {
+            this.createPauseMenu();
+        }
     }
 }
 
