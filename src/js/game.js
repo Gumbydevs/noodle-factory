@@ -1311,6 +1311,15 @@ class Game {
         // Update visuals
         this.updateDisplay();
         
+        // Update other tracking stats
+        this.updateChaosStreak();
+        this.updateSingleWorkerStreak();
+        this.updateLowWorkerStats();
+        this.checkBalancedStats();
+        
+        // Check if any risk achievements are met
+        this.checkRiskAchievements();
+
         // Finally add a situation message
         const situationMessage = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
         this.showSituationMessage(situationMessage);
@@ -2291,6 +2300,21 @@ class Game {
         if (this.messageHistory.length > this.maxMessageHistory) {
             this.messageHistory.pop();
         }
+    }
+
+    updateLowWorkerStats() {
+        // Track consecutive turns with low worker count for achievement
+        if (this.state.playerStats.workerCount <= 10 && this.state.playerStats.workerCount > 0) {
+            this.state.playerStats.lowWorkerConsecutiveTurns = (this.state.playerStats.lowWorkerConsecutiveTurns || 0) + 1;
+            this.state.playerStats.lowWorkerTurns = (this.state.playerStats.lowWorkerTurns || 0) + 1;
+        } else {
+            // Reset consecutive count if worker count is above threshold
+            this.state.playerStats.lowWorkerConsecutiveTurns = 0;
+        }
+    }
+
+    updateChaosStreak() {
+        // Existing method logic
     }
 
     loadGame() {

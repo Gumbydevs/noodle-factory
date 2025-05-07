@@ -63,8 +63,8 @@ export const ACHIEVEMENTS = {
         category: ACHIEVEMENT_CATEGORIES.RESOURCES
     },
     "Labour Crisis": {
-        description: "Survive with less than 10 workers",
-        check: (stats) => stats.workerCount <= 10 && stats.workerCount > 0,
+        description: "Survive with less than 10 workers for 5 consecutive turns",
+        check: (stats) => stats.workerCount <= 10 && stats.workerCount > 0 && (stats.lowWorkerConsecutiveTurns >= 5),
         reward: "Hanging on by a thread!",
         category: ACHIEVEMENT_CATEGORIES.WORKERS
     },
