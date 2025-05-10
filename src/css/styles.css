@@ -2794,6 +2794,10 @@ h1 {
     animation: selectedCardVanish 0.8s ease-out forwards !important;
     pointer-events: none;
     z-index: 999;
+}
+
+@keyframes selectedCardVanish {
+    0% {
         transform: translate(0, 0) scale(1);
         opacity: 1;
         background: #ff4400;
