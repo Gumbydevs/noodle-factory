@@ -3166,7 +3166,7 @@ export const CARDS = {
         }
     },
     "Durum Wheat Partnership": {
-        description: "Direct access to premium grain for superior pasta quality.",
+        description: "Direct access to premium grains.",
         type: "upgrade",
         requirements: { prestige: 30 },
         cost: 500,
@@ -3182,8 +3182,8 @@ export const CARDS = {
             return "The finest semolina ensures your pasta has perfect bite!";
         }
     },
-    "Automated Quality Control": {
-        description: "AI-powered systems that detect pasta imperfections.",
+    "Automated QC": {
+        description: "AI-powered imperfection detection system.",
         type: "upgrade",
         requirements: { prestige: 40 },
         cost: 700,
@@ -3193,8 +3193,7 @@ export const CARDS = {
         },
         statModifiers: {
             prestige: 6,
-            chaos: -8,
-            workers: -3
+            chaos: -8
         },
         effect: (state) => {
             savePlayedCard("Automated Quality Control");

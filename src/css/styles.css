@@ -1209,7 +1209,7 @@ h1 {
 
 .card .effects-label {
     font-size: 0.65em; /* Reduced from 0.7em */
-    color: #888;
+    color: #d2d3d2;
     margin-bottom: 2px; /* Reduced from 3px */
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -1219,7 +1219,7 @@ h1 {
 .card .cost-display {
     border-top: 1px solid #444;
     margin-top: auto;
-    padding: 4px 0; /* Reduced from 5px */
+    /* padding: 4px 0;  Reduced from 5px */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1245,7 +1245,7 @@ h1 {
 
 .card-description {
     font-size: 0.85em; /* Reduced from 0.9em */
-    color: #ddd;
+    color: #e9e8e8;
     line-height: 1.35; /* Adjusted from 1.4 */
     margin-bottom: auto;
     padding: 8px 0; /* Reduced from 10px */
@@ -2708,7 +2708,7 @@ h1 {
 }
 
 .upgrade-card .effects-label {
-    color: #888;
+    color: #c6d3b8;
     font-size: 0.65em; /* Reduced from 0.7em */
     margin-bottom: 2px; /* Reduced from 3px */
     text-transform: uppercase;
@@ -2892,13 +2892,14 @@ h1 {
     margin-top: 20px;
     padding: 10px;
     width: 100%;
-    height: auto;
+    height: 250%;
 }
 
 .upgrades-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+    height: 250%;
     justify-content: center;
 }
 
@@ -3338,7 +3339,7 @@ h1 {
 
 .help-tip {
     padding: 10px;
-    background-color: rgba(30, 30, 50, 0.6);
+    background-color: rgba(75, 75, 104, 0.6);
     border-left: 3px solid #ffd700;
     margin-top: 15px;
     margin-bottom: 15px;
@@ -3396,4 +3397,148 @@ h1 {
 .help-container .negative {
     color: #e74c3c;
     font-weight: bold;
+}
+
+/* Emergency Pasta Button styles */
+.emergency-pasta-button {
+    position: relative;
+    display: inline-flex;
+    width: 15px;
+    height: 15px;
+    margin-left: 8px;
+    background: #e74c3c;
+    border: 2px solid #c0392b;
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.4), inset 0 0 6px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    z-index: 10;
+    transition: all 0.2s ease;
+    animation: pulse-red 5s infinite;
+}
+
+.emergency-pasta-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.7), inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.emergency-pasta-button:active {
+    transform: scale(0.95);
+}
+
+.emergency-pasta-button span {
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    line-height: 1;
+}
+
+/* Make the noodles item display flex to align button properly */
+.resource-item {
+    display: flex;
+    align-items: center;
+}
+
+/* Rest of the emergency modal CSS remains the same */
+.emergency-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    background: rgba(20, 20, 20, 0.95);
+    border: 2px solid #e74c3c;
+    border-radius: 10px;
+    box-shadow: 0 0 25px rgba(231, 76, 60, 0.5);
+    padding: 20px;
+    z-index: 1001;
+    display: none;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.emergency-modal.active {
+    display: flex;
+    animation: modalAppear 0.3s forwards;
+}
+
+.emergency-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.emergency-header h2 {
+    color: #e74c3c;
+    font-size: 1.5em;
+    margin: 0;
+    text-shadow: 0 0 5px rgba(231, 76, 60, 0.3);
+}
+
+.emergency-close {
+    background: none;
+    border: none;
+    color: #bbb;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+.emergency-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.emergency-option {
+    padding: 15px;
+    background: rgba(50, 50, 50, 0.5);
+    border: 1px solid #555;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.emergency-option:hover {
+    background: rgba(70, 70, 70, 0.7);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.emergency-option:active {
+    transform: translateY(0);
+}
+
+.option-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.option-title {
+    font-weight: bold;
+    color: #f39c12;
+}
+
+.option-price {
+    color: #2ecc71;
+}
+
+.option-desc {
+    font-size: 0.9em;
+    color: #bbb;
+    line-height: 1.4;
+}
+
+@keyframes modalAppear {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
 }

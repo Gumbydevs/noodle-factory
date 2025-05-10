@@ -235,6 +235,19 @@ class Game {
             lightsContainer.appendChild(light);
         }
 
+        // Add emergency pasta button if not already present
+        const noodlesItem = document.querySelector('.resource-item:has(.noodles-color)');
+        if (noodlesItem && !document.querySelector('.emergency-pasta-button')) {
+            const emergencyButton = document.createElement('button');
+            emergencyButton.className = 'emergency-pasta-button';
+            emergencyButton.innerHTML = '<span>!</span>';
+            emergencyButton.title = 'Emergency Pasta Sale';
+            noodlesItem.appendChild(emergencyButton);
+            
+            // Add click event listener
+            emergencyButton.addEventListener('click', () => this.showEmergencyPastaModal());
+        }
+
         this.updateLights();
     }
 
@@ -1334,12 +1347,10 @@ class Game {
         
         const workers = this.state.playerStats.workerCount;
         
-        // MODIFIED: Make ingredients last much longer by reducing consumption rate
-        // Only use a small fraction of ingredients (0.2 instead of 0.5)
-        // This makes adding ingredients more impactful
+        // Make ingredients last longer by reducing consumption rate
         const baseProduction = Math.min(
-            Math.floor(this.state.playerStats.ingredients * 0.2), // Reduced from 0.5 to 0.2
-            Math.ceil(workers / 0.7)  // Reduced worker requirement from 0.5 to 0.7 workers per ingredient
+            Math.floor(this.state.playerStats.ingredients * 0.5), // Round down ingredient usage
+            Math.ceil(workers / 0.5)  // Each 5 workers can process 1 ingredient
         );
 
         if (baseProduction <= 0) return null;
@@ -1348,14 +1359,13 @@ class Game {
         const chaosMultiplier = chaosLevel > 50 ? 
             1 - ((chaosLevel - 50) / 100) :
             1 + (chaosLevel / 100);
-        // Increase noodles per ingredient for better payoff
-        const noodlesPerIngredient = 20 + Math.floor(Math.random() * 21); // Increased from 15-30 to 20-40
+        const noodlesPerIngredient = 15 + Math.floor(Math.random() * 16);
         const production = Math.max(1, Math.floor(baseProduction * noodlesPerIngredient * chaosMultiplier * this.state.playerStats.noodleProductionRate));
 
         if (production > 0) {
             this.state.playerStats.noodles += production;
-            // Only consume a smaller fraction of ingredients
-            this.state.playerStats.ingredients = Math.floor(Math.max(0, this.state.playerStats.ingredients - (baseProduction * 0.2))); // Reduced from 0.5 to 0.2
+            // Only consume whole number of ingredients
+            this.state.playerStats.ingredients = Math.floor(Math.max(0, this.state.playerStats.ingredients - (baseProduction * 0.5)));
             
             // Return the production message
             return `Daily production: Created ${production} noodles!`;
@@ -2761,6 +2771,252 @@ class Game {
             }
         };
         document.addEventListener('keydown', closeHelpOnEsc);
+    }
+
+    showEmergencyPastaModal() {
+        // First check if player has any noodles to sell
+        if (this.state.playerStats.noodles <= 0) {
+            this.showEffectMessage("No noodles available to sell! Make some pasta first.");
+            gameSounds.playBadCardSound();
+            return;
+        }
+        
+        // Play a sound for emergency button press
+        gameSounds.playChaosSound();
+        
+        // Arrays of potential buyers for different sale types
+        const flashSaleBuyers = [
+            "A local restaurant chain makes a quick order.",
+            "The nearby school cafeteria needs pasta ASAP.",
+            "A panic buyer clears out your stock before a storm.",
+            "Your competitor's factory had a breakdown and they need emergency supplies.",
+            "A passing truck driver buys everything to resell at a roadside stand.",
+            "The discount grocery store wants all your odd-shaped pasta.",
+            "A desperate caterer needs immediate backup for a large event.",
+            "Your landlord accepts pasta as partial payment on your rent.",
+            "A food bank is collecting donations for a community event.",
+            "A hungry flash mob appears and buys everything."
+        ];
+        
+        const bulkSaleBuyers = [
+            "The military offers a bulk contract at a reduced price.",
+            "A prison system needs to feed thousands of inmates.",
+            "A cruise ship docks and needs to restock quickly.",
+            "A survivalist group is preparing for the apocalypse... with pasta.",
+            "A budget supermarket chain takes all your stock for their clearance aisle.",
+            "A pasta-loving cult buys in bulk for their annual ceremony.",
+            "A university dining service needs a semester's worth of pasta.",
+            "A government stockpile program makes an emergency purchase.",
+            "A budget airline needs to replace their in-flight meals.",
+            "The local pasta-eating competition needs supplies for this weekend."
+        ];
+        
+        const premiumBuyers = [
+            "A Michelin-starred restaurant recognizes your quality.",
+            "A celebrity chef features your pasta on their cooking show.",
+            "An exclusive dinner party for diplomats requires your finest product.",
+            "A luxury cruise liner orders for their gourmet restaurant.",
+            "An eccentric billionaire's personal chef makes a special request.",
+            "A royal family's kitchen requests your pasta for a state dinner.",
+            "A famous food critic wants to feature your noodles in a magazine.",
+            "A high-end Italian restaurant chain signs an exclusive deal.",
+            "A fancy hotel prepares for their annual pasta festival.",
+            "The governor's mansion calls for an emergency delivery."
+        ];
+        
+        // Randomly select buyer scenarios for each option
+        const flashSaleBuyer = flashSaleBuyers[Math.floor(Math.random() * flashSaleBuyers.length)];
+        const bulkSaleBuyer = bulkSaleBuyers[Math.floor(Math.random() * bulkSaleBuyers.length)];
+        const premiumBuyer = premiumBuyers[Math.floor(Math.random() * premiumBuyers.length)];
+        
+        // Store the selected buyers for later use in processEmergencyOption
+        this.selectedBuyers = {
+            discount: flashSaleBuyer,
+            bulk: bulkSaleBuyer,
+            premium: premiumBuyer
+        };
+        
+        // Create the emergency modal if it doesn't exist
+        let modal = document.querySelector('.emergency-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.className = 'emergency-modal';
+            modal.innerHTML = `
+                <div class="emergency-header">
+                    <h2>Emergency Pasta Sale</h2>
+                    <button class="emergency-close">&times;</button>
+                </div>
+                <div class="emergency-options">
+                    <div class="emergency-option" data-id="discount">
+                        <div class="option-header">
+                            <span class="option-title">Flash Sale</span>
+                            <span class="option-price">All Noodles</span>
+                        </div>
+                        <p class="buyer-desc">${flashSaleBuyer}</p>
+                        <p class="option-desc">Sell all your noodles immediately at 80% of normal price. Quick cash, small discount.</p>
+                    </div>
+                    <div class="emergency-option" data-id="bulk">
+                        <div class="option-header">
+                            <span class="option-title">Bulk Clearance</span>
+                            <span class="option-price">All Noodles</span>
+                        </div>
+                        <p class="buyer-desc">${bulkSaleBuyer}</p>
+                        <p class="option-desc">Sell all your noodles at 65% of normal price, but reduce chaos by 10%. Desperation has its benefits.</p>
+                    </div>
+                    <div class="emergency-option" data-id="premium">
+                        <div class="option-header">
+                            <span class="option-title">Premium Rush</span>
+                            <span class="option-price">Half Noodles</span>
+                        </div>
+                        <p class="buyer-desc">${premiumBuyer}</p>
+                        <p class="option-desc">Sell half your noodles at 120% of normal price and gain +3 prestige. The fancy restaurant called!</p>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // Close button functionality
+            const closeBtn = modal.querySelector('.emergency-close');
+            closeBtn.addEventListener('click', () => {
+                modal.classList.remove('active');
+                setTimeout(() => {
+                    if (!modal.classList.contains('active')) {
+                        modal.style.display = 'none';
+                    }
+                }, 300);
+            });
+            
+            // Option click functionality
+            const options = modal.querySelectorAll('.emergency-option');
+            options.forEach(option => {
+                option.addEventListener('click', () => {
+                    const optionId = option.getAttribute('data-id');
+                    this.processEmergencyOption(optionId);
+                    modal.classList.remove('active');
+                    setTimeout(() => modal.style.display = 'none', 300);
+                });
+            });
+        } else {
+            // Update the buyer descriptions in the existing modal
+            const flashSaleOption = modal.querySelector('.emergency-option[data-id="discount"] .buyer-desc');
+            const bulkSaleOption = modal.querySelector('.emergency-option[data-id="bulk"] .buyer-desc');
+            const premiumSaleOption = modal.querySelector('.emergency-option[data-id="premium"] .buyer-desc');
+            
+            if (flashSaleOption) flashSaleOption.textContent = flashSaleBuyer;
+            if (bulkSaleOption) bulkSaleOption.textContent = bulkSaleBuyer;
+            if (premiumSaleOption) premiumSaleOption.textContent = premiumBuyer;
+        }
+        
+        // Show the modal
+        modal.style.display = 'flex';
+        
+        // Add active class after a small delay for animation
+        setTimeout(() => modal.classList.add('active'), 10);
+    }
+    
+    processEmergencyOption(optionId) {
+        // Need to check if we have noodles to sell
+        if (this.state.playerStats.noodles <= 0) {
+            this.showEffectMessage("No noodles available to sell!");
+            gameSounds.playBadCardSound();
+            return;
+        }
+        
+        // Get outcome descriptions for different sale types
+        const successScenarios = [
+            "The transaction completes smoothly.",
+            "They pay promptly and even help load the truck.",
+            "The deal concludes with a handshake and promise of future business.",
+            "They're so pleased they leave a generous tip for your factory workers.",
+            "The buyer promises to recommend you to others.",
+            "The sale happens just in time to avoid a storage overflow.",
+            "Your sales team celebrates the unexpected revenue.",
+            "Your accountant does a happy dance when seeing the numbers."
+        ];
+        
+        const chaosReductionScenarios = [
+            "The empty storage areas create a sense of calm around the factory.",
+            "Clearing inventory reduces pressure on your production team.",
+            "Workers feel relieved as the crowded storage areas empty out.",
+            "The factory runs more smoothly with less backlog to manage.",
+            "The cleaning crew can finally access those hard-to-reach corners.",
+            "Your logistics manager's eye stops twitching for the first time in weeks.",
+            "The pasta-stacking hazards are temporarily eliminated."
+        ];
+        
+        const prestigeScenarios = [
+            "Word of your quality spreads through high-end culinary circles.",
+            "A food magazine mentions your factory in their latest issue.",
+            "Your factory's reputation grows among fine dining establishments.",
+            "Industry experts take notice of your exceptional product.",
+            "Your sales team leverages this deal to approach other premium clients.",
+            "Photos of your pasta appear on a famous food blog."
+        ];
+        
+        const currentNoodles = this.state.playerStats.noodles;
+        const basePrice = this.state.playerStats.noodleSalePrice;
+        let soldNoodles, soldPrice, income, chaosReduction = 0, prestigeGain = 0;
+        
+        // Get the selected buyer scenario from showEmergencyPastaModal
+        const buyerMessage = this.selectedBuyers ? this.selectedBuyers[optionId] : '';
+        let outcomeMessage;
+        
+        switch (optionId) {
+            case 'discount':
+                // Flash Sale: Sell all noodles at 80% price
+                soldNoodles = currentNoodles;
+                soldPrice = Math.floor(basePrice * 0.8);
+                income = soldNoodles * soldPrice;
+                
+                outcomeMessage = successScenarios[Math.floor(Math.random() * successScenarios.length)];
+                
+                this.state.playerStats.noodles = 0;
+                this.state.playerStats.money += income;
+                
+                this.showEffectMessage(`${outcomeMessage} Sold ${soldNoodles} noodles at $${soldPrice} each for $${income} total.`);
+                gameSounds.playCardSound();
+                break;
+                
+            case 'bulk':
+                // Bulk Clearance: Sell all noodles at 65% price, reduce chaos by 10%
+                soldNoodles = currentNoodles;
+                soldPrice = Math.floor(basePrice * 0.65);
+                income = soldNoodles * soldPrice;
+                chaosReduction = Math.min(10, this.state.playerStats.chaosLevel);
+                
+                outcomeMessage = chaosReductionScenarios[Math.floor(Math.random() * chaosReductionScenarios.length)];
+                
+                this.state.playerStats.noodles = 0;
+                this.state.playerStats.money += income;
+                this.state.playerStats.chaosLevel = Math.max(0, this.state.playerStats.chaosLevel - chaosReduction);
+                
+                this.showEffectMessage(`${outcomeMessage} Sold ${soldNoodles} noodles at $${soldPrice} each for $${income} total. Chaos reduced by ${chaosReduction}.`);
+                gameSounds.playUpgradePinSound();
+                break;
+                
+            case 'premium':
+                // Premium Rush: Sell half noodles at 120% price, gain 3 prestige
+                soldNoodles = Math.floor(currentNoodles / 2);
+                soldPrice = Math.floor(basePrice * 1.2);
+                income = soldNoodles * soldPrice;
+                prestigeGain = 3;
+                
+                outcomeMessage = prestigeScenarios[Math.floor(Math.random() * prestigeScenarios.length)];
+                
+                this.state.playerStats.noodles -= soldNoodles;
+                this.state.playerStats.money += income;
+                this.state.playerStats.pastaPrestige += prestigeGain;
+                
+                this.showEffectMessage(`${outcomeMessage} Sold ${soldNoodles} premium noodles at $${soldPrice} each for $${income} total. Prestige increased by ${prestigeGain}!`);
+                gameSounds.playAchievementSound();
+                break;
+        }
+        
+        // Update display after processing the option
+        this.updateDisplay();
+        
+        // Check for achievements after emergency actions
+        this.checkAchievements();
     }
 }
 
