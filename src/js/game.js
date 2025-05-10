@@ -244,7 +244,7 @@ class Game {
             const emergencyButton = document.createElement('button');
             emergencyButton.className = 'emergency-pasta-button';
             emergencyButton.innerHTML = '<span>!</span>';
-            emergencyButton.title = 'Emergency Pasta Sale';
+            emergencyButton.title = 'Emergency Pasta Button';
             noodlesItem.appendChild(emergencyButton);
             
             // Add click event listener
@@ -2760,6 +2760,7 @@ class Game {
             <div class="help-buttons">
                 <button id="close-help" class="button primary">Got it!</button>
             </div>
+            <p>© 2025 Gumbysoft. All rights reserved.</p>
         `;
         
         helpOverlay.appendChild(helpContainer);
