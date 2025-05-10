@@ -3268,6 +3268,7 @@ h1 {
     transition: all 0.2s ease;
     padding: 0;
     /* Ensure the button doesn't move when game state changes */
+    transform: translateY(0);
     margin: 0;
     transform: none !important;
 }
@@ -3284,6 +3285,7 @@ h1 {
     justify-content: center;
     z-index: 1000;
     animation: fadeIn 0.3s ease;
+    scrollbar: hidden!important;
 }
 
 .help-container {
@@ -3298,6 +3300,7 @@ h1 {
     overflow-y: auto;
     animation: slideUp 0.4s ease;
     color: #e0e0e0;
+    scrollbar: hidden!important;
 }
 
 .help-container h2 {
