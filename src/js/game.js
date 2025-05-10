@@ -2944,6 +2944,17 @@ class Game {
                     <div class="emergency-option" data-id="discount">
                         <div class="option-header">
                             <span class="option-title">Flash Sale</span>
+                            <span class="option-price">${flashSaleDisplay}</span>
+                        </div>
+                        <p class="buyer-desc">${flashSaleBuyer}</p>
+                        <p class="option-desc">Quick sell at ${Math.round(flashSaleDiscount * 100)}% of normal price. ${flashSaleChaosChange > 0 ? `Warning: May increase chaos by ${flashSaleChaosChange}.` : 'No additional effects.'}</p>
+                    </div>
+                    <div class="emergency-option" data-id="bulk">
+                        <div class="option-header">
+                            <span class="option-title">Bulk Deal</span>
+                            <span class="option-price">${bulkSaleDisplay}</span>
+                        </div>
+                        <p class="buyer-desc">${bulkSaleBuyer}</p>
                         <p class="option-desc">Mass sale at ${Math.round(bulkSaleDiscount * 100)}% price. Reduces chaos by ${Math.abs(bulkSaleChaosChange)}. ${bulkSaleWorkerChange < 0 ? `Warning: Will lose ${Math.abs(bulkSaleWorkerChange)} worker${Math.abs(bulkSaleWorkerChange) > 1 ? 's' : ''}.` : ''}</p>
                     </div>
                     <div class="emergency-option" data-id="premium">
