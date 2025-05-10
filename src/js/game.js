@@ -2669,20 +2669,31 @@ class Game {
 
     // Setup help button
     setupHelpButton() {
-        const gameContainer = document.getElementById('game-container');
-        if (!gameContainer) return;
+        // First, check if a help button already exists
+        let helpButton = document.getElementById('help-button');
         
-        // Create help button
-        const helpButton = document.createElement('button');
-        helpButton.id = 'help-button';
-        helpButton.className = 'help-button';
-        helpButton.innerHTML = '<span>?</span>';
-        helpButton.title = 'Game Help';
+        if (!helpButton) {
+            // Only create a new button if one doesn't already exist
+            const gameContainer = document.getElementById('game-container');
+            if (!gameContainer) return;
+            
+            helpButton = document.createElement('button');
+            helpButton.id = 'help-button';
+            helpButton.className = 'help-button';
+            helpButton.innerHTML = '<span>?</span>';
+            helpButton.title = 'Game Help';
+            
+            gameContainer.appendChild(helpButton);
+        }
         
-        // Add to game container
-        gameContainer.appendChild(helpButton);
+        // Remove any existing click handlers to prevent duplicates
+        const oldHelpButton = helpButton.cloneNode(true);
+        if (helpButton.parentNode) {
+            helpButton.parentNode.replaceChild(oldHelpButton, helpButton);
+        }
+        helpButton = oldHelpButton;
         
-        // Add event listener
+        // Add event listener to the help button (whether it's new or existing)
         helpButton.addEventListener('click', () => this.showHelp());
     }
 
@@ -2933,17 +2944,6 @@ class Game {
                     <div class="emergency-option" data-id="discount">
                         <div class="option-header">
                             <span class="option-title">Flash Sale</span>
-                            <span class="option-price">${flashSaleDisplay}</span>
-                        </div>
-                        <p class="buyer-desc">${flashSaleBuyer}</p>
-                        <p class="option-desc">Quick sell at ${Math.round(flashSaleDiscount * 100)}% of normal price. ${flashSaleChaosChange > 0 ? `Warning: May increase chaos by ${flashSaleChaosChange}.` : 'No additional effects.'}</p>
-                    </div>
-                    <div class="emergency-option" data-id="bulk">
-                        <div class="option-header">
-                            <span class="option-title">Bulk Clearance</span>
-                            <span class="option-price">${bulkSaleDisplay}</span>
-                        </div>
-                        <p class="buyer-desc">${bulkSaleBuyer}</p>
                         <p class="option-desc">Mass sale at ${Math.round(bulkSaleDiscount * 100)}% price. Reduces chaos by ${Math.abs(bulkSaleChaosChange)}. ${bulkSaleWorkerChange < 0 ? `Warning: Will lose ${Math.abs(bulkSaleWorkerChange)} worker${Math.abs(bulkSaleWorkerChange) > 1 ? 's' : ''}.` : ''}</p>
                     </div>
                     <div class="emergency-option" data-id="premium">
@@ -2955,7 +2955,7 @@ class Game {
                         <p class="option-desc">Limited quantity at ${Math.round(premiumMultiplier * 100)}% price. Gain ${premiumPrestigeChange} prestige. ${premiumIngredientsChange < 0 ? `Warning: May lose ${Math.abs(premiumIngredientsChange)} ingredient${Math.abs(premiumIngredientsChange) > 1 ? 's' : ''}.` : ''}</p>
                     </div>
                 </div>
-                <p class="emergency-warning">Emergency sales will put operations on cooldown for 3 turns!</p>
+                <p class="emergency-warning">Will put sales operations on cooldown for 3 turns!</p>
             `;
             document.body.appendChild(modal);
             

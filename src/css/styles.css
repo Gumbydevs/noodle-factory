@@ -3249,28 +3249,28 @@ h1 {
 /* Help Button & Overlay Styles */
 .help-button {
     position: fixed;
-    top: 10px;
-    right: 15px;
-    width: 32px;
-    height: 32px;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    background: rgba(30, 30, 40, 0.85);
+    background-color: rgba(0, 0, 0, 0.6);
     border: 2px solid #ffd700;
     color: #ffd700;
-    font-size: 18px;
     font-weight: bold;
-    cursor: pointer;
-    z-index: 1000;
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+    cursor: pointer;
     box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
     transition: all 0.2s ease;
-    padding: 0;
-    /* Ensure the button doesn't move when game state changes */
-    transform: translateY(0);
-    margin: 0;
-    transform: none !important;
+}
+
+.help-button:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    transform: scale(1.1);
 }
 
 .help-overlay {
@@ -3551,4 +3551,22 @@ h1 {
     color: #ffd700 !important; /* Changed to gold/yellow with !important to ensure consistency */
     font-weight: bold;
     text-shadow: 0 0 4px rgba(255, 215, 0, 0.3); /* Add subtle glow effect */
+}
+
+/* Help button container styles */
+#help-button-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1001; /* Higher than most other elements */
+    width: auto;
+    height: auto;
+    pointer-events: none; /* Let clicks pass through the container */
+}
+
+#help-button-container .help-button {
+    pointer-events: auto; /* Make just the button clickable */
+    position: relative; /* Change from fixed to relative within the container */
+    top: auto;
+    right: auto;
 }
