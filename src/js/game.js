@@ -2760,7 +2760,7 @@ class Game {
             <div class="help-buttons">
                 <button id="close-help" class="button primary">Got it!</button>
             </div>
-            <p>© 2025 Gumbysoft. All rights reserved.</p>
+           <p style="text-align: center;">© 2025 Gumbysoft. All rights reserved.</p>
         `;
         
         helpOverlay.appendChild(helpContainer);

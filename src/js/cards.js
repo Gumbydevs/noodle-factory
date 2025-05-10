@@ -3358,7 +3358,6 @@ export function applyUpgradeEffects(state) {
     state.playerStats.workerLossRate = 1;
     state.playerStats.noodleProductionRate = 1;
     state.playerStats.noodleSalePrice = 5; // Base price
-    state.playerStats.ingredientGainRate = 0.2; // Reset to base value
 
     // Apply all permanent effects from all upgrades
     Object.entries(state.playerStats.factoryUpgrades).forEach(([name, upgrade]) => {
@@ -3380,12 +3379,6 @@ export function applyUpgradeEffects(state) {
                 triggerUpgradeGlow(name, "workerEfficiency");
             }
 
-            // Add ingredient gain rate bonus
-            if (upgrade.permanentStats.ingredientGain) {
-                state.playerStats.ingredientGainRate += upgrade.permanentStats.ingredientGain;
-                triggerUpgradeGlow(name, "ingredientGain");
-            }
-            
             // Handle ingredient gain/loss chances
             if (upgrade.permanentStats.ingredientGain) {
                 const chance = Math.abs(upgrade.permanentStats.ingredientGain);
