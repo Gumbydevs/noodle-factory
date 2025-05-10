@@ -3243,3 +3243,156 @@ h1 {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-3px); }
 }
+
+/* Help Button & Overlay Styles */
+.help-button {
+    position: fixed;
+    top: 10px;
+    right: 15px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(30, 30, 40, 0.85);
+    border: 2px solid #ffd700;
+    color: #ffd700;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.help-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+}
+
+.help-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.help-container {
+    width: 85%;
+    max-width: 500px;
+    max-height: 80vh;
+    background-color: rgb(20, 20, 25);
+    border: 2px solid #ffd700;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    padding: 15px 20px;
+    overflow-y: auto;
+    animation: slideUp 0.4s ease;
+    color: #e0e0e0;
+}
+
+.help-container h2 {
+    text-align: center;
+    margin-bottom: 15px;
+    color: #ffd700;
+    font-size: 22px;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+.help-section {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.help-section h3 {
+    margin-bottom: 8px;
+    color: #ffd700;
+    font-size: 18px;
+}
+
+.help-section p {
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.help-section ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.help-section li {
+    margin-bottom: 6px;
+    line-height: 1.3;
+}
+
+.help-tip {
+    padding: 10px;
+    background-color: rgba(30, 30, 50, 0.6);
+    border-left: 3px solid #ffd700;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+}
+
+.help-buttons {
+    text-align: center;
+    padding-top: 10px;
+}
+
+.help-buttons button {
+    padding: 8px 16px;
+    min-width: 100px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Style color classes in help text */
+.help-container .prestige-color {
+    color: #9b59b6;  /* Purple for prestige */
+}
+
+.help-container .chaos-color {
+    color: #e74c3c;  /* Red for chaos */
+}
+
+.help-container .ingredients-color {
+    color: #2ecc71;  /* Green for ingredients */
+}
+
+.help-container .energy-color {
+    color: #3498db;  /* Blue for workers/energy */
+}
+
+.help-container .positive {
+    color: #2ecc71;
+    font-weight: bold;
+}
+
+.help-container .negative {
+    color: #e74c3c;
+    font-weight: bold;
+}

@@ -219,6 +219,9 @@ class Game {
 
         // Setup message history handlers
         this.setupMessageHistoryHandlers();
+
+        // Setup help button
+        this.setupHelpButton();
     }
 
     initializeLights() {
@@ -226,9 +229,6 @@ class Game {
         if (!lightsContainer) return;
 
         // Clear existing lights
-        lightsContainer.innerHTML = '';
-
-        // Create 11 light bulbs instead of 15
         for (let i = 0; i < 11; i++) {
             const light = document.createElement('div');
             light.className = 'light-bulb off';
@@ -2649,6 +2649,115 @@ class Game {
             // Set pause state flag when opening the menu
             localStorage.setItem('gamePauseState', 'paused');
         }
+    }
+
+    // Setup help button
+    setupHelpButton() {
+        const gameContainer = document.getElementById('game-container');
+        if (!gameContainer) return;
+        
+        // Create help button
+        const helpButton = document.createElement('button');
+        helpButton.id = 'help-button';
+        helpButton.className = 'help-button';
+        helpButton.innerHTML = '<span>?</span>';
+        helpButton.title = 'Game Help';
+        
+        // Add to game container
+        gameContainer.appendChild(helpButton);
+        
+        // Add event listener
+        helpButton.addEventListener('click', () => this.showHelp());
+    }
+
+    // Show help popup
+    showHelp() {
+        // Create overlay and help container
+        const helpOverlay = document.createElement('div');
+        helpOverlay.className = 'help-overlay';
+        
+        const helpContainer = document.createElement('div');
+        helpContainer.className = 'help-container';
+        
+        // Get a random tooltip from the TOOLTIPS array
+        const randomTip = TOOLTIPS[Math.floor(Math.random() * TOOLTIPS.length)];
+        
+        // Basic help content without giving away too much
+        helpContainer.innerHTML = `
+            <h2>Noodle Factory Basics</h2>
+            <div class="help-section">
+                <h3>Basic Gameplay</h3>
+                <p>Each turn, you'll be presented with two cards. Choose one to steer your factory's fate.</p>
+                <p>Different symbols indicate different effects:</p>
+                <ul>
+                    <li><span class="positive">+</span> generally increases something</li>
+                    <li><span class="negative">-</span> generally decreases something</li>
+                    <li>Multiple symbols (like <span class="positive">+++</span>) indicate stronger effects</li>
+                </ul>
+                <p>The factory lights offer insight into your overall status - keep them on!</p>
+            </div>
+            <div class="help-section">
+                <h3>Your Resources</h3>
+                <ul>
+                    <li><span class="prestige-color">Prestige</span>: Your factory's reputation</li>    
+                    <li><span class="ingredients-color">Ingredients</span>: Raw materials for creating noodles</li>
+                    <li><span class="energy-color">Workers</span>: Staff operating your factory</li>
+                    <li><span class="chaos-color">Chaos</span>: Disorder in your factory operations</li>
+                    <li><span class="money-color">Money</span>: Currency for transactions</li>
+                    <li><span class="noodles-color">Noodles</span>: Your main product. Specifically how much current noodle in stock</li> 
+                    </ul>
+                <p>Keep an eye on these resources as they can affect your factory's performance.</p>
+            </div>
+            
+            <div class="help-section">
+                <h3>Controls & Navigation</h3>
+                <ul>
+                    <li>Press <kbd>ESC</kbd> during a game to access the pause menu</li>
+                    <li>The pause menu lets you continue, start a new run, or access options</li>
+                    <li>Click on the message box to see your message history</li>
+                    <li>Click on factory upgrades to sell them for resources</li>
+                </ul>
+            </div>
+
+            <div class="help-section">
+                <h3>Discover as You Play</h3>
+                <p>The rest is up to you to discover! Watch how resources interact, observe patterns in the chaos, and learn what makes your factory thrive.</p>
+                <p>Visit the options menu for sound settings and additional game controls.</p>
+            </div>
+            
+            <div class="help-tip">
+            <h3>Hints & Tips</h3>
+                <p><em>Factory Wisdom:</em> "${randomTip}"</p>
+            </div>
+            
+            <div class="help-buttons">
+                <button id="close-help" class="button primary">Got it!</button>
+            </div>
+        `;
+        
+        helpOverlay.appendChild(helpContainer);
+        document.body.appendChild(helpOverlay);
+        
+        // Add event listener to close button
+        document.getElementById('close-help').addEventListener('click', () => {
+            helpOverlay.remove();
+        });
+        
+        // Close on overlay click (outside the help container)
+        helpOverlay.addEventListener('click', (e) => {
+            if (e.target === helpOverlay) {
+                helpOverlay.remove();
+            }
+        });
+        
+        // Add ESC key to close help
+        const closeHelpOnEsc = (e) => {
+            if (e.key === 'Escape') {
+                helpOverlay.remove();
+                document.removeEventListener('keydown', closeHelpOnEsc);
+            }
+        };
+        document.addEventListener('keydown', closeHelpOnEsc);
     }
 }
 
