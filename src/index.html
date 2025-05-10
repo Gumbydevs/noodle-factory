@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Noodle Factory</title>
     <link rel="stylesheet" href="css/styles.css">
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- Use this for local build:
+    <script src="js/html2canvas.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
     <div id="preloader" class="preloader">
@@ -17,17 +19,6 @@
     <div id="game-container" style="display: none;">
         <h1>The <span class="jiggly">Noodle</span> Factory <img src="assets/images/NoodleFactoryLogo.png" class="noodle-icon jiggly" alt="Noodle Factory Logo"></h1>
         
-        <div id="resources-display">
-            <div class="resource money">
-                <span class="resource-icon">💰</span>
-                <span id="money-top" class="resource-value money-color">$0</span>
-            </div>
-            <div class="resource noodles">
-                <span class="resource-icon">🍜</span>
-                <span id="noodles-top" class="resource-value noodles-color">0</span>
-            </div>
-        </div>
-
         <div id="stats">
             <div class="stat">
                 <div class="stat-label">Prestige</div>

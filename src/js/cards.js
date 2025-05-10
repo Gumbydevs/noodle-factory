@@ -2250,7 +2250,7 @@ export const CARDS = {
             return "The cosmic greens reveal the perfect timing for pasta water boiling!";
         }
     },
-    "Sun-Dried Tomato Séance": {
+    "Sun-Dried Tomato Seance": {
         description: "The dehydrated fruits attempt to contact the other side.",
         requirements: { ingredients: 1 },
         statModifiers: {
@@ -3004,6 +3004,294 @@ export const CARDS = {
             savePlayedCard("Capellini Choir");
             state.playerStats.usedMagicCards = true;
             return "The angelic pasta melodies soothe even the most stressed workers!";
+        }
+    },
+
+    // New upgrade cards start here
+    "Automated Pasta Dryers": {
+        description: "High-tech drying chambers maintain perfect humidity for pasta consistency.",
+        type: "upgrade",
+        requirements: { prestige: 20 },
+        cost: 500,
+        permanentStats: {
+            prestigeGain: 0.05,
+            chaosReduction: 0.07
+        },
+        statModifiers: {
+            chaos: -4,
+            prestige: 6
+        },
+        effect: (state) => {
+            savePlayedCard("Automated Pasta Dryers");
+            return "Perfect drying conditions create pasta with ideal texture!";
+        }
+    },
+    "Artisanal Water Filtration": {
+        description: "Special minerals enhance pasta flavor and structural integrity.",
+        type: "upgrade",
+        requirements: { prestige: 15 },
+        cost: 400,
+        permanentStats: {
+            prestigeGain: 0.08
+        },
+        statModifiers: {
+            prestige: 7,
+            chaos: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Artisanal Water Filtration");
+            return "The subtle mineral profile elevates your pasta to gourmet status!";
+        }
+    },
+    "Worker Benefits Program": {
+        description: "Improved working conditions boost morale and retention.",
+        type: "upgrade",
+        requirements: { prestige: 25 },
+        cost: 550,
+        permanentStats: {
+            workerEfficiency: 0.1
+        },
+        statModifiers: {
+            workers: 5,
+            chaos: -5
+        },
+        effect: (state) => {
+            savePlayedCard("Worker Benefits Program");
+            return "Happy workers make better pasta and stay longer!";
+        }
+    },
+    "Chaos Dampening Field": {
+        description: "Experimental technology stabilizes factory entropy.",
+        type: "upgrade",
+        requirements: { prestige: 35 },
+        cost: 800,
+        permanentStats: {
+            chaosReduction: 0.15
+        },
+        statModifiers: {
+            chaos: -12,
+            workers: -2
+        },
+        effect: (state) => {
+            savePlayedCard("Chaos Dampening Field");
+            return "The pasta physics stabilizers keep chaos under control!";
+        }
+    },
+    "Ingredient Preservation System": {
+        description: "Advanced storage technology extends ingredient freshness.",
+        type: "upgrade",
+        requirements: { prestige: 20 },
+        cost: 450,
+        permanentStats: {
+            ingredientGain: 0.12
+        },
+        statModifiers: {
+            ingredients: 4,
+            chaos: -2
+        },
+        effect: (state) => {
+            savePlayedCard("Ingredient Preservation System");
+            return "Your ingredients stay fresher longer and stretch further!";
+        }
+    },
+    "Pasta Gold Certification": {
+        description: "Official recognition of your pasta's exceptional quality.",
+        type: "upgrade",
+        requirements: { prestige: 40 },
+        cost: 750,
+        permanentStats: {
+            prestigeGain: 0.12
+        },
+        priceBonus: 0.15,
+        statModifiers: {
+            prestige: 12,
+            chaos: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Gold Certification");
+            return "Your gold-standard pasta commands premium prices!";
+        }
+    },
+    "Harmonic Dough Resonator": {
+        description: "Sound waves create perfectly consistent pasta texture.",
+        type: "upgrade",
+        requirements: { prestige: 30 },
+        cost: 600,
+        permanentStats: {
+            chaosReduction: 0.08,
+            prestigeGain: 0.06
+        },
+        statModifiers: {
+            prestige: 8,
+            chaos: -6
+        },
+        effect: (state) => {
+            savePlayedCard("Harmonic Dough Resonator");
+            return "The pasta vibrates at the perfect frequency for ideal texture!";
+        }
+    },
+    "Precision Extrusion Dies": {
+        description: "Bronze-crafted shapes for authentic artisanal pasta texture.",
+        type: "upgrade",
+        requirements: { prestige: 25 },
+        cost: 550,
+        permanentStats: {
+            prestigeGain: 0.10
+        },
+        productionBonus: 0.1,
+        statModifiers: {
+            prestige: 9
+        },
+        effect: (state) => {
+            savePlayedCard("Precision Extrusion Dies");
+            return "The sauce-grabbing texture of your pasta is unrivaled!";
+        }
+    },
+    "Employee Wellness Center": {
+        description: "On-site pasta appreciation facilities for workers.",
+        type: "upgrade",
+        requirements: { prestige: 35 },
+        cost: 650,
+        permanentStats: {
+            workerEfficiency: 0.15,
+            chaosReduction: 0.06
+        },
+        statModifiers: {
+            workers: 6,
+            chaos: -7
+        },
+        effect: (state) => {
+            savePlayedCard("Employee Wellness Center");
+            return "Workers return from breaks rejuvenated and pasta-passionate!";
+        }
+    },
+    "Durum Wheat Partnership": {
+        description: "Direct access to premium grain for superior pasta quality.",
+        type: "upgrade",
+        requirements: { prestige: 30 },
+        cost: 500,
+        permanentStats: {
+            ingredientGain: 0.15
+        },
+        statModifiers: {
+            ingredients: 6,
+            prestige: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Durum Wheat Partnership");
+            return "The finest semolina ensures your pasta has perfect bite!";
+        }
+    },
+    "Automated Quality Control": {
+        description: "AI-powered systems that detect pasta imperfections.",
+        type: "upgrade",
+        requirements: { prestige: 40 },
+        cost: 700,
+        permanentStats: {
+            prestigeGain: 0.08,
+            chaosReduction: 0.08
+        },
+        statModifiers: {
+            prestige: 6,
+            chaos: -8,
+            workers: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Automated Quality Control");
+            return "The system catches flawed pasta before it leaves the factory!";
+        }
+    },
+    "Pasta Shape Patent": {
+        description: "Legal protection for your unique pasta design innovation.",
+        type: "upgrade",
+        requirements: { prestige: 45 },
+        cost: 850,
+        permanentStats: {
+            prestigeGain: 0.14
+        },
+        priceBonus: 0.18,
+        statModifiers: {
+            prestige: 10
+        },
+        effect: (state) => {
+            savePlayedCard("Pasta Shape Patent");
+            return "Your revolutionary pasta shape cannot be legally copied!";
+        }
+    },
+    "Waste Recycling System": {
+        description: "Convert pasta scraps back into usable ingredients.",
+        type: "upgrade",
+        requirements: { prestige: 25 },
+        cost: 450,
+        permanentStats: {
+            ingredientGain: 0.18
+        },
+        statModifiers: {
+            ingredients: 3,
+            prestige: 3,
+            chaos: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Waste Recycling System");
+            return "Nothing goes to waste in your eco-friendly pasta factory!";
+        }
+    },
+    "Celebrity Chef Endorsement": {
+        description: "Famous culinary master promotes your pasta worldwide.",
+        type: "upgrade",
+        requirements: { prestige: 50 },
+        cost: 900,
+        permanentStats: {
+            prestigeGain: 0.15
+        },
+        priceBonus: 0.2,
+        statModifiers: {
+            prestige: 15,
+            chaos: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Celebrity Chef Endorsement");
+            return "The world's most famous chef showcases your pasta on TV!";
+        }
+    },
+    "Worker Training Academy": {
+        description: "In-house pasta expertise development for all employees.",
+        type: "upgrade",
+        requirements: { prestige: 35 },
+        cost: 600,
+        permanentStats: {
+            workerEfficiency: 0.18
+        },
+        statModifiers: {
+            workers: 8,
+            chaos: -4
+        },
+        effect: (state) => {
+            savePlayedCard("Worker Training Academy");
+            return "Each worker becomes a master of pasta craft!";
+        }
+    },
+    
+    // Bonus upgrade card - more expensive but very powerful
+    "Quantum Pasta Stabilizer": {
+        description: "Revolutionary technology that optimizes pasta at subatomic levels.",
+        type: "upgrade",
+        requirements: { prestige: 60 },
+        cost: 1200,
+        permanentStats: {
+            prestigeGain: 0.12,
+            chaosReduction: 0.15,
+            workerEfficiency: 0.10
+        },
+        productionBonus: 0.15,
+        priceBonus: 0.15,
+        statModifiers: {
+            prestige: 14,
+            chaos: -10
+        },
+        effect: (state) => {
+            savePlayedCard("Quantum Pasta Stabilizer");
+            return "Your pasta achieves quantum perfection in flavor and texture!";
         }
     }
 }; // End of CARDS object

@@ -202,19 +202,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Back button
+    // Back button - CRITICAL FIX: Direct approach
     backButton.addEventListener('click', () => {
-        // Check if there was an active game by looking for saved game state
-        const hasSavedGame = localStorage.getItem('noodleFactoryGameState') !== null;
+        // Check if we came from an active game
+        const fromActiveGame = localStorage.getItem('fromActiveGame') === 'true';
         
-        // If we were referred from a game page and there's a saved game,
-        // preserve the game state by not clearing it and going back to index.html
-        if (hasSavedGame) {
-            window.location.href = 'index.html';
-        } else {
-            // No saved game, just go back to index
-            window.location.href = 'index.html';
+        if (fromActiveGame) {
+            // Set a flag to tell index.html to load the game immediately
+            localStorage.setItem('FORCE_LOAD_GAME', 'true');
+            
+            // Get the pause state (if it exists)
+            const wasPaused = localStorage.getItem('gamePauseState') === 'paused';
+            
+            // Store the pause state for when we return
+            if (wasPaused) {
+                localStorage.setItem('returnWithPause', 'true');
+            } else {
+                localStorage.removeItem('returnWithPause');
+            }
         }
+        
+        // Go back to the index page
+        window.location.href = 'index.html';
     });
 });
 

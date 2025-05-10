@@ -1,4 +1,4 @@
-/* This file contains the styles for the game, including layout, card designs, animtions, and overall aesthetics to create a quirky and engaging user interface. */
+/* This chungus file contains the styles for the game, including layout, card designs, animtions, and overall aesthetics to create a quirky and engaging user interface. */
 
 @keyframes wiggle {
     0% { transform: rotate(-15deg); }
@@ -1040,6 +1040,69 @@ body.chaos-level-max .stat-progress-fill.turn-color {
 /* Red glow effect for all decreases */
 .stat-value.decrease { text-shadow: 0 0 10px #e74c3c; }
 
+/* Update keyframes to ensure ingredients stats always return to green */
+@keyframes ingredientsIncrease {
+    0% { 
+        transform: scale(1); 
+    }
+    50% { 
+        transform: scale(1.3); 
+        filter: brightness(1.5);
+    }
+    100% { 
+        transform: scale(1);
+        color: #2ecc71 !important; /* Force green with !important */
+    }
+}
+
+@keyframes ingredientsDecrease {
+    0% { 
+        transform: scale(1); 
+        color: #e74c3c;
+    }
+    50% { 
+        transform: scale(1.3);
+        color: #e74c3c;
+    }
+    100% { 
+        transform: scale(1);
+        color: #2ecc71 !important; /* Force green with !important */
+    }
+}
+
+/* Give ingredients animations the highest priority */
+.ingredients-color.increase {
+    animation: ingredientsIncrease 1.5s ease-in-out forwards !important;
+    text-shadow: 0 0 10px #2ecc71;
+    color: #2ecc71 !important; /* Ensure green after animation */
+}
+
+.ingredients-color.decrease {
+    animation: ingredientsDecrease 1.8s ease-in-out forwards !important;
+    text-shadow: 0 0 10px #e74c3c;
+    color: #2ecc71 !important; /* Ensure green after animation */
+}
+
+/* Override chaos-level-max for ingredients stats specifically */
+.chaos-level-max .stat-value.ingredients-color {
+    animation: crtFlicker 2s infinite, ingredientsPulse 2s infinite !important;
+    color: #2ecc71 !important; /* Keep ingredients green in max chaos */
+}
+
+/* New animation that maintains green color while applying effects */
+@keyframes ingredientsPulse {
+    0%, 100% { color: #2ecc71 !important; }
+    50% { color: #2ecc71 !important; filter: brightness(1.2); }
+}
+
+/* Ensure ingredients color takes precedence after increase/decrease */
+.chaos-level-1 .ingredients-color,
+.chaos-level-2 .ingredients-color,
+.chaos-level-3 .ingredients-color,
+.chaos-level-max .ingredients-color {
+    color: #2ecc71 !important;
+}
+
 /* Stat-specific colors */
 .prestige-color {
     color: #f1c40f; /* Golden yellow */
@@ -1137,10 +1200,17 @@ h1 {
     animation: cardFloat calc(var(--base-duration, 3s) + (var(--animation-offset, 0s))) cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+.card h3 {
+    font-size: 1.1em; /* Reduced from 1.2em */
+    margin-top: 0; /* Add this to remove any top margin */
+    margin-bottom: 8px; /* Reduced from 10px */
+    color: #f39c12;
+}
+
 .card .effects-label {
-    font-size: 0.7em;
+    font-size: 0.65em; /* Reduced from 0.7em */
     color: #888;
-    margin-bottom: 3px;
+    margin-bottom: 2px; /* Reduced from 3px */
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -1149,11 +1219,12 @@ h1 {
 .card .cost-display {
     border-top: 1px solid #444;
     margin-top: auto;
-    padding: 5px 0;
+    padding: 4px 0; /* Reduced from 5px */
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
+    font-size: 0.95em; /* Added explicit font size reduction */
     color: #ffd700; /* Gold color for money */
 }
 
@@ -1168,8 +1239,23 @@ h1 {
 .card .permanent-effects,
 .card .instant-effects {
     border-top: 1px solid #444;
-    margin-top: 6px;
-    padding-top: 6px;
+    margin-top: 5px; /* Reduced from 6px */
+    padding-top: 5px; /* Reduced from 6px */
+}
+
+.card-description {
+    font-size: 0.85em; /* Reduced from 0.9em */
+    color: #ddd;
+    line-height: 1.35; /* Adjusted from 1.4 */
+    margin-bottom: auto;
+    padding: 8px 0; /* Reduced from 10px */
+}
+
+.card-effects {
+    margin-top: auto;
+    padding-top: 8px; /* Reduced from 10px */
+    font-size: 0.85em; /* Reduced from 0.9em */
+    border-top: 1px solid #555;
 }
 
 /* Fix card selection animations */
@@ -1187,133 +1273,11 @@ h1 {
     transform-origin: center center;
 }
 
-.card h3 {
-    font-size: 1.2em;
-    margin-top: 0; /* Add this to remove any top margin */
-    margin-bottom: 10px;
-    color: #f39c12;
-}
-
-#cards-container .card:hover {
-    --card-glow-primary: rgba(255, 244, 230, 0.2);
-    --card-glow-secondary: rgba(255, 244, 230, 0.1);
-    --card-glow-outer: rgba(255, 244, 230, 0.05);
-    box-shadow: 
-        0 0 calc(12px * var(--glow-intensity)) var(--card-glow-primary),
-        0 0 calc(24px * var(--glow-intensity)) var(--card-glow-secondary),
-        0 0 calc(36px * var(--glow-intensity)) var(--card-glow-outer);
-}
-
-/* Chaos level variations with proper scaling */
-.chaos-level-1 .card {
-    --chaos-multiplier: 1.2;
-    --float-scale: calc(1 + (var(--chaos-offset, 0) * 0.3));
-    animation: 
-        cardFloat calc((var(--base-duration, 3s) + var(--animation-offset, 0s)) / var(--chaos-multiplier)) cubic-bezier(0.4, 0, 0.6, 1) infinite,
-        cardTwitch calc((var(--twitch-duration, 8s) + var(--animation-offset, 0s)) / var(--chaos-multiplier)) cubic-bezier(0.22, 1, 0.36, 1) infinite;
-}
-
-.chaos-level-2 .card {
-    --chaos-multiplier: 1.5;
-    --float-scale: calc(1 + (var(--chaos-offset, 0) * 0.5));
-    animation: 
-        cardFloat calc((var(--base-duration, 3s) + var(--animation-offset, 0s)) / var(--chaos-multiplier)) cubic-bezier(0.4, 0, 0.6, 1) infinite,
-        cardTwitch calc((var(--twitch-duration, 8s) + var(--animation-offset, 0s)) / var(--chaos-multiplier)) cubic-bezier(0.22, 1, 0.36, 1) infinite;
-}
-
-.chaos-level-3 .card {
-    --chaos-multiplier: 2;
-    --float-scale: calc(1 + (var(--chaos-offset, 0) * 0.7));
-    animation: 
-        cardFloat calc((var(--base-duration, 3s) + var(--animation-offset, 0s)) / var(--chaos-multiplier)) cubic-bezier(0.4, 0, 0.6, 1) infinite,
-        cardTwitch calc((var(--twitch-duration, 8s) + var(--animation-offset, 0s)) / var(--chaos-multiplier)) cubic-bezier(0.22, 1, 0.36, 1) infinite;
-}
-
-.chaos-level-max .card {
-    --chaos-multiplier: 3;
-    --float-scale: calc(1 + (var(--chaos-offset, 0) * 0.9));
-    animation: 
-        cardFloat calc((var(--base-duration, 3s) + var(--animation-offset, 0s)) / var(--chaos-multiplier)) cubic-bezier(0.4, 0, 0.6, 1) infinite,
-        cardTwitch calc((var(--twitch-duration, 8s) + var(--animation-offset, 0s)) / var(--chaos-multiplier)) cubic-bezier(0.22, 1, 0.36, 1) infinite;
-}
-
-/* Override any conflicting animations when card is being played */
-.card[data-selected="true"] {
-    animation: selectedCardVanish 0.8s ease-out forwards !important;
-    transform-origin: center center;
-    position: absolute;
-    z-index: 2;
-}
-
-/* Update card selection animations */
-.card[data-selected="false"] {
-    animation: unselectedCardVanish 0.6s ease-out forwards !important;
-    transform-origin: center center;
-    position: absolute;
-    z-index: 1;
-}
-
-/* Clear animations when cards are being cleared */
-.card.clearing,
-.card-container.clearing .card {
-    animation: none !important;
-    transform: none !important;
-    transition: none !important;
-}
-
-/* Touch device optimizations */
-@media (hover: none) and (pointer: coarse) {
-    .card,
-    .card:hover,
-    .card:active,
-    .card.chaos-level-1,
-    .card.chaos-level-2,
-    .card.chaos-level-3,
-    .card.chaos-level-max {
-        animation: none !important;
-        transform: none !important;
-        transition: transform 0.2s ease-out !important;
-        -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
-    }
-
-    .card:active:not(.played):not(.unplayable) {
-        transform: scale(0.98) !important;
-    }
-
-    .card.played[data-selected="true"] {
-        transform: scale(0.8) translateY(-20px) !important;
-        opacity: 0 !important;
-    }
-}
-
-.card-description {
-    font-size: 0.9em;
-    color: #ddd;
-    line-height: 1.4;
-    margin-bottom: auto;
-    padding: 10px 0;
-}
-
-.card-effects {
-    margin-top: auto;
-    padding-top: 10px;
-    font-size: 0.9em;
-    border-top: 1px solid #555;
-}
-
 .stat-modifier {
     display: block;
-    margin: 4px 0;
+    margin: 3px 0; /* Reduced from 4px */
+    font-size: 0.95em; /* Added explicit font size */
     font-weight: bold;
-}
-
-.positive {
-    color: #2ecc71;
-}
-
-.negative {
-    color: #e74c3c;
 }
 
 .card.unplayable {
@@ -1343,21 +1307,25 @@ h1 {
 
 .card.unplayable .requirement-text {
     color: #ff8080;  /* Brighter red for better visibility */
-    font-size: 0.85em;
-    margin-top: 4px;
-    padding-top: 4px;
-    opacity: 0.9;
+    font-size: 0.85em; /* Reduced from 0.9em */
+    margin-top: 4px; /* Reduced from 5px */
+    padding-top: 4px; /* Reduced from 5px */
+    border-top: 1px solid #555;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 0.9px; /* Slightly reduced from 1px */
+    font-weight: bold;
 }
 
 .requirement-text {
     color: #ff6b6b;  /* Brightened from #e74c3c */
-    font-size: 0.9em;  /* Increased from 0.8em */
-    margin-top: 5px;
+    font-size: 0.85em; /* Reduced from 0.9em */
+    margin-top: 4px; /* Reduced from 5px */
     border-top: 1px solid #555;
-    padding-top: 5px;
+    padding-top: 4px; /* Reduced from 5px */
     font-style: italic;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.9px; /* Slightly reduced from 1px */
     font-weight: bold;  /* Added for better visibility */
 }
 
@@ -2717,7 +2685,7 @@ h1 {
     padding: 8px;
     background: #444;
     border-radius: 8px;
-    font-size: 0.55em;
+    font-size: 0.52em; /* Reduced from 0.55em */
     display: flex;
     flex-direction: column;
     transition: all 0.3s ease-out;
@@ -2741,10 +2709,40 @@ h1 {
 
 .upgrade-card .effects-label {
     color: #888;
-    font-size: 0.7em;
+    font-size: 0.65em; /* Reduced from 0.7em */
+    margin-bottom: 2px; /* Reduced from 3px */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.upgrade-card h4 {
+    color: #f39c12;
+    font-size: 0.85em; /* Reduced from 0.9em */
+    margin: 0 0 4px 0; /* Reduced from 5px */
+}
+
+.upgrade-card .upgrade-effects {
+    margin-top: auto;
+    padding-top: 4px; /* Reduced from 5px */
+    border-top: 1px solid #555;
+}
+
+.upgrade-card .permanent-effect {
+    margin: 2px 0; /* Reduced from 3px */
+    font-weight: bold;
+}
+
+/* Color classes for permanent effects */
+.upgrade-card .prestigeGain-color { color: #f1c40f; }
+.upgrade-card .chaosReduction-color { color: #e74c3c; }
+.upgrade-card .workerEfficiency-color { color: #3498db; }
+
+.upgrade-label {
+    font-size: 0.65em; /* Reduced from 0.7em */
     margin-bottom: 2px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    animation: rainbowText 3s linear infinite;
 }
 
 /* Override any interfering animations when card is being moved to upgrades */
@@ -2796,31 +2794,6 @@ h1 {
     animation: selectedCardVanish 0.8s ease-out forwards !important;
     pointer-events: none;
     z-index: 999;
-    will-change: transform, opacity, clip-path;
-    transform-origin: center center;
-}
-
-/* Ensure the dissolving card stays above the smoke */
-.card.dissolving {
-    z-index: 999;
-}
-
-/* Fire particle effect */
-.fire-particle {
-    position: fixed;
-    width: 8px;
-    height: 8px;
-    background: #ff4400;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 1000;
-    will-change: transform, opacity;
-    filter: blur(1px);
-    animation: fire 1s ease-out forwards;
-}
-
-@keyframes fire {
-    0% {
         transform: translate(0, 0) scale(1);
         opacity: 1;
         background: #ff4400;
@@ -2928,20 +2901,6 @@ h1 {
     justify-content: center;
 }
 
-.upgrade-card {
-    width: 120px;
-    height: 60px;
-    padding: 8px;
-    background: #444;
-    border-radius: 8px;
-    font-size: 0.55em;
-    display: flex;
-    flex-direction: column;
-    transition: all 0.3s ease-out;
-    cursor: pointer;
-    transform-origin: center center;
-}
-
 .upgrade-card.selling {
     z-index: 1000;
     background: #4a4a4a;
@@ -3002,36 +2961,6 @@ h1 {
 
 .sell-no:hover {
     background: #95a5a6;
-}
-
-.upgrade-card h4 {
-    color: #f39c12;
-    font-size: 0.9em;
-    margin: 0 0 5px 0;
-}
-
-.upgrade-card .upgrade-effects {
-    margin-top: auto;
-    padding-top: 5px;
-    border-top: 1px solid #555;
-}
-
-.upgrade-card .permanent-effect {
-    margin: 3px 0;
-    font-weight: bold;
-}
-
-/* Color classes for permanent effects */
-.upgrade-card .prestigeGain-color { color: #f1c40f; }
-.upgrade-card .chaosReduction-color { color: #e74c3c; }
-.upgrade-card .workerEfficiency-color { color: #3498db; }
-
-.upgrade-label {
-    font-size: 0.7em;
-    margin-bottom: 2px; /* Reduced from 4px to 2px */
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    animation: rainbowText 3s linear infinite;
 }
 
 /* Save/Load functionality styles */

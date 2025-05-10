@@ -2640,8 +2640,14 @@ class Game {
     togglePauseMenu() {
         if (this.isPaused) {
             this.closePauseMenu();
+            // Remove pause state flag when closing the menu
+            localStorage.removeItem('gamePauseState');
         } else {
             this.createPauseMenu();
+            // Set flag indicating we're in a game - used when returning from options
+            localStorage.setItem('fromActiveGame', 'true');
+            // Set pause state flag when opening the menu
+            localStorage.setItem('gamePauseState', 'paused');
         }
     }
 }
@@ -2948,6 +2954,42 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     setupNoodleWiggle();
     setupInitialAudio();
+    
+    // Create game instance if it doesn't exist
+    if (!window.gameInstance) {
+        window.gameInstance = new Game();
+    }
+    
+    // Check for any flags indicating we should auto-load the game
+    const shouldLoadGameImmediately = 
+        localStorage.getItem('FORCE_LOAD_GAME') === 'true' ||
+        localStorage.getItem('AUTOLOAD_GAME') === 'true' ||
+        new URLSearchParams(window.location.search).get('action') === 'loadGame';
+    
+    if (shouldLoadGameImmediately && localStorage.getItem('noodleFactoryGameState')) {
+        console.log('Auto-loading game detected');
+        
+        // Clear any localStorage flags we may have set
+        localStorage.removeItem('FORCE_LOAD_GAME');
+        localStorage.removeItem('AUTOLOAD_GAME');
+        
+        // Hide start screen buttons immediately to prevent any flash of content
+        const startButton = document.getElementById('start-game');
+        const continueButton = document.getElementById('continue-game');
+        const optionsButton = document.getElementById('options-button');
+        
+        if (startButton) startButton.style.display = 'none';
+        if (continueButton) continueButton.style.display = 'none';
+        if (optionsButton) optionsButton.style.display = 'none';
+        
+        // Load the game after a minimal delay to ensure DOM is fully ready
+        setTimeout(() => {
+            window.gameInstance.loadGame();
+        }, 10);
+    } else {
+        // Only show start/continue buttons if not auto-loading
+        window.gameInstance.updateStartScreenButtons();
+    }
 });
 
 function canPlayCard(card) {
