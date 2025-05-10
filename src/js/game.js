@@ -2784,6 +2784,18 @@ class Game {
         // Play a sound for emergency button press
         gameSounds.playChaosSound();
         
+        // Calculate the prices for each sale option
+        const currentNoodles = this.state.playerStats.noodles;
+        const basePrice = this.state.playerStats.noodleSalePrice;
+        const flashSalePrice = Math.floor(basePrice * 0.8);
+        const bulkSalePrice = Math.floor(basePrice * 0.65);
+        const premiumSalePrice = Math.floor(basePrice * 1.2);
+        
+        // Calculate the total values
+        const allNoodlesFlashSaleValue = `$${flashSalePrice}/ea ($${flashSalePrice * currentNoodles})`;
+        const allNoodlesBulkSaleValue = `$${bulkSalePrice}/ea ($${bulkSalePrice * currentNoodles})`;
+        const halfNoodlesPremiumValue = `$${premiumSalePrice}/ea ($${premiumSalePrice * Math.floor(currentNoodles / 2)})`;
+        
         // Arrays of potential buyers for different sale types
         const flashSaleBuyers = [
             "A local restaurant chain makes a quick order.",
@@ -2829,39 +2841,11 @@ class Game {
         const bulkSaleBuyer = bulkSaleBuyers[Math.floor(Math.random() * bulkSaleBuyers.length)];
         const premiumBuyer = premiumBuyers[Math.floor(Math.random() * premiumBuyers.length)];
         
-        // Generate randomized sale terms for each option
-        const flashSaleTerms = {
-            percentPrice: 75 + Math.floor(Math.random() * 11), // 75-85% of normal price
-            percentNoodles: 100, // Always all noodles
-            prestigeGain: 0,
-            chaosReduction: 0
-        };
-        
-        const bulkSaleTerms = {
-            percentPrice: 60 + Math.floor(Math.random() * 11), // 60-70% of normal price
-            percentNoodles: 100, // Always all noodles
-            prestigeGain: 0,
-            chaosReduction: 8 + Math.floor(Math.random() * 7) // 8-14% chaos reduction
-        };
-        
-        const premiumSaleTerms = {
-            percentPrice: 115 + Math.floor(Math.random() * 16), // 115-130% of normal price
-            percentNoodles: 40 + Math.floor(Math.random() * 21), // 40-60% of noodles
-            prestigeGain: 2 + Math.floor(Math.random() * 3), // 2-4 prestige
-            chaosReduction: 0
-        };
-        
-        // Store the selected buyers and terms for later use in processEmergencyOption
+        // Store the selected buyers for later use in processEmergencyOption
         this.selectedBuyers = {
             discount: flashSaleBuyer,
             bulk: bulkSaleBuyer,
             premium: premiumBuyer
-        };
-        
-        this.saleTerms = {
-            discount: flashSaleTerms,
-            bulk: bulkSaleTerms,
-            premium: premiumSaleTerms
         };
         
         // Create the emergency modal if it doesn't exist
@@ -2878,26 +2862,26 @@ class Game {
                     <div class="emergency-option" data-id="discount">
                         <div class="option-header">
                             <span class="option-title">Flash Sale</span>
-                            <span class="option-price">All Noodles</span>
+                            <span class="option-price">${allNoodlesFlashSaleValue}</span>
                         </div>
                         <p class="buyer-desc">${flashSaleBuyer}</p>
-                        <p class="option-desc">Sell all your noodles immediately at ${flashSaleTerms.percentPrice}% of normal price. Quick cash, small discount.</p>
+                        <p class="option-desc">Sell all your noodles immediately at 80% of normal price. Quick cash, small discount.</p>
                     </div>
                     <div class="emergency-option" data-id="bulk">
                         <div class="option-header">
                             <span class="option-title">Bulk Clearance</span>
-                            <span class="option-price">All Noodles</span>
+                            <span class="option-price">${allNoodlesBulkSaleValue}</span>
                         </div>
                         <p class="buyer-desc">${bulkSaleBuyer}</p>
-                        <p class="option-desc">Sell all your noodles at ${bulkSaleTerms.percentPrice}% of normal price, but reduce chaos by ${bulkSaleTerms.chaosReduction}%. Desperation has its benefits.</p>
+                        <p class="option-desc">Sell all your noodles at 65% of normal price, but reduce chaos by 10%. Desperation has its benefits.</p>
                     </div>
                     <div class="emergency-option" data-id="premium">
                         <div class="option-header">
                             <span class="option-title">Premium Rush</span>
-                            <span class="option-price">${premiumSaleTerms.percentNoodles}% Noodles</span>
+                            <span class="option-price">${halfNoodlesPremiumValue}</span>
                         </div>
                         <p class="buyer-desc">${premiumBuyer}</p>
-                        <p class="option-desc">Sell ${premiumSaleTerms.percentNoodles}% of your noodles at ${premiumSaleTerms.percentPrice}% of normal price and gain +${premiumSaleTerms.prestigeGain} prestige. The fancy restaurant called!</p>
+                        <p class="option-desc">Sell half your noodles at 120% of normal price and gain +3 prestige. The fancy restaurant called!</p>
                     </div>
                 </div>
             `;
@@ -2925,28 +2909,23 @@ class Game {
                 });
             });
         } else {
-            // Update the buyer descriptions and terms in the existing modal
+            // Update the existing modal with new prices and buyer descriptions
             const flashSaleOption = modal.querySelector('.emergency-option[data-id="discount"]');
             const bulkSaleOption = modal.querySelector('.emergency-option[data-id="bulk"]');
             const premiumSaleOption = modal.querySelector('.emergency-option[data-id="premium"]');
             
+            // Update the buyer descriptions
             if (flashSaleOption) {
                 flashSaleOption.querySelector('.buyer-desc').textContent = flashSaleBuyer;
-                flashSaleOption.querySelector('.option-desc').textContent = 
-                    `Sell all your noodles immediately at ${flashSaleTerms.percentPrice}% of normal price. Quick cash, small discount.`;
+                flashSaleOption.querySelector('.option-price').textContent = allNoodlesFlashSaleValue;
             }
-            
             if (bulkSaleOption) {
                 bulkSaleOption.querySelector('.buyer-desc').textContent = bulkSaleBuyer;
-                bulkSaleOption.querySelector('.option-desc').textContent = 
-                    `Sell all your noodles at ${bulkSaleTerms.percentPrice}% of normal price, but reduce chaos by ${bulkSaleTerms.chaosReduction}%. Desperation has its benefits.`;
+                bulkSaleOption.querySelector('.option-price').textContent = allNoodlesBulkSaleValue;
             }
-            
             if (premiumSaleOption) {
                 premiumSaleOption.querySelector('.buyer-desc').textContent = premiumBuyer;
-                premiumSaleOption.querySelector('.option-price').textContent = `${premiumSaleTerms.percentNoodles}% Noodles`;
-                premiumSaleOption.querySelector('.option-desc').textContent = 
-                    `Sell ${premiumSaleTerms.percentNoodles}% of your noodles at ${premiumSaleTerms.percentPrice}% of normal price and gain +${premiumSaleTerms.prestigeGain} prestige. The fancy restaurant called!`;
+                premiumSaleOption.querySelector('.option-price').textContent = halfNoodlesPremiumValue;
             }
         }
         
@@ -2956,8 +2935,11 @@ class Game {
         // Add active class after a small delay for animation
         setTimeout(() => modal.classList.add('active'), 10);
     }
-    
+
     processEmergencyOption(optionId) {
+        // Get the selected buyer from class properties
+        const buyer = this.selectedBuyers[optionId];
+        
         // Need to check if we have noodles to sell
         if (this.state.playerStats.noodles <= 0) {
             this.showEffectMessage("No noodles available to sell!");
@@ -3000,24 +2982,15 @@ class Game {
         const basePrice = this.state.playerStats.noodleSalePrice;
         let soldNoodles, soldPrice, income, chaosReduction = 0, prestigeGain = 0;
         
-        // Get the randomized sale terms we stored
-        const terms = this.saleTerms ? this.saleTerms[optionId] : null;
-        
-        // If terms weren't stored or are invalid, use fallback values
-        const percentPrice = terms ? terms.percentPrice : (optionId === 'discount' ? 80 : optionId === 'bulk' ? 65 : 120);
-        const percentNoodles = terms ? terms.percentNoodles : (optionId === 'premium' ? 50 : 100);
-        const termPrestigeGain = terms ? terms.prestigeGain : (optionId === 'premium' ? 3 : 0);
-        const termChaosReduction = terms ? terms.chaosReduction : (optionId === 'bulk' ? 10 : 0);
-        
         // Get the selected buyer scenario from showEmergencyPastaModal
         const buyerMessage = this.selectedBuyers ? this.selectedBuyers[optionId] : '';
         let outcomeMessage;
         
         switch (optionId) {
             case 'discount':
-                // Flash Sale: Sell all noodles at randomized price percent
+                // Flash Sale: Sell all noodles at 80% price
                 soldNoodles = currentNoodles;
-                soldPrice = Math.floor(basePrice * (percentPrice / 100));
+                soldPrice = Math.floor(basePrice * 0.8);
                 income = soldNoodles * soldPrice;
                 
                 outcomeMessage = successScenarios[Math.floor(Math.random() * successScenarios.length)];
@@ -3030,11 +3003,11 @@ class Game {
                 break;
                 
             case 'bulk':
-                // Bulk Clearance: Sell all noodles at lower price, reduce chaos by random amount
+                // Bulk Clearance: Sell all noodles at 65% price, reduce chaos by 10%
                 soldNoodles = currentNoodles;
-                soldPrice = Math.floor(basePrice * (percentPrice / 100));
+                soldPrice = Math.floor(basePrice * 0.65);
                 income = soldNoodles * soldPrice;
-                chaosReduction = Math.min(termChaosReduction, this.state.playerStats.chaosLevel);
+                chaosReduction = Math.min(10, this.state.playerStats.chaosLevel);
                 
                 outcomeMessage = chaosReductionScenarios[Math.floor(Math.random() * chaosReductionScenarios.length)];
                 
@@ -3047,11 +3020,11 @@ class Game {
                 break;
                 
             case 'premium':
-                // Premium Rush: Sell percentage of noodles at higher price, gain random prestige
-                soldNoodles = Math.floor(currentNoodles * (percentNoodles / 100));
-                soldPrice = Math.floor(basePrice * (percentPrice / 100));
+                // Premium Rush: Sell half noodles at 120% price, gain 3 prestige
+                soldNoodles = Math.floor(currentNoodles / 2);
+                soldPrice = Math.floor(basePrice * 1.2);
                 income = soldNoodles * soldPrice;
-                prestigeGain = termPrestigeGain;
+                prestigeGain = 3;
                 
                 outcomeMessage = prestigeScenarios[Math.floor(Math.random() * prestigeScenarios.length)];
                 

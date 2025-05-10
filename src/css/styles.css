@@ -3260,18 +3260,16 @@ h1 {
     font-size: 18px;
     font-weight: bold;
     cursor: pointer;
-    z-index: 100;
+    z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
     transition: all 0.2s ease;
     padding: 0;
-}
-
-.help-button:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    /* Ensure the button doesn't move when game state changes */
+    margin: 0;
+    transform: none !important;
 }
 
 .help-overlay {
@@ -3523,7 +3521,9 @@ h1 {
 }
 
 .option-price {
-    color: #2ecc71;
+    color: #ffd700 !important; /* Changed to gold/yellow with !important to ensure consistency */
+    font-weight: bold;
+    text-shadow: 0 0 4px rgba(255, 215, 0, 0.3); /* Add subtle glow effect */
 }
 
 .option-desc {
@@ -3541,4 +3541,11 @@ h1 {
         opacity: 1;
         transform: translate(-50%, -50%) scale(1);
     }
+}
+
+/* Add consistent styling for money gain */
+.money-gain {
+    color: #ffd700 !important; /* Changed to gold/yellow with !important to ensure consistency */
+    font-weight: bold;
+    text-shadow: 0 0 4px rgba(255, 215, 0, 0.3); /* Add subtle glow effect */
 }

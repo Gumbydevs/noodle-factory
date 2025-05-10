@@ -38,10 +38,6 @@ Noodle Factory is an absurdist roguelike card game where you manage a pasta prod
 2. Run the installer and follow the on-screen instructions
 3. Launch "The Noodle Factory" from your desktop or start menu
 
-## Screenshots
-
-[Screenshots will be added in the final release]
-
 ## Gameplay Tips
 
 - Watch your chaos levels carefully - exceeding 100% chaos for three consecutive turns ends your run.
