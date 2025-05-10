@@ -1334,10 +1334,12 @@ class Game {
         
         const workers = this.state.playerStats.workerCount;
         
-        // Make ingredients last longer by reducing consumption rate
+        // MODIFIED: Make ingredients last much longer by reducing consumption rate
+        // Only use a small fraction of ingredients (0.2 instead of 0.5)
+        // This makes adding ingredients more impactful
         const baseProduction = Math.min(
-            Math.floor(this.state.playerStats.ingredients * 0.5), // Round down ingredient usage
-            Math.ceil(workers / 0.5)  // Each 5 workers can process 1 ingredient
+            Math.floor(this.state.playerStats.ingredients * 0.2), // Reduced from 0.5 to 0.2
+            Math.ceil(workers / 0.7)  // Reduced worker requirement from 0.5 to 0.7 workers per ingredient
         );
 
         if (baseProduction <= 0) return null;
@@ -1346,13 +1348,14 @@ class Game {
         const chaosMultiplier = chaosLevel > 50 ? 
             1 - ((chaosLevel - 50) / 100) :
             1 + (chaosLevel / 100);
-        const noodlesPerIngredient = 15 + Math.floor(Math.random() * 16);
+        // Increase noodles per ingredient for better payoff
+        const noodlesPerIngredient = 20 + Math.floor(Math.random() * 21); // Increased from 15-30 to 20-40
         const production = Math.max(1, Math.floor(baseProduction * noodlesPerIngredient * chaosMultiplier * this.state.playerStats.noodleProductionRate));
 
         if (production > 0) {
             this.state.playerStats.noodles += production;
-            // Only consume whole number of ingredients
-            this.state.playerStats.ingredients = Math.floor(Math.max(0, this.state.playerStats.ingredients - (baseProduction * 0.5)));
+            // Only consume a smaller fraction of ingredients
+            this.state.playerStats.ingredients = Math.floor(Math.max(0, this.state.playerStats.ingredients - (baseProduction * 0.2))); // Reduced from 0.5 to 0.2
             
             // Return the production message
             return `Daily production: Created ${production} noodles!`;
