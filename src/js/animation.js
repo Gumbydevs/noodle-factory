@@ -435,31 +435,39 @@ function handleCardClick(card) {
     const startY = rect.top;
     
     if (card.dataset.selected === 'true') {
-        // More dramatic selected card animation
-        const angle = -45 + Math.random() * 90;
-        const finalY = -60 - Math.random() * 40;
+        // First add the wiggle class for initial excitement effect
+        card.classList.add('wiggle-selected');
         
-        card.style.setProperty('--start-x', `${startX}px`);
-        card.style.setProperty('--start-y', `${startY}px`);
-        card.style.setProperty('--vanish-angle', `${angle}deg`);
-        card.style.setProperty('--vanish-y', `${finalY}px`);
+        // Create the smoke effect
+        createSmokeEffect(card);
         
-        requestAnimationFrame(() => {
-            card.style.animation = 'selectedCardVanish 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards';
-        });
+        // Delay the dissolving effect to allow wiggle animation to complete first
+        setTimeout(() => {
+            card.classList.add('dissolving');
+            
+            requestAnimationFrame(() => {
+                card.style.setProperty('--tx', '0px');
+                card.style.setProperty('--ty', '-60px');
+                card.style.animation = 'selectedCardVanish 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+            });
+        }, 700); // Longer delay to ensure wiggle animation completes
     } else {
-        // More dramatic unselected card animation
+        // Faster unselected card animation
         const angle = Math.random() * 360;
         const distance = 80 + Math.random() * 120;
         const dx = Math.cos(angle * Math.PI / 180) * distance;
         const dy = Math.sin(angle * Math.PI / 180) * distance;
         
+        // Add small smoke effect for unselected cards too
+        createSmokeEffect(card);
+        
         card.style.setProperty('--fade-x', `${dx}px`);
         card.style.setProperty('--fade-y', `${dy}px`);
         card.style.setProperty('--fade-rot', `${-90 + Math.random() * 180}deg`);
         
+        // Make unselected cards disappear faster
         requestAnimationFrame(() => {
-            card.style.animation = 'unselectedCardVanish 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+            card.style.animation = 'unselectedCardVanish 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards';
         });
     }
 }
@@ -472,9 +480,9 @@ function handleUnselectedCards(cards) {
             card.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max');
             void card.offsetWidth;
             
-            // Add played class and shrink animation
+            // Add played class and shrink animation - use faster animation
             card.classList.add('played');
-            card.style.animation = 'shrinkFadeAway 0.5s ease-out forwards';
+            card.style.animation = 'shrinkFadeAway 0.35s ease-out forwards';
             
             card.addEventListener('animationend', () => {
                 card.style.display = 'none';
@@ -568,6 +576,43 @@ document.addEventListener('DOMContentLoaded', setupCardAnimations);
 
 function setNoodleRollEnabled(enabled) {
     noodleRollEnabled = enabled;
+}
+
+function createSmokeEffect(element) {
+    const rect = element.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    // Make fewer particles for better performance
+    for (let i = 0; i < 15; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'smoke-particle';
+        const randomOffsetX = (Math.random() - 0.5) * rect.width * 0.8;
+        const randomOffsetY = (Math.random() - 0.5) * rect.height * 0.8;
+
+        particle.style.left = `${centerX + randomOffsetX}px`;
+        particle.style.top = `${centerY + randomOffsetY}px`;
+
+        // Make particles more subtle with white color
+        particle.style.background = 'rgba(255, 255, 255, 0.7)';
+        particle.style.boxShadow = '0 0 5px rgba(255, 255, 255, 0.3)';
+
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 50 + Math.random() * 100;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance - 50;
+
+        particle.style.setProperty('--tx', `${tx}px`);
+        particle.style.setProperty('--ty', `${ty}px`);
+
+        document.body.appendChild(particle);
+
+        requestAnimationFrame(() => {
+            particle.style.animation = `smoke 0.8s ease-out forwards`;
+        });
+
+        setTimeout(() => particle.remove(), 800);
+    }
 }
 
 export { 

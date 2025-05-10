@@ -326,9 +326,13 @@
 
 @keyframes wiggle-selected {
     0% { transform: rotate(0deg) scale(1); }
-    25% { transform: rotate(-5deg) scale(1.05); }
-    75% { transform: rotate(5deg) scale(1.05); }
-    100% { transform: rotate(0deg) scale(1.1); opacity: 0; }
+    10% { transform: rotate(-10deg) scale(1.15); }
+    25% { transform: rotate(8deg) scale(1.15); }
+    40% { transform: rotate(-6deg) scale(1.1); }
+    55% { transform: rotate(5deg) scale(1.1); }
+    70% { transform: rotate(-4deg) scale(1.05); }
+    85% { transform: rotate(3deg) scale(1.05); }
+    100% { transform: rotate(0deg) scale(1); }
 }
 
 /* Update selectedCardVanish animation to be more reliable */
@@ -336,18 +340,22 @@
     0% { 
         transform: scale(1) translate(0, 0) rotate(0deg);
         opacity: 1;
+        background-color: inherit;
     }
     15% {
-        transform: scale(1.1) translate(0, -5px) rotate(calc(var(--vanish-rot) * 0.3));
+        transform: scale(1.1) translate(0, -10px) rotate(calc(var(--vanish-rot) * 0.3));
         opacity: 0.95;
+        background-color: inherit;
     }
     35% {
-        transform: scale(1.05) translate(0, -15px) rotate(calc(var(--vanish-rot) * 0.7));
+        transform: scale(1.05) translate(0, -25px) rotate(calc(var(--vanish-rot) * 0.7));
         opacity: 0.8;
+        background-color: inherit;
     }
     100% { 
-        transform: scale(0.6) translate(0, -40px) rotate(var(--vanish-rot));
+        transform: scale(0.5) translate(0, -60px) rotate(var(--vanish-rot));
         opacity: 0;
+        background-color: inherit;
     }
 }
 
@@ -428,16 +436,24 @@
 
 @keyframes unselectedCardVanish {
     0% { 
-        transform: scale(1) translate(0, 0);
+        transform: scale(1) translate(0, 0) rotate(0deg);
         opacity: 1;
+        background-color: inherit;
     }
     20% {
-        transform: scale(0.9) translate(calc(var(--vanish-x) * 0.2), calc(var(--vanish-y) * 0.2));
+        transform: scale(0.9) translate(calc(var(--fade-x) * 0.2), calc(var(--fade-y) * 0.2)) rotate(calc(var(--fade-rot) * 0.2));
         opacity: 0.8;
+        background-color: inherit;
+    }
+    60% {
+        transform: scale(0.7) translate(calc(var(--fade-x) * 0.6), calc(var(--fade-y) * 0.6)) rotate(calc(var(--fade-rot) * 0.6));
+        opacity: 0.3;
+        background-color: inherit;
     }
     100% { 
-        transform: scale(0.5) translate(var(--vanish-x), var(--vanish-y));
+        transform: scale(0.4) translate(var(--fade-x), var(--fade-y)) rotate(var(--fade-rot));
         opacity: 0;
+        background-color: inherit;
     }
 }
 
@@ -2775,12 +2791,12 @@ h1 {
 @keyframes smoke {
     0% {
         transform: translate(0, 0) scale(1);
-        opacity: 0.9;
-        background: rgba(255, 255, 255, 0.9);
+        opacity: 0.7;
+        background: rgba(255, 255, 255, 0.7);
     }
     50% {
-        opacity: 0.6;
-        background: rgba(230, 230, 230, 0.6);
+        opacity: 0.5;
+        background: rgba(255, 255, 255, 0.5);
     }
     100% {
         transform: translate(var(--tx), var(--ty)) scale(2.5);
@@ -2798,18 +2814,34 @@ h1 {
 
 @keyframes selectedCardVanish {
     0% {
-        transform: translate(0, 0) scale(1);
+        transform: translate(0, 0) scale(1) rotate(0deg);
         opacity: 1;
-        background: #ff4400;
+        background: #444; /* Maintain original card background */
     }
-    50% {
+    15% {
+        transform: translate(0, -5px) scale(1.1) rotate(-5deg);
+        opacity: 0.95;
+        background: #444; /* Keep consistent background */
+    }
+    30% {
+        transform: translate(0, -10px) scale(1.05) rotate(5deg);
+        opacity: 0.9;
+        background: #444; /* Keep consistent background */
+    }
+    45% {
+        transform: translate(0, -15px) scale(1) rotate(-3deg);
         opacity: 0.8;
-        background: #ff8800;
+        background: #444; /* Keep consistent background */
+    }
+    60% {
+        transform: translate(0, -20px) scale(0.9) rotate(2deg);
+        opacity: 0.6;
+        background: #444; /* Keep consistent background */
     }
     100% {
-        transform: translate(var(--tx), var(--ty)) scale(0.1);
+        transform: translate(var(--tx), var(--ty)) scale(0.1) rotate(0deg);
         opacity: 0;
-        background: #ffff00;
+        background: #444; /* Keep consistent background */
     }
 }
 

@@ -370,9 +370,9 @@ export const ACHIEVEMENTS = {
         reward: "Live. Die. Al dente.",
         category: ACHIEVEMENT_CATEGORIES.CHALLENGE
     },
-    "Pasta Billionaire": {
-        description: "Accumulate $1,000,000 in a single game",
-        check: (stats) => stats.money >= 1000000,
+    "Pasta Rich": {
+        description: "Accumulate $100,000 in a single game",
+        check: (stats) => stats.money >= 100000,
         reward: "Rolling in dough, literally",
         category: ACHIEVEMENT_CATEGORIES.RESOURCES
     },
