@@ -4,10 +4,9 @@ import { gameSounds } from '../audio.js';
 import { musicLoops } from '../audio/music/bgm.js';
 import { loungeMusic } from '../audio/music/bgm2.js';
 import { dnbMusic } from '../audio/music/bgm3.js';
-import { loungeMusic2 } from '../audio/music/bgm4.js';
 
 // Available music tracks for random selection
-const AVAILABLE_MUSIC_TRACKS = ['default', 'lounge', 'dnb', 'lounge2'];
+const AVAILABLE_MUSIC_TRACKS = ['default', 'lounge', 'dnb'];
 
 document.addEventListener('DOMContentLoaded', () => {
     const sfxToggle = document.getElementById('sfx-toggle');
@@ -45,19 +44,16 @@ document.addEventListener('DOMContentLoaded', () => {
         sfxVolumeValue.textContent = `${e.target.value}%`;
         gameSounds.setVolume(value);
         localStorage.setItem('sfxVolume', value);
-    });
-
-    // Update initial SFX volume
+    });    // Update initial SFX volume
     gameSounds.setVolume(savedSfxVolume);
-
+    
     // Make sure all music engines are initialized
     const initializeAllMusicEngines = async () => {
         // Ensure all music engines are preloaded
         await Promise.all([
             musicLoops.preload(),
             loungeMusic.preload(),
-            dnbMusic.preload(),
-            loungeMusic2.preload()
+            dnbMusic.preload()
         ]);
         console.log("All music engines initialized");
     };
@@ -87,14 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const enabled = e.target.checked;
         const selectedTrack = localStorage.getItem('selectedMusicTrack') || 'default';
         const effectiveTrack = getEffectiveTrack(selectedTrack);
-        
-        console.log(`Music toggle: ${enabled}, selected track: ${selectedTrack}, using: ${effectiveTrack}`);
-        
+          console.log(`Music toggle: ${enabled}, selected track: ${selectedTrack}, using: ${effectiveTrack}`);
         // Ensure all music tracks are stopped first
         musicLoops.setEnabled(false);
         loungeMusic.setEnabled(false);
         dnbMusic.setEnabled(false);
-        loungeMusic2.setEnabled(false);
         
         // Enable only the selected track
         if (enabled) {
@@ -104,9 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (effectiveTrack === 'dnb') {
                 console.log("Starting Dry Ramen Breaks music");
                 dnbMusic.setEnabled(true);
-            } else if (effectiveTrack === 'lounge2') {
-                console.log("Starting Rolling Boil music");
-                loungeMusic2.setEnabled(true);
             } else {
                 console.log("Starting default music");
                 musicLoops.setEnabled(true);
@@ -123,34 +113,28 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`Initial music track: ${savedTrack}`);
 
         musicSelect.addEventListener('change', (e) => {
-            const newTrack = e.target.value;
-            console.log(`Changing music track to: ${newTrack}`);
+            const newTrack = e.target.value;            console.log(`Changing music track to: ${newTrack}`);
             localStorage.setItem('selectedMusicTrack', newTrack);
             
             // Stop all music tracks first
             musicLoops.setEnabled(false);
             loungeMusic.setEnabled(false);
             dnbMusic.setEnabled(false);
-            loungeMusic2.setEnabled(false);
             
             // Start new track if music is enabled
-            if (musicToggle.checked) {
-                const effectiveTrack = getEffectiveTrack(newTrack);
+            if (musicToggle.checked) {                const effectiveTrack = getEffectiveTrack(newTrack);
                 console.log(`Selected ${newTrack}, using: ${effectiveTrack}`);
                 
                 if (effectiveTrack === 'lounge') {
-                    console.log("Starting Pho Real music");
-                    loungeMusic.setEnabled(true);
-                } else if (effectiveTrack === 'dnb') {
-                    console.log("Starting Dry Ramen Breaks music");
-                    dnbMusic.setEnabled(true);
-                } else if (effectiveTrack === 'lounge2') {
-                    console.log("Starting Rolling Boil music");
-                    loungeMusic2.setEnabled(true);
-                } else {
-                    console.log("Starting default music");
-                    musicLoops.setEnabled(true);
-                }
+                console.log("Starting Pho Real music");
+                loungeMusic.setEnabled(true);
+            } else if (effectiveTrack === 'dnb') {
+                console.log("Starting Dry Ramen Breaks music");
+                dnbMusic.setEnabled(true);
+            } else {
+                console.log("Starting default music");
+                musicLoops.setEnabled(true);
+            }
             }
         });
     }
@@ -163,13 +147,11 @@ document.addEventListener('DOMContentLoaded', () => {
     musicVolume.value = savedVolume * 100;
     volumeValue.textContent = `${Math.round(savedVolume * 100)}%`;
 
-    musicVolume.addEventListener('input', (e) => {
-        const value = e.target.value / 100;
+    musicVolume.addEventListener('input', (e) => {        const value = e.target.value / 100;
         volumeValue.textContent = `${e.target.value}%`;
         musicLoops.setVolume(value);
         loungeMusic.setVolume(value);
         dnbMusic.setVolume(value);
-        loungeMusic2.setVolume(value);
         localStorage.setItem('musicVolume', value);
     });
 

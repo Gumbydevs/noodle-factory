@@ -608,12 +608,8 @@ class Game {
         }
         if (window.loungeMusic && window.loungeMusic.updateChaosLevel) {
             window.loungeMusic.updateChaosLevel(chaos);
-        }
-        if (window.dnbMusic && window.dnbMusic.updateChaosLevel) {
+        }        if (window.dnbMusic && window.dnbMusic.updateChaosLevel) {
             window.dnbMusic.updateChaosLevel(chaos);
-        }
-        if (window.loungeMusic2 && window.loungeMusic2.updateChaosLevel) {
-            window.loungeMusic2.updateChaosLevel(chaos);
         }
         
         // Remove all chaos classes first
@@ -3395,7 +3391,7 @@ class SoundManager {
             
             // If random is selected, pick a new random track each time
             if (musicTrack === 'random') {
-                const availableTracks = ['default', 'lounge', 'dnb', 'lounge2'];
+                const availableTracks = ['default', 'lounge', 'dnb'];
                 const randomTrack = availableTracks[Math.floor(Math.random() * availableTracks.length)];
                 console.log("Random music selection chose:", randomTrack);
                 
@@ -3405,20 +3401,12 @@ class SoundManager {
                     if (window.loungeMusic.enabled) {
                         await window.loungeMusic.startLoop();
                         console.log("Pho Real music started from random selection");
-                    }
-                } else if (randomTrack === 'dnb') {
+                    }                } else if (randomTrack === 'dnb') {
                     const { dnbMusic } = await import('../audio/music/bgm3.js');
                     window.dnbMusic = dnbMusic;  // Attach to window
                     if (window.dnbMusic.enabled) {
                         await window.dnbMusic.startLoop();
                         console.log("Dry Ramen Breaks music started from random selection");
-                    }
-                } else if (randomTrack === 'lounge2') {
-                    const { loungeMusic2 } = await import('../audio/music/bgm4.js');
-                    window.loungeMusic2 = loungeMusic2;  // Attach to window
-                    if (window.loungeMusic2.enabled) {
-                        await window.loungeMusic2.startLoop();
-                        console.log("Rolling Boil music started from random selection");
                     }
                 } else {
                     const { musicLoops } = await import('../audio/music/bgm.js');
@@ -3434,20 +3422,12 @@ class SoundManager {
                 if (window.loungeMusic.enabled) {
                     await window.loungeMusic.startLoop();
                     console.log("Pho Real music started");
-                }
-            } else if (musicTrack === 'dnb') {
+                }            } else if (musicTrack === 'dnb') {
                 const { dnbMusic } = await import('../audio/music/bgm3.js');
                 window.dnbMusic = dnbMusic;  // Attach to window
                 if (window.dnbMusic.enabled) {
                     await window.dnbMusic.startLoop();
                     console.log("Dry Ramen Breaks music started");
-                }
-            } else if (musicTrack === 'lounge2') {
-                const { loungeMusic2 } = await import('../audio/music/bgm4.js');
-                window.loungeMusic2 = loungeMusic2;  // Attach to window
-                if (window.loungeMusic2.enabled) {
-                    await window.loungeMusic2.startLoop();
-                    console.log("Rolling Boil music started");
                 }
             } else {
                 const { musicLoops } = await import('../audio/music/bgm.js');

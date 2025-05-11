@@ -15,7 +15,7 @@ export class LoungeMusic2 {
         
         // Bossa nova requires a softer, more gentle volume - increase overall volume
         this.baseVolume = 0.25; // Increased from 0.15
-        this.volume = parseFloat(localStorage.getItem('musicVolume')) || 1.0;
+        this.volume = parseFloat(localStorage.getItem('musicVolume')) || 0.02;
         this.chaosLevel = 0;
         this.loopTimeout = null;
         this.currentTime = 0;

@@ -2,9 +2,8 @@ export class AssetLoader {
     constructor() {
         this.totalAssets = 0;
         this.loadedAssets = 0;
-        
-        // Available music tracks for random selection
-        this.availableTracks = ['default', 'lounge', 'dnb', 'lounge2'];
+          // Available music tracks for random selection
+        this.availableTracks = ['default', 'lounge', 'dnb'];
         
         // Check if we have a persisted track selection
         const persistedTrack = localStorage.getItem('selectedMusicTrack');
@@ -40,15 +39,10 @@ export class AssetLoader {
         if (this.selectedTrack === 'lounge') {
             const { loungeMusic } = await import('../audio/music/bgm2.js');
             window.loungeMusic = loungeMusic; // Attach to window
-            await loungeMusic.preload();
-        } else if (this.selectedTrack === 'dnb') {
+            await loungeMusic.preload();        } else if (this.selectedTrack === 'dnb') {
             const { dnbMusic } = await import('../audio/music/bgm3.js');
             window.dnbMusic = dnbMusic; // Attach to window
             await dnbMusic.preload();
-        } else if (this.selectedTrack === 'lounge2') {
-            const { loungeMusic2 } = await import('../audio/music/bgm4.js');
-            window.loungeMusic2 = loungeMusic2; // Attach to window
-            await loungeMusic2.preload();
         } else {
             const { musicLoops } = await import('../audio/music/bgm.js');
             window.musicLoops = musicLoops; // Attach to window
