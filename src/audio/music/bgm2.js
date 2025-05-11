@@ -825,6 +825,7 @@ export class LoungeMusic {
             const chordIndex = (step / 8) % progression.length;
             const chord = progression[chordIndex];
             
+            // Removed chords. The song is better without the chords
             // this.playJazzChord(chord.chord, time, (chord.duration * 60 / this.baseBpm), 0.4);
 
             const bassLine = this.bassPatterns[progressionIndex % this.bassPatterns.length];
