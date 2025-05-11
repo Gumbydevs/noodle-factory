@@ -581,11 +581,15 @@ class Game {
             this.showEffectMessage("Your factory runs like a well-oiled machine!");
         }
 
-        if (stats.workerCount >= 40 && stats.ingredients >= 15 && stats.pastaPrestige >= 40) {
-            statsContainer.classList.add('perfect-state');
+        if (stats.workerCount >= 40 && stats.ingredients >= 15 && stats.pastaPrestige >= 40) {            statsContainer.classList.add('perfect-state');
             this.showEffectMessage("Peak pasta production achieved!");
         }
 
+        // Save the current message history length before checking chaos
+        const messageHistoryLengthBefore = this.messageHistory.length;
+        const lastMessageTypeBefore = this.messageHistory.length > 0 ? this.messageHistory[0].type : null;
+        
+        // Check chaos but don't let it override card action messages
         this.checkChaosEvents();
         this.checkAchievements();
 
@@ -636,8 +640,7 @@ class Game {
                     }
                     break;
                 }
-            }
-        }
+            }        }
         this._lastChaosLevel = chaos;
         
         // Add proper mobile-friendly chaos classes
@@ -646,7 +649,6 @@ class Game {
             if (!('ontouchstart' in window)) {
                 body.classList.add('chaos-noise');
             }
-            this.triggerChaosEvent("Reality itself begins to melt!");
             
             if (Math.random() < 0.4) {
                 this.triggerNoodleRain();
@@ -657,7 +659,6 @@ class Game {
             if (!('ontouchstart' in window)) {
                 body.classList.add('chaos-noise');
             }
-            this.triggerChaosEvent("The factory warps between dimensions!");
             
             if (Math.random() < 0.2) {
                 this.triggerNoodleRain();
@@ -665,11 +666,9 @@ class Game {
         }
         else if (chaos >= 50) {
             body.classList.add('chaos-level-2');
-            this.triggerChaosEvent("Strange distortions appear in the corners of your vision...");
         }
         else if (chaos >= 25) {
             body.classList.add('chaos-level-1');
-            this.triggerChaosEvent("Something feels slightly off...");
         }
     }
 
@@ -2115,9 +2114,7 @@ class Game {
             prestige: { ingredients: 0.2, energy: 0.3 }
         };
         // Implement trading logic
-    }
-
-    triggerChaosEvent(message) {
+    }    triggerChaosEvent(message) {
         const messageBox = document.getElementById('game-messages');
         if (!messageBox) return;
 
@@ -2127,7 +2124,21 @@ class Game {
             gameSounds.createGrumbleSound(this.state.playerStats.chaosLevel / 50);
         }
 
-        this.showChaosMessage(message);
+        // Check if there's a recent card action message in history (last 2 turns)
+        const recentMessages = this.messageHistory.slice(0, 3);
+        const hasRecentCardActionMsg = recentMessages.some(
+            msg => msg.type === 'feedback' && msg.turn === this.turn && !msg.message.includes('Perfect balance') && 
+                  !msg.message.includes('Peak pasta') && !msg.message.includes('well-oiled machine')
+        );
+
+        // Only show chaos message if there's no recent card action message
+        // or add to history silently if a card was just played
+        if (!hasRecentCardActionMsg) {
+            this.showChaosMessage(message);
+        } else {
+            // Just add to history without displaying
+            this.addMessageToHistory(message, 'chaos-warning');
+        }
     }
 
     checkHighScore() {

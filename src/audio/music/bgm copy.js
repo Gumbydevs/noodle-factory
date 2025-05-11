@@ -1,3 +1,6 @@
+//NOT USED
+// This file is not used in the current version of the code.
+// It is a copy of the original bgm file with some modifications.
 export class MusicLoops {
     constructor() {
         this.audioContext = null;
