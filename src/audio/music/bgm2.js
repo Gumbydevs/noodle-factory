@@ -11,7 +11,7 @@ export class LoungeMusic {
         this.audioContext = null;
         this.isPlaying = false;
         this.baseVolume = 0.13; // Reduced overall volume further
-        this.volume = parseFloat(localStorage.getItem('musicVolume')) || 1.0;
+        this.volume = parseFloat(localStorage.getItem('musicVolume')) || 0.9;
         this.chaosLevel = 0;
         this.loopTimeout = null;
         this.currentTime = 0;
@@ -612,7 +612,9 @@ export class LoungeMusic {
 
     playDfamKick(time, { gain = 1.2 } = {}) {
         const osc = this.audioContext.createOscillator();
+        const oscClick = this.audioContext.createOscillator(); // Add click oscillator
         const gainNode = this.audioContext.createGain();
+        const clickGain = this.audioContext.createGain(); // Add gain for click
         const filter = this.audioContext.createBiquadFilter();
         const softClipper = this.audioContext.createWaveShaper();
 
@@ -629,39 +631,59 @@ export class LoungeMusic {
         }
         softClipper.curve = createSoftClipCurve();
 
-        // Set up kick oscillator with more extreme pitch envelope
+        // Set up kick oscillator with more defined pitch envelope
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(this.dfamParams.kickFreq * 1.5, time);
-        osc.frequency.exponentialRampToValueAtTime(this.dfamParams.kickFreq * 0.08, time + this.dfamParams.kickSweep);
+        osc.frequency.setValueAtTime(150, time); // Higher starting frequency for more definition
+        osc.frequency.exponentialRampToValueAtTime(40, time + 0.04); // Faster initial drop
 
-        // Enhanced filter envelope for more impact
+        // Add a click oscillator for the attack transient
+        oscClick.type = 'triangle';
+        oscClick.frequency.setValueAtTime(220, time);
+        oscClick.frequency.exponentialRampToValueAtTime(1, time + 0.02);
+        
+        // Click envelope
+        clickGain.gain.setValueAtTime(0, time);
+        clickGain.gain.linearRampToValueAtTime(gain * 0.0 * this.volume * this.baseVolume, time + 0.001);
+        clickGain.gain.exponentialRampToValueAtTime(0.001, time + 0.02);
+
+        // Brighter filter for more definition
         filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(180, time);
-        filter.frequency.exponentialRampToValueAtTime(35, time + this.dfamParams.kickDecay);
-        filter.Q.value = 3.5; // Higher resonance for more character
+        filter.frequency.setValueAtTime(100, time); // Higher cutoff for more presence
+        filter.frequency.exponentialRampToValueAtTime(70, time + this.dfamParams.kickDecay);
+        filter.Q.value = 2.0; // Lower resonance for cleaner sound
 
-        // Punchier envelope
+        // Punchier envelope with more sustain
         gainNode.gain.setValueAtTime(0, time);
-        gainNode.gain.linearRampToValueAtTime(gain * this.volume * this.baseVolume * 1.2, time + 0.002);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, time + this.dfamParams.kickDecay);
+        gainNode.gain.linearRampToValueAtTime(gain * this.volume * this.baseVolume * 1.5, time + 0.002);
+        gainNode.gain.exponentialRampToValueAtTime(gain * this.volume * this.baseVolume * 0.6, time + 0.04);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, time + this.dfamParams.kickDecay * 1.2);
 
+        // Connect main oscillator path
         osc.connect(filter);
         filter.connect(softClipper);
         softClipper.connect(gainNode);
         gainNode.connect(this.gainNode);
+        
+        // Connect click path directly to output
+        oscClick.connect(clickGain);
+        clickGain.connect(this.gainNode);
 
         osc.start(time);
-        osc.stop(time + this.dfamParams.kickDecay);
+        oscClick.start(time);
+        osc.stop(time + this.dfamParams.kickDecay * 1.2);
+        oscClick.stop(time + 0.03);
 
         setTimeout(() => {
             osc.disconnect();
+            oscClick.disconnect();
             filter.disconnect();
             softClipper.disconnect();
             gainNode.disconnect();
-        }, (this.dfamParams.kickDecay + 0.1) * 1000);
+            clickGain.disconnect();
+        }, (this.dfamParams.kickDecay * 2.2 + 0.1) * 10000);
     }
 
-    play909Snare(time, { bodyGain = 0.9, noiseGain = 0.7 } = {}) {
+    play909Snare(time, { bodyGain = 2.9, noiseGain = 1.7 } = {}) {
         // Create body tone with two oscillators for richer sound
         const osc1 = this.audioContext.createOscillator();
         const osc2 = this.audioContext.createOscillator();
@@ -748,13 +770,13 @@ export class LoungeMusic {
                 switch (instrument) {
                     case 'kick':
                         this.playDfamKick(time, {
-                            gain: 2.4 * this.drumLevels.hipHop
+                            gain: 0.8 * this.drumLevels.hipHop
                         });
                         break;
                     case 'snare':
                         this.play909Snare(time, {
-                            bodyGain: 1.8 * this.drumLevels.hipHop,
-                            noiseGain: 1.4 * this.drumLevels.hipHop
+                            bodyGain: 1.4 * this.drumLevels.hipHop,
+                            noiseGain: 1.0 * this.drumLevels.hipHop
                         });
                         break;
                 }
@@ -768,7 +790,7 @@ export class LoungeMusic {
                     case 'brush':
                         this.playBrushNoise(time, { 
                             frequency: 3000,
-                            gain: 0.5 * this.drumLevels.latin,
+                            gain: 1.5 * this.drumLevels.latin,
                             duration: 0.15,
                             type: 'bandpass',
                             Q: 1.5
@@ -796,24 +818,24 @@ export class LoungeMusic {
             }
         });
 
-        // Play chord progression with further reduced velocity
+        // Play chord progression 
         if (step % 8 === 0) {
             const progressionIndex = Math.floor(step / 32) % this.chordProgressions.length;
             const progression = this.chordProgressions[progressionIndex];
             const chordIndex = (step / 8) % progression.length;
             const chord = progression[chordIndex];
             
-            this.playJazzChord(chord.chord, time, (chord.duration * 60 / this.baseBpm), 0.4);
+            // this.playJazzChord(chord.chord, time, (chord.duration * 60 / this.baseBpm), 0.4);
 
             const bassLine = this.bassPatterns[progressionIndex % this.bassPatterns.length];
-            this.playWalkingBass(bassLine, time, (chord.duration * 60 / this.baseBpm), 0.5);
+            this.playWalkingBass(bassLine, time, (chord.duration * 60 / this.baseBpm), 2.5);
         }
 
-        // Add even quieter melodic fills
+        // melodic fills
         if (this.chaosLevel > 30 && step % 4 === 2 && Math.random() < this.chaosLevel / 200) {
             const scale = this.latinScale;
             const note = scale[Math.floor(Math.random() * scale.length)];
-            this.playPianoNote(note, time, 0.1, 0.1); // Reduced from 0.3
+            this.playPianoNote(note, time, 0.1, 0.13); // Reduced from 0.3
         }
     }
 
