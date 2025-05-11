@@ -19,7 +19,7 @@ export class SoulfulDrumAndBassMusic {
         this.currentLoop = null;
         this.isPlaying = false;
         this.baseVolume = 0.125; // MUSIC GLOBAL VOLUME - same as bgm.js
-        this.volume = parseFloat(localStorage.getItem('musicVolume')) || 1.0;
+        this.volume = parseFloat(localStorage.getItem('musicVolume')) || 0.9;
         this.chaosLevel = 0;
         this.loopTimeout = null;
         this.currentTime = 0;
@@ -551,7 +551,7 @@ export class SoulfulDrumAndBassMusic {
         // Add chord stabs based on step
         const chordValue = this.getBlendedPatternValue('chords', step);
         if (chordValue > 0.5) {
-            this.playChordStab(step, time, chordValue);
+            // this.playChordStab(step, time, chordValue);
         }
         
         // Add melodic elements at higher chaos/complexity levels
