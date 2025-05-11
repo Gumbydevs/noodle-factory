@@ -1367,15 +1367,16 @@ h1 {
 }
 
 .button.primary {
-    font-size: 1.2em;
     padding: 10px 20px;
     margin: 20px 0;
+    font: normal 1em "retro", monospace;
     width: 200px;
 }
 
 .button.secondary {
-    background-color: #325980;  /* Changed from gray to a nice navy blue */
-    margin: 0;  /* Remove margin since we're using gap */
+    background-color: #325980;  
+    margin: 0; 
+    font: normal 1em "retro", monospace;
 }
 
 .button.secondary:hover {

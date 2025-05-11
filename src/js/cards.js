@@ -3278,12 +3278,10 @@ export const CARDS = {
         requirements: { prestige: 60 },
         cost: 1200,
         permanentStats: {
-            prestigeGain: 0.12,
             chaosReduction: 0.15,
             workerEfficiency: 0.10
         },
         productionBonus: 0.15,
-        priceBonus: 0.15,
         statModifiers: {
             prestige: 14,
             chaos: -10
