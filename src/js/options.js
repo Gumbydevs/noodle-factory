@@ -139,13 +139,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log(`Selected ${newTrack}, using: ${effectiveTrack}`);
                 
                 if (effectiveTrack === 'lounge') {
-                    console.log("Starting lounge music");
+                    console.log("Starting Pho Real music");
                     loungeMusic.setEnabled(true);
                 } else if (effectiveTrack === 'dnb') {
-                    console.log("Starting drum and bass music");
+                    console.log("Starting Dry Ramen Breaks music");
                     dnbMusic.setEnabled(true);
                 } else if (effectiveTrack === 'lounge2') {
-                    console.log("Starting lounge music 2");
+                    console.log("Starting Rolling Boil music");
                     loungeMusic2.setEnabled(true);
                 } else {
                     console.log("Starting default music");

@@ -3393,21 +3393,21 @@ class SoundManager {
                     window.loungeMusic = loungeMusic;  // Attach to window
                     if (window.loungeMusic.enabled) {
                         await window.loungeMusic.startLoop();
-                        console.log("Lounge music started from random selection");
+                        console.log("Pho Real music started from random selection");
                     }
                 } else if (randomTrack === 'dnb') {
                     const { dnbMusic } = await import('../audio/music/bgm3.js');
                     window.dnbMusic = dnbMusic;  // Attach to window
                     if (window.dnbMusic.enabled) {
                         await window.dnbMusic.startLoop();
-                        console.log("Drum and bass music started from random selection");
+                        console.log("Dry Ramen Breaks music started from random selection");
                     }
                 } else if (randomTrack === 'lounge2') {
                     const { loungeMusic2 } = await import('../audio/music/bgm4.js');
                     window.loungeMusic2 = loungeMusic2;  // Attach to window
                     if (window.loungeMusic2.enabled) {
                         await window.loungeMusic2.startLoop();
-                        console.log("Lounge music 2 started from random selection");
+                        console.log("Rolling Boil music started from random selection");
                     }
                 } else {
                     const { musicLoops } = await import('../audio/music/bgm.js');
@@ -3422,21 +3422,21 @@ class SoundManager {
                 window.loungeMusic = loungeMusic;  // Attach to window
                 if (window.loungeMusic.enabled) {
                     await window.loungeMusic.startLoop();
-                    console.log("Lounge music started");
+                    console.log("Pho Real music started");
                 }
             } else if (musicTrack === 'dnb') {
                 const { dnbMusic } = await import('../audio/music/bgm3.js');
                 window.dnbMusic = dnbMusic;  // Attach to window
                 if (window.dnbMusic.enabled) {
                     await window.dnbMusic.startLoop();
-                    console.log("Drum and bass music started");
+                    console.log("Dry Ramen Breaks music started");
                 }
             } else if (musicTrack === 'lounge2') {
                 const { loungeMusic2 } = await import('../audio/music/bgm4.js');
                 window.loungeMusic2 = loungeMusic2;  // Attach to window
                 if (window.loungeMusic2.enabled) {
                     await window.loungeMusic2.startLoop();
-                    console.log("Lounge music 2 started");
+                    console.log("Rolling Boil music started");
                 }
             } else {
                 const { musicLoops } = await import('../audio/music/bgm.js');

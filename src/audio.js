@@ -100,9 +100,9 @@ export function setMusicVolume(volume) {
  * Set the base volume level for all music tracks
  * @param {Object} volumes - Object containing volume levels for each track type
  * @param {number} volumes.loops - Base volume for the main music loops (default: 0.115)
- * @param {number} volumes.lounge - Base volume for the lounge music (default: 0.15)
- * @param {number} volumes.dnb - Base volume for the drum and bass music (default: 0.115)
- * @param {number} volumes.lounge2 - Base volume for the second lounge music (default: 0.25)
+ * @param {number} volumes.lounge - Base volume for the Pho Real music (default: 0.15)
+ * @param {number} volumes.dnb - Base volume for the Dry Ramen Breaks music (default: 0.115)
+ * @param {number} volumes.lounge2 - Base volume for the Rolling Boil music (default: 0.25)
  */
 export function setMusicBaseVolumes(volumes = {}) {
     const { loops, lounge, dnb, lounge2 } = volumes;
