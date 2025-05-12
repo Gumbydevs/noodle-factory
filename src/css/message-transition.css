@@ -1,0 +1,17 @@
+/* CSS for message box height transition */
+#game-messages.pre-game {
+    min-height: 40px;  /* Lower height for pre-game state */
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+#game-messages.in-game {
+    min-height: 100px;  /* Taller height for in-game state with multiple messages */
+    height: auto;
+    justify-content: flex-start;
+    align-items: center;
+}

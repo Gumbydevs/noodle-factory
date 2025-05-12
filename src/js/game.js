@@ -213,9 +213,7 @@ class Game {
         const startButton = document.getElementById('start-game');
         if (startButton) {
             startButton.classList.remove('hidden');
-        }
-
-        // Add initial message
+        }        // Add initial message
         const messageBox = document.getElementById('game-messages');
         if (messageBox) {
             messageBox.textContent = "Click below to start managing your Noodle Factory!";
@@ -2181,9 +2179,7 @@ class Game {
         this.state.playerStats.factoryUpgrades = {};
         this.state.playerStats.prestigeGainRate = 1;
         this.state.playerStats.chaosGainRate = 1;
-        this.state.playerStats.workerLossRate = 1;
-
-        this.updateDisplay();
+        this.state.playerStats.workerLossRate = 1;        this.updateDisplay();
         this.drawNewCards();
         this.showSituationMessage("Welcome to your first day as Noodle Factory Manager! What's your first move?");
 
