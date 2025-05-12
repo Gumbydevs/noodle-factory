@@ -1,0 +1,15 @@
+/* 
+ * This CSS file prevents scrollbars from appearing during animations 
+ * without changing any of the existing animations.
+ */
+
+html, body {
+    overflow-x: hidden; /* Prevent horizontal scrollbar */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer and Edge */
+}
+
+/* Hide scrollbars for webkit browsers */
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+    display: none;
+}
