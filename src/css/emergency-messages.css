@@ -1,0 +1,87 @@
+/* Emergency message styling - aligned with other message types */
+.message-container.emergency-message {
+    display: flex; /* Use flex like other message types */
+    align-items: center; /* Center items vertically */
+    justify-content: center; /* Center items horizontally */
+    font-weight: bold;
+    padding: 4px 0; /* Match standard padding */
+    margin: 0;
+    width: 100%; /* Full width like other messages */
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+/* Style for emergency message container - no border or background */
+.message-container.emergency-feedback {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Emergency feedback styling for the message box - no animation on container */
+.message-box.emergency-feedback {
+    /* Remove all border, background, and animation from the container */
+    border: none;
+    background-color: transparent;
+    box-shadow: none;
+    /* Keep it on top of other UI elements */
+    position: relative;
+    z-index: 1000;
+    animation: none;
+}
+
+/* Style the message text instead of the container - minimal height styling */
+.message-box.emergency-feedback .message-text {
+    font-weight: bold;
+    color: #ff3300;
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.5);
+    position: relative;
+    display: inline;
+    line-height: 1.1; /* Tighter line height to reduce extra space above/below */
+}
+
+/* Style specifically for spans with emergency color */
+.message-box.emergency-feedback span[style*="color: #ff6347"] {
+    display: inline;
+    background-color: rgba(255, 99, 71, 0.15);
+    border-radius: 2px;
+    padding: 0 2px; /* Reduced padding to make highlight more compact */
+    margin: 0;
+    animation: pulse 0.8s infinite;
+}
+
+/* Pulse animation for emergency messages - only affects text background */
+@keyframes pulse {
+    0% {
+        background-color: rgba(255, 99, 71, 0.15);
+    }
+    50% {
+        background-color: rgba(255, 99, 71, 0.25);
+    }
+    100% {
+        background-color: rgba(255, 99, 71, 0.15);
+    }
+}
+
+/* Emergency message text wrapper - aligned with other message types */
+.message-box.emergency-feedback span.message-text {
+    display: inline-flex; /* Match other message text display */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    background-color: transparent; /* Remove background from wrapper */
+    padding: 0;
+    line-height: 1.2; /* Match other message text */
+    margin: 0;
+    text-align: center; /* Center text */
+}
+
+/* Style for emergency message icon - fixed alignment */
+.message-container.emergency-message .message-icon {
+    color: #ff3300;
+    margin-right: 3px; /* Matches other icons */
+    flex-shrink: 0; /* Ensures proper sizing in flex layout */
+    font-size: 1.2em; /* Match standard icon size */
+    /* No animation on the icon itself */
+}

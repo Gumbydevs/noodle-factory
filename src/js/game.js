@@ -105,11 +105,14 @@ class Game {
         // Add message queue system
         this.messageQueue = [];
         this.messageDisplayTime = 3000; // 3 seconds per message
-        this.isDisplayingMessage = false;
-        
-        // Add message history storage
+        this.isDisplayingMessage = false;        // Add message history storage
         this.messageHistory = [];
         this.maxMessageHistory = 50; // Store the 50 most recent messages
+        
+        // Add emergency message tracking
+        this._emergencyEffectMessage = null;
+        this._emergencyMessageTimeout = null;
+        this._emergencyMessageDisplayTime = 4000; // Show emergency messages longer (4 seconds)
 
         // Add pause state tracking
         this.isPaused = false;
@@ -379,10 +382,9 @@ class Game {
         // Apply gameplay effects based on lighting only
         if (lightRatio < 0.5 && this.turn > 1) {
             this.state.playerStats.workerLossRate *= 1.2;
-        }
-        if (lightRatio < 0.3 && this.turn > 1) {
+        }        if (lightRatio < 0.3 && this.turn > 1) {
             this.state.playerStats.chaosGainRate *= 1.3;
-            this.showEffectMessage("The darkness is making workers anxious. Chaos is rising faster!");
+            this.showEffectMessage("The darkness is making workers anxious. Chaos is rising faster!", true);
         }
     }
 
@@ -803,25 +805,70 @@ class Game {
             })
             .join('');
     }    drawNewCards() {
-        // Show any pending messages now that animations are complete
-        if (this._pendingProductionMessage) {
-            this.showProductionMessage(this._pendingProductionMessage);
+        // If there's an active emergency message, don't overwrite it yet
+        if (this._emergencyEffectMessage) {
+            // Store these messages to show after the emergency message timeout
+            this._deferredProductionMessage = this._pendingProductionMessage;
+            this._deferredSalesMessage = this._pendingSalesMessage;
+            this._deferredSituationMessage = this._pendingSituationMessage;
+            this._deferredEffectMessage = this._pendingEffectMessage;
+            
+            // Clear pending messages so we don't show them now
             this._pendingProductionMessage = null;
-        }
-        
-        if (this._pendingSalesMessage) {
-            this.showSalesMessage(this._pendingSalesMessage);
             this._pendingSalesMessage = null;
-        }
-        
-        if (this._pendingSituationMessage) {
-            this.showSituationMessage(this._pendingSituationMessage);
             this._pendingSituationMessage = null;
-        }
-        
-        if (this._pendingEffectMessage) {
-            this.showEffectMessage(this._pendingEffectMessage);
             this._pendingEffectMessage = null;
+            
+            // Set a timeout to show the deferred messages after emergency message finishes
+            if (this._emergencyMessageTimeout) {
+                clearTimeout(this._emergencyMessageTimeout);
+            }
+            
+            this._emergencyMessageTimeout = setTimeout(() => {
+                // Show deferred messages after emergency message timeout
+                if (this._deferredProductionMessage) {
+                    this.showProductionMessage(this._deferredProductionMessage);
+                    this._deferredProductionMessage = null;
+                }
+                
+                if (this._deferredSalesMessage) {
+                    this.showSalesMessage(this._deferredSalesMessage);
+                    this._deferredSalesMessage = null;
+                }
+                
+                if (this._deferredSituationMessage) {
+                    this.showSituationMessage(this._deferredSituationMessage);
+                    this._deferredSituationMessage = null;
+                }
+                
+                if (this._deferredEffectMessage) {
+                    this.showEffectMessage(this._deferredEffectMessage);
+                    this._deferredEffectMessage = null;
+                }
+                
+                this._emergencyEffectMessage = null;
+            }, this._emergencyMessageDisplayTime);
+        } else {
+            // Show any pending messages now that animations are complete
+            if (this._pendingProductionMessage) {
+                this.showProductionMessage(this._pendingProductionMessage);
+                this._pendingProductionMessage = null;
+            }
+            
+            if (this._pendingSalesMessage) {
+                this.showSalesMessage(this._pendingSalesMessage);
+                this._pendingSalesMessage = null;
+            }
+            
+            if (this._pendingSituationMessage) {
+                this.showSituationMessage(this._pendingSituationMessage);
+                this._pendingSituationMessage = null;
+            }
+            
+            if (this._pendingEffectMessage) {
+                this.showEffectMessage(this._pendingEffectMessage);
+                this._pendingEffectMessage = null;
+            }
         }
         
         // Remove any existing cards
@@ -975,7 +1022,7 @@ class Game {
                 // Only show message and play sound if actually clicked
                 if (isClick) {
                     gameSounds.playUpgradeBlockedSound();
-                    this.showEffectMessage(`<span style="color: #ff6347;">Not enough prestige! Requires ${card.requirements.prestige} prestige.</span>`);
+                    this.showEffectMessage(`<span style="color: #ff6347;">Not enough prestige! Requires ${card.requirements.prestige} prestige.</span>`, true);
                 }
                 return false;
             }
@@ -985,7 +1032,7 @@ class Game {
                 // Only show message and play sound if actually clicked
                 if (isClick) {
                     gameSounds.playUpgradeBlockedSound();
-                    this.showEffectMessage(`<span style="color: #ff6347;">Not enough money! Costs $${card.cost} but you only have $${Math.floor(this.state.playerStats.money)}.</span>`);
+                    this.showEffectMessage(`<span style="color: #ff6347;">Not enough money! Costs $${card.cost} but you only have $${Math.floor(this.state.playerStats.money)}.</span>`, true);
                 }
                 return false;
             }
@@ -997,7 +1044,7 @@ class Game {
                 // Only show message and play sound if actually clicked
                 if (isClick) {
                     gameSounds.playUpgradeBlockedSound();
-                    this.showEffectMessage("Maximum of 2 factory upgrades allowed! Sell an upgrade first.");
+                    this.showEffectMessage("Maximum of 2 factory upgrades allowed! Sell an upgrade first.", true);
                 }
                 return false;
             }
@@ -1011,7 +1058,7 @@ class Game {
         const now = Date.now();
         if (now - this.lastCardPlayTime < this.clickCooldown) {
             gameSounds.playBadCardSound();
-            this.showEffectMessage("Too fast! The noodles are dizzy! 🌀");
+            this.showEffectMessage("Too fast! The noodles are dizzy! 🌀", true);
             return;
         }
         this.lastCardPlayTime = now;
@@ -1047,11 +1094,10 @@ class Game {
                     this.updateDisplay();
                     
                     // Small delay before adding ingredients for visual feedback
-                    setTimeout(() => {
-                        this.state.playerStats.ingredients += neededIngredients;
+                    setTimeout(() => {                        this.state.playerStats.ingredients += neededIngredients;
                         this.updateDisplay();
                         emergencyMessage = `Emergency ingredients purchased for $${totalCost}!`;
-                        this.showEffectMessage(emergencyMessage);
+                        this.showEffectMessage(emergencyMessage, true);
                     }, 300);
                 } else {
                     // If we have noodles, try emergency sale first
@@ -1063,11 +1109,10 @@ class Game {
                         this.state.playerStats.money += income;
                         
                         // If we now have enough money, buy ingredients
-                        if (this.state.playerStats.money >= totalCost) {
-                            this.state.playerStats.money -= totalCost;
+                        if (this.state.playerStats.money >= totalCost) {                            this.state.playerStats.money -= totalCost;
                             this.state.playerStats.ingredients += neededIngredients;
                             emergencyMessage = `Emergency noodle sale: ${noodlesToSell} noodles sold for $${income}!\nEmergency ingredients purchased for $${totalCost}!`;
-                            this.showEffectMessage(emergencyMessage);
+                            this.showEffectMessage(emergencyMessage, true);
                         } else {
                             this.isGameOver = true;
                             this.gameOverReason = `Not enough money ($${this.state.playerStats.money}) after emergency noodle sale to purchase ingredients ($${totalCost}).`;
@@ -1099,11 +1144,10 @@ class Game {
                     this.updateDisplay();
                     
                     // Small delay before adding workers for visual feedback
-                    setTimeout(() => {
-                        this.state.playerStats.workerCount += neededWorkers;
+                    setTimeout(() => {                        this.state.playerStats.workerCount += neededWorkers;
                         this.updateDisplay();
                         emergencyMessage = `Emergency workers hired for $${totalCost}!`;
-                        this.showEffectMessage(emergencyMessage);
+                        this.showEffectMessage(emergencyMessage, true);
                     }, 300);
                 } else {
                     // If we have noodles, try emergency sale first
@@ -1115,11 +1159,10 @@ class Game {
                         this.state.playerStats.money += income;
                         
                         // If we now have enough money, hire workers
-                        if (this.state.playerStats.money >= totalCost) {
-                            this.state.playerStats.money -= totalCost;
+                        if (this.state.playerStats.money >= totalCost) {                            this.state.playerStats.money -= totalCost;
                             this.state.playerStats.workerCount += neededWorkers;
                             emergencyMessage = `Emergency noodle sale: ${noodlesToSell} noodles sold for $${income}!\nEmergency workers hired for $${totalCost}!`;
-                            this.showEffectMessage(emergencyMessage);
+                            this.showEffectMessage(emergencyMessage, true);
                         } else {
                             this.isGameOver = true;
                             this.gameOverReason = `Not enough money ($${this.state.playerStats.money}) after emergency noodle sale to hire workers ($${totalCost}).`;
@@ -1703,7 +1746,7 @@ class Game {
         
         if (existingUpgrades.length >= 2) {
             gameSounds.playUpgradeBlockedSound();
-            this.showEffectMessage(`<span style="color: #ff6347;">Maximum of 2 factory upgrades allowed! Sell an upgrade first.</span>`);
+            this.showEffectMessage(`<span style="color: #ff6347;">Maximum of 2 factory upgrades allowed! Sell an upgrade first.</span>`, true);
             return false;
         }
         
@@ -2265,12 +2308,17 @@ class Game {
         
         // Clear existing content
         messageBox.innerHTML = '';
-        
-        // Get the 3 most recent messages from history to display
+          // Get the 3 most recent messages from history to display
         const recentMessages = this.messageHistory.slice(0, 3);
         
-        // Display messages with newest on top (no need to reverse)
+        // Display messages with newest on top but invert the order of 2nd and 3rd messages
+        // so that production/sales related messages appear in middle position and 
+        // factory status/situation messages appear in bottom position
         const displayMessages = [...recentMessages];
+        if (displayMessages.length >= 3) {
+            // Swap positions of the 2nd and 3rd messages
+            [displayMessages[1], displayMessages[2]] = [displayMessages[2], displayMessages[1]];
+        }
         
         // Create container elements for each message
         displayMessages.forEach((entry, index) => {
@@ -2292,8 +2340,7 @@ class Game {
             
             if (entry.type === 'situation') {
                 messageColor = '#3498db'; // Blue for situations
-                messageIcon = '🏭';
-            } else if (entry.type === 'chaos-warning') {
+                messageIcon = '🏭';            } else if (entry.type === 'chaos-warning') {
                 messageColor = '#e74c3c'; // Red for chaos warnings
                 messageIcon = '⚠️';
             } else if (entry.type === 'production') {
@@ -2302,6 +2349,12 @@ class Game {
             } else if (entry.type === 'sales') {
                 messageColor = '#2ecc71'; // Green for sales
                 messageIcon = '💰';
+            } else if (entry.type === 'emergency-feedback') {
+                // Special style for emergency messages
+                messageColor = '#ff6347'; // Tomato red for emergency messages
+                messageIcon = '🚨';
+                // Add a special class to make the message more prominent
+                messageContainer.classList.add('emergency-message');
             } else {
                 // Default feedback message style
                 messageColor = '#ffd700'; // Yellow for general feedback
@@ -2343,11 +2396,31 @@ class Game {
         if (recentMessages.length > 0) {
             messageBox.className = `message-box ${recentMessages[0].type}`;
         }
-    }
-
-    showEffectMessage(message) {
+    }    showEffectMessage(message, isEmergency = false) {
         if (!message) return;
-        this.showMessage(message, 'feedback');
+        
+        if (isEmergency) {
+            // Store the emergency message for display
+            this._emergencyEffectMessage = message;
+            
+            // Show it immediately
+            this.showMessage(message, 'emergency-feedback');
+            
+            // Set a timeout to prevent it from being immediately overwritten
+            if (this._emergencyMessageTimeout) {
+                clearTimeout(this._emergencyMessageTimeout);
+            }
+            
+            this._emergencyMessageTimeout = setTimeout(() => {
+                this._emergencyEffectMessage = null;
+            }, this._emergencyMessageDisplayTime);
+            
+            // Log for debugging
+            console.log("Emergency message shown:", message);
+        } else {
+            // Normal effect messages
+            this.showMessage(message, 'feedback');
+        }
     }
     
     showSituationMessage(message) {
