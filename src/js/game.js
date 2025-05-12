@@ -3,7 +3,7 @@ import events from './events.js';
 import { gameState, updateResource, resetGameState, updateChaosEffects, saveGameState, loadGameState, clearSavedGame, hasSavedGame } from './state.js';
 import { ACHIEVEMENTS, checkAchievements, getUnlockedAchievements, resetAchievements } from './achievements.js';
 import { updateHighScore, getHighScore } from './highscore.js';
-import { triggerNoodleRoll, handleCardClick, resetCardState, addCardHoverEffects } from './animation.js';
+import { triggerNoodleRoll, handleCardClick, handleUnselectedCards, resetCardState, addCardHoverEffects } from './animation.js';
 import { gameSounds } from '../audio.js'; // Note the .js extension
 import { AssetLoader } from './assetLoader.js';
 
@@ -797,9 +797,28 @@ class Game {
                 </div>`;
             })
             .join('');
-    }
-
-    drawNewCards() {
+    }    drawNewCards() {
+        // Show any pending messages now that animations are complete
+        if (this._pendingProductionMessage) {
+            this.showProductionMessage(this._pendingProductionMessage);
+            this._pendingProductionMessage = null;
+        }
+        
+        if (this._pendingSalesMessage) {
+            this.showSalesMessage(this._pendingSalesMessage);
+            this._pendingSalesMessage = null;
+        }
+        
+        if (this._pendingSituationMessage) {
+            this.showSituationMessage(this._pendingSituationMessage);
+            this._pendingSituationMessage = null;
+        }
+        
+        if (this._pendingEffectMessage) {
+            this.showEffectMessage(this._pendingEffectMessage);
+            this._pendingEffectMessage = null;
+        }
+        
         // Remove any existing cards
         document.querySelectorAll('.card').forEach(card => {
             card.remove();
@@ -911,16 +930,30 @@ class Game {
             document.querySelectorAll('.card').forEach(card => {
                 addCardHoverEffects(card);
             });
-        });
-
-        // Add click handlers with requirement checks
+        });        // Add click handlers with requirement checks
         document.getElementById('card-left').onclick = () => {
             if (this.checkCardPlayable(CARDS[leftCard], true)) {
+                // Immediately hide the other card with no visual effects
+                const otherCard = document.getElementById('card-right');
+                otherCard.style.display = 'none';
+                otherCard.style.visibility = 'hidden';
+                otherCard.style.opacity = '0';
+                otherCard.style.position = 'absolute';
+                otherCard.style.pointerEvents = 'none';
+                otherCard.style.zIndex = '-10';
                 this.playCard(leftCard);
             }
         };
         document.getElementById('card-right').onclick = () => {
             if (this.checkCardPlayable(CARDS[rightCard], true)) {
+                // Immediately hide the other card with no visual effects
+                const otherCard = document.getElementById('card-left');
+                otherCard.style.display = 'none';
+                otherCard.style.visibility = 'hidden';
+                otherCard.style.opacity = '0';
+                otherCard.style.position = 'absolute';
+                otherCard.style.pointerEvents = 'none';
+                otherCard.style.zIndex = '-10';
                 this.playCard(rightCard);
             }
         };
@@ -1103,23 +1136,32 @@ class Game {
             );
             const otherCard = Array.from(document.querySelectorAll('.card')).find(
                 card => card !== clickedCard
-            );
-
-            // Handle upgrade cards differently
+            );            // Handle upgrade cards differently
             if (card.type === "upgrade") {
                 // Play both card sound and upgrade sound
                 gameSounds.playCardSound();
                 gameSounds.playUpgradePinSound();
-
-                // Mark cards as played for animation
+                  // Immediately remove other card with NO visual effects
+                if (otherCard) {
+                    // Completely hide other card - no animations and no smoke
+                    otherCard.style.display = 'none';
+                    otherCard.style.visibility = 'hidden';
+                    otherCard.style.opacity = '0';
+                    otherCard.style.position = 'absolute';
+                    otherCard.style.left = '-9999px';
+                    otherCard.style.pointerEvents = 'none';
+                    otherCard.style.zIndex = '-10';
+                }
+                
+                // Mark clicked card for upgrade animation
                 if (clickedCard) {
-                    clickedCard.classList.add('played');
+                    clickedCard.classList.add('played', 'upgrade-selected');
                     clickedCard.setAttribute('data-selected', 'true');
                     clickedCard.style.zIndex = '100';
-                }
-                if (otherCard) {
-                    otherCard.classList.add('played');
-                    otherCard.setAttribute('data-selected', 'false');
+                    
+                    // Add a subtle glow effect for upgrade cards before pinning
+                    clickedCard.style.boxShadow = '0 0 15px rgba(255, 215, 0, 0.7)';
+                    clickedCard.style.transform = 'scale(1.05)';
                 }
 
                 // Apply immediate stat modifiers first
@@ -1142,9 +1184,10 @@ class Game {
                     if (card.permanentStats) {
                         this.applyUpgradeStats(card.permanentStats);
                     }
-                    
-                    // Add message feedback for upgrade cards
-                    this.showEffectMessage(`Upgrade installed: ${cardName}`);
+                      // Add message feedback for upgrade cards but store to show after animations
+                    const upgradeMessage = `Upgrade installed: ${cardName}`;
+                    this.addMessageToHistory(upgradeMessage, 'feedback');
+                    this._pendingEffectMessage = upgradeMessage;
                     
                     // Store the upgrade in state
                     this.state.playerStats.factoryUpgrades[cardName] = card;
@@ -1161,8 +1204,7 @@ class Game {
 
                 // Auto-save game state after processing turn effects
                 this.autoSave();
-                
-                // Draw new cards after a delay
+                  // Draw new cards after a delay
                 if (!this.isGameOver) {
                     setTimeout(() => {
                         document.querySelectorAll('.card').forEach(card => card.remove());
@@ -1170,14 +1212,12 @@ class Game {
                     }, 800);
                 }
                 return;
-            }
-
-            // Rest of the existing playCard code for non-upgrade cards...
+            }            // Rest of the existing playCard code for non-upgrade cards...
             // Play card sound immediately
             gameSounds.playCardSound();
 
-            if (clickedCard) {
-                // Get card position for effects
+            if (clickedCard && clickedCard.isConnected) {
+                // Get card position for effects - only if it's still in the DOM
                 const rect = clickedCard.getBoundingClientRect();
                 const centerX = rect.left + rect.width / 2;
                 const centerY = rect.top + rect.height / 2;
@@ -1233,17 +1273,20 @@ class Game {
             }
 
             // Increment turn counter
-            this.turn++;
-
-            // Apply visual feedback for cards BEFORE stat changes
+            this.turn++;            // Apply visual feedback for cards BEFORE stat changes
             if (clickedCard) {
                 clickedCard.classList.add('played');
                 clickedCard.setAttribute('data-selected', 'true');
                 clickedCard.style.zIndex = '100';
             }
             if (otherCard) {
-                otherCard.classList.add('played');
-                otherCard.setAttribute('data-selected', 'false');
+                // Immediately hide the unselected card
+                otherCard.style.display = 'none';
+                otherCard.style.visibility = 'hidden';
+                otherCard.style.opacity = '0';
+                otherCard.style.pointerEvents = 'none';
+                otherCard.style.zIndex = '-10';
+                otherCard.style.position = 'absolute';
             }
 
             // Apply stat modifications with balance checks
@@ -1260,12 +1303,15 @@ class Game {
                 });
 
                 // Update display after stat changes
-                this.updateDisplay();
-
-                // Apply card effect first
+                this.updateDisplay();                // Apply card effect first
                 if (card.effect) {
                     const message = card.effect(this.state);
-                    this.showEffectMessage(message);
+                    if (message) {
+                        // Add to history
+                        this.addMessageToHistory(message, 'feedback');
+                        // Store to show after animations are complete
+                        this._pendingEffectMessage = message;
+                    }
                 }
 
                 // Check for achievements AFTER both stat changes and card effect
@@ -1281,9 +1327,7 @@ class Game {
             // Check for game over conditions
             if (this.checkGameOver()) {
                 return;
-            }
-
-            // Schedule cleanup and new cards after animations complete
+            }            // Schedule cleanup and new cards after animations complete
             if (!this.isGameOver) {
                 setTimeout(() => {
                     document.querySelectorAll('.card').forEach(card => card.remove());
@@ -1291,9 +1335,7 @@ class Game {
                 }, 800);
             }
         }
-    }
-
-    processTurnEffects() {
+    }    processTurnEffects() {
         // Apply upgrade effects first
         applyUpgradeEffects(this.state);
 
@@ -1312,20 +1354,21 @@ class Game {
         // Process sales and expenses
         let salesMessage = this.processSalesAndExpenses();
         
-        // Display important messages directly instead of using queue
+        // Add important messages to history first
         if (productionMessage) {
-            // Important: Add to history first before showing
             this.addMessageToHistory(productionMessage, 'production');
+            // Store in temporary properties to show after animations are complete
+            this._pendingProductionMessage = productionMessage;
         }
         if (salesMessage) {
-            // Important: Add to history first before showing
             this.addMessageToHistory(salesMessage, 'sales');
+            // Store in temporary properties to show after animations are complete
+            this._pendingSalesMessage = salesMessage;
         }
 
         // Update visuals
         this.updateDisplay();
-        
-        // Update other tracking stats
+          // Update other tracking stats
         this.updateChaosStreak();
         this.updateSingleWorkerStreak();
         this.updateLowWorkerStats();
@@ -1334,9 +1377,13 @@ class Game {
         // Check if any risk achievements are met
         this.checkRiskAchievements();
 
-        // Finally add a situation message
+        // Store the situation message to show after animations
         const situationMessage = SITUATIONS[Math.floor(Math.random() * SITUATIONS.length)];
-        this.showSituationMessage(situationMessage);
+        if (situationMessage) {
+            this.addMessageToHistory(situationMessage, 'situation');
+            // Save to show after animations are complete
+            this._pendingSituationMessage = situationMessage;
+        }
     }
 
     processProduction() {
@@ -1690,8 +1737,7 @@ class Game {
         `;
         
         document.body.appendChild(upgradeElement);
-        
-        // Apply cost to player's money
+          // Apply cost to player's money
         if (card.cost) {
             this.state.playerStats.money -= card.cost;
             this.updateDisplay();
@@ -1699,17 +1745,33 @@ class Game {
         
         // Force a reflow
         void upgradeElement.offsetHeight;
-        
-        // Animate to final position
-        requestAnimationFrame(() => {
-            upgradeElement.style.transition = 'all 0.5s ease-out';
-            upgradeElement.style.transform = 'scale(0.4)';
-            upgradeElement.style.left = `${targetX}px`;
-            upgradeElement.style.top = `${targetY}px`;
-            
+          // Create a specific effect for upgrade pinning
+        // Use the originalCard reference we already have
+        if (originalCard) {
+            // Ensure any remaining card is hidden 
             setTimeout(() => {
-                upgradeElement.style = ''; // Reset styles
+                originalCard.style.visibility = 'hidden';
+                originalCard.style.display = 'none';
+            }, 200);
+        }
+          // Animate to final position with improved sequence
+        upgradeElement.style.opacity = '0.9';
+        requestAnimationFrame(() => {            // Add a temporary glow for transition only
+            upgradeElement.style.boxShadow = '0 0 15px rgba(255, 215, 0, 0.8)';
+            upgradeElement.style.zIndex = '200';
+            upgradeElement.style.transition = 'all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)';
+            upgradeElement.style.transform = 'scale(0.8)'; // Increased from 0.7 to 0.8 (15% larger)
+            upgradeElement.style.left = `${targetX}px`;
+            upgradeElement.style.top = `${targetY}px`;            setTimeout(() => {
+                // Keep necessary styles but remove transition and position properties
+                const oldZIndex = upgradeElement.style.zIndex;
+                upgradeElement.style = '';
+                // Don't keep the glow effect, just the z-index
+                upgradeElement.style.zIndex = oldZIndex;
+                  // Add to upgrades grid
                 upgradesGrid.appendChild(upgradeElement);
+                
+                // No bounce animation
                 
                 try {
                     gameSounds.playUpgradePinSound();
@@ -1719,7 +1781,7 @@ class Game {
                 
                 // Add click handler for selling upgrades
                 this.addUpgradeClickHandler(upgradeElement, card);
-            }, 500);
+            }, 600); // Slightly longer for smoother transition
         });
         
         return true;
@@ -2187,9 +2249,7 @@ class Game {
         if (!saved) {
             console.error('Failed to auto-save game state');
         }
-    }
-
-    showMessage(message, type) {
+    }    showMessage(message, type) {
         if (!message) return; // Skip empty messages
         
         // Add message to history first
@@ -2205,8 +2265,8 @@ class Game {
         // Get the 3 most recent messages from history to display
         const recentMessages = this.messageHistory.slice(0, 3);
         
-        // Reverse the messages array to show oldest message at top
-        const displayMessages = [...recentMessages].reverse();
+        // Display messages with newest on top (no need to reverse)
+        const displayMessages = [...recentMessages];
         
         // Create container elements for each message
         displayMessages.forEach((entry, index) => {
@@ -3270,6 +3330,48 @@ class Game {
         
         // Check for achievements after emergency actions
         this.checkAchievements();
+    }
+
+    // Create a quick smoke effect for instantly disappearing cards
+    createQuickSmoke(x, y) {
+        // Create a minimal number of particles for a quick effect
+        for (let i = 0; i < 10; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'smoke-particle';
+            
+            // Random position around the center
+            const offsetX = -15 + Math.random() * 30;
+            const offsetY = -15 + Math.random() * 30;
+            particle.style.left = `${x + offsetX}px`;
+            particle.style.top = `${y + offsetY}px`;
+            
+            // Bigger particles for better visibility
+            const size = 5 + Math.random() * 8;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            
+            // Use white/gray color
+            const brightness = 220 + Math.floor(Math.random() * 35);
+            particle.style.backgroundColor = `rgba(${brightness}, ${brightness}, ${brightness}, 0.9)`;
+            
+            // Add random movement
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 40 + Math.random() * 60;
+            const tx = Math.cos(angle) * distance;
+            const ty = Math.sin(angle) * distance;
+            
+            particle.style.setProperty('--tx', `${tx}px`);
+            particle.style.setProperty('--ty', `${ty}px`);
+            
+            // Quick animation
+            document.body.appendChild(particle);
+            requestAnimationFrame(() => {
+                particle.style.animation = 'smoke 0.3s ease-out forwards';
+            });
+            
+            // Remove after animation completes
+            setTimeout(() => particle.remove(), 300);
+        }
     }
 }
 

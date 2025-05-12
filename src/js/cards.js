@@ -3449,46 +3449,82 @@ function createSmokeEffect(element) {
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
-    for (let i = 0; i < 20; i++) {
+    // More particles for selected cards
+    const isSelected = element.dataset.selected === 'true';
+    const particleCount = isSelected ? 25 : 12;
+    
+    // Check if it's an upgrade card - less smoke for upgrades
+    const isUpgradeCard = element.classList.contains('upgrade-selected');
+    const finalParticleCount = isUpgradeCard ? 10 : particleCount;
+    
+    // Create a variety of particle sizes and colors
+    const colors = ['255, 255, 255', '245, 245, 245', '235, 235, 235', '225, 225, 225'];
+    
+    // Create particles with varied parameters
+    for (let i = 0; i < finalParticleCount; i++) {
         const particle = document.createElement('div');
         particle.className = 'smoke-particle';
-        const randomOffsetX = (Math.random() - 0.5) * rect.width * 0.8;
-        const randomOffsetY = (Math.random() - 0.5) * rect.height * 0.8;
+        
+        // Add variety to particle positions
+        const spreadFactor = isSelected ? 1 : 0.7;
+        const randomOffsetX = (Math.random() - 0.5) * rect.width * spreadFactor;
+        const randomOffsetY = (Math.random() - 0.5) * rect.height * spreadFactor;
 
         particle.style.left = `${centerX + randomOffsetX}px`;
         particle.style.top = `${centerY + randomOffsetY}px`;
 
+        // Add variety to particle movement
         const angle = Math.random() * Math.PI * 2;
-        const distance = 50 + Math.random() * 100;
+        const distance = 50 + Math.random() * 140; 
         const tx = Math.cos(angle) * distance;
-        const ty = Math.sin(angle) * distance - 50;
+        const ty = Math.sin(angle) * distance - (50 + Math.random() * 30);
 
+        // Randomize particle size
+        const size = 8 + Math.floor(Math.random() * 8);
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // Randomize particle color and opacity
+        const colorIndex = Math.floor(Math.random() * colors.length);
+        const baseOpacity = 0.6 + Math.random() * 0.3;
+        particle.style.background = `rgba(${colors[colorIndex]}, ${baseOpacity})`;
+        
+        // Add particle animation properties
         particle.style.setProperty('--tx', `${tx}px`);
         particle.style.setProperty('--ty', `${ty}px`);
-
+        
+        // Add random duration for more natural effect
+        const duration = 0.5 + Math.random() * 0.3;
+        
         document.body.appendChild(particle);
 
         requestAnimationFrame(() => {
-            particle.style.animation = `smoke 0.8s ease-out forwards`;
+            particle.style.animation = `smoke ${duration}s ease-out forwards`;
         });
 
-        setTimeout(() => particle.remove(), 800);
+        setTimeout(() => particle.remove(), 600); // Match the animation duration
     }
 }
 
 export function getRandomCard() {
     const selectedCard = document.querySelector('.card[data-selected="true"]');
     if (selectedCard) {
-        selectedCard.classList.add('disappearing');
-
-        createSmokeEffect(selectedCard);
-
-        requestAnimationFrame(() => {
-            selectedCard.style.opacity = '0';
-            selectedCard.style.transform = 'scale(0.5) translateY(-20px)';
-        });
-
+        // Skip animations for upgrade cards
+        if (!selectedCard.classList.contains('upgrade-selected')) {
+            // Add wiggle animation before disappearing
+            selectedCard.classList.add('wiggle-selected');
+            
+            // Create smoke effect right away for better feedback
+            createSmokeEffect(selectedCard);
+            
+            // Short delay to let wiggle animation start before applying dissolving effect
+            setTimeout(() => {
+                selectedCard.classList.add('dissolving');
+            }, 200);
+        }
+        
         return new Promise(resolve => {
+            // Set timeout to match our animation duration
             setTimeout(() => {
                 const cardNames = Object.keys(CARDS).filter(name => {
                     // Skip cards in lastDrawnCards
@@ -3505,9 +3541,8 @@ export function getRandomCard() {
                         return gameState?.playerStats?.pastaPrestige >= requiredPrestige;
                     }
                     return true;
-                });
-                resolve(cardNames[Math.floor(Math.random() * cardNames.length)]);
-            }, 400);
+                });                resolve(cardNames[Math.floor(Math.random() * cardNames.length)]);
+            }, 650); // Adjusted to match our wiggle + dissolve animation timing
         });
     }
 

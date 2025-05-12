@@ -433,41 +433,177 @@ function handleCardClick(card) {
     const rect = card.getBoundingClientRect();
     const startX = rect.left;
     const startY = rect.top;
-    
-    if (card.dataset.selected === 'true') {
+      if (card.dataset.selected === 'true') {
+        // Skip animations for upgrade cards
+        if (card.classList.contains('upgrade-selected')) {
+            // Just let the pinning animation handle it
+            return;
+        }
+        
         // First add the wiggle class for initial excitement effect
         card.classList.add('wiggle-selected');
         
         // Create the smoke effect
         createSmokeEffect(card);
         
-        // Delay the dissolving effect to allow wiggle animation to complete first
-        setTimeout(() => {
-            card.classList.add('dissolving');
-            
-            requestAnimationFrame(() => {
-                card.style.setProperty('--tx', '0px');
-                card.style.setProperty('--ty', '-60px');
-                card.style.animation = 'selectedCardVanish 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards';
-            });
-        }, 700); // Longer delay to ensure wiggle animation completes
-    } else {
-        // Faster unselected card animation
-        const angle = Math.random() * 360;
-        const distance = 80 + Math.random() * 120;
-        const dx = Math.cos(angle * Math.PI / 180) * distance;
-        const dy = Math.sin(angle * Math.PI / 180) * distance;
+        // Choose a random animation effect (5 different types)
+        const animationType = Math.floor(Math.random() * 5);
         
-        // Add small smoke effect for unselected cards too
-        createSmokeEffect(card);
+        // Immediately hide from events to prevent further clicks
+        card.style.pointerEvents = 'none';
         
-        card.style.setProperty('--fade-x', `${dx}px`);
-        card.style.setProperty('--fade-y', `${dy}px`);
-        card.style.setProperty('--fade-rot', `${-90 + Math.random() * 180}deg`);
+        // Set animation properties based on the random choice
+        switch (animationType) {
+            case 0: // Spinning animation
+                // Set random spin direction (clockwise or counterclockwise)
+                const spinDirection = Math.random() > 0.5 ? 1 : -1;
+                card.style.setProperty('--spin-dir', spinDirection);
+                
+                setTimeout(() => {
+                    card.classList.add('dissolving');
+                    requestAnimationFrame(() => {
+                        // Slow down the spin for a more natural effect
+                        card.style.animation = 'cardSpin 0.8s ease-in-out forwards';
+                        
+                        // Make card disappear at animation end
+                    setTimeout(() => {
+                            card.style.display = 'none';
+                            card.style.visibility = 'hidden';
+                            card.style.position = 'absolute';
+                            card.style.left = '-9999px'; // Move far offscreen
+                        }, 750); // Slightly before animation end
+                    });
+                }, 250);
+                break;
+                
+            case 1: // Explode into pieces
+                setTimeout(() => {
+                    // Add more smoke for explosion effect
+                    createSmokeEffect(card);
+                    setTimeout(() => createSmokeEffect(card), 100);
+                    
+                    card.classList.add('dissolving');
+                    requestAnimationFrame(() => {
+                        card.style.animation = 'cardExplode 0.7s ease-out forwards';
+                        
+                        // Make card disappear at animation end
+                    setTimeout(() => {
+                            card.style.display = 'none';
+                            card.style.visibility = 'hidden';
+                            card.style.position = 'absolute';
+                            card.style.left = '-9999px'; // Move far offscreen
+                        }, 650); // Slightly before animation end
+                    });
+                }, 200);
+                break;
+                
+            case 2: // Shrink to nothing
+                setTimeout(() => {
+                    card.classList.add('dissolving');
+                    requestAnimationFrame(() => {
+                        card.style.animation = 'cardShrink 0.6s ease-in forwards';
+                        
+                        // Make card disappear at animation end
+                    setTimeout(() => {
+                            card.style.display = 'none';
+                            card.style.visibility = 'hidden';
+                            card.style.position = 'absolute';
+                            card.style.left = '-9999px'; // Move far offscreen
+                        }, 550); // Slightly before animation end
+                    });
+                }, 200);
+                break;
+                
+            case 3: // Fly away
+                // Set random fly direction
+                const flyAngle = Math.random() * 2 * Math.PI;
+                const flyDistance = 300 + Math.random() * 200;
+                const flyX = Math.cos(flyAngle) * flyDistance;
+                const flyY = Math.sin(flyAngle) * flyDistance - 100; // Bias upward
+                const flyRot = -45 + Math.random() * 90;
+                
+                card.style.setProperty('--fly-x', `${flyX}px`);
+                card.style.setProperty('--fly-y', `${flyY}px`);
+                card.style.setProperty('--fly-rot', `${flyRot}deg`);
+                
+                setTimeout(() => {
+                    card.classList.add('dissolving');
+                    requestAnimationFrame(() => {
+                        card.style.animation = 'cardFlyAway 0.9s ease-out forwards';
+                        
+                        // Make card disappear at animation end
+                    setTimeout(() => {
+                        card.style.display = 'none';
+                        card.style.visibility = 'hidden';
+                        card.style.position = 'absolute';
+                        card.style.left = '-9999px'; // Move far offscreen
+                    }, 800); // Slightly before animation end
+                    });
+                }, 230);
+                break;
+                
+            case 4: // Dissolve/fade with blur
+            default:
+                setTimeout(() => {
+                    card.classList.add('dissolving');
+                    requestAnimationFrame(() => {
+                        card.style.animation = 'cardDissolve 0.75s ease-out forwards';
+                        
+                        // Make card disappear at animation end
+                    setTimeout(() => {
+                            card.style.display = 'none';
+                            card.style.visibility = 'hidden';
+                            card.style.position = 'absolute';
+                            card.style.left = '-9999px'; // Move far offscreen
+                        }, 700); // Slightly before animation end
+                    });
+                }, 220);
+                break;
+        }
         
-        // Make unselected cards disappear faster
+        // Add extra smoke effect for more dramatic animations
+        if (animationType === 0 || animationType === 1) {
+            setTimeout(() => {
+                createSmokeEffect(card);
+            }, 300);
+    }} else {
+        // Make unselected cards disappear immediately
+        // No animations or effects for unselected cards
+        card.style.display = 'none';
+        card.style.visibility = 'hidden';
+        card.style.opacity = '0';
+        card.style.pointerEvents = 'none';
+        card.style.zIndex = '-10';
+        card.style.position = 'absolute';
+        return; // Exit early, no need for further processing
+        
+        // Make unselected cards disappear quickly with varied animations
         requestAnimationFrame(() => {
-            card.style.animation = 'unselectedCardVanish 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+            // Use a different animation based on random selection
+            switch(unselectedAnimType) {
+                case 0:
+                    // Standard fade and shrink
+                    card.style.animation = 'unselectedCardVanish 0.35s ease-out forwards';
+                    break;
+                case 1:
+                    // Quick shrink
+                    card.style.animation = 'cardShrink 0.3s ease-in forwards';
+                    break;
+                case 2:
+                default:
+                    // Quick dissolve
+                    card.style.animation = 'cardDissolve 0.35s ease-out forwards';
+                    break;
+            }
+            
+            // Immediately reduce opacity for faster visual feedback
+            card.style.opacity = '0.7';
+            
+            // Hide from DOM quickly
+            setTimeout(() => {
+                card.style.display = 'none';
+                card.style.visibility = 'hidden';
+            }, 200);
         });
     }
 }
@@ -475,30 +611,36 @@ function handleCardClick(card) {
 function handleUnselectedCards(cards) {
     cards.forEach(card => {
         if (!card.dataset.selected) {
-            // Remove existing animations
-            card.style.cssText = '';
-            card.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max');
-            void card.offsetWidth;
-            
-            // Add played class and shrink animation - use faster animation
-            card.classList.add('played');
-            card.style.animation = 'shrinkFadeAway 0.35s ease-out forwards';
-            
-            card.addEventListener('animationend', () => {
-                card.style.display = 'none';
-            }, { once: true });
+            // Immediately hide the card - no animations
+            card.style.display = 'none';
+            card.style.visibility = 'hidden';
+            card.style.opacity = '0';
+            card.style.pointerEvents = 'none';
+            card.style.zIndex = '-10';
+            card.style.position = 'absolute';
+            // No smoke effect for non-selected cards
         }
     });
 }
 
 // Reset card state when new cards are drawn
 function resetCardState(card) {
-    // Clear all animations and transforms
+    // Completely reset all styles to default
     card.style.cssText = '';
-    card.classList.remove('played', 'dissolving');
+    card.classList.remove('played', 'dissolving', 'wiggle-selected', 'upgrade-selected');
     card.removeAttribute('data-selected');
     
-    // Force reflow
+    // Explicitly reset critical properties
+    card.style.display = '';
+    card.style.visibility = '';
+    card.style.opacity = '1';
+    card.style.position = '';
+    card.style.left = '';
+    card.style.transform = '';
+    card.style.zIndex = '';
+    card.style.pointerEvents = '';
+    
+    // Force reflow for clean slate
     void card.offsetWidth;
     
     // Add base animations
@@ -583,35 +725,62 @@ function createSmokeEffect(element) {
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
-    // Make fewer particles for better performance
-    for (let i = 0; i < 15; i++) {
+    // Check if it's a selected card - more particles for selected cards
+    const isSelected = element.dataset.selected === 'true';
+    // More dramatic effect for selected cards
+    const particleCount = isSelected ? 25 : 15;
+    
+    // Check if it's an upgrade card - different effect for upgrades
+    const isUpgradeCard = element.classList.contains('upgrade-selected');
+    const colors = isUpgradeCard ? 
+        ['255, 215, 0', '255, 223, 100', '255, 200, 50'] : // Gold colors for upgrades
+        ['255, 255, 255', '245, 245, 255', '235, 235, 255']; // White colors for regular cards
+    
+    // Create particles with varied parameters
+    for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
         particle.className = 'smoke-particle';
-        const randomOffsetX = (Math.random() - 0.5) * rect.width * 0.8;
-        const randomOffsetY = (Math.random() - 0.5) * rect.height * 0.8;
+        
+        // Add variety to particle positions
+        const spread = isSelected ? 1.0 : 0.7;
+        const randomOffsetX = (Math.random() - 0.5) * rect.width * spread;
+        const randomOffsetY = (Math.random() - 0.5) * rect.height * spread;
 
         particle.style.left = `${centerX + randomOffsetX}px`;
         particle.style.top = `${centerY + randomOffsetY}px`;
 
-        // Make particles more subtle with white color
-        particle.style.background = 'rgba(255, 255, 255, 0.7)';
-        particle.style.boxShadow = '0 0 5px rgba(255, 255, 255, 0.3)';
+        // Add size variety
+        const baseSize = isUpgradeCard ? 9 : 7;
+        const size = baseSize + Math.random() * 5;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
 
+        // Use different colors based on card type
+        const colorIndex = Math.floor(Math.random() * colors.length);
+        const opacity = isUpgradeCard ? 0.9 : 0.85;
+        particle.style.background = `rgba(${colors[colorIndex]}, ${opacity})`;
+        particle.style.boxShadow = `0 0 8px rgba(${colors[colorIndex]}, 0.6)`;
+
+        // Generate movement parameters
         const angle = Math.random() * Math.PI * 2;
-        const distance = 50 + Math.random() * 100;
+        const minDistance = isSelected ? 60 : 40;
+        const maxDistance = isSelected ? 120 : 80;
+        const distance = minDistance + Math.random() * (maxDistance - minDistance);
         const tx = Math.cos(angle) * distance;
         const ty = Math.sin(angle) * distance - 50;
 
         particle.style.setProperty('--tx', `${tx}px`);
         particle.style.setProperty('--ty', `${ty}px`);
 
+        // Use a variety of animation durations
+        const duration = 0.4 + Math.random() * 0.3;
+        
         document.body.appendChild(particle);
-
         requestAnimationFrame(() => {
-            particle.style.animation = `smoke 0.8s ease-out forwards`;
+            particle.style.animation = `smoke ${duration}s ease-out forwards`;
         });
 
-        setTimeout(() => particle.remove(), 800);
+        setTimeout(() => particle.remove(), duration * 1000);
     }
 }
 
