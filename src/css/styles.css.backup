@@ -406,7 +406,6 @@
     50% { transform: translate(-1px, 1px) rotate(-0.3deg); }
     75% { transform: translate(1px, 1px) rotate(0.2deg); }
     100% { transform: translate(0, 0) rotate(0deg); }
-}
 
 @keyframes cardAliveChaos1 {
     0% { transform: translate(0, 0) rotate(0deg); }
@@ -2828,6 +2827,15 @@ h1 {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     animation: rainbowText 3s linear infinite;
+}
+
+/* Override all animations for upgrade-selected cards to ensure clean pinning process */
+.card.upgrade-selected {
+    animation: none !important;
+    transform-origin: center center;
+    pointer-events: none;
+    transition: none !important;
+    will-change: transform, opacity;
 }
 
 /* Override any interfering animations when card is being moved to upgrades */

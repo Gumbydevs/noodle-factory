@@ -1186,30 +1186,20 @@ class Game {
                 card => card !== clickedCard
             );            // Handle upgrade cards differently
             if (card.type === "upgrade") {
-                // Play both card sound and upgrade sound
+                // Play card sound immediately
                 gameSounds.playCardSound();
-                gameSounds.playUpgradePinSound();
-                  // Immediately remove other card with NO visual effects
+                
+                // Immediately hide the other card
                 if (otherCard) {
-                    // Completely hide other card - no animations and no smoke
                     otherCard.style.display = 'none';
                     otherCard.style.visibility = 'hidden';
-                    otherCard.style.opacity = '0';
-                    otherCard.style.position = 'absolute';
-                    otherCard.style.left = '-9999px';
-                    otherCard.style.pointerEvents = 'none';
-                    otherCard.style.zIndex = '-10';
                 }
                 
-                // Mark clicked card for upgrade animation
+                // Mark clicked card for upgrade animation - just the minimum needed
                 if (clickedCard) {
                     clickedCard.classList.add('played', 'upgrade-selected');
                     clickedCard.setAttribute('data-selected', 'true');
                     clickedCard.style.zIndex = '100';
-                    
-                    // Add a subtle glow effect for upgrade cards before pinning
-                    clickedCard.style.boxShadow = '0 0 15px rgba(255, 215, 0, 0.7)';
-                    clickedCard.style.transform = 'scale(1.05)';
                 }
 
                 // Apply immediate stat modifiers first
@@ -1738,9 +1728,7 @@ class Game {
         }
 
         return false;
-    }
-
-    pinUpgradeCard(cardName, card) {
+    }    pinUpgradeCard(cardName, card) {
         const upgradesGrid = document.querySelector('.upgrades-grid');
         const existingUpgrades = upgradesGrid.querySelectorAll('.upgrade-card');
         
@@ -1753,9 +1741,11 @@ class Game {
         const originalCard = document.querySelector('.card[data-selected="true"]');
         if (!originalCard) return false;
 
+        // Get the positions and dimensions
         const origRect = originalCard.getBoundingClientRect();
         const gridRect = upgradesGrid.getBoundingClientRect();
         
+        // Calculate target position
         const slotWidth = 120;
         const slotGap = 10;
         const slot = existingUpgrades.length;
@@ -1765,9 +1755,10 @@ class Game {
         const targetX = startX + (slot * (slotWidth + slotGap));
         const targetY = gridRect.top;
         
+        // Create the upgrade card that will be pinned
         const upgradeElement = document.createElement('div');
         upgradeElement.className = 'upgrade-card pinning';
-        upgradeElement.setAttribute('data-name', cardName); // Add this line to set the data-name attribute
+        upgradeElement.setAttribute('data-name', cardName);
         upgradeElement.style.position = 'fixed';
         upgradeElement.style.left = `${origRect.left}px`;
         upgradeElement.style.top = `${origRect.top}px`;
@@ -1783,53 +1774,49 @@ class Game {
             </div>
         `;
         
+        // Add to the DOM
         document.body.appendChild(upgradeElement);
-          // Apply cost to player's money
+        
+        // Apply cost to player's money
         if (card.cost) {
             this.state.playerStats.money -= card.cost;
             this.updateDisplay();
         }
         
-        // Force a reflow
-        void upgradeElement.offsetHeight;
-          // Create a specific effect for upgrade pinning
-        // Use the originalCard reference we already have
+        // Hide original card immediately
         if (originalCard) {
-            // Ensure any remaining card is hidden 
-            setTimeout(() => {
-                originalCard.style.visibility = 'hidden';
-                originalCard.style.display = 'none';
-            }, 200);
+            originalCard.style.visibility = 'hidden';
+            originalCard.style.display = 'none';
         }
-          // Animate to final position with improved sequence
-        upgradeElement.style.opacity = '0.9';
-        requestAnimationFrame(() => {            // Add a temporary glow for transition only
-            upgradeElement.style.boxShadow = '0 0 15px rgba(255, 215, 0, 0.8)';
-            upgradeElement.style.zIndex = '200';
-            upgradeElement.style.transition = 'all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)';
-            upgradeElement.style.transform = 'scale(0.8)'; // Increased from 0.7 to 0.8 (15% larger)
-            upgradeElement.style.left = `${targetX}px`;
-            upgradeElement.style.top = `${targetY}px`;            setTimeout(() => {
-                // Keep necessary styles but remove transition and position properties
-                const oldZIndex = upgradeElement.style.zIndex;
-                upgradeElement.style = '';
-                // Don't keep the glow effect, just the z-index
-                upgradeElement.style.zIndex = oldZIndex;
-                  // Add to upgrades grid
-                upgradesGrid.appendChild(upgradeElement);
-                
-                // No bounce animation
-                
-                try {
-                    gameSounds.playUpgradePinSound();
-                } catch (e) {
-                    console.error('Error playing upgrade pin sound:', e);
-                }
-                
-                // Add click handler for selling upgrades
-                this.addUpgradeClickHandler(upgradeElement, card);
-            }, 600); // Slightly longer for smoother transition
-        });
+        
+        // Force a reflow to ensure all styles are applied
+        void upgradeElement.offsetHeight;
+        
+        // Start the animation immediately
+        upgradeElement.style.opacity = '1';
+        upgradeElement.style.zIndex = '200';
+        upgradeElement.style.transition = 'all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
+        upgradeElement.style.transform = 'scale(0.8)';
+        upgradeElement.style.left = `${targetX}px`;
+        upgradeElement.style.top = `${targetY}px`;
+          // Play the pin sound right away for better feedback
+        try {
+            gameSounds.playUpgradePinSound();
+        } catch (e) {
+            console.error('Error playing upgrade pin sound:', e);
+        }
+        
+        // When animation completes, move to the grid
+        setTimeout(() => {
+            // Reset styles and move to grid
+            const oldZIndex = upgradeElement.style.zIndex;
+            upgradeElement.style = '';
+            upgradeElement.style.zIndex = oldZIndex;
+            upgradesGrid.appendChild(upgradeElement);
+            
+            // Add click handler for selling upgrades
+            this.addUpgradeClickHandler(upgradeElement, card);
+        }, 400); // Match the transition duration
         
         return true;
     }
