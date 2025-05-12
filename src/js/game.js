@@ -1881,7 +1881,7 @@ class Game {
                     p.style.transform = `translateY(${index * p.offsetHeight}px)`;
                 });
             }, 300); // Match transition duration
-        }, 4500);
+        }, 5500);
     }
 
     endGame(reason = '') {
