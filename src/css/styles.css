@@ -556,9 +556,10 @@
     font-size: 12px;
     transform: scale(0.8);
     transition: transform 0.2s, box-shadow 0.2s;
-    overflow: hidden;
+    overflow: visible; /* Changed from hidden to allow popups to show outside card */
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
     cursor: pointer;
+    position: relative; /* Ensure positioned elements inside use this as reference */
 }
 
 .upgrade-card:hover {
@@ -3085,12 +3086,48 @@ h1 {
 .upgrade-card.selling {
     z-index: 1000;
     background: #4a4a4a;
+    overflow: visible; /* Ensure popup can appear outside the card */
 }
 
 .upgrade-card.disappearing {
     transform: scale(0);
     opacity: 0;
     transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+/* Enhanced sell confirmation popup */
+.sell-confirm.compact-confirm {
+    position: absolute;
+    width: 220px; /* Wider popup */
+    height: auto;
+    max-height: 180px; /* Taller popup */
+    font-size: 14px; /* Larger text */
+    background: rgba(20, 20, 20, 0.95);
+    border: 2px solid #555; /* More visible border */
+    border-radius: 8px;
+    padding: 10px 12px;
+    z-index: 1500;
+    top: -90px; /* Position it much higher above the card */
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9), 0 0 8px rgba(255, 215, 0, 0.5);
+    pointer-events: auto; /* Ensure it can receive clicks */
+}
+
+/* Animation for the popup appearing */
+.sell-confirm.compact-confirm {
+    animation: sellPopupAppear 0.25s ease-out forwards;
+}
+
+@keyframes sellPopupAppear {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 10px) scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+    }
 }
 
 .sell-confirm {
@@ -3106,6 +3143,7 @@ h1 {
     justify-content: center;
     align-items: center;
     gap: 8px;
+    z-index: 1500; /* Ensure it's on top */
 }
 
 .sell-text {

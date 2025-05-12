@@ -1467,52 +1467,51 @@ class Game {
             
             // Remove any existing confirmation dialog first
             upgradeElement.querySelectorAll('.sell-confirm').forEach(el => el.remove());
-            
-            const confirmDialog = document.createElement('div');
+              const confirmDialog = document.createElement('div');
             confirmDialog.className = 'sell-confirm compact-confirm';
             confirmDialog.innerHTML = `
                 <div class="sell-header">Sell ${card.type === "upgrade" ? "Upgrade" : "Card"}?</div>
                 <div class="sell-benefits">
                     ${refundAmount > 0 ? 
                       `<div class="sell-benefit money-color">
-                        <span class="benefit-icon">💰</span>
-                        <span class="benefit-text">+$${refundAmount}</span>
+                        <span class="benefit-icon" style="font-size: 16px;">💰</span>
+                        <span class="benefit-text" style="font-size: 15px;">+$${refundAmount}</span>
                       </div>` : ''}
                     <div class="sell-benefit ingredients-color">
-                        <span class="benefit-icon">🌾</span>
-                        <span class="benefit-text">+${ingredientGain} ingredients</span>
+                        <span class="benefit-icon" style="font-size: 16px;">🌾</span>
+                        <span class="benefit-text" style="font-size: 15px;">+${ingredientGain} ingredients</span>
                     </div>
                     <div class="sell-benefit chaos-color">
-                        <span class="benefit-icon">🌀</span>
-                        <span class="benefit-text">-${Math.round(chaosReduction)} chaos</span>
+                        <span class="benefit-icon" style="font-size: 16px;">🌀</span>
+                        <span class="benefit-text" style="font-size: 15px;">-${Math.round(chaosReduction)} chaos</span>
                     </div>
                 </div>
                 <div class="sell-buttons">
-                    <button class="sell-yes">Sell</button>
-                    <button class="sell-no">Cancel</button>
+                    <button class="sell-yes" style="font-size: 14px; padding: 4px 12px;">Sell</button>
+                    <button class="sell-no" style="font-size: 14px; padding: 4px 12px;">Cancel</button>
                 </div>
             `;
-            
-            upgradeElement.appendChild(confirmDialog);
+              upgradeElement.appendChild(confirmDialog);
             
             // Add CSS to make it properly sized and styled
             const style = document.createElement('style');
             style.textContent = `
                 .sell-confirm.compact-confirm {
                     position: absolute;
-                    width: 140px;
+                    width: 220px; /* Increased width */
                     height: auto;
-                    max-height: 120px;
-                    font-size: 12px;
+                    max-height: 180px; /* Increased max height */
+                    font-size: 14px; /* Increased font size */
                     background: rgba(20, 20, 20, 0.95);
-                    border: 1px solid #444;
-                    border-radius: 4px;
-                    padding: 6px 8px;
-                    z-index: 1000;
-                    top: 50%;
+                    border: 2px solid #555; /* More visible border */
+                    border-radius: 8px; /* Slightly more rounded corners */
+                    padding: 10px 12px; /* More padding */
+                    z-index: 1500;
+                    top: -90px; /* Position it much higher above the card */
                     left: 50%;
-                    transform: translate(-50%, -50%) scale(1.2);
-                    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), 0 0 5px rgba(255, 215, 0, 0.3);
+                    transform: translateX(-50%) scale(1);
+                    box-shadow: 0 0 20px rgba(0, 0, 0, 0.9), 0 0 8px rgba(255, 215, 0, 0.5); /* Enhanced shadow */
+                    pointer-events: auto; /* Ensure it can receive clicks */
                 }
                 
                 .sell-header {
