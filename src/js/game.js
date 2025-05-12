@@ -341,6 +341,10 @@ class Game {
         // Money factor - significant darkness when below starting money
         if (stats.money < 100) {
             darknessLevel *= Math.max(0.7, stats.money / 100);
+            
+            if (lightRatio < 0.4) {
+            this.showEffectMessage("The factory's lights flicker weakly. They need money to stay on...");
+            }
         }
 
         // Light ratio factor
@@ -378,6 +382,7 @@ class Game {
         }
         if (lightRatio < 0.3 && this.turn > 1) {
             this.state.playerStats.chaosGainRate *= 1.3;
+            this.showEffectMessage("The darkness is making workers anxious. Chaos is rising faster!");
         }
     }
 
