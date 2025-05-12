@@ -3091,7 +3091,7 @@ h1 {
     }
 }
 
-/* Add these new styles for mini upgrade cards */
+/* This is what controls where the pinned upgrades are contained  */
 .upgrades-container {
     margin-top: 10px;
     padding: 10px;
