@@ -453,25 +453,38 @@ function handleCardClick(card) {
         card.style.pointerEvents = 'none';
         
         // Set animation properties based on the random choice
-        switch (animationType) {
-            case 0: // Spinning animation
+        switch (animationType) {            case 0: // Spinning animation
                 // Set random spin direction (clockwise or counterclockwise)
                 const spinDirection = Math.random() > 0.5 ? 1 : -1;
                 card.style.setProperty('--spin-dir', spinDirection);
+                  // Random chance (50%) for continuous spinning animation - increased from 25%
+                const useContinuousSpin = Math.random() < 0.5;
                 
                 setTimeout(() => {
                     card.classList.add('dissolving');
                     requestAnimationFrame(() => {
-                        // Slow down the spin for a more natural effect
-                        card.style.animation = 'cardSpin 0.8s ease-in-out forwards';
-                        
-                        // Make card disappear at animation end
-                    setTimeout(() => {
-                            card.style.display = 'none';
-                            card.style.visibility = 'hidden';
-                            card.style.position = 'absolute';
-                            card.style.left = '-9999px'; // Move far offscreen
-                        }, 750); // Slightly before animation end
+                        // Choose between regular spin or continuous spin based on random chance
+                        if (useContinuousSpin) {
+                            // Use the continuous spin animation (multiple rotations)
+                            card.style.animation = 'cardContinuousSpin 0.9s cubic-bezier(0.2, 0, 0.8, 1) forwards';
+                            // Longer disappear time for continuous spin
+                            setTimeout(() => {
+                                card.style.display = 'none';
+                                card.style.visibility = 'hidden';
+                                card.style.position = 'absolute';
+                                card.style.left = '-9999px'; // Move far offscreen
+                            }, 850); // Slightly before animation end
+                        } else {
+                            // Regular spin animation
+                            card.style.animation = 'cardSpin 0.8s ease-in-out forwards';
+                            // Make card disappear at animation end
+                            setTimeout(() => {
+                                card.style.display = 'none';
+                                card.style.visibility = 'hidden';
+                                card.style.position = 'absolute';
+                                card.style.left = '-9999px'; // Move far offscreen
+                            }, 750); // Slightly before animation end
+                        }
                     });
                 }, 250);
                 break;

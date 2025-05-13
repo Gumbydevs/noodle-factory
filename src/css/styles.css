@@ -2902,22 +2902,72 @@ h1 {
         filter: blur(0);
     }
     20% {
-        transform: translate(0, -10px) scale(1.1) rotate(calc(var(--spin-dir, 1) * 90deg));
-        opacity: 0.9;
-        filter: blur(0.5px);
-    }
-    40% {
-        transform: translate(0, -20px) scale(0.9) rotate(calc(var(--spin-dir, 1) * 180deg));
+        transform: translate(0, -10px) scale(0.9) rotate(calc(var(--spin-dir, 1) * 180deg));
         opacity: 0.7;
         filter: blur(1px);
     }
-    70% {
-        transform: translate(0, -40px) scale(0.6) rotate(calc(var(--spin-dir, 1) * 270deg));
-        opacity: 0.3;
+    40% {
+        transform: translate(0, -20px) scale(0.6) rotate(calc(var(--spin-dir, 1) * 360deg));
+        opacity: 0.4;
         filter: blur(2px);
     }
     100% {
-        transform: translate(0, -60px) scale(0.1) rotate(calc(var(--spin-dir, 1) * 360deg));
+        transform: translate(0, -30px) scale(0.3) rotate(calc(var(--spin-dir, 1) * 540deg));
+        opacity: 0;
+        filter: blur(3px);
+    }
+}
+
+/* Continuous spinning animation (multiple rotations) */
+@keyframes cardContinuousSpin {
+    0% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+        opacity: 1;
+        filter: blur(0);
+    }
+    10% {
+        transform: translate(0, -5px) scale(0.98) rotate(calc(var(--spin-dir, 1) * 90deg));
+        opacity: 0.95;
+    }
+    20% {
+        transform: translate(0, -10px) scale(0.95) rotate(calc(var(--spin-dir, 1) * 270deg));
+        opacity: 0.9;
+        filter: blur(0.5px);
+    }
+    30% {
+        transform: translate(0, -15px) scale(0.9) rotate(calc(var(--spin-dir, 1) * 540deg));
+        opacity: 0.85;
+    }
+    40% {
+        transform: translate(0, -20px) scale(0.85) rotate(calc(var(--spin-dir, 1) * 900deg));
+        opacity: 0.8;
+        filter: blur(1px);
+    }
+    50% {
+        transform: translate(0, -25px) scale(0.8) rotate(calc(var(--spin-dir, 1) * 1440deg));
+        opacity: 0.7;
+    }
+    60% {
+        transform: translate(0, -30px) scale(0.7) rotate(calc(var(--spin-dir, 1) * 2160deg));
+        opacity: 0.6;
+        filter: blur(1.5px);
+    }
+    70% {
+        transform: translate(0, -35px) scale(0.5) rotate(calc(var(--spin-dir, 1) * 3060deg));
+        opacity: 0.4;
+        filter: blur(2px);
+    }
+    80% {
+        transform: translate(0, -40px) scale(0.4) rotate(calc(var(--spin-dir, 1) * 4140deg));
+        opacity: 0.3;
+    }
+    90% {
+        transform: translate(0, -50px) scale(0.2) rotate(calc(var(--spin-dir, 1) * 5400deg));
+        opacity: 0.2;
+        filter: blur(2.5px);
+    }
+    100% {
+        transform: translate(0, -60px) scale(0.1) rotate(calc(var(--spin-dir, 1) * 7200deg));
         opacity: 0;
         filter: blur(3px);
     }

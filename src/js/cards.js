@@ -3165,8 +3165,8 @@ export const CARDS = {
             return "Workers return from breaks rejuvenated and pasta-passionate!";
         }
     },
-    "Durum Wheat Partnership": {
-        description: "Direct access to premium grains.",
+    "Wheat Kings": {
+        description: "Direct access to premium durum wheat.",
         type: "upgrade",
         requirements: { prestige: 30 },
         cost: 500,
@@ -3178,7 +3178,7 @@ export const CARDS = {
             prestige: 5
         },
         effect: (state) => {
-            savePlayedCard("Durum Wheat Partnership");
+            savePlayedCard("Wheat Kings");
             return "The finest semolina ensures your pasta has perfect bite!";
         }
     },
