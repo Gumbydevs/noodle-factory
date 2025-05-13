@@ -1037,15 +1037,15 @@ class Game {
                 }
                 return false;
             }
-            
-            // Then check upgrade slots
+              // Then check upgrade slots
             const upgradesGrid = document.querySelector('.upgrades-grid');
             const existingUpgrades = upgradesGrid.querySelectorAll('.upgrade-card');
-            if (existingUpgrades.length >= 2) {
+            const maxSlots = this.state.playerStats.maxUpgradeSlots || 2; // Default to 2 slots
+            if (existingUpgrades.length >= maxSlots) {
                 // Only show message and play sound if actually clicked
                 if (isClick) {
                     gameSounds.playUpgradeBlockedSound();
-                    this.showEffectMessage("Maximum of 2 factory upgrades allowed! Sell an upgrade first.", true);
+                    this.showEffectMessage(`Maximum of ${maxSlots} factory upgrades allowed! Sell an upgrade first.`, true);
                 }
                 return false;
             }
@@ -1732,10 +1732,11 @@ class Game {
     }    pinUpgradeCard(cardName, card) {
         const upgradesGrid = document.querySelector('.upgrades-grid');
         const existingUpgrades = upgradesGrid.querySelectorAll('.upgrade-card');
+        const maxSlots = this.state.playerStats.maxUpgradeSlots || 2; // Default to 2 slots
         
-        if (existingUpgrades.length >= 2) {
+        if (existingUpgrades.length >= maxSlots) {
             gameSounds.playUpgradeBlockedSound();
-            this.showEffectMessage(`<span style="color: #ff6347;">Maximum of 2 factory upgrades allowed! Sell an upgrade first.</span>`, true);
+            this.showEffectMessage(`<span style="color: #ff6347;">Maximum of ${maxSlots} factory upgrades allowed! Sell an upgrade first.</span>`, true);
             return false;
         }
         
@@ -1745,13 +1746,13 @@ class Game {
         // Get the positions and dimensions
         const origRect = originalCard.getBoundingClientRect();
         const gridRect = upgradesGrid.getBoundingClientRect();
-        
         // Calculate target position
         const slotWidth = 120;
         const slotGap = 10;
         const slot = existingUpgrades.length;
         
-        const totalWidth = (slotWidth * 2) + slotGap;
+        // Use the already defined maxSlots from above
+        const totalWidth = (slotWidth * maxSlots) + (slotGap * (maxSlots - 1));
         const startX = gridRect.left + (gridRect.width - totalWidth) / 2;
         const targetX = startX + (slot * (slotWidth + slotGap));
         const targetY = gridRect.top;

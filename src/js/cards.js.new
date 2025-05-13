@@ -1,0 +1,25 @@
+// This file defines the card system, including the creation and management of cards, their effects, and how they interact with the game state.
+
+import { gameState } from './state.js';
+
+const LOCAL_STORAGE_KEY = 'noodleFactoryPlayedCards';
+
+export const CARDS = {
+    "Alphabet Pasta Anomaly": {
+        description: "The alphabet pasta starts spelling out ominous messages.",
+        requirements: null,
+        statModifiers: {
+            chaos: 11,
+            prestige: 4,
+            workers: -5
+        },
+        effect: (state) => {
+            savePlayedCard("Alphabet Pasta Anomaly");
+            if (state.playerStats.chaosLevel < 45) {
+                state.playerStats.pastaPrestige += 9;
+                return "Customers line up to receive personalized pasta prophecies!";
+            }
+            state.playerStats.lostWorkers += 4;
+            return "Workers flee as bowls of pasta spell out 'YOUR DOOM IS AL DENTE'!";
+        }
+    },
