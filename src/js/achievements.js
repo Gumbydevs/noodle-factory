@@ -166,21 +166,21 @@ export const ACHIEVEMENTS = {
         category: ACHIEVEMENT_CATEGORIES.COLLECTION
     },
     "Efficiency Expert": {
-        description: "Have 50+ workers while maintaining less than 20 chaos",
-        check: (stats) => stats.workerCount >= 50 && stats.chaosLevel < 20,
+        description: "Have 50+ workers while maintaining less than 50 chaos",
+        check: (stats) => stats.workerCount >= 50 && stats.chaosLevel < 50,
         reward: "Master of organization!",
         category: ACHIEVEMENT_CATEGORIES.WORKERS
     },
     "Walking the Line": {
         description: "Have exactly 42 chaos and 42 ingredients simultaneously",
         check: (stats) => stats.chaosLevel === 42 && stats.ingredients === 42,
-        reward: "The meaning of pasta life",
+        reward: "The meaning of life the universe and pasta",
         category: ACHIEVEMENT_CATEGORIES.SPECIAL
     },
     "Resourceful": {
-        description: "Reach 30 prestige with less than 15 workers",
-        check: (stats) => stats.pastaPrestige >= 30 && stats.workerCount < 15,
-        reward: "doing more with less!",
+        description: "Reach 50 prestige with less than 15 workers",
+        check: (stats) => stats.pastaPrestige >= 50 && stats.workerCount < 15,
+        reward: "Doing more with less!",
         category: ACHIEVEMENT_CATEGORIES.CHALLENGE
     },
     "High Stakes": {
@@ -190,14 +190,14 @@ export const ACHIEVEMENTS = {
         category: ACHIEVEMENT_CATEGORIES.CHALLENGE
     },
     "Recovery Master": {
-        description: "Go from 0 ingredients to 30 in a single turn",
-        check: (stats) => stats.ingredientGainInOneTurn >= 30,
+        description: "Go from 0 ingredients to 10 in a single turn",
+        check: (stats) => stats.ingredientGainInOneTurn >= 10,
         reward: "Back from the brink!",
         category: ACHIEVEMENT_CATEGORIES.RESOURCES
     },
     "Century Club": {
-        description: "Survive for 100 turns while keeping chaos below 50",
-        check: (stats, turn) => turn >= 100 && stats.chaosLevel < 50,
+        description: "Survive for 100 turns while keeping chaos below 70",
+        check: (stats, turn) => turn >= 100 && stats.chaosLevel < 70,
         reward: "The steady hand of management",
         category: ACHIEVEMENT_CATEGORIES.PROGRESS
     },
@@ -214,8 +214,8 @@ export const ACHIEVEMENTS = {
         category: ACHIEVEMENT_CATEGORIES.CHAOS
     },
     "Order From Chaos": {
-        description: "Reduce chaos from above 90 to below 30 in a single turn",
-        check: (stats) => stats.chaosReductionInOneTurn >= 60,
+        description: "Reduce chaos from above 90 to below 80 in a single turn",
+        check: (stats) => stats.chaosReductionInOneTurn >= 80,
         reward: "A calming influence",
         category: ACHIEVEMENT_CATEGORIES.CHAOS
     },
@@ -238,7 +238,7 @@ export const ACHIEVEMENTS = {
         category: ACHIEVEMENT_CATEGORIES.RESOURCES
     },
     "Noodle Economy": {
-        description: "Earn $1000 in a single sale",
+        description: "Earn $1000 or more from a weekly sale",
         check: (stats) => stats.highestSingleSale >= 1000,
         reward: "Business magnate",
         category: ACHIEVEMENT_CATEGORIES.RESOURCES
