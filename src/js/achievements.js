@@ -55,10 +55,9 @@ export const ACHIEVEMENTS = {
         check: (stats) => stats.pastaPrestige >= 100,
         reward: "Gain bonuses from your culinary skills",
         category: ACHIEVEMENT_CATEGORIES.PRESTIGE
-    },
-    "Ingredient Hoarder": {
+    },    "Ingredient Hoarder": {
         description: "Reach 20 ingredients!",
-        check: (stats) => stats.ingredients >= 20 && stats.lostIngredients === 0,
+        check: (stats) => stats.ingredients >= 20,
         reward: "Now we're cooking!",
         category: ACHIEVEMENT_CATEGORIES.RESOURCES
     },
@@ -227,12 +226,12 @@ export const ACHIEVEMENTS = {
         category: ACHIEVEMENT_CATEGORIES.CHAOS
     },
     "Noodle Tycoon": {
-        description: "Accumulate 500 noodles at once",
-        check: (stats) => stats.noodles >= 500,
+        description: "Accumulate 1000 noodles at once",
+        check: (stats) => stats.noodles >= 1000,
         reward: "Swimming in pasta!",
         category: ACHIEVEMENT_CATEGORIES.RESOURCES
     },
-    "Millionaire": {
+    "Pasta Rich": {
         description: "Accumulate $10,000",
         check: (stats) => stats.money >= 10000,
         reward: "Money to burn",
