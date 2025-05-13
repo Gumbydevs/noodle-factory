@@ -133,7 +133,12 @@ class Game {
                 lostWorkers: 0,
                 lostIngredients: 0,                chaosSteadyTurns: 0,
                 highChaosStreakTurns: 0,
-                chaosReductionInOneTurn: 0,
+                chaosReductionInOneTurn: 0,                chaosEventsTriggered: 0,
+                cardsPlayedWithoutChaos: 0,
+                magicCardsPlayed: 0,                scienceCardsPlayed: 0,
+                edgeOfTomorrowTurns: 0,
+                nearMaxChaosConsecutiveTurns: 0,
+                balancedStatsTurns: 0,
                 turnsAtMaxChaos: 0,
                 hadMaxChaos: false,
                 usedMagicCards: false,
@@ -1060,9 +1065,7 @@ class Game {
         }
         
         return true;
-    }
-
-    playCard(cardName) {
+    }    playCard(cardName) {
         // Make spam click check more sensitive
         const now = Date.now();
         if (now - this.lastCardPlayTime < this.clickCooldown) {
@@ -1074,6 +1077,22 @@ class Game {
 
         const card = CARDS[cardName];
         if (!card) return;
+          // Track cards played without chaos events for "The Pasta Godfather" achievement
+        if (this.state.playerStats.chaosLevel < 70) { // Only count when chaos is under control
+            this.state.playerStats.cardsPlayedWithoutChaos = (this.state.playerStats.cardsPlayedWithoutChaos || 0) + 1;
+        } else {
+            // Reset the counter if chaos is too high
+            this.state.playerStats.cardsPlayedWithoutChaos = 0;
+        }
+        
+        // Track science cards for "Pasta Researcher" achievement
+        if (card.description && 
+            (card.description.toLowerCase().includes('science') || 
+             card.description.toLowerCase().includes('experiment') || 
+             card.description.toLowerCase().includes('lab') ||
+             card.description.toLowerCase().includes('research'))) {
+            this.state.playerStats.scienceCardsPlayed = (this.state.playerStats.scienceCardsPlayed || 0) + 1;
+        }
 
         // Handle emergency resource purchases
         let emergencyMessage = '';
@@ -1297,12 +1316,14 @@ class Game {
                     if (card.statModifiers.ingredients) {
                         createWaterSplash(centerX, centerY);
                     }
-                }
-
-                // Fire effect for "magical" or special cards
+                }                // Fire effect for "magical" or special cards
                 if (card.description.toLowerCase().includes('magic') || 
                     card.description.toLowerCase().includes('mystic') ||
                     card.description.toLowerCase().includes('spirit')) {
+                    // Track magic cards for "Mystic Master" achievement
+                    this.state.playerStats.magicCardsPlayed = (this.state.playerStats.magicCardsPlayed || 0) + 1;
+                    this.state.playerStats.usedMagicCards = true;
+                    
                     for (let i = 0; i < 8; i++) {
                         setTimeout(() => {
                             createFireParticle(
@@ -2222,6 +2243,9 @@ class Game {
         const messageBox = document.getElementById('game-messages');
         if (!messageBox) return;
 
+        // Track chaos events for "Chaos Theory" achievement
+        this.state.playerStats.chaosEventsTriggered = (this.state.playerStats.chaosEventsTriggered || 0) + 1;
+
         // Add randomization for sounds
         if (Math.random() > 0.85) {
             gameSounds.playChaosSound();
@@ -2484,9 +2508,7 @@ class Game {
             // Reset consecutive count if worker count is not 1
             this.state.playerStats.singleWorkerConsecutiveTurns = 0;
         }
-    }
-
-    checkBalancedStats() {
+    }    checkBalancedStats() {
         // Check for special balanced stats and achievements
         const stats = this.state.playerStats;
         
@@ -2513,6 +2535,18 @@ class Game {
         } else {
             // Reset balance streak if chaos is not at 50%
             stats.balancedChaosTurns = 0;
+        }
+        
+        // Check for "Balanced Diet" achievement - exactly equal levels of prestige, chaos, and ingredients
+        if (stats.pastaPrestige === stats.chaosLevel && stats.chaosLevel === stats.ingredients && stats.ingredients > 0) {
+            stats.balancedStatsTurns = (stats.balancedStatsTurns || 0) + 1;
+            
+            // Small Easter egg message
+            if (stats.balancedStatsTurns === 1) {
+                this.showEffectMessage("Perfect harmony achieved: prestige, chaos, and ingredients all perfectly balanced!");
+            }
+        } else {
+            stats.balancedStatsTurns = 0;
         }
         
         // Check for high efficiency (high worker count + low chaos)
@@ -2543,6 +2577,20 @@ class Game {
             stats.chaosSteadyTurns = (stats.chaosSteadyTurns || 0) + 1;
         } else {
             stats.chaosSteadyTurns = 0;
+        }
+        
+        // Track "Edge of Tomorrow" (exactly 99 chaos for 10 consecutive turns)
+        if (stats.chaosLevel === 99) {
+            stats.edgeOfTomorrowTurns = (stats.edgeOfTomorrowTurns || 0) + 1;
+        } else {
+            stats.edgeOfTomorrowTurns = 0;
+        }
+        
+        // Track near-max chaos consecutive turns for "Death's Door" risk achievement
+        if (stats.chaosLevel === 99) {
+            stats.nearMaxChaosConsecutiveTurns = (stats.nearMaxChaosConsecutiveTurns || 0) + 1;
+        } else {
+            stats.nearMaxChaosConsecutiveTurns = 0;
         }
     }
     
