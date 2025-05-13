@@ -674,11 +674,28 @@ html, body {
     overflow-x: hidden; /* Prevent horizontal scrollbar */
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* Internet Explorer and Edge */
+    
+    /* Disable text selection */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    
+    /* Disable text cursor */
+    caret-color: transparent;
 }
 
 /* Hide scrollbars for webkit browsers */
 html::-webkit-scrollbar, body::-webkit-scrollbar {
     display: none;
+}
+
+/* Add text-selection disabling to all elements */
+* {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 body {
@@ -1655,7 +1672,7 @@ h1 {
     color: inherit;
 }
 
-.message-history-turn {
+message-history-turn {
     position: absolute;
     top: 8px;
     right: 10px;

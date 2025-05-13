@@ -27,7 +27,7 @@ export const ACHIEVEMENTS = {
         category: ACHIEVEMENT_CATEGORIES.CHAOS
     },
     "Chaos Adept": {
-        description: "Reach 55 chaos without losing control",
+        description: "Reach 55 chaos",
         check: (stats) => stats.chaosLevel >= 55,
         reward: "We aren't sure if this is a good thing...",
         category: ACHIEVEMENT_CATEGORIES.CHAOS
@@ -86,13 +86,13 @@ export const ACHIEVEMENTS = {
         category: ACHIEVEMENT_CATEGORIES.PROGRESS
     },
     "Pasta La Vista": {
-        description: "Lose 10 workers in a single run",
-        check: (stats) => stats.lostWorkers >= 10,
+        description: "Lose 15 workers in a single run",
+        check: (stats) => stats.lostWorkers >= 15,
         reward: "Somehow, you survived this",
         category: ACHIEVEMENT_CATEGORIES.WORKERS
     },
     "Breaking Bread": {
-        description: "Reach 50 ingredients without losing any to chaos",
+        description: "Reach 50 ingredients without losing to chaos",
         check: (stats) => stats.ingredients >= 50 && stats.lostIngredients === 0,
         reward: "A pasta-tively amazing feat!",
         category: ACHIEVEMENT_CATEGORIES.RESOURCES
