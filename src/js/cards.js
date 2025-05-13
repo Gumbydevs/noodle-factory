@@ -3373,6 +3373,7 @@ export function applyUpgradeEffects(state) {
     state.playerStats.workerLossRate = 1;
     state.playerStats.noodleProductionRate = 1;
     state.playerStats.noodleSalePrice = 5; // Base price
+    state.playerStats.ingredientGainRate = 0; // Reset to base value
 
     // Apply all permanent effects from all upgrades
     Object.entries(state.playerStats.factoryUpgrades).forEach(([name, upgrade]) => {
@@ -3394,35 +3395,35 @@ export function applyUpgradeEffects(state) {
                 triggerUpgradeGlow(name, "workerEfficiency");
             }
 
-            // Handle ingredient gain/loss chances
+            // Handle ingredient gain - properly add to ingredientGainRate and show glow
             if (upgrade.permanentStats.ingredientGain) {
-                const chance = Math.abs(upgrade.permanentStats.ingredientGain);
-                if (Math.random() < chance) {
-                    if (upgrade.permanentStats.ingredientGain > 0) {
-                        // Add ingredient with message
-                        if (state.playerStats.ingredients < 20) {
-                            state.playerStats.ingredients++;
-                            triggerUpgradeGlow(name, "ingredientGain");
-                            if (window.gameInstance) {
-                                // Add bonus message to the end of the queue instead of showing immediately
-                                window.gameInstance.messageQueue.push({
-                                    message: `${name} generated a bonus ingredient!`,
-                                    type: 'feedback'
-                                });
-                            }
+                if (upgrade.permanentStats.ingredientGain > 0) {
+                    // Add to ingredient gain rate
+                    state.playerStats.ingredientGainRate += upgrade.permanentStats.ingredientGain;
+                    triggerUpgradeGlow(name, "ingredientGain");
+                    
+                    // Also have a chance to get an immediate ingredient
+                    const chance = Math.min(0.7, upgrade.permanentStats.ingredientGain * 2);
+                    if (Math.random() < chance && state.playerStats.ingredients < 20) {
+                        state.playerStats.ingredients++;
+                        if (window.gameInstance) {
+                            // Add bonus message to the end of the queue instead of showing immediately
+                            window.gameInstance.messageQueue.push({
+                                message: `${name} generated a bonus ingredient!`,
+                                type: 'feedback'
+                            });
                         }
-                    } else {
-                        // Remove ingredient with message
-                        if (state.playerStats.ingredients > 0) {
-                            state.playerStats.ingredients--;
-                            triggerUpgradeGlow(name, "ingredientGain");
-                            if (window.gameInstance) {
-                                // Add bonus message to the end of the queue instead of showing immediately
-                                window.gameInstance.messageQueue.push({
-                                    message: `${name} consumed an ingredient!`,
-                                    type: 'feedback'
-                                });
-                            }
+                    }
+                } else {
+                    // Handle negative ingredientGain (rare case)
+                    if (state.playerStats.ingredients > 0 && Math.random() < Math.abs(upgrade.permanentStats.ingredientGain)) {
+                        state.playerStats.ingredients--;
+                        triggerUpgradeGlow(name, "ingredientGain");
+                        if (window.gameInstance) {
+                            // Add bonus message to the end of the queue instead of showing immediately
+                            window.gameInstance.messageQueue.push({
+                                message: `${name} consumed an ingredient!`,
+                                type: 'feedback'                            });
                         }
                     }
                 }
