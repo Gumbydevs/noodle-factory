@@ -3009,7 +3009,7 @@ export const CARDS = {
 
     // New upgrade cards start here
     "Automated Pasta Dryers": {
-        description: "High-tech drying chambers maintain perfect humidity for pasta consistency.",
+        description: "High-tech dryers maintain perfect humidity.",
         type: "upgrade",
         requirements: { prestige: 20 },
         cost: 500,

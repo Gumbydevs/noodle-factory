@@ -593,6 +593,17 @@
     --glow-color: rgba(46, 204, 113, 0.5); /* Green */
 }
 
+/* Fix for upgrade card permanent effects display */
+.upgrade-card .permanent-effects,
+.upgrade-card .instant-effects {
+    font-size: 1.1em; /* Keep original font size */
+    margin-top: 2px;
+    display: flex;
+    flex-direction: column; /* Stack effects vertically */
+    overflow-y: visible; /* Allow content to display properly */
+    height: auto; /* Let height adjust to content */
+}
+
 /* Cost display for upgrade cards */
 .cost-display {
     margin-top: auto;
@@ -638,31 +649,21 @@
     100% { transform: scale(1); }
 }
 
-/* Add these style rules to handle the message text effects */
-.chaos-level-1 .message-text span {
-    animation: colorCycleWord 4s infinite;
-    animation-delay: calc(var(--word-index) * -0.3s);
-    color: inherit; /* Use the color from message type */
+/* Fix layout without changing font sizes */
+.upgrade-card .upgrade-effects {
+    margin-top: 5px; /* Reduced from auto */
+    padding-top: 5px;
+    border-top: 1px solid #555;
+    display: flex;
+    flex-direction: column;
 }
 
-.chaos-level-2 .message-text span {
-    animation: rainbowText 3s infinite;
-    animation-delay: calc(var(--word-index) * -0.2s);
-    text-shadow: 0 0 5px currentColor;
-    color: inherit;
-}
-
-.chaos-level-3 .message-text span {
-    animation: chaosText 2s infinite;
-    animation-delay: calc(var(--word-index) * -0.1s);
-    color: inherit;
-}
-
-.chaos-level-max .message-text span {
-    animation: rainbowText 1s infinite;
-    animation-delay: calc(var(--word-index) * -0.1s);
-    text-shadow: 0 0 8px currentColor;
-    color: inherit;
+/* Move the upgrades container up to give more space */
+.upgrades-container {
+    margin-top: -10px; /* Changed from 10px to -10px */
+    padding: 10px;
+    width: 100%;
+    height: 250%;
 }
 
 .hidden {
@@ -1260,14 +1261,14 @@ h1 {
 }
 
 .card h3 {
-    font-size: 1.1em; /* Reduced from 1.2em */
+    font-size: 1.2em; /* Reduced from 1.2em */
     margin-top: 0; /* Add this to remove any top margin */
     margin-bottom: 8px; /* Reduced from 10px */
     color: #f39c12;
 }
 
 .card .effects-label {
-    font-size: 0.65em; /* Reduced from 0.7em */
+    font-size: 0.75em; /* Reduced from 0.7em */
     color: #d2d3d2;
     margin-bottom: 2px; /* Reduced from 3px */
     text-transform: uppercase;
@@ -1313,7 +1314,7 @@ h1 {
 .card-effects {
     margin-top: auto;
     padding-top: 8px; /* Reduced from 10px */
-    font-size: 0.85em; /* Reduced from 0.9em */
+    font-size: 0.94em; /* Reduced from 0.9em */
     border-top: 1px solid #555;
 }
 
@@ -1336,7 +1337,7 @@ h1 {
 .stat-modifier {
     display: block;
     margin: 3px 0; /* Reduced from 4px */
-    font-size: 0.95em; /* Added explicit font size */
+    font-size: 1.1em; /* Added explicit font size */
     font-weight: bold;
 }
 
@@ -2751,14 +2752,14 @@ h1 {
     will-change: transform, opacity;
 }
 
-/* Fix upgrade card pinning animation */
+/* Upgrade card pinning animation */
 .upgrade-card {
-    width: 100px;  /* Proportionally scaled from 200px */
-    height: 140px; /* Proportionally scaled from 280px */
+    width: 130px;  /* Proportionally scaled from 200px */
+    height: 180px; /* Proportionally scaled from 280px */
     padding: 8px;
     background: #444;
     border-radius: 8px;
-    font-size: 0.52em; /* Reduced from 0.55em */
+    font-size: 0.85em; /* Reduced from 0.55em */
     display: flex;
     flex-direction: column;
     transition: all 0.3s ease-out;
@@ -2769,7 +2770,7 @@ h1 {
 /* Add upgrade card cost display styling */
 .upgrade-card .cost-display {
     font-size: 0.9em;
-    margin-top: 2px;
+    margin-top: auto;
     color: #ffd700;
     text-align: right;
 }
@@ -2777,7 +2778,12 @@ h1 {
 .upgrade-card .permanent-effects,
 .upgrade-card .instant-effects {
     font-size: 1.1em;
-    margin-top: 4px;
+    margin-top: 2px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: visible;
+    height: auto;
+    
 }
 
 .upgrade-card .effects-label {
@@ -3093,7 +3099,7 @@ h1 {
 
 /* This is what controls where the pinned upgrades are contained  */
 .upgrades-container {
-    margin-top: 10px;
+    margin-top: -10px; /* Changed from 10px to -10px */
     padding: 10px;
     width: 100%;
     height: 250%;
@@ -3900,23 +3906,3 @@ h1 {
         opacity: 0;
     }
 }
- / *   O v e r r i d e   a l l   a n i m a t i o n s   f o r   u p g r a d e - s e l e c t e d   c a r d s   * / 
- . c a r d . u p g r a d e - s e l e c t e d   { 
-         a n i m a t i o n :   n o n e   ! i m p o r t a n t ; 
-         t r a n s f o r m - o r i g i n :   c e n t e r   c e n t e r ; 
-         p o i n t e r - e v e n t s :   n o n e ; 
-         t r a n s i t i o n :   n o n e   ! i m p o r t a n t ; 
-         w i l l - c h a n g e :   t r a n s f o r m ,   o p a c i t y ; 
- } 
- 
- 
- / *   O v e r r i d e   a l l   a n i m a t i o n s   f o r   u p g r a d e - s e l e c t e d   c a r d s   * / 
- . c a r d . u p g r a d e - s e l e c t e d   { 
-         a n i m a t i o n :   n o n e   ! i m p o r t a n t ; 
-         t r a n s f o r m - o r i g i n :   c e n t e r   c e n t e r ; 
-         p o i n t e r - e v e n t s :   n o n e ; 
-         t r a n s i t i o n :   n o n e   ! i m p o r t a n t ; 
-         w i l l - c h a n g e :   t r a n s f o r m ,   o p a c i t y ; 
- } 
- 
- 
