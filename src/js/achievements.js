@@ -238,7 +238,7 @@ export const ACHIEVEMENTS = {
         category: ACHIEVEMENT_CATEGORIES.RESOURCES
     },
     "Noodle Economy": {
-        description: "Earn $1000 or more from a weekly sale",
+        description: "Earn $1000 or more from a sale",
         check: (stats) => stats.highestSingleSale >= 1000,
         reward: "Business magnate",
         category: ACHIEVEMENT_CATEGORIES.RESOURCES

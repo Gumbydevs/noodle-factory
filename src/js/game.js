@@ -131,8 +131,9 @@ class Game {
                 noodleProductionRate: 1, // Base production rate
                 noodleSalePrice: 5, // Base sale price
                 lostWorkers: 0,
-                lostIngredients: 0,
-                chaosSteadyTurns: 0,
+                lostIngredients: 0,                chaosSteadyTurns: 0,
+                highChaosStreakTurns: 0,
+                chaosReductionInOneTurn: 0,
                 turnsAtMaxChaos: 0,
                 hadMaxChaos: false,
                 usedMagicCards: false,
@@ -143,7 +144,8 @@ class Game {
                 factoryUpgrades: {},
                 prestigeGainRate: 1,
                 chaosGainRate: 1,
-                workerLossRate: 1
+                workerLossRate: 1,
+                highestSingleSale: 0
             }
         };
         this.isGameOver = false;
@@ -643,6 +645,12 @@ class Game {
                 }
             }        }
         this._lastChaosLevel = chaos;
+          // Track large chaos reductions for "Order From Chaos" achievement
+        if (this._lastChaosLevel && this._lastChaosLevel >= 90 && chaos < 80) {
+            const reductionAmount = this._lastChaosLevel - chaos;
+            // Update the chaosReductionInOneTurn stat
+            this.state.playerStats.chaosReductionInOneTurn = reductionAmount;
+        }
         
         // Add proper mobile-friendly chaos classes
         if (chaos >= 90) { // Changed from 100 to 90
@@ -1468,12 +1476,16 @@ class Game {
         if (shouldSellNoodles) {
             const maxSales = Math.floor(20 + (this.state.playerStats.pastaPrestige * 0.5));
             const availableNoodles = this.state.playerStats.noodles;
-            const dailySales = Math.min(maxSales, availableNoodles);
-
-            if (dailySales > 0) {
+            const dailySales = Math.min(maxSales, availableNoodles);            if (dailySales > 0) {
                 const income = dailySales * this.state.playerStats.noodleSalePrice;
                 this.state.playerStats.noodles -= dailySales;
                 this.state.playerStats.money += income;
+                
+                // Track highest single sale for "Noodle Economy" achievement
+                if (income > this.state.playerStats.highestSingleSale) {
+                    this.state.playerStats.highestSingleSale = income;
+                }
+                
                 message = `Sales: ${dailySales} noodles sold for $${income}!`;
             } else {
                 message = `Sales day: No noodles available to sell!`;
@@ -2516,10 +2528,22 @@ class Game {
             // Reset efficiency streak
             stats.efficientFactoryTurns = 0;
         }
-    }
-
-    updateChaosStreak() {
-        // Existing method logic
+    }    updateChaosStreak() {
+        const stats = this.state.playerStats;
+        
+        // Track "Dancing With Danger" (maintain chaos 90-99 for 5 consecutive turns)
+        if (stats.chaosLevel >= 90 && stats.chaosLevel < 100) {
+            stats.highChaosStreakTurns = (stats.highChaosStreakTurns || 0) + 1;
+        } else {
+            stats.highChaosStreakTurns = 0;
+        }
+        
+        // Track chaos stability for "Chaotic Neutral" achievement
+        if (stats.chaosLevel === 50) {
+            stats.chaosSteadyTurns = (stats.chaosSteadyTurns || 0) + 1;
+        } else {
+            stats.chaosSteadyTurns = 0;
+        }
     }
     
     checkRiskAchievements() {
@@ -3223,8 +3247,12 @@ class Game {
                 case 'discount':
                     // Flash Sale: Sell all noodles at 80% price
                     soldNoodles = currentNoodles;
-                    soldPrice = Math.floor(basePrice * 0.8);
-                    income = soldNoodles * soldPrice;
+                    soldPrice = Math.floor(basePrice * 0.8);                    income = soldNoodles * soldPrice;
+                    
+                    // Track highest single sale for achievement
+                    if (income > this.state.playerStats.highestSingleSale) {
+                        this.state.playerStats.highestSingleSale = income;
+                    }
                     
                     outcomeMessage = successScenarios[Math.floor(Math.random() * successScenarios.length)];
                     
@@ -3236,11 +3264,15 @@ class Game {
                     break;
                     
                 case 'bulk':
-                    // Bulk Clearance: Sell all noodles at 65% price, reduce chaos by 10%
-                    soldNoodles = currentNoodles;
+                    // Bulk Clearance: Sell all noodles at 65% price, reduce chaos by 10%                    soldNoodles = currentNoodles;
                     soldPrice = Math.floor(basePrice * 0.65);
                     income = soldNoodles * soldPrice;
                     chaosReduction = Math.min(10, this.state.playerStats.chaosLevel);
+                    
+                    // Track highest single sale for achievement
+                    if (income > this.state.playerStats.highestSingleSale) {
+                        this.state.playerStats.highestSingleSale = income;
+                    }
                     
                     outcomeMessage = chaosReductionScenarios[Math.floor(Math.random() * chaosReductionScenarios.length)];
                     
@@ -3253,11 +3285,15 @@ class Game {
                     break;
                     
                 case 'premium':
-                    // Premium Rush: Sell half noodles at 120% price, gain 3 prestige
-                    soldNoodles = Math.floor(currentNoodles / 2);
+                    // Premium Rush: Sell half noodles at 120% price, gain 3 prestige                    soldNoodles = Math.floor(currentNoodles / 2);
                     soldPrice = Math.floor(basePrice * 1.2);
                     income = soldNoodles * soldPrice;
                     prestigeGain = 3;
+                    
+                    // Track highest single sale for achievement
+                    if (income > this.state.playerStats.highestSingleSale) {
+                        this.state.playerStats.highestSingleSale = income;
+                    }
                     
                     outcomeMessage = prestigeScenarios[Math.floor(Math.random() * prestigeScenarios.length)];
                     
