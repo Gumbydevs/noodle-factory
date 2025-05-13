@@ -3535,6 +3535,11 @@ export function getRandomCard() {
                     if (name === "Return of Reggie") {
                         return gameState?.playerStats?.reggieEscaped === true;
                     }
+                    // Filter out upgrade cards that are already pinned
+                    if (gameState?.playerStats?.factoryUpgrades && 
+                        name in gameState.playerStats.factoryUpgrades) {
+                        return false;
+                    }
                     // Filter out upgrade cards that don't meet prestige requirements
                     if (CARDS[name].type === "upgrade") {
                         const requiredPrestige = CARDS[name].requirements?.prestige || 0;
@@ -3554,6 +3559,11 @@ export function getRandomCard() {
         // Check for Reggie's Return special case
         if (name === "Return of Reggie") {
             return gameState?.playerStats?.reggieEscaped === true;
+        }
+        // Filter out upgrade cards that are already pinned
+        if (gameState?.playerStats?.factoryUpgrades && 
+            name in gameState.playerStats.factoryUpgrades) {
+            return false;
         }
         // Filter out upgrade cards that don't meet prestige requirements
         if (CARDS[name].type === "upgrade") {

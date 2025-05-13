@@ -877,12 +877,15 @@ class Game {
         gameSounds.playDrawCardsSound();
         
         const cardsContainer = document.getElementById('cards-container');
-        cardsContainer.classList.remove('hidden');
-
-        // Get available cards
+        cardsContainer.classList.remove('hidden');        // Get available cards
         const availableCards = Object.keys(CARDS).filter(cardName => {
             if (cardName === "Return of Reggie") {
                 return this.state.playerStats.reggieEscaped === true;
+            }
+            // Skip upgrade cards that are already installed
+            if (this.state.playerStats.factoryUpgrades && 
+                cardName in this.state.playerStats.factoryUpgrades) {
+                return false;
             }
             if (CARDS[cardName].type === "upgrade") {
                 const requiredPrestige = CARDS[cardName].requirements?.prestige || 0;
