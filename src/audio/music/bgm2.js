@@ -594,7 +594,7 @@ export class LoungeMusic {
         const gainNode = this.audioContext.createGain();
         gainNode.gain.setValueAtTime(0, time);
         gainNode.gain.linearRampToValueAtTime(gain * this.volume * this.baseVolume, time + 0.02);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, time + duration);
+        gainNode.gain.linearRampToValueAtTime(0, time + duration);
 
         noiseSource.connect(filter);
         filter.connect(gainNode);
@@ -639,12 +639,12 @@ export class LoungeMusic {
         // Add a click oscillator for the attack transient
         oscClick.type = 'triangle';
         oscClick.frequency.setValueAtTime(220, time);
-        oscClick.frequency.exponentialRampToValueAtTime(1, time + 0.02);
-        
+        oscClick.frequency.linearRampToValueAtTime(1, time + 0.02); // Changed to linearRamp to avoid issues
+
         // Click envelope
         clickGain.gain.setValueAtTime(0, time);
         clickGain.gain.linearRampToValueAtTime(gain * 0.0 * this.volume * this.baseVolume, time + 0.001);
-        clickGain.gain.exponentialRampToValueAtTime(0.001, time + 0.02);
+        clickGain.gain.linearRampToValueAtTime(0, time + 0.02); // Changed to linearRamp with 0
 
         // Brighter filter for more definition
         filter.type = 'lowpass';
@@ -655,8 +655,8 @@ export class LoungeMusic {
         // Punchier envelope with more sustain
         gainNode.gain.setValueAtTime(0, time);
         gainNode.gain.linearRampToValueAtTime(gain * this.volume * this.baseVolume * 1.5, time + 0.002);
-        gainNode.gain.exponentialRampToValueAtTime(gain * this.volume * this.baseVolume * 0.6, time + 0.04);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, time + this.dfamParams.kickDecay * 1.2);
+        gainNode.gain.linearRampToValueAtTime(gain * this.volume * this.baseVolume * 0.6, time + 0.04);
+        gainNode.gain.linearRampToValueAtTime(0, time + this.dfamParams.kickDecay * 1.2);
 
         // Connect main oscillator path
         osc.connect(filter);
@@ -680,7 +680,7 @@ export class LoungeMusic {
             softClipper.disconnect();
             gainNode.disconnect();
             clickGain.disconnect();
-        }, (this.dfamParams.kickDecay * 2.2 + 0.1) * 10000);
+        }, (this.dfamParams.kickDecay * 2.2 + 0.1) * 1000); // Fixed timeout calculation from 10000 to 1000
     }
 
     play909Snare(time, { bodyGain = 2.9, noiseGain = 1.7 } = {}) {
@@ -722,15 +722,15 @@ export class LoungeMusic {
         // Punchier envelopes
         oscGain1.gain.setValueAtTime(0, time);
         oscGain1.gain.linearRampToValueAtTime(bodyGain * this.volume * this.baseVolume, time + 0.002);
-        oscGain1.gain.exponentialRampToValueAtTime(0.001, time + this.dfamParams.snareDecay * 0.7);
+        oscGain1.gain.linearRampToValueAtTime(0, time + this.dfamParams.snareDecay * 0.7); // Changed to linearRamp with 0
         
         oscGain2.gain.setValueAtTime(0, time);
         oscGain2.gain.linearRampToValueAtTime(bodyGain * 0.5 * this.volume * this.baseVolume, time + 0.002);
-        oscGain2.gain.exponentialRampToValueAtTime(0.001, time + this.dfamParams.snareDecay * 0.5);
+        oscGain2.gain.linearRampToValueAtTime(0, time + this.dfamParams.snareDecay * 0.5); // Changed to linearRamp with 0
         
         noiseGainNode.gain.setValueAtTime(0, time);
         noiseGainNode.gain.linearRampToValueAtTime(noiseGain * this.volume * this.baseVolume, time + 0.001);
-        noiseGainNode.gain.exponentialRampToValueAtTime(0.001, time + this.dfamParams.snareDecay);
+        noiseGainNode.gain.linearRampToValueAtTime(0, time + this.dfamParams.snareDecay); // Changed to linearRamp with 0
         
         // Connect everything
         osc1.connect(oscGain1);
