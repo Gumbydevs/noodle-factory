@@ -40,6 +40,7 @@
   stroke-width: 6;
   fill: none;
   stroke-linecap: round;
+  stroke-linejoin: round; /* Smooth transitions between segments */
 }
 
 @keyframes appendageWiggle {

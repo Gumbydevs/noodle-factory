@@ -6,6 +6,7 @@ import { updateHighScore, getHighScore } from './highscore.js';
 import { triggerNoodleRoll, handleCardClick, handleUnselectedCards, resetCardState, addCardHoverEffects } from './animation.js';
 import { gameSounds } from '../audio.js'; // Note the .js extension
 import { AssetLoader } from './assetLoader.js';
+import './noodleAppendages.js'; // Import noodle appendages system
 
 // Remove the direct import of musicLoops - we'll load dynamically based on selection
 
@@ -108,6 +109,11 @@ class Game {
         this.isDisplayingMessage = false;        // Add message history storage
         this.messageHistory = [];
         this.maxMessageHistory = 50; // Store the 50 most recent messages
+        
+        // Initialize noodle appendages system
+        if (window.noodleAppendages && window.noodleAppendages.start) {
+            window.noodleAppendages.start();
+        }
         
         // Add emergency message tracking
         this._emergencyEffectMessage = null;
@@ -649,12 +655,16 @@ class Game {
                     break;
                 }
             }        }
-        this._lastChaosLevel = chaos;
-          // Track large chaos reductions for "Order From Chaos" achievement
+        this._lastChaosLevel = chaos;        // Track large chaos reductions for "Order From Chaos" achievement
         if (this._lastChaosLevel && this._lastChaosLevel >= 90 && chaos < 80) {
             const reductionAmount = this._lastChaosLevel - chaos;
             // Update the chaosReductionInOneTurn stat
             this.state.playerStats.chaosReductionInOneTurn = reductionAmount;
+        }
+        
+        // Update noodle appendages based on chaos level
+        if (window.noodleAppendages && window.noodleAppendages.updateForChaos) {
+            window.noodleAppendages.updateForChaos(chaos);
         }
         
         // Add proper mobile-friendly chaos classes
@@ -1218,16 +1228,15 @@ class Game {
                         this.endGame('workers');
                         return;
                     }
-                }
-            }
+                }            }
 
-            // Rest of the method remains unchanged...
+            // Rest of the method remains unchanged...            
             const clickedCard = Array.from(document.querySelectorAll('.card')).find(
-                card => card.querySelector('h3').textContent === cardName
+                cardElement => cardElement.querySelector('h3') && cardElement.querySelector('h3').textContent === cardName
             );
             const otherCard = Array.from(document.querySelectorAll('.card')).find(
-                card => card !== clickedCard
-            );            // Handle upgrade cards differently
+                cardElement => cardElement !== clickedCard
+            );// Handle upgrade cards differently
             if (card.type === "upgrade") {
                 // Play card sound immediately
                 gameSounds.playCardSound();
@@ -1236,6 +1245,11 @@ class Game {
                 if (otherCard) {
                     otherCard.style.display = 'none';
                     otherCard.style.visibility = 'hidden';
+                    
+                    // Clean up any noodle appendages on the hidden card
+                    if (window.noodleAppendages && window.noodleAppendages.cleanup) {
+                        window.noodleAppendages.cleanup(otherCard);
+                    }
                 }
                 
                 // Mark clicked card for upgrade animation - just the minimum needed
@@ -1243,6 +1257,8 @@ class Game {
                     clickedCard.classList.add('played', 'upgrade-selected');
                     clickedCard.setAttribute('data-selected', 'true');
                     clickedCard.style.zIndex = '100';
+                    
+                    // We don't clean up appendages on upgrade cards as they will persist
                 }
 
                 // Apply immediate stat modifiers first
@@ -1293,9 +1309,13 @@ class Game {
                     }, 800);
                 }
                 return;
-            }            // Rest of the existing playCard code for non-upgrade cards...
-            // Play card sound immediately
+            }            // Rest of the existing playCard code for non-upgrade cards...            // Play card sound immediately
             gameSounds.playCardSound();
+            
+            // Clean up noodle appendages from the clicked card
+            if (window.noodleAppendages && window.noodleAppendages.cleanup && clickedCard) {
+                window.noodleAppendages.cleanup(clickedCard);
+            }
 
             if (clickedCard && clickedCard.isConnected) {
                 // Get card position for effects - only if it's still in the DOM
@@ -1422,7 +1442,13 @@ class Game {
             }            // Schedule cleanup and new cards after animations complete
             if (!this.isGameOver) {
                 setTimeout(() => {
-                    document.querySelectorAll('.card').forEach(card => card.remove());
+                    // Clean up any remaining appendages before removing cards
+                    document.querySelectorAll('.card').forEach(card => {
+                        if (window.noodleAppendages && window.noodleAppendages.cleanup) {
+                            window.noodleAppendages.cleanup(card);
+                        }
+                        card.remove();
+                    });
                     this.drawNewCards();
                 }, 800);
             }
@@ -1719,6 +1745,10 @@ class Game {
                 
                 // Remove from state - ensure we completely remove it
                 delete this.state.playerStats.factoryUpgrades[cardName];
+                  // Clean up any noodle appendages
+                if (window.noodleAppendages && window.noodleAppendages.cleanup) {
+                    window.noodleAppendages.cleanup(upgradeElement);
+                }
                 
                 // Animate removal
                 upgradeElement.classList.add('disappearing');
@@ -2012,11 +2042,14 @@ class Game {
         const crtOverlay = document.querySelector('.crt-overlay');
         if (crtOverlay) {
             crtOverlay.classList.remove('active');
-        }
-
-        // Stop background music
+        }        // Stop background music
         if (window.musicLoops && window.musicLoops.stopLoop) {
             window.musicLoops.stopLoop();
+        }
+        
+        // Stop noodle appendages system
+        if (window.noodleAppendages && window.noodleAppendages.stop) {
+            window.noodleAppendages.stop();
         }
 
         // Create game over screen
@@ -2237,12 +2270,18 @@ class Game {
         if (upgradesGrid) {
             upgradesGrid.innerHTML = '';
         }
-        
-        // Reset upgrade stats
+          // Reset upgrade stats
         this.state.playerStats.factoryUpgrades = {};
         this.state.playerStats.prestigeGainRate = 1;
         this.state.playerStats.chaosGainRate = 1;
-        this.state.playerStats.workerLossRate = 1;        this.updateDisplay();
+        this.state.playerStats.workerLossRate = 1;
+        
+        // Initialize noodle appendages system
+        if (window.noodleAppendages && window.noodleAppendages.start) {
+            window.noodleAppendages.start();
+        }
+        
+        this.updateDisplay();
         this.drawNewCards();
         this.showSituationMessage("Welcome to your first day as Noodle Factory Manager! What's your first move?");
 

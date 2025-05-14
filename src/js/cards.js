@@ -3172,7 +3172,7 @@ export const CARDS = {
         requirements: { prestige: 30 },
         cost: 500,
         permanentStats: {
-            ingredientGain: 0.15
+            ingredientGain: 0.25
         },
         statModifiers: {
             ingredients: 6,
