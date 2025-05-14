@@ -11,7 +11,7 @@ export class MusicLoops {
         this.buffers = {};
         
         // Load saved preference
-        const musicEnabled = localStorage.getItem('musicEnabled') !== 'false';
+        const musicEnabled = localStorage.getItem('musicEnabled') !== 'true';
         this.enabled = musicEnabled;
         this.volume = musicEnabled ? 0.4 : 0;
 
@@ -19,7 +19,7 @@ export class MusicLoops {
         this.currentLoop = null;
         this.isPlaying = false;
         this.baseVolume = 0.135; // MUSIC GLOBAL VOLUME - restored to original value
-        this.volume = parseFloat(localStorage.getItem('musicVolume')) || 1.0;
+        this.volume = parseFloat(localStorage.getItem('musicVolume')) || 2.5;
         this.chaosLevel = 0;
         this.loopTimeout = null;
         this.currentTime = 0;
