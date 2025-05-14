@@ -78,20 +78,19 @@ function checkForAppendageAddition() {
     const effectiveChance = APPENDAGE_CONFIG.chancePerCard * chanceMultiplier;
       // Always use the default max appendages (left and right only)
     const maxAllowedAppendages = APPENDAGE_CONFIG.maxAppendages; // Always 2 (left and right)
-    
-    // Cards without any appendages - give them higher priority
+      // Cards without any appendages - give them higher priority
     const emptyCards = allCards.filter(card => card.querySelectorAll('.noodle-appendage').length === 0);
-    
-    // Give empty cards a chance to get appendages first
+      // Give empty cards a chance to get appendages first
     if (emptyCards.length > 0) {
         // Higher chance for empty cards but still keep it random
-        const emptyCardChance = effectiveChance * 1.5;
+        const emptyCardChance = effectiveChance * 1.2; // Reduced multiplier for more randomness
         
-        // Try to add appendages to empty cards first
+        // Try to add appendages to empty cards first - more randomized approach
         emptyCards.forEach(card => {
-            // Further randomize which cards get appendages - each card has only a 50% base chance
-            if (Math.random() < 0.5 && Math.random() < emptyCardChance) {
-                // Add both appendages to create the pair effect
+            // Further restrict chance - only about 30% of cards will get arms on any given check
+            // This creates more variety in which cards have appendages
+            if (Math.random() < 0.3 && Math.random() < emptyCardChance) {
+                // Always add both appendages to create the proper pair effect
                 addRandomAppendageToCard(card, chaosLevel);
             }
         });
@@ -195,13 +194,17 @@ function createNoodleAppendage(card, side, chaosLevel, sharedHeightFactor = Math
         // Much thinner overall width (was 12-22, now 6-14)
         width = 6 + Math.floor(Math.random() * 8);
     }
+      // Randomize vertical positioning - increased range for more variety
+    const verticalPosition = 20 + Math.floor(Math.random() * 35); // 20-55% from bottom
     
-    // Randomize vertical positioning
-    const verticalPosition = 25 + Math.floor(Math.random() * 20); // 25-45% from bottom
+    // Randomize the height independently for each appendage
+    // Multiply by a random factor to ensure greater variation between cards
+    const randomHeightMultiplier = 0.85 + (Math.random() * 0.3); // 0.85-1.15 random multiplier
+    const finalHeight = height * randomHeightMultiplier;
     
-    appendage.style.height = `${height}px`;
+    appendage.style.height = `${finalHeight}px`;
     appendage.style.width = `${width}px`;
-    appendage.style.bottom = `${verticalPosition}%`; // Randomized vertical positioning    // Apply the offset to make the appendage base closer to the card
+    appendage.style.bottom = `${verticalPosition}%`; // More randomized vertical positioning// Apply the offset to make the appendage base closer to the card
     // Make offset value more positive since original is negative (-3)
     // Since APPENDAGE_CONFIG.offsetFromCard is -3, we need to use a less negative value
     const closerOffset = APPENDAGE_CONFIG.offsetFromCard + 3; // Move 3px closer to card edge
