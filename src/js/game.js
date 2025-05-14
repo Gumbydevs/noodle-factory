@@ -2732,11 +2732,21 @@ class Game {
         document.body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
         document.getElementById('game-messages').style.display = 'block';
 
-        this.showCards();
-
-        this.updateDisplay();
+        this.showCards();        this.updateDisplay();
         this.drawNewCards();
-
+        
+        // Stop all music first to prevent multiple tracks from playing
+        if (window.musicLoops) window.musicLoops.stopLoop();
+        if (window.loungeMusic) window.loungeMusic.stopLoop();
+        if (window.dnbMusic) window.dnbMusic.stopLoop();
+        
+        // Initialize SoundManager to properly set up the selected music
+        if (window.soundManager && !window.soundManager.initialized) {
+            window.soundManager.init().then(() => {
+                console.log("SoundManager initialized during game load");
+            });
+        }
+        
         gameSounds.playStartGameSound();
         this.showEffectMessage("Game loaded successfully!");
     }
@@ -3696,12 +3706,22 @@ class SoundManager {
     constructor() {
         this.enabled = false;
         this.initialized = false;
-    }
-
-    async init() {
+    }    async init() {
         if (this.initialized) return;
         
         try {
+            // Make sure we have all music engines available
+            await Promise.all([
+                import('../audio/music/bgm.js').then(m => { window.musicLoops = m.musicLoops; }),
+                import('../audio/music/bgm2.js').then(m => { window.loungeMusic = m.loungeMusic; }),
+                import('../audio/music/bgm3.js').then(m => { window.dnbMusic = m.dnbMusic; })
+            ]);
+            
+            // Make sure all music is stopped first
+            window.musicLoops.stopLoop();
+            window.loungeMusic.stopLoop();
+            window.dnbMusic.stopLoop();
+            
             const musicTrack = localStorage.getItem('selectedMusicTrack');
             console.log("Initializing music with track:", musicTrack);
             
@@ -3712,42 +3732,32 @@ class SoundManager {
                 console.log("Random music selection chose:", randomTrack);
                 
                 if (randomTrack === 'lounge') {
-                    const { loungeMusic } = await import('../audio/music/bgm2.js');
-                    window.loungeMusic = loungeMusic;  // Attach to window
                     if (window.loungeMusic.enabled) {
                         await window.loungeMusic.startLoop();
                         console.log("Pho Real music started from random selection");
-                    }                } else if (randomTrack === 'dnb') {
-                    const { dnbMusic } = await import('../audio/music/bgm3.js');
-                    window.dnbMusic = dnbMusic;  // Attach to window
+                    }
+                } else if (randomTrack === 'dnb') {
                     if (window.dnbMusic.enabled) {
                         await window.dnbMusic.startLoop();
                         console.log("Dry Ramen Breaks music started from random selection");
                     }
                 } else {
-                    const { musicLoops } = await import('../audio/music/bgm.js');
-                    window.musicLoops = musicLoops;  // Attach to window
                     if (window.musicLoops.enabled) {
                         await window.musicLoops.startLoop();
                         console.log("Default music started from random selection");
                     }
                 }
             } else if (musicTrack === 'lounge') {
-                const { loungeMusic } = await import('../audio/music/bgm2.js');
-                window.loungeMusic = loungeMusic;  // Attach to window
                 if (window.loungeMusic.enabled) {
                     await window.loungeMusic.startLoop();
                     console.log("Pho Real music started");
-                }            } else if (musicTrack === 'dnb') {
-                const { dnbMusic } = await import('../audio/music/bgm3.js');
-                window.dnbMusic = dnbMusic;  // Attach to window
+                }
+            } else if (musicTrack === 'dnb') {
                 if (window.dnbMusic.enabled) {
                     await window.dnbMusic.startLoop();
                     console.log("Dry Ramen Breaks music started");
                 }
             } else {
-                const { musicLoops } = await import('../audio/music/bgm.js');
-                window.musicLoops = musicLoops;  // Attach to window
                 if (window.musicLoops.enabled) {
                     await window.musicLoops.startLoop();
                     console.log("Default music started");
@@ -3838,7 +3848,9 @@ class SoundManager {
     }
 }
 
+// Create and expose SoundManager globally
 const soundManager = new SoundManager();
+window.soundManager = soundManager;
 
 const game = new Game();
 document.getElementById('start-game').addEventListener('click', () => game.start());

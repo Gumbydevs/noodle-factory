@@ -24,9 +24,7 @@ export class AssetLoader {
     // Helper function to get a random music track
     getRandomMusicTrack() {
         return this.availableTracks[Math.floor(Math.random() * this.availableTracks.length)];
-    }
-
-    async preloadAudio() {
+    }    async preloadAudio() {
         const audioFiles = [
             { ctx: new (window.AudioContext || window.webkitAudioContext)(), buffers: [] }
         ];
@@ -35,19 +33,24 @@ export class AssetLoader {
         audioFiles[0].gainNode = audioFiles[0].ctx.createGain();
         audioFiles[0].gainNode.connect(audioFiles[0].ctx.destination);
 
-        // Preload the selected track and attach to window
-        if (this.selectedTrack === 'lounge') {
-            const { loungeMusic } = await import('../audio/music/bgm2.js');
-            window.loungeMusic = loungeMusic; // Attach to window
-            await loungeMusic.preload();        } else if (this.selectedTrack === 'dnb') {
-            const { dnbMusic } = await import('../audio/music/bgm3.js');
-            window.dnbMusic = dnbMusic; // Attach to window
-            await dnbMusic.preload();
-        } else {
-            const { musicLoops } = await import('../audio/music/bgm.js');
-            window.musicLoops = musicLoops; // Attach to window
-            await musicLoops.preload();
-        }
+        // Load all music modules first
+        const [bgmModule, bgm2Module, bgm3Module] = await Promise.all([
+            import('../audio/music/bgm.js'),
+            import('../audio/music/bgm2.js'),
+            import('../audio/music/bgm3.js')
+        ]);
+        
+        // Attach all music to window
+        window.musicLoops = bgmModule.musicLoops;
+        window.loungeMusic = bgm2Module.loungeMusic;
+        window.dnbMusic = bgm3Module.dnbMusic;
+        
+        // Preload all music tracks but don't start any
+        await Promise.all([
+            window.musicLoops.preload(),
+            window.loungeMusic.preload(),
+            window.dnbMusic.preload()
+        ]);
 
         // If the original selection was random, save that rather than the specific track we chose
         // This ensures the next time the game loads it will choose a new random track

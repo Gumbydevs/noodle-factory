@@ -1037,11 +1037,31 @@ export class GameSounds {
             osc1.start(now);
             osc2.start(now);
             osc1.stop(now + duration + 0.2);
-            osc2.stop(now + duration + 0.2);
-
-            // Start background music with proper delay
-            setTimeout(() => {
-                if (window.musicLoops && window.musicLoops.startLoop) {
+            osc2.stop(now + duration + 0.2);            // Start background music with proper delay
+            setTimeout(async () => {
+                // Don't start any music if we're loading a game - SoundManager will handle it
+                if (window.gameInstance && window.gameInstance.isGameStarted) {
+                    console.log("Game already started - not starting default music");
+                    return;
+                }
+                
+                // Check for the selected music track
+                const musicTrack = localStorage.getItem('selectedMusicTrack');
+                console.log(`Starting music with track: ${musicTrack}`);
+                
+                // Make sure all music is stopped first to prevent overlap
+                if (window.musicLoops) window.musicLoops.stopLoop();
+                if (window.loungeMusic) window.loungeMusic.stopLoop();
+                if (window.dnbMusic) window.dnbMusic.stopLoop();
+                
+                // If random is selected, use SoundManager to handle the randomization
+                if (musicTrack === 'random' && window.soundManager && window.soundManager.init) {
+                    await window.soundManager.init();
+                } else if (musicTrack === 'lounge' && window.loungeMusic && window.loungeMusic.startLoop) {
+                    window.loungeMusic.startLoop();
+                } else if (musicTrack === 'dnb' && window.dnbMusic && window.dnbMusic.startLoop) {
+                    window.dnbMusic.startLoop();
+                } else if (window.musicLoops && window.musicLoops.startLoop) {
                     window.musicLoops.startLoop();
                 }
             }, 500);

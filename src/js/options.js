@@ -63,31 +63,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update music toggle
     musicToggle.disabled = false;
-    musicToggle.checked = localStorage.getItem('musicEnabled') === 'true';
-
-    // Function to get a random music track
+    musicToggle.checked = localStorage.getItem('musicEnabled') === 'true';    // Function to get a random music track
     const getRandomMusicTrack = () => {
         return AVAILABLE_MUSIC_TRACKS[Math.floor(Math.random() * AVAILABLE_MUSIC_TRACKS.length)];
     };
 
     // Function to get the actual track to use based on selection
     const getEffectiveTrack = (selectedTrack) => {
+        // If random is selected, pick one track to use for this session
+        // But keep 'random' saved in localStorage for the next game load
         if (selectedTrack === 'random') {
             return getRandomMusicTrack();
         }
         return selectedTrack;
-    };
-
-    // Handle music toggle - now updates all music systems
+    };    // Handle music toggle - now updates all music systems
     musicToggle.addEventListener('change', (e) => {
         const enabled = e.target.checked;
         const selectedTrack = localStorage.getItem('selectedMusicTrack') || 'default';
         const effectiveTrack = getEffectiveTrack(selectedTrack);
-          console.log(`Music toggle: ${enabled}, selected track: ${selectedTrack}, using: ${effectiveTrack}`);
-        // Ensure all music tracks are stopped first
-        musicLoops.setEnabled(false);
-        loungeMusic.setEnabled(false);
-        dnbMusic.setEnabled(false);
+        console.log(`Music toggle: ${enabled}, selected track: ${selectedTrack}, using: ${effectiveTrack}`);
+        
+        // Stop all music first - this ensures no overlap
+        musicLoops.stopLoop();
+        loungeMusic.stopLoop();
+        dnbMusic.stopLoop();
+        
+        // Set enabled state for all music systems
+        musicLoops.enabled = enabled && (effectiveTrack === 'default');
+        loungeMusic.enabled = enabled && (effectiveTrack === 'lounge');
+        dnbMusic.enabled = enabled && (effectiveTrack === 'dnb');
         
         // Enable only the selected track
         if (enabled) {
@@ -110,31 +114,36 @@ document.addEventListener('DOMContentLoaded', () => {
     if (musicSelect) {
         const savedTrack = localStorage.getItem('selectedMusicTrack') || 'default';
         musicSelect.value = savedTrack;
-        console.log(`Initial music track: ${savedTrack}`);
-
-        musicSelect.addEventListener('change', (e) => {
-            const newTrack = e.target.value;            console.log(`Changing music track to: ${newTrack}`);
+        console.log(`Initial music track: ${savedTrack}`);        musicSelect.addEventListener('change', (e) => {
+            const newTrack = e.target.value;
+            console.log(`Changing music track to: ${newTrack}`);
             localStorage.setItem('selectedMusicTrack', newTrack);
             
-            // Stop all music tracks first
-            musicLoops.setEnabled(false);
-            loungeMusic.setEnabled(false);
-            dnbMusic.setEnabled(false);
+            // Stop all music first - this ensures no overlap
+            musicLoops.stopLoop();
+            loungeMusic.stopLoop();
+            dnbMusic.stopLoop();
             
             // Start new track if music is enabled
-            if (musicToggle.checked) {                const effectiveTrack = getEffectiveTrack(newTrack);
+            if (musicToggle.checked) {
+                const effectiveTrack = getEffectiveTrack(newTrack);
                 console.log(`Selected ${newTrack}, using: ${effectiveTrack}`);
                 
+                // Set enabled state for all music systems
+                musicLoops.enabled = effectiveTrack === 'default';
+                loungeMusic.enabled = effectiveTrack === 'lounge';
+                dnbMusic.enabled = effectiveTrack === 'dnb';
+                
                 if (effectiveTrack === 'lounge') {
-                console.log("Starting Pho Real music");
-                loungeMusic.setEnabled(true);
-            } else if (effectiveTrack === 'dnb') {
-                console.log("Starting Dry Ramen Breaks music");
-                dnbMusic.setEnabled(true);
-            } else {
-                console.log("Starting default music");
-                musicLoops.setEnabled(true);
-            }
+                    console.log("Starting Pho Real music");
+                    loungeMusic.setEnabled(true);
+                } else if (effectiveTrack === 'dnb') {
+                    console.log("Starting Dry Ramen Breaks music");
+                    dnbMusic.setEnabled(true);
+                } else {
+                    console.log("Starting default music");
+                    musicLoops.setEnabled(true);
+                }
             }
         });
     }
