@@ -3645,7 +3645,7 @@ export function canAffordUpgrade(cardName) {
     return true;
 }
 
-// Add function to purchase an upgrade
+// Function to purchase an upgrade
 export function purchaseUpgrade(cardName) {
     const card = CARDS[cardName];
     if (card && card.type === 'upgrade' && card.cost) {
@@ -3658,7 +3658,7 @@ export function purchaseUpgrade(cardName) {
     return true;
 }
 
-// Add function to sell an upgrade and get refund
+// Function to sell an upgrade and get refund
 export function sellUpgrade(cardName) {
     const card = CARDS[cardName];
     if (card && card.type === 'upgrade' && card.cost) {

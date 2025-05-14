@@ -1555,8 +1555,8 @@ class Game {
     addUpgradeClickHandler(upgradeElement, card) {
         upgradeElement.addEventListener('click', () => {
             // Generate the benefits of selling before showing the dialog
-            const chaosReduction = 3 + Math.floor(Math.random() * 5); // Random 3-7 reduction
-            const ingredientGain = 2 + Math.floor(Math.random() * 3); // Random 2-4 ingredients
+            const chaosReduction = 3 + Math.floor(Math.random() * 6); // Random 5-10 reduction
+            const ingredientGain = 2 + Math.floor(Math.random() * 4); // Random 4-6 ingredients
             
             // Calculate money refund (50% of original cost)
             const refundAmount = card.cost ? Math.floor(card.cost * 0.5) : 0;
