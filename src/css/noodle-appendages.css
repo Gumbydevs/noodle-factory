@@ -17,15 +17,13 @@
 }
 
 .noodle-appendage-left {
-  left: -15px;
-  bottom: 30%;
+  /* Position is now managed by JS to ensure consistent connection to card */
   transform: rotate(-45deg) scaleY(0); /* Start at scale 0 */
   will-change: transform;
 }
 
 .noodle-appendage-right {
-  right: -15px;
-  bottom: 30%;
+  /* Position is now managed by JS to ensure consistent connection to card */
   transform: rotate(45deg) scaleY(0); /* Start at scale 0 */
   will-change: transform;
 }
@@ -43,32 +41,9 @@
   stroke-linejoin: round; /* Smooth transitions between segments */
 }
 
-@keyframes appendageWiggle {
-  0% {
-    transform: rotate(-45deg) translateY(0);
-  }
-  50% {
-    transform: rotate(-35deg) translateY(-5px);
-  }
-  100% {
-    transform: rotate(-50deg) translateY(-2px);
-  }
-}
-
-.noodle-appendage-right:not(.growing) {
-  animation-name: appendageWiggleRight;
-}
-
-@keyframes appendageWiggleRight {
-  0% {
-    transform: rotate(45deg) translateY(0);
-  }
-  50% {
-    transform: rotate(35deg) translateY(-5px);
-  }
-  100% {
-    transform: rotate(50deg) translateY(-2px);
-  }
+/* We use custom animations applied via JavaScript to handle the dynamic angles */
+.noodle-appendage:not(.growing) {
+  animation-name: none; /* Disable default animation as we'll apply it in JS */
 }
 
 /* Make arms wiggle faster with higher chaos */

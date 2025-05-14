@@ -9,7 +9,7 @@ const cardsWithAppendages = new Set();
 // Configuration for appendage appearance chances
 const APPENDAGE_CONFIG = {
     minChaos: 60,           // Minimum chaos level to start showing appendages
-    checkInterval: 2000,    // Longer interval for less frequent checks
+    checkInterval: 1000,    // Longer interval for less frequent checks
     chancePerCard: 0.11,    // Even lower base chance for more randomness
     maxAppendages: 6,       // Default max appendages per card (one on each side)
     growDuration: 1000,      // Time to grow an appendage
@@ -18,7 +18,7 @@ const APPENDAGE_CONFIG = {
     minBaseHeight: 40,      // Increased minimum base height (was 25)
     maxBaseHeight: 120,     // Increased maximum base height for longer noodles (was 60)
     wiggliness: 8.5,        // Factor for how squiggly the noodles are
-    offsetFromCard: 9,     // Negative value to ensure appendage overlaps with card
+    offsetFromCard: 0,    // Negative value to ensure appendage overlaps with card edge
 };
 
 // Keep track of the check interval
@@ -193,24 +193,26 @@ function createNoodleAppendage(card, side, chaosLevel, sharedHeightFactor = Math
     } else {
         // Much thinner overall width (was 12-22, now 6-14)
         width = 6 + Math.floor(Math.random() * 8);
-    }
-      // Randomize vertical positioning - increased range for more variety
+    }    // Randomize vertical positioning - increased range for more variety
     const verticalPosition = 20 + Math.floor(Math.random() * 35); // 20-55% from bottom
     
     // Randomize the height independently for each appendage
-    // Multiply by a random factor to ensure greater variation between cards
-    const randomHeightMultiplier = 0.85 + (Math.random() * 0.3); // 0.85-1.15 random multiplier
+    // Multiply by a random factor with more variation for more noticeable differences
+    const randomHeightMultiplier = 0.7 + (Math.random() * 0.6); // 0.7-1.3 random multiplier (wider range)
     const finalHeight = height * randomHeightMultiplier;
     
     appendage.style.height = `${finalHeight}px`;
     appendage.style.width = `${width}px`;
-    appendage.style.bottom = `${verticalPosition}%`; // More randomized vertical positioning// Apply the offset to make the appendage base closer to the card
-    // Make offset value more positive since original is negative (-3)
-    // Since APPENDAGE_CONFIG.offsetFromCard is -3, we need to use a less negative value
-    const closerOffset = APPENDAGE_CONFIG.offsetFromCard + 3; // Move 3px closer to card edge
-    if (APPENDAGE_CONFIG.offsetFromCard) {
-        appendage.style.left = side === 'left' ? `${closerOffset}px` : '';
-        appendage.style.right = side === 'right' ? `${closerOffset}px` : '';
+    appendage.style.bottom = `${verticalPosition}%`; // More randomized vertical positioning
+      // Apply the offset to ensure consistent attachment to card edge
+    // For left side, we use negative value to overlap with card (move rightward)
+    // For right side, we use negative value to overlap with card (move leftward)
+    if (side === 'left') {
+        appendage.style.left = `${APPENDAGE_CONFIG.offsetFromCard}px`;
+        appendage.style.right = 'auto';
+    } else {
+        appendage.style.left = 'auto';
+        appendage.style.right = `${APPENDAGE_CONFIG.offsetFromCard}px`;
     }
       // Create SVG noodle path - more curviness at higher chaos levels
     const curveFactor = Math.min(1 + (chaosLevel - APPENDAGE_CONFIG.minChaos) / 20, 2);
@@ -221,22 +223,52 @@ function createNoodleAppendage(card, side, chaosLevel, sharedHeightFactor = Math
     
     appendage.innerHTML = svg;
     card.appendChild(appendage);
-    
-    // Force reflow
+      // Force reflow
     void appendage.offsetHeight;
     
-    // Start growth animation
-    const scaleDirection = side === 'left' ? '-45deg' : '45deg';
+    // Start growth animation with randomized angles
+    // For left side: range between -35 and -65 degrees
+    // For right side: range between 35 and 65 degrees
+    const baseAngle = side === 'left' ? -45 : 45;
+    const angleVariation = 20; // +/- 20 degrees variation
+    const randomAngle = baseAngle + (Math.random() * angleVariation * 2 - angleVariation);
+    const scaleDirection = `${randomAngle}deg`;
+    
+    // Store the angle as a data attribute for CSS animations to reference
+    appendage.dataset.angle = randomAngle;
+    
     appendage.style.transition = `transform ${APPENDAGE_CONFIG.growDuration}ms cubic-bezier(0.34, 1.56, 0.64, 1)`;
     appendage.style.transform = `rotate(${scaleDirection}) scaleY(1)`;
     
     // Track that this card has an appendage
     cardsWithAppendages.add(card);
-    
-    // Remove growing class after animation completes to start wiggling
+      // Remove growing class after animation completes to start wiggling
     setTimeout(() => {
         if (appendage.isConnected) { // Check if still in DOM
             appendage.classList.remove('growing');
+            
+            // Apply custom wiggle animation based on the randomized angle
+            const baseAngle = parseFloat(appendage.dataset.angle);
+            
+            // Create wiggle animation with slight variations from the base angle
+            const wiggleAmount = 10; // How much the angle varies during wiggle
+            const wiggleDuration = 2 + Math.random() * 1.5; // Random duration between 2-3.5s
+            
+            // Create keyframes for custom wiggle effect
+            const keyframes = [
+                { transform: `rotate(${baseAngle}deg) translateY(0)` },
+                { transform: `rotate(${baseAngle - wiggleAmount}deg) translateY(-5px)` },
+                { transform: `rotate(${baseAngle + wiggleAmount}deg) translateY(-2px)` },
+                { transform: `rotate(${baseAngle}deg) translateY(0)` }
+            ];
+            
+            // Apply the animation
+            appendage.animate(keyframes, {
+                duration: wiggleDuration * 1000,
+                iterations: Infinity,
+                direction: 'alternate',
+                easing: 'ease-in-out'
+            });
         }
     }, APPENDAGE_CONFIG.growDuration);
 }
@@ -256,21 +288,26 @@ function createNoodleSVG(width, height, curviness, side) {
       // Create a wavy noodle path similar to the noodleRoll animation
     const centerX = width/2;
     const midY = height/2;
-    
-    // Direction of initial curve (opposite to the side of attachment for natural look)
+      // Direction of initial curve (opposite to the side of attachment for natural look)
     const initialDirection = side === 'left' ? 1 : -1;
     
     // Calculate a more gentle curviness that won't cause clipping
     // Reduce the curviness to avoid aggressive curves
     const gentleCurviness = Math.min(curviness * 0.5, width * 0.4);
-    
+
+    // Adjust starting point based on side to ensure proper card connection
+    // For left side, start path at right edge (card connection point)
+    // For right side, start path at left edge (card connection point)
+    const startX = side === 'left' ? width : 0;
+    const adjustedCenterX = width/2;
+
     // Create a spaghetti-like curve with gentler curves to avoid clipping
-    // Using a simpler curve that stays within the container bounds
-    const pathData = `M ${centerX},${height} ` + 
-                    `Q${centerX + (initialDirection * gentleCurviness)},${height - height/3} ` +
-                    `${centerX},${midY} ` + 
-                    `Q${centerX - (initialDirection * gentleCurviness * 0.7)},${height/4} ` +
-                    `${centerX},0`;
+    // Using a curve that ensures the start point connects perfectly with the card edge
+    const pathData = `M ${startX},${height} ` + 
+                   `Q${adjustedCenterX + (initialDirection * gentleCurviness)},${height - height/3} ` +
+                   `${adjustedCenterX},${midY} ` + 
+                   `Q${adjustedCenterX - (initialDirection * gentleCurviness * 0.7)},${height/4} ` +
+                   `${adjustedCenterX},0`;
     
     // Add padding to the viewBox to ensure the curve doesn't get clipped
     // Make the viewBox wider to accommodate the curves
@@ -278,18 +315,20 @@ function createNoodleSVG(width, height, curviness, side) {
     const viewBoxHeight = height;
     const viewBoxX = -(viewBoxWidth - width) / 2; // Center the wider viewBox    // Create much more distinct animation paths for very noticeable wiggling
     // First animation state - stronger curve in one direction
-    const animPath1 = `M ${centerX},${height} ` + 
-                      `Q${centerX + (initialDirection * gentleCurviness * 1.7)},${height - height/3} ` +
-                      `${centerX - (initialDirection * gentleCurviness * 0.6)},${midY} ` + 
-                      `Q${centerX - (initialDirection * gentleCurviness * 1.5)},${height/4} ` +
-                      `${centerX},0`;
+    // Start point stays fixed at card connection point
+    const animPath1 = `M ${startX},${height} ` + 
+                      `Q${adjustedCenterX + (initialDirection * gentleCurviness * 1.7)},${height - height/3} ` +
+                      `${adjustedCenterX - (initialDirection * gentleCurviness * 0.6)},${midY} ` + 
+                      `Q${adjustedCenterX - (initialDirection * gentleCurviness * 1.5)},${height/4} ` +
+                      `${adjustedCenterX},0`;
     
     // Second animation state - stronger curve in the opposite direction
-    const animPath2 = `M ${centerX},${height} ` + 
-                      `Q${centerX + (initialDirection * gentleCurviness * 0.4)},${height - height/2.5} ` +
-                      `${centerX + (initialDirection * gentleCurviness * 1)},${midY} ` + 
-                      `Q${centerX - (initialDirection * gentleCurviness * 0.3)},${height/3} ` +
-                      `${centerX},0`;
+    // Start point stays fixed at card connection point
+    const animPath2 = `M ${startX},${height} ` + 
+                      `Q${adjustedCenterX + (initialDirection * gentleCurviness * 0.4)},${height - height/2.5} ` +
+                      `${adjustedCenterX + (initialDirection * gentleCurviness * 1)},${midY} ` + 
+                      `Q${adjustedCenterX - (initialDirection * gentleCurviness * 0.3)},${height/3} ` +
+                      `${adjustedCenterX},0`;
     
     // Create SVG with the animated path - much more pronounced wiggling and faster animation
     return `
