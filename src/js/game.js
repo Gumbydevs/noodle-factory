@@ -3003,6 +3003,15 @@ class Game {
                 <p>The factory lights offer insight into your overall status - keep them on!</p>
             </div>
             <div class="help-section">
+                <h3>Controls & Navigation</h3>
+                <ul>
+                    <li>Press <kbd>ESC</kbd> during a game to access the pause menu</li>
+                    <li>Click on the message box to see your message history</li>
+                    <li>Click on factory upgrades to sell them for resources</li>
+                    <li>The game saved automatically each turn - click Continue when returning to resume your run</li>
+                </ul>
+            </div>
+            <div class="help-section">
                 <h3>Your Resources</h3>
                 <ul>
                     <li><span class="prestige-color">Prestige</span>: Your factory's reputation</li>    
@@ -3016,19 +3025,8 @@ class Game {
             </div>
             
             <div class="help-section">
-                <h3>Controls & Navigation</h3>
-                <ul>
-                    <li>Press <kbd>ESC</kbd> during a game to access the pause menu</li>
-                    <li>The pause menu lets you continue, start a new run, or access options</li>
-                    <li>Click on the message box to see your message history</li>
-                    <li>Click on factory upgrades to sell them for resources</li>
-                </ul>
-            </div>
-
-            <div class="help-section">
                 <h3>Discover as You Play</h3>
                 <p>The rest is up to you to discover! Watch how resources interact, observe patterns in the chaos, and learn what makes your factory thrive.</p>
-                <p>Visit the options menu for sound settings and additional game controls.</p>
             </div>
             
             <div class="help-tip">
