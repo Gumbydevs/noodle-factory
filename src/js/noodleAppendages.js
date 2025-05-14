@@ -9,16 +9,16 @@ const cardsWithAppendages = new Set();
 // Configuration for appendage appearance chances
 const APPENDAGE_CONFIG = {
     minChaos: 60,           // Minimum chaos level to start showing appendages
-    checkInterval: 2200,    // Longer interval for less frequent checks
+    checkInterval: 2000,    // Longer interval for less frequent checks
     chancePerCard: 0.11,    // Even lower base chance for more randomness
-    maxAppendages: 2,       // Default max appendages per card (one on each side)
-    growDuration: 800,      // Time to grow an appendage
+    maxAppendages: 6,       // Default max appendages per card (one on each side)
+    growDuration: 1000,      // Time to grow an appendage
     strokeWidthMin: 0.5,    // Even thinner minimum thickness (was 0.7)
     strokeWidthMax: 3.2,    // Reduced maximum thickness (was 3)
     minBaseHeight: 40,      // Increased minimum base height (was 25)
     maxBaseHeight: 120,     // Increased maximum base height for longer noodles (was 60)
-    wiggliness: 2.5,        // Factor for how squiggly the noodles are
-    offsetFromCard: 10,     // Negative value to ensure appendage overlaps with card
+    wiggliness: 8.5,        // Factor for how squiggly the noodles are
+    offsetFromCard: 9,     // Negative value to ensure appendage overlaps with card
 };
 
 // Keep track of the check interval
