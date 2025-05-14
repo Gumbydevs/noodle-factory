@@ -1844,6 +1844,10 @@ class Game {
         const targetX = startX + (slot * (slotWidth + slotGap));
         const targetY = gridRect.top;
         
+        // Collect any noodle appendages from the original card before we create the new one
+        // We'll need to move these to the new card
+        const noodleElements = originalCard.querySelectorAll('.noodle-appendage');
+        
         // Create the upgrade card that will be pinned
         const upgradeElement = document.createElement('div');
         upgradeElement.className = 'upgrade-card pinning';
@@ -1852,7 +1856,8 @@ class Game {
         upgradeElement.style.left = `${origRect.left}px`;
         upgradeElement.style.top = `${origRect.top}px`;
         upgradeElement.style.width = `${origRect.width}px`;
-        upgradeElement.style.height = `${origRect.height}px`;        upgradeElement.innerHTML = `
+        upgradeElement.style.height = `${origRect.height}px`;
+        upgradeElement.innerHTML = `
             <h4>${cardName}</h4>
             <div class="card-description-small">${card.description}</div>
             <div class="upgrade-effects">
@@ -1865,6 +1870,24 @@ class Game {
         
         // Add to the DOM
         document.body.appendChild(upgradeElement);
+
+        // Transfer any noodle appendages from the original card to the new one
+        if (noodleElements.length > 0 && window.noodleAppendages) {
+            // Clone each noodle element and add it to the new card
+            noodleElements.forEach(noodle => {
+                const clonedNoodle = noodle.cloneNode(true);
+                upgradeElement.appendChild(clonedNoodle);
+                
+                // Make sure the noodle appendages will scale with the card
+                clonedNoodle.style.transformOrigin = 'center center';
+                clonedNoodle.classList.add('scaled-noodle-appendage');
+            });
+            
+            // Let the noodle system know about the transfer
+            if (window.noodleAppendages.transferAppendages) {
+                window.noodleAppendages.transferAppendages(originalCard, upgradeElement);
+            }
+        }
         
         // Apply cost to player's money
         if (card.cost) {
@@ -1872,7 +1895,8 @@ class Game {
             this.updateDisplay();
         }
         
-        // Hide original card immediately
+        // Hide original card immediately, but don't remove it immediately
+        // because we want to keep the noodle appendages until they're transferred
         if (originalCard) {
             originalCard.style.visibility = 'hidden';
             originalCard.style.display = 'none';
@@ -1902,6 +1926,67 @@ class Game {
             upgradeElement.style = '';
             upgradeElement.style.zIndex = oldZIndex;
             upgradesGrid.appendChild(upgradeElement);
+            
+            // Properly handle noodle appendages when moved to the grid
+            upgradeElement.querySelectorAll('.noodle-appendage').forEach(noodle => {
+                // Don't simply scale, as that affects positioning
+                // Instead, keep original transform properties but adjust scale
+                
+                // Get current transform styles
+                const computedStyle = window.getComputedStyle(noodle);
+                const originalTransform = computedStyle.transform;
+                
+                // Preserve any rotation and position adjustments, just add appropriate scale
+                if (originalTransform && originalTransform !== 'none') {
+                    // Add scale but preserve other transform properties
+                    noodle.style.transformOrigin = 'center center';
+                    
+                    // Use a special class for upgrade card appendages
+                    noodle.classList.add('upgrade-card-appendage');
+                    
+                    // Apply CSS variables to preserve edge positioning
+                    const rect = upgradeElement.getBoundingClientRect();
+                    const noodleRect = noodle.getBoundingClientRect();
+                    
+                    // Calculate position relative to card edges
+                    const leftEdge = (noodleRect.left - rect.left) / rect.width;
+                    const rightEdge = (rect.right - noodleRect.right) / rect.width;
+                    const topEdge = (noodleRect.top - rect.top) / rect.height;
+                    const bottomEdge = (rect.bottom - noodleRect.bottom) / rect.height;
+                    
+                    // Store these as data attributes for future reference
+                    noodle.dataset.edgePosition = JSON.stringify({
+                        left: leftEdge,
+                        right: rightEdge,
+                        top: topEdge,
+                        bottom: bottomEdge
+                    });
+                    
+                    // Calculate which edge this appendage is closest to
+                    const edges = [
+                        {edge: 'left', distance: leftEdge},
+                        {edge: 'right', distance: rightEdge},
+                        {edge: 'top', distance: topEdge},
+                        {edge: 'bottom', distance: bottomEdge}
+                    ];
+                    
+                    const closestEdge = edges.reduce((prev, curr) => 
+                        curr.distance < prev.distance ? curr : prev
+                    );
+                    
+                    // Apply appropriate transform to ensure the appendage sticks out
+                    if (closestEdge.edge === 'left' || closestEdge.edge === 'right') {
+                        // For left/right edges, position horizontally and maintain rotation
+                        noodle.style.transform = originalTransform + ' scale(0.7)';
+                    } else {
+                        // For top/bottom edges, position vertically and maintain rotation
+                        noodle.style.transform = originalTransform + ' scale(0.7)';
+                    }
+                    
+                    // Add a class marker to indicate which edge this noodle is near
+                    noodle.classList.add(`noodle-near-${closestEdge.edge}`);
+                }
+            });
             
             // Add click handler for selling upgrades
             this.addUpgradeClickHandler(upgradeElement, card);
