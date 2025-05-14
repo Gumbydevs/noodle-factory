@@ -1,0 +1,91 @@
+/* Noodle appendages CSS */
+.noodle-appendage {
+  position: absolute;
+  z-index: 100;
+  pointer-events: none;
+  transform-origin: 50% 100%;
+}
+
+/* Growing state - no wiggle animation yet */
+.noodle-appendage.growing {
+  animation: none;
+}
+
+/* Only apply wiggle animation after grown */
+.noodle-appendage:not(.growing) {
+  animation: appendageWiggle 3s infinite alternate ease-in-out;
+}
+
+.noodle-appendage-left {
+  left: -15px;
+  bottom: 30%;
+  transform: rotate(-45deg) scaleY(0); /* Start at scale 0 */
+  will-change: transform;
+}
+
+.noodle-appendage-right {
+  right: -15px;
+  bottom: 30%;
+  transform: rotate(45deg) scaleY(0); /* Start at scale 0 */
+  will-change: transform;
+}
+
+.noodle-appendage svg {
+  width: 100%;
+  height: 100%;
+}
+
+.noodle-appendage path {
+  stroke: #FFE5B4;
+  stroke-width: 6;
+  fill: none;
+  stroke-linecap: round;
+}
+
+@keyframes appendageWiggle {
+  0% {
+    transform: rotate(-45deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-35deg) translateY(-5px);
+  }
+  100% {
+    transform: rotate(-50deg) translateY(-2px);
+  }
+}
+
+.noodle-appendage-right:not(.growing) {
+  animation-name: appendageWiggleRight;
+}
+
+@keyframes appendageWiggleRight {
+  0% {
+    transform: rotate(45deg) translateY(0);
+  }
+  50% {
+    transform: rotate(35deg) translateY(-5px);
+  }
+  100% {
+    transform: rotate(50deg) translateY(-2px);
+  }
+}
+
+/* Make arms wiggle faster with higher chaos */
+.chaos-level-3 .noodle-appendage:not(.growing),
+.chaos-level-max .noodle-appendage:not(.growing) {
+  animation-duration: 1.5s;
+}
+
+/* Add subtle pulsing effect for maximum chaos */
+.chaos-level-max .noodle-appendage:not(.growing) path {
+  animation: noodlePulse 2s infinite alternate ease-in-out;
+}
+
+@keyframes noodlePulse {
+  0% {
+    stroke-width: 6;
+  }
+  100% {
+    stroke-width: 8;
+  }
+}
