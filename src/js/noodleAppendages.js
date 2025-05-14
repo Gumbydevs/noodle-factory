@@ -13,10 +13,10 @@ const APPENDAGE_CONFIG = {
     chancePerCard: 0.11,    // Even lower base chance for more randomness
     maxAppendages: 2,       // Default max appendages per card (one on each side)
     growDuration: 800,      // Time to grow an appendage
-    strokeWidthMin: 0.7,    // Minimum thickness of noodle (even thinner)
-    strokeWidthMax: 3,      // Maximum thickness of noodle (reduced max thickness)
-    minBaseHeight: 25,      // Minimum base height for appendages
-    maxBaseHeight: 60,      // Maximum base height for appendages
+    strokeWidthMin: 0.5,    // Even thinner minimum thickness (was 0.7)
+    strokeWidthMax: 2.2,    // Reduced maximum thickness (was 3)
+    minBaseHeight: 40,      // Increased minimum base height (was 25)
+    maxBaseHeight: 120,     // Increased maximum base height for longer noodles (was 60)
     wiggliness: 2.5,        // Factor for how squiggly the noodles are
     offsetFromCard: -3,     // Negative value to ensure appendage overlaps with card
 };
@@ -173,27 +173,27 @@ function createNoodleAppendage(card, side, chaosLevel, sharedHeightFactor = Math
     // Create the appendage container
     const appendage = document.createElement('div');
     appendage.className = `noodle-appendage noodle-appendage-${side} growing`;
-    
-    // Random height based on chaos level and shared factor for more consistent opposing limbs
-    const chaosFactor = 1 + ((chaosLevel - APPENDAGE_CONFIG.minChaos) / 40); // 1.0-2.0
+      // Enhanced height calculation for longer noodles with more variation
+    const chaosFactor = 1.2 + ((chaosLevel - APPENDAGE_CONFIG.minChaos) / 30); // 1.2-2.5 (increased range)
+    const heightRandomizer = sharedHeightFactor * 0.7 + (Math.random() * 0.3); // Use shared factor but add some randomness
     const heightBase = APPENDAGE_CONFIG.minBaseHeight + 
-        sharedHeightFactor * (APPENDAGE_CONFIG.maxBaseHeight - APPENDAGE_CONFIG.minBaseHeight);
-    const height = heightBase * chaosFactor;
+        heightRandomizer * (APPENDAGE_CONFIG.maxBaseHeight - APPENDAGE_CONFIG.minBaseHeight);
+    const height = heightBase * chaosFactor; // Taller overall
     
     // Make left and right arms less symmetrical for more organic feel
     // Get the opposite arm if it exists
     const oppositeSide = side === 'left' ? 'right' : 'left';
     const oppositeArm = card.querySelector(`.noodle-appendage-${oppositeSide}`);
     
-    // Random width, generally thinner than before
+    // Random width, but much thinner than before to match the bottom noodle animation
     let width;
     if (oppositeArm && oppositeArm.style.width) {
         const oppositeWidth = parseInt(oppositeArm.style.width);
-        // Slight variation between arms but still similar
-        width = oppositeWidth + (Math.random() * 8 - 4); // Small variation of +/-4px
+        // Small variation between arms to keep them looking like a pair
+        width = oppositeWidth + (Math.random() * 4 - 2); // Smaller variation of +/-2px
     } else {
-        // Generally thinner width
-        width = 12 + Math.floor(Math.random() * 10);
+        // Much thinner overall width (was 12-22, now 6-14)
+        width = 6 + Math.floor(Math.random() * 8);
     }
     
     // Randomize vertical positioning
@@ -246,17 +246,17 @@ function createNoodleAppendage(card, side, chaosLevel, sharedHeightFactor = Math
  * @returns {string} - SVG markup
  */
 function createNoodleSVG(width, height, curviness, side) {
-    // Random stroke width (thinner overall)
+    // Random stroke width (much thinner now to look like the bottom noodle)
     const strokeWidth = APPENDAGE_CONFIG.strokeWidthMin + 
         Math.random() * (APPENDAGE_CONFIG.strokeWidthMax - APPENDAGE_CONFIG.strokeWidthMin);
     
     // Create a simple straight line from bottom center to top center
     const pathData = `M ${width/2},${height} L ${width/2},0`;
     
-    // Create SVG with the path - just a simple straight line
+    // Create SVG with the path - updated to a more vibrant yellow color
     return `
         <svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
-            <path d="${pathData}" stroke-width="${strokeWidth}" stroke-linecap="round" fill="none" stroke="#FFE5B4" />
+            <path d="${pathData}" stroke-width="${strokeWidth}" stroke-linecap="round" fill="none" stroke="#FFD700" />
         </svg>
     `;
 }

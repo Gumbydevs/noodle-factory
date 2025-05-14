@@ -36,8 +36,8 @@
 }
 
 .noodle-appendage path {
-  stroke: #FFE5B4;
-  stroke-width: 6;
+  stroke: #ffa600; /* Changed to a more vibrant yellow (gold) from the pale #FFE5B4 */
+  stroke-width: 5; /* Slightly thinner default stroke */
   fill: none;
   stroke-linecap: round;
   stroke-linejoin: round; /* Smooth transitions between segments */
@@ -84,9 +84,9 @@
 
 @keyframes noodlePulse {
   0% {
-    stroke-width: 6;
+    stroke-width: 1.5;
   }
   100% {
-    stroke-width: 8;
+    stroke-width: 3;
   }
 }
