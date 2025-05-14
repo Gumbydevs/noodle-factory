@@ -3235,6 +3235,24 @@ export const CARDS = {
             return "Nothing goes to waste in your eco-friendly pasta factory!";
         }
     },
+    "Endless Pasta Bowl": {
+        description: "A magical bowl that continuously replenishes pasta ingredients.",
+        type: "upgrade",
+        requirements: { prestige: 30 },
+        cost: 600,
+        permanentStats: {
+            ingredientGain: 0.25
+        },
+        statModifiers: {
+            ingredients: 5,
+            prestige: 7,
+            chaos: 2
+        },
+        effect: (state) => {
+            savePlayedCard("Endless Pasta Bowl");
+            return "The endless pasta bowl never seems to empty, producing ingredients constantly!";
+        }
+    },
     "Celebrity Chef Endorsement": {
         description: "Famous culinary master promotes your pasta worldwide.",
         type: "upgrade",
@@ -3288,7 +3306,7 @@ export const CARDS = {
         }
     },
 
-    // Bonus upgrade card - more expensive but very powerful
+    //  more expensive but very powerful
     "Quantum Pasta Stabilizer": {
         description: "Revolutionary technology that optimizes pasta at subatomic levels.",
         type: "upgrade",
