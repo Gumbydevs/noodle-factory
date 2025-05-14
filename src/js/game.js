@@ -1,4 +1,4 @@
-import { CARDS, getRandomCard, applyStatModifiers, applyUpgradeEffects } from './cards.js';
+import { CARDS, getRandomCard, applyStatModifiers, applyUpgradeEffects, lastDrawnCards, clearLastDrawnCards } from './cards.js';
 import events from './events.js';
 import { gameState, updateResource, resetGameState, updateChaosEffects, saveGameState, loadGameState, clearSavedGame, hasSavedGame } from './state.js';
 import { ACHIEVEMENTS, checkAchievements, getUnlockedAchievements, resetAchievements } from './achievements.js';
@@ -912,8 +912,7 @@ class Game {
         const regularCards = availableCards.filter(cardName => CARDS[cardName].type !== "upgrade");
 
         // Select cards based on game state - ensure we don't get 2 upgrade cards
-        let leftCard, rightCard;
-        if (upgradeCards.length > 0 && regularCards.length > 0 && Math.random() < 0.3) {
+        let leftCard, rightCard;        if (upgradeCards.length > 0 && regularCards.length > 0 && Math.random() < 0.3) {
             // 30% chance to get one upgrade card if available
             leftCard = upgradeCards[Math.floor(Math.random() * upgradeCards.length)];
             rightCard = regularCards[Math.floor(Math.random() * regularCards.length)];
@@ -924,6 +923,22 @@ class Game {
         } else {
             // Otherwise get two regular cards
             [leftCard, rightCard] = [...regularCards].sort(() => Math.random() - 0.5).slice(0, 2);
+        }
+        
+        // Add these cards to lastDrawnCards to prevent them from appearing in the next game
+        // Import lastDrawnCards directly from cards.js to keep it updated
+        if (typeof lastDrawnCards !== 'undefined') {            // Add cards if they don't already exist in the array
+            if (!lastDrawnCards.includes(leftCard)) {
+                lastDrawnCards.push(leftCard);
+            }
+            if (!lastDrawnCards.includes(rightCard)) {
+                lastDrawnCards.push(rightCard);
+            }
+            // Limit the array size to prevent it from growing too large (keeping the last 10 cards)
+            if (lastDrawnCards.length > 10) {
+                // Modify the array in-place instead of reassigning
+                lastDrawnCards.splice(0, lastDrawnCards.length - 10);
+            }
         }
 
         cardsContainer.innerHTML = `
@@ -1338,10 +1353,19 @@ class Game {
                 clickedCard.classList.add('played');
                 clickedCard.setAttribute('data-selected', 'true');
                 clickedCard.style.zIndex = '100';
+            }            // Increment turn counter
+            this.turn++;
+              // Add the played card to lastDrawnCards to prevent it from appearing in the next game
+            if (!lastDrawnCards.includes(cardName)) {
+                lastDrawnCards.push(cardName);
+                // Limit the array size to prevent it from growing too large
+                if (lastDrawnCards.length > 10) {
+                    // Modify the array in-place instead of reassigning
+                    lastDrawnCards.splice(0, lastDrawnCards.length - 10);
+                }
             }
-
-            // Increment turn counter
-            this.turn++;            // Apply visual feedback for cards BEFORE stat changes
+            
+            // Apply visual feedback for cards BEFORE stat changes
             if (clickedCard) {
                 clickedCard.classList.add('played');
                 clickedCard.setAttribute('data-selected', 'true');
@@ -1798,9 +1822,9 @@ class Game {
         upgradeElement.style.left = `${origRect.left}px`;
         upgradeElement.style.top = `${origRect.top}px`;
         upgradeElement.style.width = `${origRect.width}px`;
-        upgradeElement.style.height = `${origRect.height}px`;
-        upgradeElement.innerHTML = `
+        upgradeElement.style.height = `${origRect.height}px`;        upgradeElement.innerHTML = `
             <h4>${cardName}</h4>
+            <div class="card-description-small">${card.description}</div>
             <div class="upgrade-effects">
                 ${card.permanentStats || card.priceBonus ? 
                     `<div class="effects-label">Passive Effects:</div>
@@ -2189,12 +2213,14 @@ class Game {
         this.isGameOver = false;
         this.turn = 1;
         this.achievements = new Set(getUnlockedAchievements()); // Reload achievements on new game
-        
-        // Reset all chaos effects
+          // Reset all chaos effects
         const body = document.body;
         body.classList.remove('chaos-level-1', 'chaos-level-2', 'chaos-level-3', 'chaos-level-max', 'chaos-noise');
         const messageBox = document.getElementById('game-messages');
         messageBox.classList.remove('chaos-warning');
+        
+        // Clear lastDrawnCards to ensure no repeats from previous games
+        clearLastDrawnCards();
         
         // Activate CRT effect
         document.querySelector('.crt-overlay').classList.add('active');
@@ -2632,13 +2658,14 @@ class Game {
         } else {
             stats.combinedRiskTurns = 0;
         }
-    }
-
-    loadGame() {
+    }    loadGame() {
         const savedState = loadGameState();
         if (!savedState) {
             return;
         }
+
+        // Clear lastDrawnCards when loading a saved game to prevent repeats from previous sessions
+        clearLastDrawnCards();
 
         this.isGameStarted = true;
 

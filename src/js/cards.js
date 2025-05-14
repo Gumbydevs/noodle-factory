@@ -3007,7 +3007,7 @@ export const CARDS = {
         }
     },
 
-    // New upgrade cards start here
+    // upgrade cards start here
     "Automated Pasta Dryers": {
         description: "High-tech dryers maintain perfect humidity.",
         type: "upgrade",
@@ -3029,10 +3029,11 @@ export const CARDS = {
     "Artisanal Water Filtration": {
         description: "Special minerals enhance pasta flavor and structural integrity.",
         type: "upgrade",
-        requirements: { prestige: 15 },
-        cost: 400,
+        requirements: { prestige: 17 },
+        cost: 650,
         permanentStats: {
-            prestigeGain: 0.08
+            prestigeGain: 0.08,
+            ingredientGain: 0.1
         },
         statModifiers: {
             prestige: 7,
@@ -3328,7 +3329,8 @@ export const CARDS = {
     }
 }; // End of CARDS object
 
-let lastDrawnCards = [];
+// Array to track recently drawn cards to prevent repeats in consecutive games
+export let lastDrawnCards = [];
 
 function getPlayedCards() {
     const played = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -3669,6 +3671,14 @@ export function sellUpgrade(cardName) {
         }
     }
     return 0;
+}
+
+// Function to clear lastDrawnCards array when starting a new game
+export function clearLastDrawnCards() {
+    // Clear array in-place instead of reassigning
+    lastDrawnCards.length = 0;
+    console.log("Cleared lastDrawnCards array");
+    return true;
 }
 
 // Also update checkCardPlayable function to check for additional stat costs

@@ -2815,12 +2815,24 @@ message-history-turn {
 .upgrade-card h4 {
     color: #f39c12;
     font-size: 1.1em;
-    margin: 0 0 5px 0;
+    margin: 0 0 4px 0;
+}
+
+.upgrade-card .card-description-small {
+    color: #d2d3d2;
+    font-size: 0.72em;
+    line-height: 1.15;
+    margin-bottom: 2px;
+    max-height: 42px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
 }
 
 .upgrade-card .upgrade-effects {
     margin-top: auto;
-    padding-top: 5px;
+    padding-top: 4px;
     border-top: 1px solid #555;
 }
 
