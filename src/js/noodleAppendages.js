@@ -14,11 +14,11 @@ const APPENDAGE_CONFIG = {
     maxAppendages: 2,       // Default max appendages per card (one on each side)
     growDuration: 800,      // Time to grow an appendage
     strokeWidthMin: 0.5,    // Even thinner minimum thickness (was 0.7)
-    strokeWidthMax: 2.2,    // Reduced maximum thickness (was 3)
+    strokeWidthMax: 3.2,    // Reduced maximum thickness (was 3)
     minBaseHeight: 40,      // Increased minimum base height (was 25)
     maxBaseHeight: 120,     // Increased maximum base height for longer noodles (was 60)
     wiggliness: 2.5,        // Factor for how squiggly the noodles are
-    offsetFromCard: -3,     // Negative value to ensure appendage overlaps with card
+    offsetFromCard: 10,     // Negative value to ensure appendage overlaps with card
 };
 
 // Keep track of the check interval
@@ -201,12 +201,13 @@ function createNoodleAppendage(card, side, chaosLevel, sharedHeightFactor = Math
     
     appendage.style.height = `${height}px`;
     appendage.style.width = `${width}px`;
-    appendage.style.bottom = `${verticalPosition}%`; // Randomized vertical positioning
-    
-    // Apply the offset to make the appendage base closer to the card
+    appendage.style.bottom = `${verticalPosition}%`; // Randomized vertical positioning    // Apply the offset to make the appendage base closer to the card
+    // Make offset value more positive since original is negative (-3)
+    // Since APPENDAGE_CONFIG.offsetFromCard is -3, we need to use a less negative value
+    const closerOffset = APPENDAGE_CONFIG.offsetFromCard + 3; // Move 3px closer to card edge
     if (APPENDAGE_CONFIG.offsetFromCard) {
-        appendage.style.left = side === 'left' ? `${APPENDAGE_CONFIG.offsetFromCard}px` : '';
-        appendage.style.right = side === 'right' ? `${APPENDAGE_CONFIG.offsetFromCard}px` : '';
+        appendage.style.left = side === 'left' ? `${closerOffset}px` : '';
+        appendage.style.right = side === 'right' ? `${closerOffset}px` : '';
     }
       // Create SVG noodle path - more curviness at higher chaos levels
     const curveFactor = Math.min(1 + (chaosLevel - APPENDAGE_CONFIG.minChaos) / 20, 2);
@@ -241,7 +242,7 @@ function createNoodleAppendage(card, side, chaosLevel, sharedHeightFactor = Math
  * Create an SVG path for a noodle
  * @param {number} width - Width of the noodle
  * @param {number} height - Height of the noodle
- * @param {number} curviness - How curvy the noodle should be (not used for straight line)
+ * @param {number} curviness - How curvy the noodle should be (controls wiggle amount)
  * @param {string} side - Either 'left' or 'right'
  * @returns {string} - SVG markup
  */
@@ -249,14 +250,53 @@ function createNoodleSVG(width, height, curviness, side) {
     // Random stroke width (much thinner now to look like the bottom noodle)
     const strokeWidth = APPENDAGE_CONFIG.strokeWidthMin + 
         Math.random() * (APPENDAGE_CONFIG.strokeWidthMax - APPENDAGE_CONFIG.strokeWidthMin);
+      // Create a wavy noodle path similar to the noodleRoll animation
+    const centerX = width/2;
+    const midY = height/2;
     
-    // Create a simple straight line from bottom center to top center
-    const pathData = `M ${width/2},${height} L ${width/2},0`;
+    // Direction of initial curve (opposite to the side of attachment for natural look)
+    const initialDirection = side === 'left' ? 1 : -1;
     
-    // Create SVG with the path - updated to a more vibrant yellow color
+    // Calculate a more gentle curviness that won't cause clipping
+    // Reduce the curviness to avoid aggressive curves
+    const gentleCurviness = Math.min(curviness * 0.5, width * 0.4);
+    
+    // Create a spaghetti-like curve with gentler curves to avoid clipping
+    // Using a simpler curve that stays within the container bounds
+    const pathData = `M ${centerX},${height} ` + 
+                    `Q${centerX + (initialDirection * gentleCurviness)},${height - height/3} ` +
+                    `${centerX},${midY} ` + 
+                    `Q${centerX - (initialDirection * gentleCurviness * 0.7)},${height/4} ` +
+                    `${centerX},0`;
+    
+    // Add padding to the viewBox to ensure the curve doesn't get clipped
+    // Make the viewBox wider to accommodate the curves
+    const viewBoxWidth = width * 1.5;
+    const viewBoxHeight = height;
+    const viewBoxX = -(viewBoxWidth - width) / 2; // Center the wider viewBox    // Create much more distinct animation paths for very noticeable wiggling
+    // First animation state - stronger curve in one direction
+    const animPath1 = `M ${centerX},${height} ` + 
+                      `Q${centerX + (initialDirection * gentleCurviness * 1.7)},${height - height/3} ` +
+                      `${centerX - (initialDirection * gentleCurviness * 0.6)},${midY} ` + 
+                      `Q${centerX - (initialDirection * gentleCurviness * 1.5)},${height/4} ` +
+                      `${centerX},0`;
+    
+    // Second animation state - stronger curve in the opposite direction
+    const animPath2 = `M ${centerX},${height} ` + 
+                      `Q${centerX + (initialDirection * gentleCurviness * 0.4)},${height - height/2.5} ` +
+                      `${centerX + (initialDirection * gentleCurviness * 1)},${midY} ` + 
+                      `Q${centerX - (initialDirection * gentleCurviness * 0.3)},${height/3} ` +
+                      `${centerX},0`;
+    
+    // Create SVG with the animated path - much more pronounced wiggling and faster animation
     return `
-        <svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
-            <path d="${pathData}" stroke-width="${strokeWidth}" stroke-linecap="round" fill="none" stroke="#FFD700" />
+        <svg viewBox="${viewBoxX} 0 ${viewBoxWidth} ${viewBoxHeight}" xmlns="http://www.w3.org/2000/svg">
+            <path d="${pathData}" stroke-width="${strokeWidth}" stroke-linecap="round" fill="none" stroke="#FFD700">
+                <animate attributeName="d" 
+                         values="${pathData};${animPath1};${pathData};${animPath2};${pathData}" 
+                         dur="0.9s" 
+                         repeatCount="indefinite" />
+            </path>
         </svg>
     `;
 }
