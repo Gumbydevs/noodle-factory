@@ -1039,8 +1039,7 @@ class Game {
           // Prioritize storyline cards if any storyline is active
         const hasActiveStoryline = hasActiveUHFStoryline || hasActiveReggieStoryline || 
                                  hasActiveRnSStoryline || hasBBStoryline;
-        
-        // Track the last turn we showed a storyline card
+          // Track the last turn we showed a storyline card
         if (!this.lastStorylineTurn) {
             this.lastStorylineTurn = 0;
         }
@@ -1048,9 +1047,9 @@ class Game {
         // Calculate a dynamic probability based on turns since last storyline card
         // This makes it more likely to show a storyline card the longer it's been since we showed one
         const turnsSinceStoryline = this.turn - this.lastStorylineTurn;
-        const baseStorylineProbability = 0.4; // Base 40% chance
-        const additionalProbability = Math.min(0.3, turnsSinceStoryline * 0.05); // Increases by 5% each turn, up to 30%
-        const storylineProbability = Math.min(0.85, baseStorylineProbability + additionalProbability);
+        const baseStorylineProbability = 0.25; // Reduced base chance from 0.4 (40%) to 0.25 (25%)
+        const additionalProbability = Math.min(0.25, turnsSinceStoryline * 0.03); // Increases by 3% each turn, up to 25% (reduced from 5% and 30%)
+        const storylineProbability = Math.min(0.7, baseStorylineProbability + additionalProbability); // Reduced max probability from 0.85 to 0.7
         
         // If we have storyline cards, show one with calculated probability
         if (storylineCards.length > 0 && Math.random() < storylineProbability) {
@@ -1098,8 +1097,7 @@ class Game {
             [leftCard, rightCard] = [...regularCards].sort(() => Math.random() - 0.5).slice(0, 2);
         }
         
-        // Add these cards to lastDrawnCards to prevent them from appearing in the next game
-        // Import lastDrawnCards directly from cards.js to keep it updated
+        // Add these cards to lastDrawnCards to prevent them from appearing in the next game        // Import lastDrawnCards directly from cards.js to keep it updated
         if (typeof lastDrawnCards !== 'undefined') {            // Add cards if they don't already exist in the array
             if (!lastDrawnCards.includes(leftCard)) {
                 lastDrawnCards.push(leftCard);
@@ -1112,8 +1110,9 @@ class Game {
                 // Modify the array in-place instead of reassigning
                 lastDrawnCards.splice(0, lastDrawnCards.length - 10);
             }
-        }
-
+        }        // Get current upgrade slots info for display        // Get reference to upgrades grid to check for upgrade slots later in checkCardPlayable
+        const upgradesGrid = document.querySelector('.upgrades-grid');
+        
         cardsContainer.innerHTML = `
             <div class="card" id="card-left">
                 ${CARDS[leftCard].type === "upgrade" ? 
@@ -1145,8 +1144,7 @@ class Game {
                         ${this.formatCardEffects(CARDS[leftCard].statModifiers)}
                     </div>`
                 }
-            </div>
-            <div class="card" id="card-right">
+            </div>            <div class="card" id="card-right">
                 ${CARDS[rightCard].type === "upgrade" ? 
                     `<div class="upgrade-label">Prestigious Upgrade</div>
                     <h3>${rightCard}</h3>

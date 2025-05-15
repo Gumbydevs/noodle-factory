@@ -8,9 +8,9 @@ const cardsWithAppendages = new Set();
 
 // Configuration for appendage appearance chances
 const APPENDAGE_CONFIG = {
-    minChaos: 60,           // Minimum chaos level to start showing appendages
-    checkInterval: 1000,    // Longer interval for less frequent checks
-    chancePerCard: 0.08,    // Even lower base chance for more randomness
+    minChaos: 75,           // Increased minimum chaos level to start showing appendages (was 60)
+    checkInterval: 1500,    // Increased interval for less frequent checks (was 1000)
+    chancePerCard: 0.05,    // Reduced base chance for more randomness (was 0.08)
     maxAppendages: 6,       // Default max appendages per card (one on each side)
     growDuration: 1000,      // Time to grow an appendage
     strokeWidthMin: 0.5,    // Even thinner minimum thickness (was 0.7)

@@ -2865,6 +2865,19 @@ message-history-turn {
     animation: rainbowText 3s linear infinite;
 }
 
+.upgrade-slots-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 0.7em;
+    font-weight: bold;
+    padding: 2px 4px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: gold;
+    border-radius: 3px;
+    z-index: 5;
+}
+
 /* Override any interfering animations when card is being moved to upgrades */
 .card[data-selected="true"] {
     z-index: 1000;
