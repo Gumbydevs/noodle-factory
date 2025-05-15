@@ -545,8 +545,7 @@ export const CARDS = {
             savePlayedCard("Machine Maintenance");
             return "Everything's running smoothly... for now.";
         }
-    },
-    "Power Outage": {
+    },    "Power Outage": {
         description: "The factory has lost power!",
         requirements: null,
         statModifiers: {
@@ -556,7 +555,9 @@ export const CARDS = {
         },
         effect: (state) => {
             savePlayedCard("Power Outage");
-            return "Workers are making pasta by candlelight!";
+            // Set power outage duration to 3 turns
+            state.playerStats.powerOutage = 3;
+            return "Workers are making pasta by candlelight! Power will be out for 3 turns.";
         }
     },
     "Health Inspector": {

@@ -156,7 +156,8 @@ class Game {
                 prestigeGainRate: 1,
                 chaosGainRate: 1,
                 workerLossRate: 1,
-                highestSingleSale: 0
+                highestSingleSale: 0,
+                powerOutage: 0 // Add power outage tracking
             }
         };
         this.isGameOver = false;
@@ -281,6 +282,22 @@ class Game {
         if (!lights.length) return;
 
         const stats = this.state.playerStats;
+        
+        // Check if there's a power outage in effect
+        if (stats.powerOutage > 0) {
+            // During power outage, all lights are off
+            lights.forEach(light => {
+                light.className = 'light-bulb off';
+            });
+            
+            // Store the current lights status for when power returns
+            this.lightsStatusBeforeOutage = this.lightsStatus || new Array(lights.length).fill('off');
+            
+            // Apply darkness effect even during power outage
+            this.applyLightingEffects(0); // 0 active lights
+            return;
+        }
+        
         const chaosLevel = stats.chaosLevel;
         const ingredientLevel = stats.ingredients;
         const prestigeLevel = stats.pastaPrestige;
@@ -330,6 +347,14 @@ class Game {
             }
         });
 
+        // Save current lights status
+        this.lightsStatus = Array.from(lights).map(light => {
+            if (light.classList.contains('on')) return 'on';
+            if (light.classList.contains('flicker')) return 'flicker';
+            if (light.classList.contains('dim')) return 'dim';
+            return 'off';
+        });
+
         // Update game effects based on lights
         this.applyLightingEffects(this.countActiveLights(lights));
     }
@@ -339,6 +364,25 @@ class Game {
         const totalLights = 11;
         const lightRatio = activeLights / totalLights;
         const stats = this.state.playerStats;
+
+        // Check for power outage - apply maximum darkness effect
+        if (stats.powerOutage > 0) {
+            // During power outage, apply stronger darkness effect
+            gameContainer.style.filter = 'brightness(0.5)'; // Very dark
+            document.querySelectorAll('.light-glow').forEach(el => {
+                el.style.setProperty('--glow-intensity', '0.5'); // Minimal glow
+            });
+            
+            // Only show the message on the first call during outage, not every frame
+            if (!this._powerOutageMessageShown) {
+                this.showEffectMessage("The factory is in complete darkness due to the power outage!");
+                this._powerOutageMessageShown = true;
+            }
+            return;
+        } else {
+            // Reset the message flag when power is restored
+            this._powerOutageMessageShown = false;
+        }
 
         // Don't apply heavy dimming on first turn
         if (this.turn === 1) {
@@ -357,7 +401,7 @@ class Game {
             darknessLevel *= Math.max(0.7, stats.money / 100);
             
             if (lightRatio < 0.4) {
-            this.showEffectMessage("The factory's lights flicker weakly. They need money to stay on...");
+                this.showEffectMessage("The factory's lights flicker weakly. They need money to stay on...");
             }
         }
 
@@ -366,36 +410,6 @@ class Game {
             darknessLevel *= 0.8;
         } else if (lightRatio < 0.6) {
             darknessLevel *= 0.9;
-        }
-
-        // Generate random color tint based on chaos level
-        let colorTint = '';
-        if (stats.chaosLevel >= 25) {
-            // Generate random hue that changes smoothly - increased range from ±20 to ±45
-            const hueRotation = Math.sin(Date.now() / 5000) * 45; // Increased amplitude for more noticeable color shifts
-            // Increased saturation boost from 20% to 50% max
-            const saturationBoost = Math.min(1.5, 1 + (stats.chaosLevel / 100)); 
-            // Add a slight contrast boost for more punch
-            const contrastBoost = Math.min(1.2, 1 + (stats.chaosLevel / 200));
-            colorTint = `hue-rotate(${hueRotation}deg) saturate(${saturationBoost}) contrast(${contrastBoost})`;
-        }
-
-        // Combine brightness with color effects
-        const combinedFilter = `brightness(${Math.max(0.5, darknessLevel)}) ${colorTint}`;
-        gameContainer.style.filter = combinedFilter;
-
-        // Adjust glow intensity inversely to darkness
-        const glowIntensity = Math.min(12.5, (1 / darknessLevel) * 1.2);
-        document.querySelectorAll('.light-glow').forEach(el => {
-            el.style.setProperty('--glow-intensity', glowIntensity.toString());
-        });
-
-        // Apply gameplay effects based on lighting only
-        if (lightRatio < 0.5 && this.turn > 1) {
-            this.state.playerStats.workerLossRate *= 1.2;
-        }        if (lightRatio < 0.3 && this.turn > 1) {
-            this.state.playerStats.chaosGainRate *= 1.3;
-            this.showEffectMessage("The darkness is making workers anxious. Chaos is rising faster!", true);
         }
     }
 
@@ -1616,6 +1630,32 @@ class Game {
         // Apply upgrade effects first
         applyUpgradeEffects(this.state);
 
+        // Process power outage if active
+        if (this.state.playerStats.powerOutage > 0) {
+            this.state.playerStats.powerOutage--;
+            
+            if (this.state.playerStats.powerOutage === 0) {
+                // Power is restored - show message
+                const powerRestoredMessage = "Power has been restored to the factory!";
+                this.addMessageToHistory(powerRestoredMessage, 'feedback');
+                this._pendingEffectMessage = powerRestoredMessage;
+                
+                // Restore previous light status if available
+                if (this.lightsStatusBeforeOutage) {
+                    this.lightsStatus = [...this.lightsStatusBeforeOutage];
+                    this.lightsStatusBeforeOutage = null;
+                }
+                
+                // Update lights immediately to show power is back
+                this.updateLights();
+            } else {
+                // Power is still out
+                const outageMessage = `Power outage continues. ${this.state.playerStats.powerOutage} ${this.state.playerStats.powerOutage === 1 ? 'turn' : 'turns'} until power is restored.`;
+                this.addMessageToHistory(outageMessage, 'feedback');
+                this._pendingEffectMessage = outageMessage;
+            }
+        }
+
         // Add passive ingredient gain each turn
         const baseIngredientGain = 0.2 + this.state.playerStats.ingredientGainRate;
         const prestigeBonus = this.state.playerStats.pastaPrestige * 0.01;
@@ -2389,7 +2429,8 @@ class Game {
                 prestigeGainRate: 1,
                 chaosGainRate: 1,
                 workerLossRate: 1,
-                ingredientGainRate: 0.2 // Add base ingredient gain rate
+                ingredientGainRate: 0.2, // Add base ingredient gain rate
+                powerOutage: 0 // Add power outage tracking
             }
         };
 
@@ -2807,6 +2848,17 @@ class Game {
             stats.chaosSteadyTurns = (stats.chaosSteadyTurns || 0) + 1;
         } else {
             stats.chaosSteadyTurns = 0;
+        }
+        
+        // Track "Edge of Tomorrow" (exactly 99 chaos for 10 consecutive turns)
+        if (stats.chaosLevel === 99) {
+            stats.edgeOfTomorrowTurns = (stats.edgeOfTomorrowTurns || 0) + 1;
+        } else {
+            stats.edgeOfTomorrowTurns = 0;
+        }
+        
+        // Track near-max chaos consecutive turns for "Death's Door" risk achievement
+        if (stats.chaosLevel === 99) {
         }
         
         // Track "Edge of Tomorrow" (exactly 99 chaos for 10 consecutive turns)
