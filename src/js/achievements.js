@@ -308,11 +308,22 @@ export const ACHIEVEMENTS = {
         check: (stats) => stats.balancedStatsTurns >= 3,
         reward: "Perfect harmony",
         category: ACHIEVEMENT_CATEGORIES.SPECIAL
-    },
-    "UHF Achievement: Channel 62 Forever!": {
+    },    "UHF Achievement: Channel 62 Forever!": {
         description: "Complete the entire Channel 62 storyline with Noodles MacIntosh",
         check: (stats) => stats.uhfComplete === true,
         reward: "Spatula City gift card included!",
+        category: ACHIEVEMENT_CATEGORIES.SPECIAL
+    },
+    "Happy Happy, Joy Joy!": {
+        description: "Complete the entire Ren & Stimpy storyline with the psychotic chihuahua and simple-minded cat",
+        check: (stats) => stats.rnstimpyComplete === true,
+        reward: "Log-flavored pasta sauce recipe included!",
+        category: ACHIEVEMENT_CATEGORIES.SPECIAL
+    },
+    "Pasta Comes From Lake Titicaca": {
+        description: "Complete the entire Beavis and Butthead storyline with the teenage delinquents",
+        check: (stats) => stats.beavisbhComplete === true,
+        reward: "Nacho cheese pasta becomes your signature dish! Huh huh, cool.",
         category: ACHIEVEMENT_CATEGORIES.SPECIAL
     },
     "Risk Taker": {

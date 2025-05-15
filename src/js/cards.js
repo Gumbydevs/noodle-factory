@@ -2082,8 +2082,7 @@ export const CARDS = {
             }
             return "The entire east wing is covered in a film of olive oil and basil!";
         }
-    },
-    "Black Pepper Blizzard": {
+    },    "Black Pepper Blizzard": {
         description: "Someone knocked over the industrial-sized pepper grinder.",
         requirements: null,
         statModifiers: {
@@ -2099,6 +2098,49 @@ export const CARDS = {
             }
             state.playerStats.lostWorkers += 2;
             return "Workers flee the production floor, eyes watering and sneezes echoing!";
+        }
+    },
+    "Happy Happy Joy Joy": {
+        description: "A strange chihuahua and his cat friend have taken up residence in your pasta storage room, and they're teaching workers an unusual song and dance.",
+        requirements: null,
+        statModifiers: {
+            chaos: 7,
+            workers: 4,
+            prestige: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Happy Happy Joy Joy");
+            state.playerStats.rnstimpyStoryline = 1;
+            return "The hyper chihuahua leads an enthusiastic (if erratic) dance routine that somehow improves worker morale!";
+        }
+    },
+    "Log for Lunch": {
+        description: "Your feline visitor has convinced the kitchen staff that a wooden log is better than any meat for pasta sauce. \"It's better than bad, it's good!\"",
+        requirements: null,
+        statModifiers: {
+            chaos: 10,
+            ingredients: 3,
+            prestige: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Log for Lunch");
+            state.playerStats.rnstimpyStoryline = 2;
+            return "Workers are chopping up logs and mixing them into the marinara! It's big, it's heavy, it's wood!";
+        }
+    },
+    "Space Madness": {
+        description: "The chihuahua has gone mad, claiming to be a space captain. He's installed a big red button that must never, ever be pushed.",
+        requirements: null,
+        statModifiers: {
+            chaos: 15,
+            prestige: 12,
+            workers: -2
+        },
+        effect: (state) => {
+            savePlayedCard("Space Madness");
+            state.playerStats.rnstimpyStoryline = 3;
+            state.playerStats.rnstimpyComplete = true;
+            return "\"The beautiful shiny button! The jolly candy-like button! Will I hold out, folks? CAN I hold out?\" - Your factory has been declared a landmark of animated absurdity!";
         }
     },
     "Chili Flake Fiasco": {
@@ -2195,8 +2237,7 @@ export const CARDS = {
             state.playerStats.usedMagicCards = true;
             return "The aromatic sentinel watches over the factory, warding off vampires and thieves!";
         }
-    },
-    "Prosciutto Prophecy": {
+    },    "Prosciutto Prophecy": {
         description: "The thin ham slices are arranging themselves into predictions of the future.",
         requirements: null,
         statModifiers: {
@@ -2213,6 +2254,49 @@ export const CARDS = {
             }
             state.playerStats.chaos += 3;
             return "The ham foretells doom and gloom, worrying superstitious workers!";
+        }
+    },
+    "Cornholio Awakens": {
+        description: "A teenage visitor with braces needs TP for his bunghole and has wrapped himself in pasta like a mummy.",
+        requirements: null,
+        statModifiers: {
+            chaos: 12,
+            workers: -2,
+            prestige: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Cornholio Awakens");
+            state.playerStats.beavisbhStoryline = 1;
+            return "\"I am the great Cornholio! I need pasta for my bunghole!\" - Workers flee as the strange teen threatens them with his outstretched arms.";
+        }
+    },
+    "Huh Huh, Cool": {
+        description: "Two teenage delinquents are critiquing your pasta shapes with inappropriate snickering.",
+        requirements: null,
+        statModifiers: {
+            chaos: 8,
+            ingredients: -1,
+            prestige: 8
+        },
+        effect: (state) => {
+            savePlayedCard("Huh Huh, Cool");
+            state.playerStats.beavisbhStoryline = 2;
+            return "\"Huh huh, you said manicotti.\" - Despite their disruption, their bizarre commentary is attracting crowds on social media.";
+        }
+    },
+    "Nachos Rule!": {
+        description: "The teenagers have convinced your head chef to create a horrifying nacho-flavored pasta dish.",
+        requirements: null,
+        statModifiers: {
+            chaos: 10,
+            ingredients: 5,
+            prestige: 14
+        },
+        effect: (state) => {
+            savePlayedCard("Nachos Rule!");
+            state.playerStats.beavisbhStoryline = 3;
+            state.playerStats.beavisbhComplete = true;
+            return "\"This is the coolest thing we've ever done! Huh huh huh.\" - Their terrible idea has become your most popular menu item.";
         }
     },
     "Olive Uprising": {
@@ -3714,10 +3798,37 @@ export function getRandomCard() {
         if (name === "Sabotage in the Sauce") {
             // Only show after the third card has been played
             return gameState?.playerStats?.uhfStoryline === 3;
-        }
-        if (name === "Live Broadcast Blowback") {
+        }        if (name === "Live Broadcast Blowback") {
             // Only show after the fourth card has been played
             return gameState?.playerStats?.uhfStoryline === 4;
+        }
+        
+        // Handle Ren & Stimpy storyline cards
+        if (name === "Happy Happy Joy Joy") {
+            // Only show the first card if the storyline hasn't started
+            return gameState?.playerStats?.rnstimpyStoryline === undefined;
+        }
+        if (name === "Log for Lunch") {
+            // Only show after the first card has been played
+            return gameState?.playerStats?.rnstimpyStoryline === 1;
+        }
+        if (name === "Space Madness") {
+            // Only show after the second card has been played
+            return gameState?.playerStats?.rnstimpyStoryline === 2;
+        }
+        
+        // Handle Beavis and Butthead storyline cards
+        if (name === "Cornholio Awakens") {
+            // Only show the first card if the storyline hasn't started
+            return gameState?.playerStats?.beavisbhStoryline === undefined;
+        }
+        if (name === "Huh Huh, Cool") {
+            // Only show after the first card has been played
+            return gameState?.playerStats?.beavisbhStoryline === 1;
+        }
+        if (name === "Nachos Rule!") {
+            // Only show after the second card has been played
+            return gameState?.playerStats?.beavisbhStoryline === 2;
         }
         
         // Filter out upgrade cards that are already pinned

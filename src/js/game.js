@@ -935,10 +935,41 @@ class Game {
                 // Only show after the third card has been played
                 return this.state.playerStats.uhfStoryline === 3;
             }
-            
-            if (cardName === "Live Broadcast Blowback") {
+              if (cardName === "Live Broadcast Blowback") {
                 // Only show after the fourth card has been played
                 return this.state.playerStats.uhfStoryline === 4;
+            }
+            
+            // Handle Ren & Stimpy storyline cards
+            if (cardName === "Happy Happy Joy Joy") {
+                // Only show the first card if the storyline hasn't started
+                return this.state.playerStats.rnstimpyStoryline === undefined;
+            }
+            
+            if (cardName === "Log for Lunch") {
+                // Only show after the first card has been played
+                return this.state.playerStats.rnstimpyStoryline === 1;
+            }
+            
+            if (cardName === "Space Madness") {
+                // Only show after the second card has been played
+                return this.state.playerStats.rnstimpyStoryline === 2;
+            }
+            
+            // Handle Beavis and Butthead storyline cards
+            if (cardName === "Cornholio Awakens") {
+                // Only show the first card if the storyline hasn't started
+                return this.state.playerStats.beavisbhStoryline === undefined;
+            }
+            
+            if (cardName === "Huh Huh, Cool") {
+                // Only show after the first card has been played
+                return this.state.playerStats.beavisbhStoryline === 1;
+            }
+            
+            if (cardName === "Nachos Rule!") {
+                // Only show after the second card has been played
+                return this.state.playerStats.beavisbhStoryline === 2;
             }
             
             // Skip upgrade cards that are already installed
