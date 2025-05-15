@@ -987,7 +987,10 @@ class Game {
         });        // Detect active storylines
         const hasActiveUHFStoryline = this.state.playerStats.uhfStoryline !== undefined && !this.state.playerStats.uhfComplete;
         const hasActiveReggieStoryline = this.state.playerStats.reggieEscaped === true && !this.state.playerStats.reggieComplete;
-        const hasActiveRnSStoryline = this.state.playerStats.rnstimpyStoryline !== undefined && !this.state.playerStats.rnstimpyComplete;
+        // Fix for R&S storyline - consider active if any of the stages are valid
+        const hasActiveRnSStoryline = this.state.playerStats.rnstimpyStoryline !== undefined && 
+                                      this.state.playerStats.rnstimpyStoryline < 3 && 
+                                      !this.state.playerStats.rnstimpyComplete;
         const hasBBStoryline = this.state.playerStats.beavisbhStoryline !== undefined && !this.state.playerStats.beavisbhComplete;
         
         // Identify storyline cards
@@ -999,10 +1002,12 @@ class Game {
             // Reggie storyline
             if (cardName === "Return of Reggie") {
                 return hasActiveReggieStoryline;
+            }            // Ren & Stimpy storyline
+            if (cardName === "Log for Lunch") {
+                return this.state.playerStats.rnstimpyStoryline === 1;
             }
-            // Ren & Stimpy storyline
-            if (["Log for Lunch", "Space Madness"].includes(cardName)) {
-                return hasActiveRnSStoryline;
+            if (cardName === "Space Madness") {
+                return this.state.playerStats.rnstimpyStoryline === 2;
             }
             // Beavis & Butthead storyline
             if (["Huh Huh, Cool", "Nachos Rule!"].includes(cardName)) {
