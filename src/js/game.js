@@ -1641,15 +1641,16 @@ class Game {
             this.addMessageToHistory(salesMessage, 'sales');
             // Store in temporary properties to show after animations are complete
             this._pendingSalesMessage = salesMessage;
-        }
-
-        // Update visuals
+        }        // Update visuals
         this.updateDisplay();
-          // Update other tracking stats
+        // Update other tracking stats
         this.updateChaosStreak();
         this.updateSingleWorkerStreak();
         this.updateLowWorkerStats();
         this.checkBalancedStats();
+        
+        // Process any active worker strikes
+        this.processStrike();
         
         // Check if any risk achievements are met
         this.checkRiskAchievements();
@@ -1664,6 +1665,11 @@ class Game {
     }
 
     processProduction() {
+        // Check if workers are on strike - prevent all production
+        if (this.state.playerStats.strikeActive) {
+            return "No production: Workers are on strike! (" + this.state.playerStats.strikeDuration + " turns remaining)";
+        }
+        
         // Don't produce anything without ingredients
         if (this.state.playerStats.ingredients <= 0) return null;
         
@@ -2856,7 +2862,37 @@ class Game {
         } else {
             stats.combinedRiskTurns = 0;
         }
-    }    loadGame() {
+    }    processStrike() {
+        const stats = this.state.playerStats;
+        
+        // If there's no active strike, do nothing
+        if (!stats.strikeActive) return;
+        
+        // Decrease the strike duration
+        stats.strikeDuration--;
+        
+        // Check if the strike has ended
+        if (stats.strikeDuration <= 0) {
+            // Strike has ended, restore workers and mark it as resolved
+            stats.strikeActive = false;
+            
+            // Restore workers (some may have left permanently)
+            const workersLost = Math.floor(stats.workersBeforeStrike * 0.2); // About 20% leave permanently
+            stats.workerCount = Math.max(1, stats.workersBeforeStrike - workersLost);
+            
+            // Track that player survived a strike
+            stats.survivedStrikes = (stats.survivedStrikes || 0) + 1;
+            
+            // Show a message about the strike ending
+            this.showEffectMessage("The strike has ended! " + 
+                                  (workersLost > 0 ? workersLost + " workers left permanently." : "All workers have returned."), true);
+            
+            // Update display
+            this.updateDisplay();
+        }
+    }
+
+    loadGame() {
         const savedState = loadGameState();
         if (!savedState) {
             return;

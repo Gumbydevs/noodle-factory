@@ -417,18 +417,25 @@ export const CARDS = {
         description: "The union demands better pasta conditions!",
         requirements: null,
         statModifiers: {
-            workers: -3,
-            chaos: 10,
-            prestige: -5
+            chaos: 15,
+            prestige: -8
+            // Note: Workers aren't directly removed here as we'll handle it in the effect
         },
         effect: (state) => {
             savePlayedCard("Workers Strike");
-            state.playerStats.strikeDeaths += 3;
-            state.playerStats.lostWorkers += 3;
-            if (state.playerStats.chaosLevel < 60) {
-                state.playerStats.survivedStrikes++;
-            }
-            return "The workers have formed a picket line with giant spaghetti signs!";
+            // Store the current worker count before the strike
+            state.playerStats.workersBeforeStrike = state.playerStats.workerCount;
+            // Set workers to 0 during strike - they're still employed but not working
+            state.playerStats.workerCount = 0;
+            // Set strike duration (3-5 turns)
+            state.playerStats.strikeActive = true;
+            state.playerStats.strikeDuration = Math.floor(Math.random() * 3) + 3;
+            // Track strike for statistics/achievements
+            state.playerStats.strikeDeaths = (state.playerStats.strikeDeaths || 0) + 3;
+            state.playerStats.lostWorkers = (state.playerStats.lostWorkers || 0) + 3;
+            
+            return "The workers have formed a picket line with giant spaghetti signs! Production halted for " + 
+                   state.playerStats.strikeDuration + " turns!";
         }
     },
     "Midnight Security": {
