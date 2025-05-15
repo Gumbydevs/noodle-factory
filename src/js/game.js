@@ -1252,9 +1252,8 @@ class Game {
             const maxSlots = this.state.playerStats.maxUpgradeSlots || 2; // Default to 2 slots
             if (existingUpgrades.length >= maxSlots) {
                 // Only show message and play sound if actually clicked
-                if (isClick) {
-                    gameSounds.playUpgradeBlockedSound();
-                    this.showEffectMessage(`Maximum of ${maxSlots} factory upgrades allowed! Sell an upgrade first.`, true);
+                if (isClick) {                    gameSounds.playUpgradeBlockedSound();
+                    this.showEffectMessage(`Maximum of ${maxSlots} factory upgrades allowed! ${maxSlots < 3 ? "Install Factory Expansion Blueprint or " : ""}Sell an upgrade first.`, true);
                 }
                 return false;
             }
@@ -1444,16 +1443,21 @@ class Game {
                         const currentValue = this.state.playerStats[statKey] || 0;
                         this.state.playerStats[statKey] = Math.max(0, currentValue + Number(value));
                     });
-                }
-
-                // Pin the upgrade card to the upgrades section
+                }                // Pin the upgrade card to the upgrades section
                 if (this.pinUpgradeCard(cardName, card)) {
                     // Apply permanent stats after successful pinning
                     if (card.permanentStats) {
                         this.applyUpgradeStats(card.permanentStats);
                     }
-                      // Add message feedback for upgrade cards but store to show after animations
-                    const upgradeMessage = `Upgrade installed: ${cardName}`;
+                    
+                    // Add message feedback for upgrade cards but store to show after animations
+                    let upgradeMessage = `Upgrade installed: ${cardName}`;
+                    
+                    // Special messaging for Factory Expansion Blueprint
+                    if (cardName === "Factory Expansion Blueprint") {
+                        upgradeMessage = `Upgrade installed: ${cardName}. Factory can now support 3 upgrades!`;
+                    }
+                    
                     this.addMessageToHistory(upgradeMessage, 'feedback');
                     this._pendingEffectMessage = upgradeMessage;
                     
@@ -1933,12 +1937,19 @@ class Game {
                 if (refundAmount > 0) {
                     this.state.playerStats.money += refundAmount;
                 }
-                
-                // Show feedback message
+                  // Show feedback message
                 let feedbackMsg = `Sold upgrade: +${ingredientGain} ingredients, -${Math.round(chaosReduction)} chaos`;
                 if (refundAmount > 0) {
                     feedbackMsg += `, +$${refundAmount} refund`;
                 }
+                
+                // Special handling for Factory Expansion Blueprint
+                if (cardName === "Factory Expansion Blueprint") {
+                    // Reset max slots back to default when this upgrade is sold
+                    this.state.playerStats.maxUpgradeSlots = 2;
+                    feedbackMsg += `. Factory upgrade capacity reduced to 2.`;
+                }
+                
                 this.showEffectMessage(feedbackMsg);
                 
                 // Remove permanent stats
@@ -2024,9 +2035,8 @@ class Game {
         const existingUpgrades = upgradesGrid.querySelectorAll('.upgrade-card');
         const maxSlots = this.state.playerStats.maxUpgradeSlots || 2; // Default to 2 slots
         
-        if (existingUpgrades.length >= maxSlots) {
-            gameSounds.playUpgradeBlockedSound();
-            this.showEffectMessage(`<span style="color: #ff6347;">Maximum of ${maxSlots} factory upgrades allowed! Sell an upgrade first.</span>`, true);
+        if (existingUpgrades.length >= maxSlots) {            gameSounds.playUpgradeBlockedSound();
+            this.showEffectMessage(`<span style="color: #ff6347;">Maximum of ${maxSlots} factory upgrades allowed! ${maxSlots < 3 ? "Install Factory Expansion Blueprint or " : ""}Sell an upgrade first.</span>`, true);
             return false;
         }
         
@@ -2408,9 +2418,9 @@ class Game {
                 ingredients: Math.floor(Math.random() * 5) + 7, // Increased from 3+3 to 5+7
                 workerCount: Math.floor(Math.random() * 4) + 8,
                 money: 1000,
-                noodles: 0,
-                noodleProductionRate: 1,
+                noodles: 0,                noodleProductionRate: 1,
                 noodleSalePrice: 5,
+                maxUpgradeSlots: 2, // Default to 2 slots
                 weeklyExpenses: 100,
                 lostWorkers: 0,
                 lostIngredients: 0,

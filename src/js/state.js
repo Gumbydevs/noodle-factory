@@ -45,12 +45,12 @@ const gameState = {
         rnstimpyStoryline: undefined,
         rnstimpyComplete: false,
         beavisbhStoryline: undefined,
-        beavisbhComplete: false,
-        chaosGainRate: 1,
+        beavisbhComplete: false,        chaosGainRate: 1,
         prestigeGainRate: 1,
         usedMagicCards: false,
         factoryUpgrades: {},
-        hitZeroMoney: false,        highestSingleSale: 0,
+        maxUpgradeSlots: 2,
+        hitZeroMoney: false,highestSingleSale: 0,
         chaosSteadyTurns: 0,
         highChaosStreakTurns: 0,
         chaosReductionInOneTurn: 0,
@@ -183,9 +183,9 @@ export const resetGameState = () => {
             ingredients: Math.floor(Math.random() * 3) + 3,
             workerCount: Math.floor(Math.random() * 4) + 8,
             money: 1000, // Starting with $1000
-            noodles: 0, // Starting noodles
-            noodleProductionRate: 1, // Base production rate
+            noodles: 0, // Starting noodles            noodleProductionRate: 1, // Base production rate
             noodleSalePrice: 5, // Base sale price per noodle
+            maxUpgradeSlots: 2, // Default to 2 slots
             turnsAtMaxChaos: 0,
             chaosControlTurns: 0,  
         }
