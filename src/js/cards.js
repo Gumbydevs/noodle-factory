@@ -3560,8 +3560,7 @@ export function getRandomCard() {
                 selectedCard.classList.add('dissolving');
             }, 200);
         }
-        
-        return new Promise(resolve => {
+          return new Promise(resolve => {
             // Set timeout to match our animation duration
             setTimeout(() => {
                 const cardNames = Object.keys(CARDS).filter(name => {
@@ -3569,9 +3568,16 @@ export function getRandomCard() {
                     if (lastDrawnCards.includes(name)) {
                         return false;
                     }
-                    // Check for Reggie's Return special case
+                    // Handle Reggie's Great Escape card
+                    if (name === "Reggie's Great Escape") {
+                        // Don't show after it's been played
+                        return gameState?.playerStats?.reggieEscaped !== true;
+                    }
+                    // Handle Return of Reggie card
                     if (name === "Return of Reggie") {
-                        return gameState?.playerStats?.reggieEscaped === true;
+                        // Only show after Great Escape played but before Return played
+                        return gameState?.playerStats?.reggieEscaped === true && 
+                               gameState?.playerStats?.reggieComplete !== true;
                     }
                     // Filter out upgrade cards that are already pinned
                     if (gameState?.playerStats?.factoryUpgrades && 
@@ -3587,16 +3593,21 @@ export function getRandomCard() {
                 });                resolve(cardNames[Math.floor(Math.random() * cardNames.length)]);
             }, 650); // Adjusted to match our wiggle + dissolve animation timing
         });
-    }
-
-    const cardNames = Object.keys(CARDS).filter(name => {
+    }    const cardNames = Object.keys(CARDS).filter(name => {
         // Skip cards in lastDrawnCards
         if (lastDrawnCards.includes(name)) {
             return false;
         }
-        // Check for Reggie's Return special case
+        // Handle Reggie's Great Escape card
+        if (name === "Reggie's Great Escape") {
+            // Don't show after it's been played
+            return gameState?.playerStats?.reggieEscaped !== true;
+        }
+        // Handle Return of Reggie card
         if (name === "Return of Reggie") {
-            return gameState?.playerStats?.reggieEscaped === true;
+            // Only show after Great Escape played but before Return played
+            return gameState?.playerStats?.reggieEscaped === true && 
+                   gameState?.playerStats?.reggieComplete !== true;
         }
         // Filter out upgrade cards that are already pinned
         if (gameState?.playerStats?.factoryUpgrades && 
