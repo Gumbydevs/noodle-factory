@@ -1140,7 +1140,7 @@ export const CARDS = {
         }
     },
     "Lasagna Labyrinth": {
-        description: "The layered pasta has folded into an impossible maze.",
+        description: "The layered pasta has folded into an impossible maze. Dance Pasta Dance!",
         requirements: null,
         statModifiers: {
             chaos: 12,
