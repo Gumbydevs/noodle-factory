@@ -984,14 +984,89 @@ class Game {
             }
             
             return true;
+        });        // Detect active storylines
+        const hasActiveUHFStoryline = this.state.playerStats.uhfStoryline !== undefined && !this.state.playerStats.uhfComplete;
+        const hasActiveReggieStoryline = this.state.playerStats.reggieEscaped === true && !this.state.playerStats.reggieComplete;
+        const hasActiveRnSStoryline = this.state.playerStats.rnstimpyStoryline !== undefined && !this.state.playerStats.rnstimpyComplete;
+        const hasBBStoryline = this.state.playerStats.beavisbhStoryline !== undefined && !this.state.playerStats.beavisbhComplete;
+        
+        // Identify storyline cards
+        const storylineCards = availableCards.filter(cardName => {
+            // UHF storyline cards
+            if (["Noodles is Tripped!", "MacIntosh's Master Plan", "Sabotage in the Sauce", "Live Broadcast Blowback"].includes(cardName)) {
+                return hasActiveUHFStoryline;
+            }
+            // Reggie storyline
+            if (cardName === "Return of Reggie") {
+                return hasActiveReggieStoryline;
+            }
+            // Ren & Stimpy storyline
+            if (["Log for Lunch", "Space Madness"].includes(cardName)) {
+                return hasActiveRnSStoryline;
+            }
+            // Beavis & Butthead storyline
+            if (["Huh Huh, Cool", "Nachos Rule!"].includes(cardName)) {
+                return hasBBStoryline;
+            }
+            return false;
         });
 
-        // Separate upgrade and regular cards
+        // Separate upgrade and regular cards (excluding storyline cards)
         const upgradeCards = availableCards.filter(cardName => CARDS[cardName].type === "upgrade");
-        const regularCards = availableCards.filter(cardName => CARDS[cardName].type !== "upgrade");
-
-        // Select cards based on game state - ensure we don't get 2 upgrade cards
-        let leftCard, rightCard;        if (upgradeCards.length > 0 && regularCards.length > 0 && Math.random() < 0.3) {
+        const regularCards = availableCards.filter(cardName => 
+            CARDS[cardName].type !== "upgrade" && !storylineCards.includes(cardName)
+        );        // Select cards based on game state
+        let leftCard, rightCard;
+          // Prioritize storyline cards if any storyline is active
+        const hasActiveStoryline = hasActiveUHFStoryline || hasActiveReggieStoryline || 
+                                 hasActiveRnSStoryline || hasBBStoryline;
+        
+        // Track the last turn we showed a storyline card
+        if (!this.lastStorylineTurn) {
+            this.lastStorylineTurn = 0;
+        }
+        
+        // Calculate a dynamic probability based on turns since last storyline card
+        // This makes it more likely to show a storyline card the longer it's been since we showed one
+        const turnsSinceStoryline = this.turn - this.lastStorylineTurn;
+        const baseStorylineProbability = 0.4; // Base 40% chance
+        const additionalProbability = Math.min(0.3, turnsSinceStoryline * 0.05); // Increases by 5% each turn, up to 30%
+        const storylineProbability = Math.min(0.85, baseStorylineProbability + additionalProbability);
+        
+        // If we have storyline cards, show one with calculated probability
+        if (storylineCards.length > 0 && Math.random() < storylineProbability) {
+            // Choose a storyline card
+            const storylineCard = storylineCards[Math.floor(Math.random() * storylineCards.length)];
+            
+            // For the second card, prioritize another storyline card if available, otherwise regular
+            let secondCard;
+            
+            if (storylineCards.length > 1 && Math.random() < 0.25) { // Reduced from 0.4 to 0.25
+                // Get a different storyline card if possible
+                const otherStorylineCards = storylineCards.filter(c => c !== storylineCard);
+                secondCard = otherStorylineCards[Math.floor(Math.random() * otherStorylineCards.length)];
+            } else if (upgradeCards.length > 0 && Math.random() < 0.3) {
+                // 30% chance for an upgrade card
+                secondCard = upgradeCards[Math.floor(Math.random() * upgradeCards.length)];
+            } else {
+                // Otherwise a regular card
+                secondCard = regularCards.length > 0
+                    ? regularCards[Math.floor(Math.random() * regularCards.length)]
+                    : availableCards[Math.floor(Math.random() * availableCards.length)];
+            }
+            
+            // Randomly assign to left or right
+            if (Math.random() < 0.5) {
+                leftCard = storylineCard;
+                rightCard = secondCard;
+            } else {
+                leftCard = secondCard;
+                rightCard = storylineCard;
+            }
+            
+            // Update the last storyline turn
+            this.lastStorylineTurn = this.turn;
+        } else if (upgradeCards.length > 0 && regularCards.length > 0 && Math.random() < 0.3) {
             // 30% chance to get one upgrade card if available
             leftCard = upgradeCards[Math.floor(Math.random() * upgradeCards.length)];
             rightCard = regularCards[Math.floor(Math.random() * regularCards.length)];
