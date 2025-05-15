@@ -1092,6 +1092,11 @@ class Game {
             });
         });        // Add click handlers with requirement checks
         document.getElementById('card-left').onclick = () => {
+            // If the game is paused, close the pause menu first
+            if (this.isPaused) {
+                this.closePauseMenu();
+            }
+            
             if (this.checkCardPlayable(CARDS[leftCard], true)) {
                 // Immediately hide the other card with no visual effects
                 const otherCard = document.getElementById('card-right');
@@ -1105,6 +1110,11 @@ class Game {
             }
         };
         document.getElementById('card-right').onclick = () => {
+            // If the game is paused, close the pause menu first
+            if (this.isPaused) {
+                this.closePauseMenu();
+            }
+            
             if (this.checkCardPlayable(CARDS[rightCard], true)) {
                 // Immediately hide the other card with no visual effects
                 const otherCard = document.getElementById('card-left');
@@ -2951,14 +2961,29 @@ class Game {
         // Check if menu already exists
         if (document.querySelector('.pause-menu-overlay')) {
             return;
-        }
-
-        // Create the pause menu overlay
+        }        // Create the pause menu overlay
         const pauseOverlay = document.createElement('div');
         pauseOverlay.className = 'pause-menu-overlay';
+        pauseOverlay.style.position = 'fixed';
+        pauseOverlay.style.top = '0';
+        pauseOverlay.style.left = '0';
+        pauseOverlay.style.right = '0';
+        pauseOverlay.style.bottom = '0';
+        pauseOverlay.style.background = 'rgba(0, 0, 0, 0.65)';
+        pauseOverlay.style.zIndex = '2000';
+        pauseOverlay.style.display = 'flex';
+        pauseOverlay.style.alignItems = 'center';
+        pauseOverlay.style.justifyContent = 'center';
         
         const pauseMenu = document.createElement('div');
         pauseMenu.className = 'pause-menu';
+        pauseMenu.style.background = '#181B22';
+        pauseMenu.style.padding = '20px 30px';
+        pauseMenu.style.borderRadius = '10px';
+        pauseMenu.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
+        pauseMenu.style.textAlign = 'center';
+        pauseMenu.style.maxWidth = '90%';
+        pauseMenu.style.zIndex = '2001';
         
         pauseMenu.innerHTML = `
             <h2>Game Paused</h2>
@@ -2967,10 +2992,12 @@ class Game {
                 <button id="new-run" class="button primary">New Run</button>
                 <button id="options" class="button secondary">Options</button>
             </div>
-        `;
-        
+        `;        
         pauseOverlay.appendChild(pauseMenu);
         document.body.appendChild(pauseOverlay);
+        
+        // Mark game as paused
+        this.isPaused = true;
         
         // Add event listeners
         document.getElementById('continue-run').addEventListener('click', () => {
