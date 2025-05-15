@@ -309,6 +309,12 @@ export const ACHIEVEMENTS = {
         reward: "Perfect harmony",
         category: ACHIEVEMENT_CATEGORIES.SPECIAL
     },
+    "UHF Achievement: Channel 62 Forever!": {
+        description: "Complete the entire Channel 62 storyline with Noodles MacIntosh",
+        check: (stats) => stats.uhfComplete === true,
+        reward: "Spatula City gift card included!",
+        category: ACHIEVEMENT_CATEGORIES.SPECIAL
+    },
     "Risk Taker": {
         description: "Successfully complete 3 risk achievements in a single game",
         check: (stats) => stats.riskAchievementsSucceeded >= 3,

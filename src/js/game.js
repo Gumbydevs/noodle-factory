@@ -915,6 +915,32 @@ class Game {
                        this.state.playerStats.reggieComplete !== true;
             }
             
+            // Handle UHF Channel 62 storyline cards
+            if (cardName === "Local Underdog Spotlight") {
+                // Only show the first card if the storyline hasn't started
+                return this.state.playerStats.uhfStoryline === undefined;
+            }
+            
+            if (cardName === "Noodles is Tripped!") {
+                // Only show after the first card has been played
+                return this.state.playerStats.uhfStoryline === 1;
+            }
+            
+            if (cardName === "MacIntosh's Master Plan") {
+                // Only show after the second card has been played
+                return this.state.playerStats.uhfStoryline === 2;
+            }
+            
+            if (cardName === "Sabotage in the Sauce") {
+                // Only show after the third card has been played
+                return this.state.playerStats.uhfStoryline === 3;
+            }
+            
+            if (cardName === "Live Broadcast Blowback") {
+                // Only show after the fourth card has been played
+                return this.state.playerStats.uhfStoryline === 4;
+            }
+            
             // Skip upgrade cards that are already installed
             if (this.state.playerStats.factoryUpgrades && 
                 cardName in this.state.playerStats.factoryUpgrades) {

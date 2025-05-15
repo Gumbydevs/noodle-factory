@@ -5,6 +5,72 @@ import { gameState } from './state.js';
 const LOCAL_STORAGE_KEY = 'noodleFactoryPlayedCards';
 
 export const CARDS = {
+    "Local Underdog Spotlight": {
+        description: "\"It's Noodles MacIntosh!\" Says Channel 62's pint-sized cameraman. He's been sent to film your noodle factory's \"underdog rises\" segment for the local news.",
+        requirements: null,
+        statModifiers: {
+            prestige: 8,
+            chaos: 6
+        },
+        effect: (state) => {
+            savePlayedCard("Local Underdog Spotlight");
+            state.playerStats.uhfStoryline = 1;
+            return "Your factory glows under the spotlight of public attention!";
+        }
+    },
+    "Noodles is Tripped!": {
+        description: "During filming, a rival pasta goon spots Noodles and, with surgical precision, trips him. \"Oopsie!\" echoes through your factory hallways.",
+        requirements: null,
+        statModifiers: {
+            prestige: -5,
+            workers: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Noodles is Tripped!");
+            state.playerStats.uhfStoryline = 2;
+            return "Noodles falls into a bin of flour, sending up a cloud that covers three cameras!";
+        }
+    },
+    "MacIntosh's Master Plan": {
+        description: "Noodles sketches out his revenge—complete with blueprint doodles of pasta machines.",
+        requirements: null,
+        statModifiers: {
+            ingredients: 6,
+            workers: 4
+        },
+        effect: (state) => {
+            savePlayedCard("MacIntosh's Master Plan");
+            state.playerStats.uhfStoryline = 3;
+            return "\"Those jerks at Channel 8 won't know what hit them!\" Noodles cackles.";
+        }
+    },
+    "Sabotage in the Sauce": {
+        description: "Noodles sneaks into the competing pasta factory's sauce vault, camera in hand. He replaces their prized Marinara with an \"extra-spicy\" experimental batch.",
+        requirements: null,
+        statModifiers: {
+            prestige: 12,
+            chaos: 10
+        },
+        effect: (state) => {
+            savePlayedCard("Sabotage in the Sauce");
+            state.playerStats.uhfStoryline = 4;
+            return "The camera catches everything - including Noodles' maniacal grin as he makes the switch!";
+        }
+    },
+    "Live Broadcast Blowback": {
+        description: "On live TV, Noodles cuts to a steaming vat of… well, let's just say it's not your grandma's marinara. The audience's reactions say it all.",
+        requirements: null,
+        statModifiers: {
+            prestige: 16,
+            chaos: 8
+        },
+        effect: (state) => {
+            savePlayedCard("Live Broadcast Blowback");
+            state.playerStats.uhfStoryline = 5;
+            state.playerStats.uhfComplete = true;
+            return "Channel 8's ratings plummet while your factory becomes an overnight sensation!";
+        }
+    },
     "Alphabet Pasta Anomaly": {
         description: "The alphabet pasta starts spelling out ominous messages.",
         requirements: null,
@@ -3559,8 +3625,7 @@ export function getRandomCard() {
             setTimeout(() => {
                 selectedCard.classList.add('dissolving');
             }, 200);
-        }
-          return new Promise(resolve => {
+        }          return new Promise(resolve => {
             // Set timeout to match our animation duration
             setTimeout(() => {
                 const cardNames = Object.keys(CARDS).filter(name => {
@@ -3579,6 +3644,29 @@ export function getRandomCard() {
                         return gameState?.playerStats?.reggieEscaped === true && 
                                gameState?.playerStats?.reggieComplete !== true;
                     }
+                    
+                    // Handle UHF Channel 62 storyline cards
+                    if (name === "Local Underdog Spotlight") {
+                        // Only show the first card if the storyline hasn't started
+                        return gameState?.playerStats?.uhfStoryline === undefined;
+                    }
+                    if (name === "Noodles is Tripped!") {
+                        // Only show after the first card has been played
+                        return gameState?.playerStats?.uhfStoryline === 1;
+                    }
+                    if (name === "MacIntosh's Master Plan") {
+                        // Only show after the second card has been played
+                        return gameState?.playerStats?.uhfStoryline === 2;
+                    }
+                    if (name === "Sabotage in the Sauce") {
+                        // Only show after the third card has been played
+                        return gameState?.playerStats?.uhfStoryline === 3;
+                    }
+                    if (name === "Live Broadcast Blowback") {
+                        // Only show after the fourth card has been played
+                        return gameState?.playerStats?.uhfStoryline === 4;
+                    }
+                    
                     // Filter out upgrade cards that are already pinned
                     if (gameState?.playerStats?.factoryUpgrades && 
                         name in gameState.playerStats.factoryUpgrades) {
@@ -3609,6 +3697,29 @@ export function getRandomCard() {
             return gameState?.playerStats?.reggieEscaped === true && 
                    gameState?.playerStats?.reggieComplete !== true;
         }
+        
+        // Handle UHF Channel 62 storyline cards
+        if (name === "Local Underdog Spotlight") {
+            // Only show the first card if the storyline hasn't started
+            return gameState?.playerStats?.uhfStoryline === undefined;
+        }
+        if (name === "Noodles is Tripped!") {
+            // Only show after the first card has been played
+            return gameState?.playerStats?.uhfStoryline === 1;
+        }
+        if (name === "MacIntosh's Master Plan") {
+            // Only show after the second card has been played
+            return gameState?.playerStats?.uhfStoryline === 2;
+        }
+        if (name === "Sabotage in the Sauce") {
+            // Only show after the third card has been played
+            return gameState?.playerStats?.uhfStoryline === 3;
+        }
+        if (name === "Live Broadcast Blowback") {
+            // Only show after the fourth card has been played
+            return gameState?.playerStats?.uhfStoryline === 4;
+        }
+        
         // Filter out upgrade cards that are already pinned
         if (gameState?.playerStats?.factoryUpgrades && 
             name in gameState.playerStats.factoryUpgrades) {
