@@ -3476,7 +3476,138 @@ export const CARDS = {
             savePlayedCard("Quantum Pasta Stabilizer");
             return "Your pasta achieves quantum perfection in flavor and texture!";
         }
-    }
+    },
+    // Basic pasta-themed cards
+    "Gnocchi Nonsense": {
+        description: "Workers attempt to make potato gnocchi without reading the recipe.",
+        requirements: null,
+        statModifiers: {
+            chaos: 8,
+            prestige: 3,
+            workers: -2
+        },
+        effect: (state) => {
+            savePlayedCard("Gnocchi Nonsense");
+            return "The potato lumps are irregular but strangely appealing!";
+        }
+    },
+    "Fettuccini Failure": {
+        description: "A batch of fettuccini has been cut too wide.",
+        requirements: null,
+        statModifiers: {
+            chaos: 5,
+            prestige: -3,
+            ingredients: -1
+        },
+        effect: (state) => {
+            savePlayedCard("Fettuccini Failure");
+            return "The marketing team rebrands it as 'Extra Sauce Carriers'!";
+        }
+    },
+    "Spaghetti Snafu": {
+        description: "A mix-up in the pasta cutter creates spaghetti of unusual length.",
+        requirements: { ingredients: 1 },
+        statModifiers: {
+            ingredients: -1,
+            chaos: 6,
+            prestige: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Spaghetti Snafu");
+            return "Customers are amazed by the record-breaking noodle length!";
+        }
+    },
+    "Macaroni Mayhem": {
+        description: "The elbow pasta machine gets stuck in high-speed mode.",
+        requirements: null,
+        statModifiers: {
+            chaos: 10,
+            prestige: 6,
+            workers: -3
+        },
+        effect: (state) => {
+            savePlayedCard("Macaroni Mayhem");
+            return "Tiny pasta pieces fly everywhere like delicious shrapnel!";
+        }
+    },
+    "Lasagna Layering": {
+        description: "Workers compete to create the tallest lasagna in the factory.",
+        requirements: { ingredients: 2 },
+        statModifiers: {
+            ingredients: -2,
+            workers: 5,
+            prestige: 8
+        },
+        effect: (state) => {
+            savePlayedCard("Lasagna Layering");
+            return "The thirty-layer creation becomes a local landmark!";
+        }
+    },
+    "Rotini Rotation": {
+        description: "Implement a spiral pasta-making technique from an old family recipe.",
+        requirements: null,
+        statModifiers: {
+            chaos: -4,
+            prestige: 7,
+            workers: 3
+        },
+        effect: (state) => {
+            savePlayedCard("Rotini Rotation");
+            return "The perfectly spiraled pasta holds sauce like never before!";
+        }
+    },
+    "Penne Panic": {
+        description: "A shipment of tube pasta is needed urgently for a large order.",
+        requirements: null,
+        statModifiers: {
+            chaos: 7,
+            workers: 6,
+            ingredients: -1
+        },
+        effect: (state) => {
+            savePlayedCard("Penne Panic");
+            return "Workers pull an all-nighter to meet the deadline!";
+        }
+    },
+    "Orzo Overload": {
+        description: "Too much tiny rice-shaped pasta has been produced.",
+        requirements: { ingredients: 1 },
+        statModifiers: {
+            ingredients: -1,
+            chaos: 9,
+            prestige: 5
+        },
+        effect: (state) => {
+            savePlayedCard("Orzo Overload");
+            return "The excess is donated to schools, earning community goodwill!";
+        }
+    },
+    "Cannelloni Conundrum": {
+        description: "The large tube pasta keeps collapsing during production.",
+        requirements: null,
+        statModifiers: {
+            chaos: 6,
+            prestige: -2,
+            workers: 4
+        },
+        effect: (state) => {
+            savePlayedCard("Cannelloni Conundrum");
+            return "A creative worker invents a support system that becomes standard practice!";
+        }
+    },
+    "Tortellini Training": {
+        description: "New workers practice the art of folding stuffed pasta.",
+        requirements: { workers: 3 },
+        statModifiers: {
+            workers: -3,
+            prestige: 9,
+            chaos: -5
+        },
+        effect: (state) => {
+            savePlayedCard("Tortellini Training");
+            return "The precision folding techniques improve quality across all production lines!";
+        }
+    },
 }; // End of CARDS object
 
 // Array to track recently drawn cards to prevent repeats in consecutive games
