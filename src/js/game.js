@@ -776,15 +776,18 @@ class Game {
                 return `<span class="stat-modifier"><span class="${statClass}">${statName}:</span> <span class="${signClass}">${signs}</span></span>`;
             })
             .join('');
-    }
-
-    formatPermanentEffects(permanentStats, card) {
-        if (!permanentStats) return '';
+    }    formatPermanentEffects(permanentStats, card) {
+        if (!permanentStats && !card?.specialAbility && !card?.priceBonus) return '';
         
-        const entries = Object.entries(permanentStats);
+        const entries = permanentStats ? Object.entries(permanentStats) : [];
         // Add priceBonus directly from the upgrade card
         if (card?.priceBonus) {
             entries.push(['priceBonus', card.priceBonus]);
+        }
+        
+        // Add specialAbility if present (e.g., Factory Expansion Blueprint)
+        if (card?.specialAbility === "expandUpgrades") {
+            entries.push(['expandUpgrades', 1]);
         }
         
         return entries
@@ -809,15 +812,15 @@ class Game {
                 } else {
                     signs = (displayValue > 0 ? '+' : '-').repeat(4);
                 }
-                
-                // Map stats to display names
+                  // Map stats to display names
                 const statDisplay = {
                     'prestigeGain': 'Prestige',
                     'chaosReduction': 'Chaos',
                     'workerEfficiency': 'Workers',
                     'workerLossRate': 'Workers',
                     'ingredientGain': 'Ingredients',
-                    'priceBonus': 'Sale Price'
+                    'priceBonus': 'Sale Price',
+                    'expandUpgrades': 'Upgrade Slots'
                 }[stat] || stat;
 
                 // Get color class
@@ -827,7 +830,8 @@ class Game {
                     'workerEfficiency': 'energy-color',
                     'workerLossRate': 'energy-color',
                     'ingredientGain': 'ingredients-color',
-                    'priceBonus': 'money-color'
+                    'priceBonus': 'money-color',
+                    'expandUpgrades': 'prestige-color'
                 }[stat] || '';
                 
                 // Use displayValue for determining positive/negative class
@@ -1124,8 +1128,7 @@ class Game {
                             <span class="cost-icon">$</span>
                             <span>${CARDS[leftCard].cost}</span>
                          </div>` : ''
-                    }
-                    ${CARDS[leftCard].permanentStats || CARDS[leftCard].priceBonus ? 
+                    }                    ${CARDS[leftCard].permanentStats || CARDS[leftCard].priceBonus || CARDS[leftCard].specialAbility ? 
                         `<div class="card-effects permanent-effects">
                             <div class="effects-label">Passive Effects:</div>
                             ${this.formatPermanentEffects(CARDS[leftCard].permanentStats, CARDS[leftCard])}
@@ -1154,8 +1157,7 @@ class Game {
                             <span class="cost-icon">$</span>
                             <span>${CARDS[rightCard].cost}</span>
                          </div>` : ''
-                    }
-                    ${CARDS[rightCard].permanentStats || CARDS[rightCard].priceBonus ? 
+                    }                    ${CARDS[rightCard].permanentStats || CARDS[rightCard].priceBonus || CARDS[rightCard].specialAbility ? 
                         `<div class="card-effects permanent-effects">
                             <div class="effects-label">Passive Effects:</div>
                             ${this.formatPermanentEffects(CARDS[rightCard].permanentStats, CARDS[rightCard])}
@@ -1253,7 +1255,7 @@ class Game {
             if (existingUpgrades.length >= maxSlots) {
                 // Only show message and play sound if actually clicked
                 if (isClick) {                    gameSounds.playUpgradeBlockedSound();
-                    this.showEffectMessage(`Maximum of ${maxSlots} factory upgrades allowed! ${maxSlots < 3 ? "Install Factory Expansion Blueprint or " : ""}Sell an upgrade first.`, true);
+                    this.showEffectMessage(`Maximum of ${maxSlots} factory upgrades allowed! Sell an upgrade first.`, true);
                 }
                 return false;
             }
@@ -2067,9 +2069,8 @@ class Game {
         upgradeElement.style.width = `${origRect.width}px`;
         upgradeElement.style.height = `${origRect.height}px`;        upgradeElement.innerHTML = `
             <h4>${cardName}</h4>
-            <div class="card-description-small">${card.description}</div>
-            <div class="upgrade-effects">
-                ${card.permanentStats || card.priceBonus ? 
+            <div class="card-description-small">${card.description}</div>            <div class="upgrade-effects">
+                ${card.permanentStats || card.priceBonus || card.specialAbility ? 
                     `<div class="effects-label">Passive Effects:</div>
                     ${this.formatPermanentEffects(card.permanentStats, card)}` : ''
                 }
@@ -3335,20 +3336,17 @@ class Game {
             }
         };
         document.addEventListener('keydown', closeHelpOnEsc);
-    }
-
-    showEmergencyPastaModal() {
+    }    showEmergencyPastaModal() {
         // First check if player has any noodles to sell
         if (this.state.playerStats.noodles <= 0) {
-            this.showEffectMessage("No noodles available to sell! Make some pasta first.");
+            this.showEffectMessage("No noodles available to sell! Make some pasta first.", true);
             gameSounds.playBadCardSound();
             return;
         }
-        
-        // Check if the emergency button is on cooldown
+          // Check if the emergency button is on cooldown
         if (this.emergencySaleCooldown && this.turn - this.emergencySaleCooldown < 3) {
             const turnsLeft = 3 - (this.turn - this.emergencySaleCooldown);
-            this.showEffectMessage(`Emergency sales on cooldown! Available in ${turnsLeft} turn${turnsLeft > 1 ? 's' : ''}.`);
+            this.showEffectMessage(`Emergency sales on cooldown! Available in ${turnsLeft} turn${turnsLeft > 1 ? 's' : ''}.`, true);
             gameSounds.playBadCardSound();
             return;
         }
@@ -3766,10 +3764,9 @@ class Game {
                 // Apply consequences
                 if (options.chaosChange > 0) {
                     this.state.playerStats.chaosLevel = Math.min(100, this.state.playerStats.chaosLevel + options.chaosChange);
-                    outcomeMessage += ` Chaos increased by ${options.chaosChange}!`;
-                }
+                    outcomeMessage += ` Chaos increased by ${options.chaosChange}!`;                }
                 
-                this.showEffectMessage(`${outcomeMessage} Sold ${options.quantity} noodles at $${options.price} each for $${options.total} total.`);
+                this.showEffectMessage(`${outcomeMessage} Sold ${options.quantity} noodles at $${options.price} each for $${options.total} total.`, true);
                 gameSounds.playCardSound();
                 break;
                 
@@ -3788,11 +3785,10 @@ class Game {
                 
                 // Apply worker consequences
                 if (options.workerChange < 0) {
-                    this.state.playerStats.workerCount = Math.max(1, this.state.playerStats.workerCount + options.workerChange);
-                    outcomeMessage += ` ${Math.abs(options.workerChange)} worker${Math.abs(options.workerChange) > 1 ? 's' : ''} quit due to the rushed workload.`;
+                    this.state.playerStats.workerCount = Math.max(1, this.state.playerStats.workerCount + options.workerChange);                    outcomeMessage += ` ${Math.abs(options.workerChange)} worker${Math.abs(options.workerChange) > 1 ? 's' : ''} quit due to the rushed workload.`;
                 }
                 
-                this.showEffectMessage(`${outcomeMessage} Sold ${options.quantity} noodles at $${options.price} each for $${options.total} total. Chaos reduced by ${Math.abs(options.chaosChange)}.`);
+                this.showEffectMessage(`${outcomeMessage} Sold ${options.quantity} noodles at $${options.price} each for $${options.total} total. Chaos reduced by ${Math.abs(options.chaosChange)}.`, true);
                 gameSounds.playUpgradePinSound();
                 break;
                 
@@ -3807,11 +3803,10 @@ class Game {
                 
                 // Apply ingredient consequences
                 if (options.ingredientsChange < 0) {
-                    this.state.playerStats.ingredients = Math.max(0, this.state.playerStats.ingredients + options.ingredientsChange);
-                    outcomeMessage += ` Used ${Math.abs(options.ingredientsChange)} ingredient${Math.abs(options.ingredientsChange) > 1 ? 's' : ''} to meet quality standards.`;
+                    this.state.playerStats.ingredients = Math.max(0, this.state.playerStats.ingredients + options.ingredientsChange);                    outcomeMessage += ` Used ${Math.abs(options.ingredientsChange)} ingredient${Math.abs(options.ingredientsChange) > 1 ? 's' : ''} to meet quality standards.`;
                 }
                 
-                this.showEffectMessage(`${outcomeMessage} Sold ${options.quantity} premium noodles at $${options.price} each for $${options.total} total. Prestige increased by ${options.prestigeChange}!`);
+                this.showEffectMessage(`${outcomeMessage} Sold ${options.quantity} premium noodles at $${options.price} each for $${options.total} total. Prestige increased by ${options.prestigeChange}!`, true);
                 gameSounds.playAchievementSound();
                 break;
         }

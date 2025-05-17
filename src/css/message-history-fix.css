@@ -1,0 +1,29 @@
+/* Emergency message history styling */
+.message-history-item.emergency-feedback {
+    background: rgba(255, 99, 71, 0.1);
+    border-left: 3px solid #ff6347;
+}
+
+.message-history-item.emergency-feedback .message-history-text {
+    color: #ff6347;
+    font-weight: bold;
+}
+
+/* Production and sales message history styling */
+.message-history-item.production {
+    background: rgba(243, 156, 18, 0.1);
+    border-left: 3px solid #f39c12;
+}
+
+.message-history-item.production .message-history-text {
+    color: #f39c12;
+}
+
+.message-history-item.sales {
+    background: rgba(46, 204, 113, 0.1);
+    border-left: 3px solid #2ecc71;
+}
+
+.message-history-item.sales .message-history-text {
+    color: #2ecc71;
+}

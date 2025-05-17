@@ -3447,23 +3447,24 @@ export const CARDS = {
             return "Each worker becomes a master of pasta craft!";
         }
     },
-      // Special upgrade card that allows a third upgrade slot
-    "Factory Expansion Blueprint": {
-        description: "Technical schematics for expanding your factory's upgrade capacity.",
-        type: "upgrade",
-        requirements: { prestige: 45 },
-        cost: 950,
-        specialAbility: "expandUpgrades",
-        statModifiers: {
-            prestige: 8,
-            chaos: 5
-        },
-        effect: (state) => {
-            savePlayedCard("Factory Expansion Blueprint");
-            state.playerStats.maxUpgradeSlots = 3;
-            return "Your factory can now support an additional upgrade installation!";
-        }
-    },
+    //upgrade card that allows a third upgrade slot
+    // cannot make this work and its essentially useless anyways
+    // "Factory Expansion Blueprint": {
+    //     description: "Technical schematics for expanding your factory's upgrade capacity.",
+    //     type: "upgrade",
+    //     requirements: { prestige: 45 },
+    //     cost: 950,
+    //     specialAbility: "expandUpgrades",
+    //     statModifiers: {
+    //         prestige: 8,
+    //         chaos: 5
+    //     },
+    //     effect: (state) => {
+    //         savePlayedCard("Factory Expansion Blueprint");
+    //         state.playerStats.maxUpgradeSlots = 3;
+    //         return "Your factory can now support an additional upgrade installation!";
+    //     }
+    // },
 
     //  more expensive but very powerful
     "Quantum Pasta Stabilizer": {

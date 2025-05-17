@@ -1921,6 +1921,11 @@ message-history-turn {
     border-left: 3px solid #e74c3c;
 }
 
+.message-history-item.emergency-feedback {
+    background: rgba(255, 99, 71, 0.1);
+    border-left: 3px solid #ff6347;
+}
+
 .message-history-time {
     font-size: 0.8em;
     color: #7f8c8d;
