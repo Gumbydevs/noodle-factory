@@ -2,11 +2,15 @@
 const { app, BrowserWindow, Menu, globalShortcut } = require('electron');
 const path = require('path');
 
+// Set application icon globally for Windows
+if (process.platform === 'win32') {
+  app.setAppUserModelId(process.execPath);
+}
+
 // Keep a global reference of the window object to prevent garbage collection
 let mainWindow;
 
-function createWindow() {
-  // Create the browser window
+function createWindow() {  // Create the browser window
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 1000,  
@@ -18,9 +22,16 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       webSecurity: true
     },
-    // Make sure icon path is correct and absolute
-    icon: path.join(__dirname, 'public/icons/NoodleFactoryLogo.ico')
+    // Make sure icon path is correct and absolute with platform-specific handling
+    icon: path.join(__dirname, process.platform === 'win32' ? 'public/icons/NoodleFactoryLogo.ico' : 'src/assets/images/NoodleFactoryLogo.png'),
+    // Title bar icon and name
+    title: "The Noodle Factory"
   });
+  
+  // Force icon refresh in Windows
+  if (process.platform === 'win32') {
+    mainWindow.setIcon(path.join(__dirname, 'public/icons/NoodleFactoryLogo.ico'));
+  }
 
   // Remove the menu bar completely
   Menu.setApplicationMenu(null);

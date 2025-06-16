@@ -11,7 +11,7 @@ files:
   - "!**/node_modules/.bin"
 asar: true
 win:
-  icon: "./build/icon.ico"
+  icon: "./public/icons/NoodleFactoryLogo.ico"
   target: 
     - "nsis"
   executableName: "The Noodle Factory"
@@ -29,6 +29,7 @@ nsis:
 mac:
   target: dmg
   icon: src/assets/images/NoodleFactoryLogo.png
+  electronUpdaterCompatibility: ">= 2.16"
 linux:
   target: AppImage
   icon: src/assets/images/NoodleFactoryLogo.png
