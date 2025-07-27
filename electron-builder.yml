@@ -11,7 +11,7 @@ files:
   - "!**/node_modules/.bin"
 asar: true
 win:
-  icon: "./public/icons/NoodleFactoryLogo.ico"
+  icon: "build/icon.ico"
   target: 
     - "nsis"
   executableName: "The Noodle Factory"
@@ -23,9 +23,9 @@ nsis:
   createDesktopShortcut: true
   createStartMenuShortcut: true
   shortcutName: "The Noodle Factory"
-  installerIcon: "./public/icons/NoodleFactoryLogo.ico"
-  uninstallerIcon: "./public/icons/NoodleFactoryLogo.ico"
-  installerHeaderIcon: "./public/icons/NoodleFactoryLogo.ico"
+  installerIcon: "build/icon.ico"
+  uninstallerIcon: "build/icon.ico"
+  installerHeaderIcon: "build/icon.ico"
 mac:
   target: dmg
   icon: src/assets/images/NoodleFactoryLogo.png

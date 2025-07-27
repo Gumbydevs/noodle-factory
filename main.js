@@ -2,9 +2,9 @@
 const { app, BrowserWindow, Menu, globalShortcut } = require('electron');
 const path = require('path');
 
-// Set application icon globally for Windows
+// Important: The appUserModelId must match the value in electron-builder.yml
 if (process.platform === 'win32') {
-  app.setAppUserModelId(process.execPath);
+  app.setAppUserModelId('com.noodlefactory.game');
 }
 
 // Keep a global reference of the window object to prevent garbage collection
@@ -15,23 +15,16 @@ function createWindow() {  // Create the browser window
     width: 1200,
     height: 1000,  
     minWidth: 900,
-    minHeight: 900,
-    webPreferences: {
+    minHeight: 900,    webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
       webSecurity: true
     },
-    // Make sure icon path is correct and absolute with platform-specific handling
-    icon: path.join(__dirname, process.platform === 'win32' ? 'public/icons/NoodleFactoryLogo.ico' : 'src/assets/images/NoodleFactoryLogo.png'),
-    // Title bar icon and name
+    // Set window icon and title
+    icon: path.join(__dirname, 'public', 'icons', 'NoodleFactoryLogo.ico'),
     title: "The Noodle Factory"
   });
-  
-  // Force icon refresh in Windows
-  if (process.platform === 'win32') {
-    mainWindow.setIcon(path.join(__dirname, 'public/icons/NoodleFactoryLogo.ico'));
-  }
 
   // Remove the menu bar completely
   Menu.setApplicationMenu(null);
